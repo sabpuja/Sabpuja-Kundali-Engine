@@ -17,6 +17,33 @@ from .rules import nakshatra, normalize, sign, navamsa_sign, whole_sign_house
 _SWISS_LOCK = RLock()
 
 
+class ChartComputationError(RuntimeError):
+    """Swiss Ephemeris could not compute part of the chart for valid input.
+
+    Distinct from invalid input (ValueError). Messages never contain birth data.
+    """
+
+    def __init__(self, code: str, detail: str):
+        super().__init__(f"{code}: {detail}")
+        self.code = code
+
+
+def _coordinate(value: object, name: str, limit: float, inclusive: bool) -> float:
+    # bool is an int subclass; exact type check keeps rejecting it.
+    if type(value) not in (int, float):
+        raise ValueError(f"{name} must be a number")
+    try:
+        number = float(value)
+    except OverflowError:
+        raise ValueError(f"{name} must be a finite number") from None
+    if not math.isfinite(number):
+        raise ValueError(f"{name} must be a finite number")
+    if not (-limit <= number <= limit if inclusive else -limit < number < limit):
+        bounds = "inclusive" if inclusive else "exclusive"
+        raise ValueError(f"{name} must be between -{limit:g} and {limit:g} ({bounds})")
+    return number
+
+
 def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
     try:
         local = datetime.fromisoformat(birth_datetime)
@@ -50,12 +77,9 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
         raise ValueError("Required keys: birth_datetime, timezone, latitude, longitude (no others)")
     if not isinstance(request["birth_datetime"], str) or not isinstance(request["timezone"], str):
         raise ValueError("birth_datetime and timezone must be strings")
-    if type(request["latitude"]) not in (int, float) or type(request["longitude"]) not in (int, float):
-        raise ValueError("latitude and longitude must be numbers")
-    lat = float(request["latitude"])
-    lon = float(request["longitude"])
-    if not math.isfinite(lat) or not math.isfinite(lon) or not (-89.0 < lat < 89.0) or not (-180 <= lon <= 180):
-        raise ValueError("Invalid or unsupported latitude/longitude")
+    # Accepted range is unchanged pending the owner's high-latitude decision (SCI-01).
+    lat = _coordinate(request["latitude"], "latitude", 89.0, inclusive=False)
+    lon = _coordinate(request["longitude"], "longitude", 180.0, inclusive=True)
     utc = _parse_birth(request["birth_datetime"], request["timezone"])
     # Every required manifest file must match its pinned SHA-256 before Swiss runs.
     folder = verify_ephemeris_dir(ephe_path or os.environ.get("SABPUJA_EPHE_PATH", ""))
@@ -88,7 +112,16 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
                 "navamsa_rashi": navamsa_sign(deg),
             }
         # Geographic ascendant in explicit Lahiri sidereal mode.
-        cusps, ascmc = swe.houses_ex(julian_day, lat, lon, b"P", swe.FLG_SIDEREAL)
+        # Placidus is undefined beyond the polar circles; Swiss then raises
+        # swisseph.Error. Refuse the chart rather than substitute another method.
+        try:
+            cusps, ascmc = swe.houses_ex(julian_day, lat, lon, b"P", swe.FLG_SIDEREAL)
+        except swe.Error:
+            raise ChartComputationError(
+                "ASCENDANT_UNCOMPUTABLE",
+                "Swiss Ephemeris could not compute the ascendant for this location and time "
+                "with the current method (expected beyond the polar circles); no chart produced"
+            ) from None
         lagna = normalize(float(ascmc[0]))
         rahu = float(planets["rahu_mean"]["longitude_deg"])
         ketu = normalize(rahu + 180.0)
