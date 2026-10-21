@@ -52,6 +52,17 @@ class DecisionAndToleranceGates(unittest.TestCase):
             self.assertEqual(gates.tolerance_reasons({"q": "T"}, {"T": bad}), ["TOLERANCE_RECORD_INCOMPLETE: T"])
         self.assertEqual(gates.tolerance_reasons({"q": "X"}, {}), ["TOLERANCE_UNKNOWN: X"])
 
+    def test_non_finite_or_invalid_frozen_values_block(self):
+        # WP1-01: NaN would make every comparison False and so pass anything.
+        ok = {"status": "FROZEN", "qa_ref": "QA"}
+        for bad in (float("nan"), float("inf"), -float("inf"), float("1e400"), -0.1, -1, True, False,
+                    10 ** 400, "0.5", None):
+            with self.subTest(value=bad):
+                self.assertEqual(gates.tolerance_reasons({"q": "T"}, {"T": {**ok, "frozen_arcsec": bad}}),
+                                 ["TOLERANCE_RECORD_INCOMPLETE: T"])
+        for good in (0, 0.0, 0.5, 2):
+            self.assertEqual(gates.tolerance_reasons({"q": "T"}, {"T": {**ok, "frozen_arcsec": good}}), [])
+
     def test_committed_registry_has_nothing_obtained(self):
         refs = load_json(GOLDEN_DIR / "config" / "reference-registry.json")["references"]
         self.assertFalse([r for r in refs.values() if r["obtained"]])
@@ -208,6 +219,27 @@ class Compare(unittest.TestCase):
         checks = compare.compare_fixture(self.fixture, mock_output(self.expected, UTC), TOL, "FUTURE_DELTA_T: x")
         longitudes = [c for c in checks if c["quantity"] != "utc"]
         self.assertEqual({c["outcome"] for c in longitudes}, {"QUALIFIED"})
+
+    def test_invalid_tolerance_fails_closed_in_compare(self):
+        out = mock_output(self.expected, UTC, {"moon": 100.0})  # 100 arcsec wrong, same categories
+        for bad in (float("nan"), float("inf"), -float("inf"), -0.5, True, 10 ** 400):
+            for quantity in ("planet_longitude", "lagna_longitude"):
+                with self.subTest(value=bad, quantity=quantity):
+                    checks = compare.compare_fixture(self.fixture, out, {**TOL, quantity: bad})
+                    # A bad Lagna tolerance blocks every longitude (house edges use it); a bad planet
+                    # tolerance blocks the planets. Nothing judged with it can PASS.
+                    affected = [c for c in checks if c["quantity"] == quantity or quantity == "lagna_longitude"
+                                and c["quantity"] != "utc"]
+                    self.assertEqual({c["outcome"] for c in affected}, {"BLOCKED"})
+                    moon = next(c for c in checks if c["body"] == "moon")
+                    self.assertEqual((moon["outcome"], moon["reason"]), ("BLOCKED", "TOLERANCE_INVALID"))
+        moon = next(c for c in compare.compare_fixture(self.fixture, out, TOL) if c["body"] == "moon")
+        self.assertEqual(moon["outcome"], "FAIL")
+
+    def test_zero_tolerance_is_exact(self):
+        out = mock_output(self.expected, UTC)
+        checks = compare.compare_fixture(self.fixture, out, {k: 0 for k in TOL})
+        self.assertEqual({c["outcome"] for c in checks}, {"PASS"})
 
     def test_missing_tolerance_blocks(self):
         checks = compare.compare_fixture(self.fixture, mock_output(self.expected, UTC), {"utc": 0.0})

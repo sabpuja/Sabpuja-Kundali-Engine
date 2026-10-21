@@ -34,7 +34,9 @@ Exit code: **0** PASS, **1** FAIL, **2** BLOCKED or QUALIFIED. There is no "skip
 The engine is called only when **no** gate blocks. Gates, in order:
 
 - **Run level:** clean git tree; verified ephemeris (the engine's own `verify_ephemeris_dir`, unchanged); known tzdata and Swiss versions; method manifest present, REVIEWED and with every pinned blob SHA equal to the working tree; generator passes the independence scan; configs readable; time-scale track VERIFIED; fixture index complete.
-- **Fixture level:** schema and index hash/revision; not dummy; reference verified; each reference known, of class I-code/I-data/I-pub, obtained, with raw bytes present inside the fixture directory and matching SHA-256; epoch inside each reference's coverage; every required SCI decision APPROVED with approver, date and DECISIONS.md commit; every tolerance FROZEN with a value and QA reference; fixture tzdata equal to the tzdata in use.
+- **Fixture level:** index entry is a plain fixture file name (`DUMMY-NN.json`, `GC-NN.json`, `TR-NN.json`, `TZ-NN[a-z].json`), not a symlink, inside the fixture directory, and equal to `fixture_id` (otherwise BLOCKED without reading it); schema and index hash/revision; not dummy; `accuracy_claim` true; reference verified; each reference known, with the fixture's `source_class` equal to the registry's, of class I-code/I-data/I-pub, obtained, with raw bytes present inside the fixture directory and matching SHA-256; epoch inside each reference's coverage; every required SCI decision APPROVED with approver, date and DECISIONS.md commit; every tolerance FROZEN with a finite, non-negative number and a QA reference; fixture tzdata equal to the tzdata in use.
+
+All JSON (fixtures, index, configs, manifest) is parsed strictly: `NaN`, `Infinity` and numbers that overflow to infinity are rejected, and oversized integers are schema errors, so they block instead of raising. The comparison itself also refuses a non-finite or negative tolerance.
 
 Reports contain versions, hashes, reason codes and comparison numbers only: no fixture birth inputs, no paths, host or user names, and engine errors as codes only.
 

@@ -16,6 +16,7 @@ import sys
 FORBIDDEN_ROOTS = ("sabpuja_kundali", "swisseph")
 FORBIDDEN_PATH_MARKERS = ("reports", "golden-report")
 INDEPENDENT_CLASSES = ("I-code", "I-data", "I-pub")
+KNOWN_CLASSES = (*INDEPENDENT_CLASSES, "D", "M")
 _IMPORT_CALLS = {"__import__", "import_module", "find_spec", "run_module", "run_path", "load_module"}
 _DYNAMIC_CALLS = {"exec", "eval", "compile"}
 _FILE_CALLS = {"open", "Path", "PurePath", "read_text", "read_bytes", "load", "loads", "loadtxt", "glob"}
@@ -59,7 +60,7 @@ def scan_source(text: str, filename: str = "<source>") -> list[str]:
             elif name in _DYNAMIC_CALLS:
                 found.append(f"{filename}:{line}: {name} is not allowed in the generator")
             elif name in _FILE_CALLS:
-                found += [f"{filename}:{line}: reads engine output path {v!r}" for v in literals
+                found += [f"{filename}:{line}: {name} reads an engine output path" for v in literals
                           if any(m in v for m in FORBIDDEN_PATH_MARKERS)]
     return found
 
@@ -110,9 +111,16 @@ def check_reference_classes(references: list[dict], registry: dict) -> list[str]
     reasons = []
     for ref in references:
         source_id = ref.get("source_id")
+        claimed = ref.get("source_class")
         entry = registry.get(source_id)
+        if claimed not in KNOWN_CLASSES:
+            reasons.append(f"REFERENCE_CLASS_UNKNOWN: {source_id} fixture class not recognised")
         if entry is None:
             reasons.append(f"REFERENCE_UNKNOWN: {source_id}")
+        elif entry.get("class") not in KNOWN_CLASSES:
+            reasons.append(f"REFERENCE_CLASS_UNKNOWN: {source_id} registry class not recognised")
+        elif claimed in KNOWN_CLASSES and claimed != entry.get("class"):
+            reasons.append(f"REFERENCE_CLASS_MISMATCH: {source_id} fixture says {claimed}, registry says {entry.get('class')}")
         elif entry.get("class") not in INDEPENDENT_CLASSES:
             reasons.append(f"REFERENCE_CLASS_NOT_INDEPENDENT: {source_id} is class {entry.get('class')}")
         elif entry.get("obtained") is not True:

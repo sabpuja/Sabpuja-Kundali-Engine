@@ -193,7 +193,7 @@ class ApprovedWorld(unittest.TestCase):
             pending: "SCI_DECISION_PENDING: SCI-01b",
             unfrozen: "TOLERANCE_NOT_FROZEN: T-SID",
             not_obtained: "REFERENCE_NOT_OBTAINED: TEST-REF",
-            class_d: "REFERENCE_CLASS_NOT_INDEPENDENT: TEST-REF is class D",
+            class_d: "REFERENCE_CLASS_MISMATCH: TEST-REF fixture says I-code, registry says D",
             leaky_generator: "GENERATOR_NOT_ISOLATED: leak.py:1: imports from sabpuja_kundali",
             time_track: "TIME_TRACK_NOT_VERIFIED",
             broken_config: "CONFIG_INVALID: tolerances.json",
@@ -210,6 +210,93 @@ class ApprovedWorld(unittest.TestCase):
                 self.assertIn(reason, reasons)
                 self.assertEqual((data["verdict"], data["exit_code"]), ("BLOCKED", 2))
                 self.assertFalse(data["fixtures"][0]["engine_called"])
+
+    def run_blocked(self, fixtures, name, **world):
+        """Run a world with the engine refused; return the report data."""
+        golden, fixtures_dir = build_world(self.tmp / name, fixtures, **world)
+        return golden, fixtures_dir, run_golden(fixtures_dir, None, golden_dir=golden, repo_root=REPO_ROOT,
+                                                engine_fn=refuse_engine, env=clean_env(), clock=fixed_clock)
+
+    def assert_blocked_before_engine(self, data, reason):
+        reasons = data["run_reasons"] + [r for f in data["fixtures"] for r in f["reasons"]]
+        self.assertIn(reason, reasons)
+        self.assertEqual((data["verdict"], data["exit_code"]), ("BLOCKED", 2))
+        self.assertFalse(any(f["engine_called"] for f in data["fixtures"]))
+
+    def test_invalid_frozen_tolerances_block_before_the_engine(self):
+        # WP1-01. NaN/Infinity reach the config file as JSON constants and are rejected at parse.
+        for value, reason in ((float("nan"), "CONFIG_INVALID: tolerances.json"),
+                              (float("inf"), "CONFIG_INVALID: tolerances.json"),
+                              (-float("inf"), "CONFIG_INVALID: tolerances.json"),
+                              (-1.0, "TOLERANCE_RECORD_INCOMPLETE: T-SID"),
+                              (True, "TOLERANCE_RECORD_INCOMPLETE: T-SID"),
+                              (10 ** 400, "TOLERANCE_RECORD_INCOMPLETE: T-SID")):
+            with self.subTest(value=value):
+                _, _, data = self.run_blocked(self.fixtures_("GC-99"), f"tol-{value!r}"[:20], frozen_arcsec=value)
+                self.assert_blocked_before_engine(data, reason)
+        golden, fixtures_dir = build_world(self.tmp / "tol-1e400", self.fixtures_("GC-99"))
+        path = golden / "config" / "tolerances.json"
+        path.write_text(path.read_text(encoding="utf-8").replace("0.5", "1e400"), encoding="utf-8")
+        data = run_golden(fixtures_dir, None, golden_dir=golden, repo_root=REPO_ROOT,
+                          engine_fn=refuse_engine, env=clean_env(), clock=fixed_clock)
+        self.assert_blocked_before_engine(data, "CONFIG_INVALID: tolerances.json")
+
+    def test_zero_tolerance_is_accepted(self):
+        fixtures = self.fixtures_("GC-99")
+        data = self.run_world(fixtures, self.mocked(fixtures), frozen_arcsec=0)
+        self.assertEqual(data["verdict"], "PASS")
+
+    def test_accuracy_claim_false_blocks_before_the_engine(self):
+        # WP1-03: a non-dummy, verified-looking fixture that does not claim accuracy can never PASS.
+        fixtures = self.fixtures_("GC-99")
+        fixtures[0]["accuracy_claim"] = False
+        _, _, data = self.run_blocked(fixtures, "claim")
+        self.assert_blocked_before_engine(
+            data, "ACCURACY_CLAIM_ABSENT: fixture does not claim to be an accuracy reference")
+
+    def test_fixture_and_registry_class_must_agree(self):
+        # WP1-04, both directions, then both D.
+        fixtures = self.fixtures_("GC-99")
+        fixtures[0]["references"][0]["source_class"] = "D"
+        _, _, data = self.run_blocked(fixtures, "class-fixture-d")
+        self.assert_blocked_before_engine(data, "REFERENCE_CLASS_MISMATCH: TEST-REF fixture says D, registry says I-code")
+        golden, fixtures_dir, _ = self.run_blocked(self.fixtures_("GC-99"), "class-registry-d")
+        registry = load_json(golden / "config" / "reference-registry.json")
+        registry["references"]["TEST-REF"]["class"] = "M"
+        write_json(golden / "config" / "reference-registry.json", registry)
+        data = run_golden(fixtures_dir, None, golden_dir=golden, repo_root=REPO_ROOT,
+                          engine_fn=refuse_engine, env=clean_env(), clock=fixed_clock)
+        self.assert_blocked_before_engine(data, "REFERENCE_CLASS_MISMATCH: TEST-REF fixture says I-code, registry says M")
+        fixtures = self.fixtures_("GC-99")
+        fixtures[0]["references"][0]["source_class"] = "D"
+        golden, fixtures_dir = build_world(self.tmp / "class-both-d", fixtures)
+        registry = load_json(golden / "config" / "reference-registry.json")
+        registry["references"]["TEST-REF"]["class"] = "D"
+        write_json(golden / "config" / "reference-registry.json", registry)
+        data = run_golden(fixtures_dir, None, golden_dir=golden, repo_root=REPO_ROOT,
+                          engine_fn=refuse_engine, env=clean_env(), clock=fixed_clock)
+        self.assert_blocked_before_engine(data, "REFERENCE_CLASS_NOT_INDEPENDENT: TEST-REF is class D")
+
+    def test_index_traversal_blocks_before_the_engine(self):
+        # WP1-02 end to end: one escaping entry blocks its record and never reads the target.
+        golden, fixtures_dir = build_world(self.tmp / "traversal", self.fixtures_("GC-99"))
+        (self.tmp / "traversal" / "GC-98.json").write_text("{}", encoding="utf-8")
+        index = load_json(fixtures_dir / "INDEX.json")
+        index["fixtures"]["../GC-98.json"] = {"revision": 1, "sha256": "0" * 64}
+        write_json(fixtures_dir / "INDEX.json", index)
+        data = run_golden(fixtures_dir, None, golden_dir=golden, repo_root=REPO_ROOT,
+                          engine_fn=refuse_engine, env=clean_env(), clock=fixed_clock)
+        bad = [f for f in data["fixtures"] if f["file"].startswith("INDEX entry")]
+        self.assertEqual(bad[0]["reasons"], ["FIXTURE_PATH_INVALID: not a fixture file name"])
+        self.assertEqual(bad[0]["outcome"], "BLOCKED")
+        self.assertNotIn("../GC-98.json", to_json(data))
+        self.assertEqual((data["verdict"], data["exit_code"]), ("BLOCKED", 2))
+
+    def test_malformed_fixture_numbers_block_before_the_engine(self):
+        fixtures = self.fixtures_("GC-99")
+        fixtures[0]["input"]["latitude"] = 10 ** 400
+        _, _, data = self.run_blocked(fixtures, "huge")
+        self.assert_blocked_before_engine(data, "SCHEMA_INVALID: input: latitude and longitude must be finite numbers")
 
     def test_fake_or_unknown_reference_blocks(self):
         fixture = world_fixture("GC-99")

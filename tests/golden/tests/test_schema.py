@@ -1,12 +1,13 @@
 """Strict fixture schema, dummy labelling and fixture-set index integrity."""
 from pathlib import Path
 import copy
+import hashlib
 import json
 import shutil
 import tempfile
 import unittest
 
-from ..harness.schema import load_fixture_set, validate_fixture
+from ..harness.schema import is_finite_number, load_fixture_set, strict_loads, validate_fixture
 from .helpers import DUMMY_DIR, dummy_fixture, load_json, write_json
 
 
@@ -102,7 +103,7 @@ class FixtureIndex(unittest.TestCase):
         records, per_file, set_errors = load_fixture_set(self.dir)
         self.assertEqual(set_errors, ["DUMMY-09.json: present on disk but not in INDEX.json"])
         self.assertEqual(per_file["DUMMY-03.json"], ["FIXTURE_FILE_MISSING"])
-        self.assertIn("FIXTURE_NOT_JSON", per_file["DUMMY-04.json"])
+        self.assertTrue(per_file["DUMMY-04.json"][-1].startswith("FIXTURE_NOT_JSON"))
 
     def test_schema_errors_are_reported_per_file(self):
         fixture = load_json(self.dir / "DUMMY-01.json")
@@ -122,3 +123,126 @@ class FixtureIndex(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class IndexPathSafety(unittest.TestCase):
+    """WP1-02: INDEX.json keys can never reach a file outside the fixture directory."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.dir = self.tmp / "fx"
+        shutil.copytree(DUMMY_DIR, self.dir)
+        self.outside = self.tmp / "outside.json"
+        self.outside.write_text(json.dumps(dummy_fixture()), encoding="utf-8")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def add_entry(self, key):
+        index = load_json(self.dir / "INDEX.json")
+        index["fixtures"][key] = {"revision": 1, "sha256": "0" * 64}
+        write_json(self.dir / "INDEX.json", index)
+
+    def load_recording_reads(self):
+        from unittest import mock
+        reads = []
+        real_text, real_bytes = Path.read_text, Path.read_bytes
+
+        def text(path, *a, **k):
+            reads.append(path.resolve())
+            return real_text(path, *a, **k)
+
+        def data(path, *a, **k):
+            reads.append(path.resolve())
+            return real_bytes(path, *a, **k)
+        with mock.patch.object(Path, "read_text", text), mock.patch.object(Path, "read_bytes", data):
+            result = load_fixture_set(self.dir)
+        return result, reads
+
+    def test_traversal_and_absolute_keys_are_rejected_unread(self):
+        for key in ("../outside.json", str(self.outside), "sub/DUMMY-05.json", "DUMMY-05.JSON", "x.json", ""):
+            with self.subTest(key=key):
+                shutil.copyfile(DUMMY_DIR / "INDEX.json", self.dir / "INDEX.json")
+                self.add_entry(key)
+                (records, per_file, _), reads = self.load_recording_reads()
+                self.assertNotIn(self.outside.resolve(), reads)
+                invalid = [f for f, errors in per_file.items()
+                           if errors == ["FIXTURE_PATH_INVALID: not a fixture file name"]]
+                self.assertEqual(len(invalid), 1)
+                self.assertTrue(invalid[0].startswith("INDEX entry "))
+                self.assertNotIn(key or "\0", json.dumps(per_file))
+                self.assertEqual(len(records), 5)
+
+    def test_symlink_escape_is_rejected_unread(self):
+        (self.dir / "DUMMY-05.json").symlink_to(self.outside)
+        self.add_entry("DUMMY-05.json")
+        (_, per_file, _), reads = self.load_recording_reads()
+        self.assertEqual(per_file["DUMMY-05.json"], ["FIXTURE_PATH_INVALID: symlink or outside the fixture directory"])
+        self.assertNotIn(self.outside.resolve(), reads)
+
+    def test_valid_indexed_file_still_loads(self):
+        (_, per_file, set_errors), _ = self.load_recording_reads()
+        self.assertEqual(set_errors, [])
+        self.assertEqual(per_file["DUMMY-01.json"], [])
+
+    def test_unindexed_odd_name_is_not_echoed(self):
+        (self.dir / "secret-name.json").write_text("{}", encoding="utf-8")
+        _, _, set_errors = load_fixture_set(self.dir)
+        self.assertEqual(set_errors, ["a file with a non-fixture name: present on disk but not in INDEX.json"])
+
+    def test_file_name_must_match_fixture_id(self):
+        shutil.copyfile(self.dir / "DUMMY-01.json", self.dir / "DUMMY-05.json")
+        index = load_json(self.dir / "INDEX.json")
+        index["fixtures"]["DUMMY-05.json"] = dict(index["fixtures"]["DUMMY-01.json"])
+        write_json(self.dir / "INDEX.json", index)
+        _, per_file, _ = load_fixture_set(self.dir)
+        self.assertEqual(per_file["DUMMY-05.json"], ["FIXTURE_ID_MISMATCH: file name differs from fixture_id"])
+
+
+class StrictNumbers(unittest.TestCase):
+    """Hardening: special or out-of-range JSON numbers are BLOCKED, never a traceback."""
+
+    def test_strict_loads_rejects_special_constants_and_overflow(self):
+        for text in ('{"a": NaN}', '{"a": Infinity}', '{"a": -Infinity}', '{"a": 1e400}', '{"a": -1e400}'):
+            with self.subTest(text=text):
+                with self.assertRaises(ValueError):
+                    strict_loads(text)
+        self.assertEqual(strict_loads('{"a": 0, "b": 1.5e3}'), {"a": 0, "b": 1500.0})
+
+    def test_is_finite_number(self):
+        for value in (0, 0.0, 1, 2.5, -3):
+            self.assertTrue(is_finite_number(value), value)
+        for value in (True, False, None, "1", float("nan"), float("inf"), -float("inf"), 10 ** 400):
+            self.assertFalse(is_finite_number(value), value)
+
+    def test_special_numbers_in_a_fixture_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fx = Path(tmp) / "fx"
+            shutil.copytree(DUMMY_DIR, fx)
+            index = load_json(fx / "INDEX.json")
+            original = (fx / "DUMMY-01.json").read_text(encoding="utf-8")
+            for literal in ("NaN", "Infinity", "-Infinity", "1e400", "1" + "0" * 400):
+                with self.subTest(literal=literal):
+                    text = original.replace('"latitude": 11.111', f'"latitude": {literal}')
+                    (fx / "DUMMY-01.json").write_text(text, encoding="utf-8")
+                    index["fixtures"]["DUMMY-01.json"]["sha256"] = hashlib.sha256(text.encode()).hexdigest()
+                    write_json(fx / "INDEX.json", index)
+                    _, per_file, _ = load_fixture_set(fx)
+                    expected = ("SCHEMA_INVALID: input: latitude and longitude must be finite numbers"
+                                if literal.startswith("1000") else
+                                "FIXTURE_NOT_JSON: invalid JSON, NaN/Infinity or out-of-range number")
+                    self.assertEqual(per_file["DUMMY-01.json"], [expected])  # fixed text; the value is never echoed
+
+    def test_huge_integer_values_are_schema_errors(self):
+        fixture = dummy_fixture()
+        fixture["input"]["latitude"] = 10 ** 400
+        fixture["expected"]["sidereal_longitude_deg"]["sun"] = 10 ** 400
+        errors = validate_fixture(fixture)
+        self.assertIn("input: latitude and longitude must be finite numbers", errors)
+        self.assertIn("expected.sidereal_longitude_deg.sun: must be null or in [0, 360)", errors)
+
+    def test_non_dummy_reference_class_must_be_known(self):
+        fixture = dummy_fixture()
+        fixture.update(fixture_id="GC-99", dummy=False)
+        self.assertIn("references[0].source_class: must be one of ['I-code', 'I-data', 'I-pub', 'D', 'M']",
+                      validate_fixture(fixture))

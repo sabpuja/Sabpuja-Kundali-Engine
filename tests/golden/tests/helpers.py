@@ -52,7 +52,7 @@ def dummy_fixture(name: str = "DUMMY-01.json") -> dict:
 def world_fixture(fixture_id: str = "GC-99", **expected) -> dict:
     """A non-dummy synthetic fixture with invented values, for temporary worlds only."""
     fixture = copy.deepcopy(dummy_fixture())
-    fixture.update(fixture_id=fixture_id, dummy=False, reference_verified=True,
+    fixture.update(fixture_id=fixture_id, dummy=False, reference_verified=True, accuracy_claim=True,
                    purpose="TEST-ONLY invented values in a temporary directory")
     fixture["references"] = [{"source_id": "TEST-REF", "source_class": "I-code",
                               "raw_output_path": "raw/test-ref.txt", "raw_output_sha256": "",

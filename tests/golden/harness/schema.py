@@ -18,6 +18,8 @@ METHOD_KEYS = ("ayanamsa_mode", "ayanamsa_kind", "sidereal_bits", "positions", "
                "ketu", "ascendant_vehicle", "houses", "time_scale")
 _ID = re.compile(r"^(DUMMY-\d{2}|GC-\d{2}|TR-\d{2}|TZ-\d{2}[a-z]?)$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
+_FILE_NAME = re.compile(r"^(DUMMY-\d{2}|GC-\d{2}|TR-\d{2}|TZ-\d{2}[a-z]?)\.json$")
+REFERENCE_CLASSES = ("I-code", "I-data", "I-pub", "D", "M")
 _TOP = {"fixture_id", "fixture_revision", "purpose", "synthetic", "dummy", "reference_verified",
         "accuracy_claim", "input", "derived_time", "method_signature", "references", "expected",
         "tolerance_ids", "approved_decisions_required", "limitations"}
@@ -31,6 +33,32 @@ INDEX_NAME = "INDEX.json"
 
 def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _reject_constant(name: str):
+    raise ValueError("NaN and Infinity are not allowed")
+
+
+def _finite_float(text: str) -> float:
+    value = float(text)
+    if not math.isfinite(value):
+        raise ValueError("number out of range")  # e.g. 1e400 would become inf
+    return value
+
+
+def strict_loads(text: str):
+    """json.loads that rejects NaN, Infinity and floats that overflow to inf."""
+    return json.loads(text, parse_constant=_reject_constant, parse_float=_finite_float)
+
+
+def is_finite_number(value) -> bool:
+    """int or float (never bool) with a finite float value; huge ints are not finite here."""
+    if type(value) not in (int, float):
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
 
 
 def _keys(obj, allowed: set, where: str, errors: list[str]) -> bool:
@@ -47,7 +75,7 @@ def _keys(obj, allowed: set, where: str, errors: list[str]) -> bool:
 def _is(value, kind) -> bool:
     """Exact numeric type check; bool is never a number here."""
     if kind is float:
-        return type(value) in (int, float) and math.isfinite(value)
+        return is_finite_number(value)
     return type(value) is kind
 
 
@@ -111,6 +139,8 @@ def validate_fixture(fixture) -> list[str]:
             for key in ("source_id", "source_class", "raw_output_path"):
                 if not isinstance(ref[key], str) or not ref[key]:
                     errors.append(f"{where}.{key}: must be a non-empty string")
+            if ref["source_class"] not in REFERENCE_CLASSES and fixture["dummy"] is not True:
+                errors.append(f"{where}.source_class: must be one of {list(REFERENCE_CLASSES)}")
             if not isinstance(ref["raw_output_sha256"], str) or not _SHA256.match(ref["raw_output_sha256"]):
                 errors.append(f"{where}.raw_output_sha256: must be 64 lowercase hex characters")
             cov = ref["coverage_utc"]
@@ -151,21 +181,32 @@ def load_fixture_set(directory: Path) -> tuple[list[dict], dict[str, list[str]],
     if not index_path.is_file():
         return records, per_file, [f"{INDEX_NAME} missing in fixture directory"]
     try:
-        index = json.loads(index_path.read_text(encoding="utf-8"))
+        index = strict_loads(index_path.read_text(encoding="utf-8"))
         entries = index["fixtures"]
         if not isinstance(entries, dict):
             raise TypeError
     except (ValueError, KeyError, TypeError):
         return records, per_file, [f"{INDEX_NAME} is not a valid fixture index"]
+    root = directory.resolve()
     on_disk = sorted(p.name for p in directory.glob("*.json") if p.name != INDEX_NAME)
     for name in sorted(set(on_disk) - set(entries)):
-        set_errors.append(f"{name}: present on disk but not in {INDEX_NAME}")
-    for name in sorted(entries):
+        shown = name if _FILE_NAME.match(name) else "a file with a non-fixture name"
+        set_errors.append(f"{shown}: present on disk but not in {INDEX_NAME}")
+    for position, name in enumerate(sorted(entries)):
+        entry = entries[name]
+        if not _FILE_NAME.match(name):
+            # Never touch the named path, and never echo the raw key.
+            label = f"INDEX entry {position + 1}"
+            per_file[label] = ["FIXTURE_PATH_INVALID: not a fixture file name"]
+            records.append({"file": label, "sha256": None, "fixture": None})
+            continue
         errors = per_file.setdefault(name, [])
         path = directory / name
-        entry = entries[name]
         record = {"file": name, "sha256": None, "fixture": None}
         records.append(record)
+        if path.is_symlink() or (path.exists() and path.resolve().parent != root):
+            errors.append("FIXTURE_PATH_INVALID: symlink or outside the fixture directory")
+            continue
         if not path.is_file():
             errors.append("FIXTURE_FILE_MISSING")
             continue
@@ -173,13 +214,15 @@ def load_fixture_set(directory: Path) -> tuple[list[dict], dict[str, list[str]],
         if not isinstance(entry, dict) or record["sha256"] != entry.get("sha256"):
             errors.append("FIXTURE_HASH_MISMATCH")
         try:
-            fixture = json.loads(path.read_text(encoding="utf-8"))
+            fixture = strict_loads(path.read_text(encoding="utf-8"))
         except ValueError:
-            errors.append("FIXTURE_NOT_JSON")
+            errors.append("FIXTURE_NOT_JSON: invalid JSON, NaN/Infinity or out-of-range number")
             continue
         record["fixture"] = fixture
         schema_errors = validate_fixture(fixture)
         errors.extend(f"SCHEMA_INVALID: {e}" for e in schema_errors)
         if not schema_errors and isinstance(entry, dict) and entry.get("revision") != fixture["fixture_revision"]:
             errors.append("FIXTURE_REVISION_MISMATCH")
+        if not schema_errors and f"{fixture['fixture_id']}.json" != name:
+            errors.append("FIXTURE_ID_MISMATCH: file name differs from fixture_id")
     return records, per_file, set_errors

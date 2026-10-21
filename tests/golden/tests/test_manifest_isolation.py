@@ -98,8 +98,8 @@ class GeneratorIsolation(unittest.TestCase):
             "import importlib\nimportlib.import_module('sabpuja_kundali.engine')": "import_module(",
             "import importlib\nname = 'x'\nimportlib.import_module(name)": "dynamic import_module",
             "exec('import swisseph')": "exec is not allowed",
-            "open('reports/golden-report-x.json')": "reads engine output path",
-            "from pathlib import Path\nPath('reports/x.md').read_text()": "reads engine output path",
+            "open('reports/golden-report-x.json')": "open reads an engine output path",
+            "from pathlib import Path\nPath('reports/x.md').read_text()": "Path reads an engine output path",
             "def f(:\n": "cannot parse",
         }
         for source, needle in bad.items():
@@ -165,15 +165,30 @@ class GeneratorIsolation(unittest.TestCase):
 
     def test_reference_classes(self):
         registry = load_json(GOLDEN_DIR / "config" / "reference-registry.json")["references"]
-        refs = [{"source_id": s} for s in ("R-10", "R-12", "R-08", "R-02", "FAKE-SOURCE-DO-NOT-USE-01")]
+        refs = [{"source_id": s, "source_class": c} for s, c in
+                (("R-10", "D"), ("R-12", "M"), ("R-08", "D"), ("R-02", "I-code"), ("FAKE-SOURCE-DO-NOT-USE-01", "FAKE"))]
         self.assertEqual(check_reference_classes(refs, registry), [
             "REFERENCE_CLASS_NOT_INDEPENDENT: R-10 is class D",
             "REFERENCE_CLASS_NOT_INDEPENDENT: R-12 is class M",
             "REFERENCE_CLASS_NOT_INDEPENDENT: R-08 is class D",
             "REFERENCE_NOT_OBTAINED: R-02",
+            "REFERENCE_CLASS_UNKNOWN: FAKE-SOURCE-DO-NOT-USE-01 fixture class not recognised",
             "REFERENCE_UNKNOWN: FAKE-SOURCE-DO-NOT-USE-01",
         ])
-        self.assertEqual(check_reference_classes([{"source_id": "X"}], {"X": {"class": "I-data", "obtained": True}}), [])
+
+    def test_fixture_class_must_match_registry(self):
+        independent = {"X": {"class": "I-code", "obtained": True}}
+        dependent = {"X": {"class": "D", "obtained": True}}
+        self.assertEqual(check_reference_classes([{"source_id": "X", "source_class": "I-code"}], independent), [])
+        self.assertEqual(check_reference_classes([{"source_id": "X", "source_class": "D"}], independent),
+                         ["REFERENCE_CLASS_MISMATCH: X fixture says D, registry says I-code"])
+        self.assertEqual(check_reference_classes([{"source_id": "X", "source_class": "I-code"}], dependent),
+                         ["REFERENCE_CLASS_MISMATCH: X fixture says I-code, registry says D"])
+        self.assertEqual(check_reference_classes([{"source_id": "X", "source_class": "I-code"}],
+                                                 {"X": {"class": "gold", "obtained": True}}),
+                         ["REFERENCE_CLASS_UNKNOWN: X registry class not recognised"])
+        self.assertEqual(check_reference_classes([{"source_id": "X"}], independent),
+                         ["REFERENCE_CLASS_UNKNOWN: X fixture class not recognised"])
 
 
 if __name__ == "__main__":

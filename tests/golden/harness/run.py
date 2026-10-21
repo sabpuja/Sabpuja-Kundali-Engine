@@ -11,7 +11,6 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 import argparse
-import json
 import os
 import sys
 
@@ -21,7 +20,7 @@ from .environment import capture_environment, environment_reasons
 from .manifest import MANIFEST_NAME, check_manifest, emitted_block_contradictions, signature_mismatches
 from .outcomes import Outcome, exit_code, fixture_outcome, overall_verdict
 from .report import to_markdown, write_reports
-from .schema import load_fixture_set
+from .schema import load_fixture_set, strict_loads
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = GOLDEN_DIR.parents[1]
@@ -37,7 +36,7 @@ def load_configs(config_dir: Path) -> tuple[dict, list[str]]:
     configs, reasons = {}, []
     for key, (name, field) in _CONFIGS.items():
         try:
-            data = json.loads((config_dir / name).read_text(encoding="utf-8"))
+            data = strict_loads((config_dir / name).read_text(encoding="utf-8"))
             configs[key] = data[field] if field else data
             if not isinstance(configs[key], dict):
                 raise TypeError

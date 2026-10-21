@@ -8,10 +8,9 @@ from __future__ import annotations
 
 from pathlib import Path
 import hashlib
-import json
 import re
 
-from .schema import METHOD_KEYS
+from .schema import METHOD_KEYS, strict_loads
 
 MANIFEST_NAME = "method-manifest.json"
 REQUIRED_FILES = (
@@ -34,7 +33,7 @@ def load_manifest(path: Path) -> tuple[dict | None, list[str]]:
     if not path.is_file():
         return None, ["METHOD_MANIFEST_MISSING"]
     try:
-        manifest = json.loads(path.read_text(encoding="utf-8"))
+        manifest = strict_loads(path.read_text(encoding="utf-8"))
     except ValueError:
         return None, ["METHOD_MANIFEST_INVALID: not JSON"]
     errors = []

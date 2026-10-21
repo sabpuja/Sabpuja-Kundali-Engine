@@ -9,6 +9,7 @@ from __future__ import annotations
 from . import oracle
 from .circular import PADA_DEG, RASHI_DEG, boundary_distance_arcsec, circular_diff_arcsec
 from .outcomes import Outcome
+from .schema import is_finite_number
 
 PLANETS = ("sun", "moon", "mars", "mercury", "jupiter", "venus", "saturn")
 NODES = ("rahu_mean", "ketu_mean")
@@ -52,8 +53,13 @@ def compare_longitude(fixture_id: str, body: str, engine_output: dict, expected:
              "tolerance_arcsec": tolerances.get(quantity), "boundary_distance_arcsec": None,
              "category_mismatches": [], "outcome": None, "reason": None}
     tol = check["tolerance_arcsec"]
+    lagna_tol = tolerances.get("lagna_longitude")
     if tol is None:
         check.update(outcome=Outcome.BLOCKED.value, reason="TOLERANCE_NOT_FROZEN")
+        return check
+    if not is_finite_number(tol) or tol < 0 or (lagna_tol is not None and (
+            not is_finite_number(lagna_tol) or lagna_tol < 0)):
+        check.update(tolerance_arcsec=None, outcome=Outcome.BLOCKED.value, reason="TOLERANCE_INVALID")
         return check
     engine = _engine_body(engine_output, body)
     check["engine_deg"] = engine["longitude_deg"]
@@ -61,13 +67,13 @@ def compare_longitude(fixture_id: str, body: str, engine_output: dict, expected:
     # Pada edges include every Nakshatra, Rashi and Navamsa edge.
     check["boundary_distance_arcsec"] = boundary_distance_arcsec(ref, PADA_DEG)
     near = check["boundary_distance_arcsec"] <= tol
-    if body != "lagna" and ref_lagna is not None and tolerances.get("lagna_longitude") is not None:
-        near = near or boundary_distance_arcsec(ref_lagna, RASHI_DEG) <= tolerances["lagna_longitude"]
+    if body != "lagna" and ref_lagna is not None and lagna_tol is not None:
+        near = near or boundary_distance_arcsec(ref_lagna, RASHI_DEG) <= lagna_tol
     check["category_mismatches"] = _category_mismatches(body, engine, engine_output, ref, ref_lagna)
     if near:
         check.update(outcome=Outcome.BOUNDARY_INDETERMINATE.value,
                      reason="reference within tolerance of a segment boundary; redesign fixture")
-    elif abs(check["diff_arcsec"]) > tol:
+    elif not abs(check["diff_arcsec"]) <= tol:  # fails closed if anything is NaN
         check.update(outcome=Outcome.FAIL.value, reason="outside tolerance")
     elif check["category_mismatches"]:
         check.update(outcome=Outcome.FAIL.value, reason="category differs outside the indeterminate band")

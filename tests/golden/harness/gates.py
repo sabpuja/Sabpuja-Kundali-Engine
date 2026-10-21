@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
 from ..generator.isolation import check_reference_classes
-from .schema import sha256_file
+from .schema import is_finite_number, sha256_file
 
 DECISION_FIELDS = ("approver", "approved_on", "decisions_md_commit")
 
@@ -43,7 +43,8 @@ def tolerance_reasons(tolerance_ids: dict, tolerances: dict) -> list[str]:
             reasons.append(f"TOLERANCE_UNKNOWN: {tolerance_id}")
         elif row.get("status") != "FROZEN":
             reasons.append(f"TOLERANCE_NOT_FROZEN: {tolerance_id}")
-        elif type(row.get("frozen_arcsec")) not in (int, float) or row["frozen_arcsec"] < 0 or not row.get("qa_ref"):
+        elif not is_finite_number(row.get("frozen_arcsec")) or row["frozen_arcsec"] < 0 or not row.get("qa_ref"):
+            # NaN would make every "> tol" comparison False and so pass anything.
             reasons.append(f"TOLERANCE_RECORD_INCOMPLETE: {tolerance_id}")
     return reasons
 
@@ -88,6 +89,9 @@ def fixture_reasons(fixture: dict, fixture_dir: Path, configs: dict, tzdata_vers
         reasons.append("DUMMY_FIXTURE: synthetic demonstration data, never a reference")
     if not fixture["reference_verified"]:
         reasons.append("REFERENCE_UNVERIFIED")
+    # The fixture's own flags are claims; only the gates below verify them.
+    if fixture["accuracy_claim"] is not True:
+        reasons.append("ACCURACY_CLAIM_ABSENT: fixture does not claim to be an accuracy reference")
     reasons += check_reference_classes(fixture["references"], configs["references"])
     reasons += source_reasons(fixture["references"], fixture_dir)
     reasons += coverage_reasons(fixture)
