@@ -90,17 +90,21 @@ Next to the binary, write a `receipt.json` that contains these keys:
 
 Binaries and receipts stay outside Git.
 
-The `libswe` bundled in the pyswisseph 2.10.3.2 sdist differs from c69c14a
-only in code this suite does not use:
+The verdict uses the official build. As a cross-check, a second swetest was
+built from the `libswe` sources bundled in the pyswisseph 2.10.3.2 sdist. Those
+library sources differ from c69c14a only in places this suite does not use:
 
 - `sweph.c`: the fixed-star parallax fix and an error-buffer size;
 - `swephlib.c`: `split_deg` display rounding;
-- eclipse and heliacal code;
-- the DE441 constant and the default path in `swephexp.h`;
-- comments.
+- eclipse and heliacal code (`swecl.c`, `swehel.c`);
+- the DE441 constant and default path in `swephexp.h`;
+- K&R-style `()` prototypes, platform macros and comments (`swemmoon.c`,
+  `swejpl.c`, `sweodef.h`, `swehouse.c`, `sweph.h`).
 
-A swetest built from that sdist gives identical results. The PR evidence
-includes this cross-check.
+The `swetest.c` front ends differ more: help text, an asteroid-search option
+and planet-list handling. Neither change touches the switches used here.
+`swevents.c` is unsupported and not compiled into swetest. Both builds gave
+identical case results. The PR evidence includes the full diff.
 
 ## Running
 
