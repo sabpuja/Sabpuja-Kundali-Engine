@@ -1,0 +1,71 @@
+{
+  "fixture_id": "DUMMY-01",
+  "fixture_revision": 1,
+  "purpose": "Well-formed dummy whose fake raw bytes match their hash; must still be BLOCKED (dummy, unknown source, pending SCI, unfrozen tolerances)",
+  "synthetic": true,
+  "dummy": true,
+  "reference_verified": false,
+  "accuracy_claim": false,
+  "input": {
+    "birth_datetime": "2001-02-03T04:05:06",
+    "timezone": "UTC",
+    "latitude": 11.111,
+    "longitude": 22.222
+  },
+  "derived_time": {
+    "utc": "2001-02-03T04:05:06Z",
+    "tzdata_version": "2026e"
+  },
+  "method_signature": {
+    "ayanamsa_mode": "SE_SIDM_LAHIRI (mode 1)",
+    "ayanamsa_kind": "true (nutation included; Swiss default for FLG_SIDEREAL)",
+    "sidereal_bits": 0,
+    "positions": "geocentric apparent ecliptic of date (FLG_SWIEPH | FLG_SIDEREAL, no TOPOCTR/TRUEPOS/NONUT)",
+    "node": "Swiss MEAN_NODE",
+    "ketu": "exact Fraction(rahu) + 180",
+    "ascendant_vehicle": "houses_ex b\"P\" with FLG_SIDEREAL, ascmc[0]",
+    "houses": "whole sign from Lagna Rashi",
+    "time_scale": "civil UTC passed to swe.julday as UT (civil UTC = UT1)"
+  },
+  "references": [
+    {
+      "source_id": "FAKE-SOURCE-DO-NOT-USE-01",
+      "source_class": "FAKE",
+      "raw_output_path": "raw/FAKE-SOURCE-DO-NOT-USE-01.txt",
+      "raw_output_sha256": "d5053a4bc5ba7c0b88d9a80ea12aab78223fe24a82c4ebb345b729dcca6b9284",
+      "coverage_utc": [
+        "1900-01-01T00:00:00Z",
+        "2053-10-09T00:00:00Z"
+      ]
+    }
+  ],
+  "expected": {
+    "sidereal_longitude_deg": {
+      "sun": 111.111111,
+      "moon": 222.222222,
+      "rahu_mean": 333.333333,
+      "lagna": 44.444444
+    },
+    "time_conversion": {
+      "utc": "2001-02-03T04:05:06Z",
+      "error_code": null
+    }
+  },
+  "tolerance_ids": {
+    "planet_longitude": "T-SID",
+    "node_longitude": "T-NODE-SID",
+    "lagna_longitude": "T-ASC-SID",
+    "utc": "T-UTC"
+  },
+  "approved_decisions_required": [
+    "SCI-01a",
+    "SCI-01b",
+    "SCI-01d",
+    "SCI-01e",
+    "SCI-01h",
+    "SCI-02"
+  ],
+  "limitations": [
+    "DUMMY: invented numbers for harness plumbing only; not astronomy, not a golden chart"
+  ]
+}

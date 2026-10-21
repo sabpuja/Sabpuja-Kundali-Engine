@@ -1,0 +1,71 @@
+{
+  "schema": "sabpuja-golden-reference-registry/1",
+  "note": "Mirror of docs/accuracy/reference-sources.md. obtained is true only when bytes, hashes and reuse rights are recorded there. No reference output is obtained yet. Classes D and M can never supply expected values.",
+  "references": {
+    "R-01": {
+      "class": "I-code",
+      "name": "JPL Horizons",
+      "obtained": false
+    },
+    "R-02": {
+      "class": "I-code",
+      "name": "Skyfield + DE421",
+      "obtained": false
+    },
+    "R-02b": {
+      "class": "I-code",
+      "name": "DE440s/DE440 SPK",
+      "obtained": false
+    },
+    "R-03": {
+      "class": "I-data",
+      "name": "INPOP",
+      "obtained": false
+    },
+    "R-04": {
+      "class": "I-code",
+      "name": "ERFA (pyerfa)",
+      "obtained": false
+    },
+    "R-05": {
+      "class": "I-pub",
+      "name": "Indian Astronomical Ephemeris",
+      "obtained": false
+    },
+    "R-06": {
+      "class": "D",
+      "name": "Mean node polynomial (I-code only if SCI-01b option b is approved)",
+      "obtained": false
+    },
+    "R-07": {
+      "class": "I-pub",
+      "name": "IERS EOP",
+      "obtained": false
+    },
+    "R-08": {
+      "class": "D",
+      "name": "IANA tz database",
+      "obtained": false
+    },
+    "R-09": {
+      "class": "I-pub",
+      "name": "Historical Indian time-keeping sources",
+      "obtained": false
+    },
+    "R-10": {
+      "class": "D",
+      "name": "Swiss Ephemeris source and documentation",
+      "obtained": false
+    },
+    "R-11": {
+      "class": "D",
+      "name": "Classical rule texts",
+      "obtained": false
+    },
+    "R-12": {
+      "class": "M",
+      "name": "Other Jyotish software",
+      "obtained": false
+    }
+  }
+}

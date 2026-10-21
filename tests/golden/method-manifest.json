@@ -1,0 +1,77 @@
+{
+  "schema": "sabpuja-golden-method-manifest/1",
+  "status": "UNREVIEWED",
+  "note": "Engine-side method record written by reading the source at inspected_commit (docs/accuracy/qa-architecture.md section 3a). It is not generated from engine output and is never updated by the harness. Until ChatGPT QA reviews it (qa_review set and status REVIEWED) every golden run is BLOCKED. Any blob SHA difference at run time is BLOCKED: re-inspect by hand.",
+  "inspected_commit": "d8193c692d52aa12595f81c227638a061605a3d9",
+  "inspector": "Claude (KUN-01-WP1)",
+  "qa_review": null,
+  "files": {
+    "src/sabpuja_kundali/engine.py": "da627fceab7bdd320cf67f75c974112418f1ba40",
+    "src/sabpuja_kundali/rules.py": "9daca694cef921ab1ffdc8ea332e9b046323d31b",
+    "src/sabpuja_kundali/ephemeris.py": "29caf1d08b78fda17959fe1e770f4acea2004898",
+    "src/sabpuja_kundali/ephemeris-manifest.json": "8b2dba9dabd02171ae153b146c72a1687cb931ed"
+  },
+  "signature": {
+    "ayanamsa_mode": "SE_SIDM_LAHIRI (mode 1)",
+    "ayanamsa_kind": "true (nutation included; Swiss default for FLG_SIDEREAL)",
+    "sidereal_bits": 0,
+    "positions": "geocentric apparent ecliptic of date (FLG_SWIEPH | FLG_SIDEREAL, no TOPOCTR/TRUEPOS/NONUT)",
+    "node": "Swiss MEAN_NODE",
+    "ketu": "exact Fraction(rahu) + 180",
+    "ascendant_vehicle": "houses_ex b\"P\" with FLG_SIDEREAL, ascmc[0]",
+    "houses": "whole sign from Lagna Rashi",
+    "time_scale": "civil UTC passed to swe.julday as UT (civil UTC = UT1)"
+  },
+  "emitted_method_block": {
+    "ayanamsa": "Lahiri",
+    "nodes": "mean",
+    "houses": "whole_sign"
+  },
+  "facts": [
+    {
+      "fact": "ayanamsa_mode, sidereal_bits",
+      "source": "src/sabpuja_kundali/engine.py:116",
+      "code": "swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)"
+    },
+    {
+      "fact": "positions, ayanamsa_kind",
+      "source": "src/sabpuja_kundali/engine.py:117,122",
+      "code": "requested_flags = swe.FLG_SWIEPH | swe.FLG_SIDEREAL; swe.calc_ut(julian_day, body, requested_flags)"
+    },
+    {
+      "fact": "Moshier fallback refused",
+      "source": "src/sabpuja_kundali/engine.py:123-124",
+      "code": "if not (flags & swe.FLG_SWIEPH): raise RuntimeError(...)"
+    },
+    {
+      "fact": "node",
+      "source": "src/sabpuja_kundali/engine.py:112",
+      "code": "\"rahu_mean\": swe.MEAN_NODE"
+    },
+    {
+      "fact": "ketu",
+      "source": "src/sabpuja_kundali/engine.py:140",
+      "code": "ketu_exact = Fraction(raw[\"rahu_mean\"]) + 180"
+    },
+    {
+      "fact": "ascendant_vehicle",
+      "source": "src/sabpuja_kundali/engine.py:130,137",
+      "code": "swe.houses_ex(julian_day, lat, lon, b\"P\", swe.FLG_SIDEREAL); lagna = float(ascmc[0])"
+    },
+    {
+      "fact": "houses",
+      "source": "src/sabpuja_kundali/engine.py:151 and rules.py:66-67",
+      "code": "whole_sign_house(sources[name], lagna) = (sign_index(longitude) - sign_index(ascendant)) % 12 + 1"
+    },
+    {
+      "fact": "time_scale",
+      "source": "src/sabpuja_kundali/engine.py:105-108",
+      "code": "swe.julday(utc.year, utc.month, utc.day, utc.hour + ...) passed to calc_ut/houses_ex (UT functions)"
+    },
+    {
+      "fact": "ephemeris data gate",
+      "source": "src/sabpuja_kundali/engine.py:100 and ephemeris.py:39-75",
+      "code": "verify_ephemeris_dir(...) checks size and SHA-256 of each required .se1 against ephemeris-manifest.json"
+    }
+  ]
+}

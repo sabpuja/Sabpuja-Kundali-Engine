@@ -1,0 +1,66 @@
+{
+  "schema": "sabpuja-golden-decision-status/1",
+  "note": "Mirror of owner decisions for the harness gate. Every decision is PENDING. Only the owner approves; an entry may become APPROVED only with approver, approved_on and the main:docs/DECISIONS.md commit that records it. The harness never infers approval.",
+  "decisions": {
+    "SCI-01a": {
+      "status": "PENDING",
+      "approver": null,
+      "approved_on": null,
+      "decisions_md_commit": null
+    },
+    "SCI-01b": {
+      "status": "PENDING",
+      "approver": null,
+      "approved_on": null,
+      "decisions_md_commit": null
+    },
+    "SCI-01c": {
+      "status": "PENDING",
+      "approver": null,
+      "approved_on": null,
+      "decisions_md_commit": null
+    },
+    "SCI-01d": {
+      "status": "PENDING",
+      "approver": null,
+      "approved_on": null,
+      "decisions_md_commit": null
+    },
+    "SCI-01e": {
+      "status": "PENDING",
+      "approver": null,
+      "approved_on": null,
+      "decisions_md_commit": null
+    },
+    "SCI-01f": {
+      "status": "PENDING",
+      "approver": null,
+      "approved_on": null,
+      "decisions_md_commit": null
+    },
+    "SCI-01g": {
+      "status": "PENDING",
+      "approver": null,
+      "approved_on": null,
+      "decisions_md_commit": null
+    },
+    "SCI-01h": {
+      "status": "PENDING",
+      "approver": null,
+      "approved_on": null,
+      "decisions_md_commit": null
+    },
+    "SCI-02": {
+      "status": "PENDING",
+      "approver": null,
+      "approved_on": null,
+      "decisions_md_commit": null
+    },
+    "SCI-03": {
+      "status": "PENDING",
+      "approver": null,
+      "approved_on": null,
+      "decisions_md_commit": null
+    }
+  }
+}

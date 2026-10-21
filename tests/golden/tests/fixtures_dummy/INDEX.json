@@ -1,0 +1,22 @@
+{
+  "fixture_set": "fixtures_dummy",
+  "note": "DUMMY fixtures for harness tests only. Not golden charts. Hashes are SHA-256 of the exact file bytes.",
+  "fixtures": {
+    "DUMMY-01.json": {
+      "revision": 1,
+      "sha256": "cf19939b5e1473ff82bcda5ef261e778de787d19eab972e4a1da5cecaa16a70d"
+    },
+    "DUMMY-02.json": {
+      "revision": 1,
+      "sha256": "30a6179fab2c6afbb0b566d612f0cc31c1162f55fef4e6c0d68f0969e176f494"
+    },
+    "DUMMY-03.json": {
+      "revision": 1,
+      "sha256": "118629a1b85f3e8c93f1405b65f79cb99daac937e2769f42748fdcb04da1880b"
+    },
+    "DUMMY-04.json": {
+      "revision": 1,
+      "sha256": "b3bbb931af90b977331a3d4ca306e4d00fe55baeed7e4e89e90605ed11f67bac"
+    }
+  }
+}

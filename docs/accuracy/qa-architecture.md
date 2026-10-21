@@ -1,6 +1,6 @@
 # Golden-chart QA architecture and execution plan
 
-**Document ID:** SP-KUN-ACC-QA | **Work package:** CLAUDE-003 / KUN-01 Phase D | **Status:** PROPOSED design. Nothing here is implemented.
+**Document ID:** SP-KUN-ACC-QA | **Work package:** CLAUDE-003 / KUN-01 Phase D | **Status:** PROPOSED design. The KUN-01-WP1 skeleton (dummy fixtures only, no reference values, always BLOCKED) is in `tests/golden/`; see `tests/golden/README.md` for how to run and read it.
 
 Runs locally or on an owner-approved VPS only. **No GitHub Actions, workflows, schedulers or hosted CI**, now or later, without separate owner authorization.
 
