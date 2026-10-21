@@ -16,3 +16,6 @@ sabpuja-kundali = "sabpuja_kundali.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+sabpuja_kundali = ["ephemeris-manifest.json"]

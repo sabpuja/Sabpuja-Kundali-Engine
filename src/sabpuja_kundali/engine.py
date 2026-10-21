@@ -6,12 +6,12 @@ lookup. This adapter is NOT independently reference-chart validated.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from pathlib import Path
 from threading import RLock
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import math
 import os
 
+from .ephemeris import verify_ephemeris_dir
 from .rules import nakshatra, normalize, sign, navamsa_sign, whole_sign_house
 
 _SWISS_LOCK = RLock()
@@ -57,10 +57,8 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
     if not math.isfinite(lat) or not math.isfinite(lon) or not (-89.0 < lat < 89.0) or not (-180 <= lon <= 180):
         raise ValueError("Invalid or unsupported latitude/longitude")
     utc = _parse_birth(request["birth_datetime"], request["timezone"])
-    folder = Path(ephe_path or os.environ.get("SABPUJA_EPHE_PATH", ""))
-    if not (str(ephe_path or os.environ.get("SABPUJA_EPHE_PATH", "")).strip() and
-            folder.is_dir() and any(folder.glob("*.se1"))):
-        raise RuntimeError("Missing local Swiss Ephemeris .se1 files; see data/ephemeris/README.md")
+    # Every required manifest file must match its pinned SHA-256 before Swiss runs.
+    folder = verify_ephemeris_dir(ephe_path or os.environ.get("SABPUJA_EPHE_PATH", ""))
     try:
         import swisseph as swe
     except ImportError as exc:
@@ -75,7 +73,7 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
         "saturn": swe.SATURN, "rahu_mean": swe.MEAN_NODE,
     }
     with _SWISS_LOCK:
-        swe.set_ephe_path(str(folder.resolve()))
+        swe.set_ephe_path(str(folder))
         swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
         requested_flags = swe.FLG_SWIEPH | swe.FLG_SIDEREAL
         planets = {}
