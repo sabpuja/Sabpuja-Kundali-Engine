@@ -6,6 +6,7 @@ lookup. This adapter is NOT independently reference-chart validated.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from fractions import Fraction
 from threading import RLock
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import math
@@ -42,6 +43,20 @@ def _coordinate(value: object, name: str, limit: float, inclusive: bool) -> floa
         bounds = "inclusive" if inclusive else "exclusive"
         raise ValueError(f"{name} must be between -{limit:g} and {limit:g} ({bounds})")
     return number
+
+
+def _display_deg(longitude: float) -> float:
+    """8-decimal display value in [0, 360). Never used for classification.
+
+    Rounding can land on a boundary the raw value has not reached (29.999999996
+    shows as 30.0 while staying Mesha); 360.0 is shown as its equal, 0.0.
+    """
+    shown = round(normalize(longitude), 8)
+    return 0.0 if shown == 360.0 else shown
+
+
+def _placement(longitude: float | Fraction) -> dict[str, object]:
+    return {"rashi": sign(longitude), "navamsa_rashi": navamsa_sign(longitude)}
 
 
 def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
@@ -100,17 +115,14 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
         swe.set_ephe_path(str(folder))
         swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
         requested_flags = swe.FLG_SWIEPH | swe.FLG_SIDEREAL
-        planets = {}
+        # Categories (Rashi, D9, house, Nakshatra) are always derived from these
+        # unrounded Swiss values; the 8-decimal output is display only.
+        raw = {}
         for name, body in bodies.items():
             pos, flags = swe.calc_ut(julian_day, body, requested_flags)
             if not (flags & swe.FLG_SWIEPH):
                 raise RuntimeError("Swiss ephemeris files unavailable: refused Moshier fallback")
-            deg = normalize(float(pos[0]))
-            planets[name] = {
-                "longitude_deg": round(deg, 8),
-                "rashi": sign(deg),
-                "navamsa_rashi": navamsa_sign(deg),
-            }
+            raw[name] = float(pos[0])
         # Geographic ascendant in explicit Lahiri sidereal mode.
         # Placidus is undefined beyond the polar circles; Swiss then raises
         # swisseph.Error. Refuse the chart rather than substitute another method.
@@ -122,17 +134,22 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
                 "Swiss Ephemeris could not compute the ascendant for this location and time "
                 "with the current method (expected beyond the polar circles); no chart produced"
             ) from None
-        lagna = normalize(float(ascmc[0]))
-        rahu = float(planets["rahu_mean"]["longitude_deg"])
-        ketu = normalize(rahu + 180.0)
-        planets["ketu_mean"] = {
-            "longitude_deg": round(ketu, 8),
-            "rashi": sign(ketu),
-            "navamsa_rashi": navamsa_sign(ketu),
+        lagna = float(ascmc[0])
+        # Ketu is exactly opposite unrounded Rahu. Classify the exact sum: a float
+        # rahu + 180.0 can round onto the next segment boundary.
+        ketu_exact = Fraction(raw["rahu_mean"]) + 180
+        planets = {
+            name: {"longitude_deg": _display_deg(deg), **_placement(deg)}
+            for name, deg in raw.items()
         }
-        for val in planets.values():
-            val["whole_sign_house"] = whole_sign_house(float(val["longitude_deg"]), lagna)
-        moon_nakshatra = nakshatra(float(planets["moon"]["longitude_deg"]))
+        planets["ketu_mean"] = {
+            "longitude_deg": _display_deg(raw["rahu_mean"] + 180.0),
+            **_placement(ketu_exact),
+        }
+        sources = {**raw, "ketu_mean": ketu_exact}
+        for name, val in planets.items():
+            val["whole_sign_house"] = whole_sign_house(sources[name], lagna)
+        moon_nakshatra = nakshatra(raw["moon"])
         return {
             "schema_version": "0.1.0",
             "validation_status": "UNVERIFIED_GOLDEN_CHARTS",
@@ -145,10 +162,7 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
                 "timezone": request["timezone"],
                 "latitude": lat, "longitude": lon
             },
-            "lagna": {
-                "longitude_deg": round(lagna, 8),
-                "rashi": sign(lagna), "navamsa_rashi": navamsa_sign(lagna)
-            },
+            "lagna": {"longitude_deg": _display_deg(lagna), **_placement(lagna)},
             "moon_nakshatra": moon_nakshatra,
             "planets": planets,
         }
