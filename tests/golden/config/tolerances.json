@@ -1,0 +1,90 @@
+{
+  "schema": "sabpuja-golden-tolerances/1",
+  "note": "Rows from docs/accuracy/golden-chart-spec.md section 4.1. Every row is NOT_FROZEN. hypothesis_arcsec is a budgeting hypothesis only and is never used for a verdict. A row may become FROZEN only with frozen_arcsec and a qa_ref; WP1 freezes nothing.",
+  "tolerances": {
+    "T-ICRF": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": 0.1,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-TROP-S": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": 0.1,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-TROP-H": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": 0.5,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-AYA": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": 0.4,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-SID": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": 0.5,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-SID-H": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": 0.9,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-NODE": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": null,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-NODE-SID": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": null,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-KETU": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": 3.6e-05,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-ASC": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": null,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-ASC-SID": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": null,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-UTC": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": 0.0,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-CAT": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": null,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    },
+    "T-TIME": {
+      "status": "NOT_FROZEN",
+      "hypothesis_arcsec": null,
+      "frozen_arcsec": null,
+      "qa_ref": null
+    }
+  }
+}

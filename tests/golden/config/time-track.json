@@ -1,0 +1,7 @@
+{
+  "schema": "sabpuja-golden-time-track/1",
+  "note": "Time-scale track T-TIME-1..4 (golden-chart-spec.md section 4.4). BLOCKED until PG-5 evidence is reviewed. observed_delta_t_through_utc is the last date with observed Delta T; later epochs are QUALIFIED.",
+  "status": "BLOCKED",
+  "qa_ref": null,
+  "observed_delta_t_through_utc": null
+}
