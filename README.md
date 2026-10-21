@@ -6,6 +6,7 @@ Sabpuja-owned, self-hosted Vedic Kundali calculations based on the locally insta
 
 ## Start here
 - Humans: [architecture](docs/architecture.md), [roadmap](docs/roadmap.md), [accuracy gates](docs/accuracy-plan.md), [licensing](docs/licensing.md).
+- Astronomical validation package (KUN-01, proposed, decisions pending): [scientific decisions](docs/accuracy/scientific-decisions.md), [reference sources](docs/accuracy/reference-sources.md), [golden-chart spec](docs/accuracy/golden-chart-spec.md), [QA architecture](docs/accuracy/qa-architecture.md), [risk register](docs/accuracy/risk-register.md).
 - Agents: [AGENTS.md](AGENTS.md), [machine/capabilities.json](machine/capabilities.json), [access/onboarding](docs/access-and-agent-onboarding.md), [API/data contract](docs/api-contract.md).
 - Canonical org discovery: `sabpuja/core/docs/architecture/repo-map.md` and `sabpuja/Progress-Memory/ROUTER.md` + `machine/repos.json`.
 
