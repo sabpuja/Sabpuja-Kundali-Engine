@@ -10,6 +10,8 @@
 | ChatGPT PM / QA | [ACCEPTANCE-MATRIX.md](ACCEPTANCE-MATRIX.md) | Required test IDs, severity, proofs and signoff gates |
 | Owner / PM | [DECISIONS.md](DECISIONS.md) | Owner-confirmed direction, pending decisions, approval records |
 | Agents & tools | [../machine/project-plan.json](../machine/project-plan.json) | Machine-readable document routes and phase definitions |
+| Claude Code | [../CLAUDE.md](../CLAUDE.md) | Code agent read order, scope and QA rules |
+| Claude Project settings | [CLAUDE-PROJECT-SETUP.md](CLAUDE-PROJECT-SETUP.md) | Copy-paste Goal and Context fields for the external Claude Project |
 
 ## Existing foundation and governance (draft PR #1, pending merge)
 The foundation PR contains `README.md`, `AGENTS.md`, `docs/architecture.md`, `docs/project-governance.md`, `docs/accuracy-plan.md`, `docs/api-contract.md`, `docs/privacy-security.md`, and `docs/qa-review-template.md`.
@@ -17,7 +19,7 @@ The foundation PR contains `README.md`, `AGENTS.md`, `docs/architecture.md`, `do
 - [Draft foundation PR #1](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/1)
 - [CLAUDE-001 audit issue #2](https://github.com/sabpuja/Sabpuja-Kundali-Engine/issues/2)
 
-The existing `docs/roadmap.md` in that draft is a **preliminary outline**. Upon merge of these project planning docs, `docs/DEVELOPMENT-ROADMAP.md` becomes the **canonical detailed plan**, and the foundation branch should align its outline/readme links accordingly. Do not create a competing second roadmap.
+The existing `docs/roadmap.md` in that draft is a **preliminary outline**. With planning PR #3 merged, `docs/DEVELOPMENT-ROADMAP.md` is the **canonical detailed plan**, although still an owner-review draft. The foundation PR #1 must align its old outline/readme links and reconcile the newer project README before it can merge. Do not create a competing second roadmap.
 
 ## Ownership rules
 - Human Sabpuja owner makes product/release decisions; ChatGPT is PM and independent QA; Claude develops in scoped PRs only.
