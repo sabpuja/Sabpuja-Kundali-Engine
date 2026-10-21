@@ -6,11 +6,11 @@ Sabpuja-owned, self-hosted Vedic Kundali calculations based on the locally insta
 
 ## Start here
 - Humans: [architecture](docs/architecture.md), [roadmap](docs/roadmap.md), [accuracy gates](docs/accuracy-plan.md), [licensing](docs/licensing.md).
-- Agents: [AGENTS.md](AGENTS.md), [machine/capabilities.json](machine/capabilities.json), [API/data contract](docs/api-contract.md).
+- Agents: [AGENTS.md](AGENTS.md), [machine/capabilities.json](machine/capabilities.json), [access/onboarding](docs/access-and-agent-onboarding.md), [API/data contract](docs/api-contract.md).
 - Canonical org discovery: `sabpuja/core/docs/architecture/repo-map.md` and `sabpuja/Progress-Memory/ROUTER.md` + `machine/repos.json`.
 
 ## Implemented foundation
-- Pure, tested Vedic helpers for Rashi, Nakshatra/Pada and Navamsa (D9) sign mapping.
+- Pure Vedic helpers for Rashi, Nakshatra/Pada and Navamsa (D9) sign mapping, with authored unit tests awaiting execution.
 - Local Swiss Ephemeris adapter: explicit Lahiri sidereal mode, Sun/Moon/classical grahas, mean Rahu and opposite Ketu, sidereal ascendant and whole-sign houses.
 - A private, stdin-driven JSON CLI, requiring an **explicit UTC-offset birth datetime, IANA timezone, latitude and longitude**.
 - Fail-closed checks for missing ephemeris files and accidental Moshier fallback.

@@ -10,7 +10,7 @@
   "capabilities": [
     {
       "id": "kundali.pure-vedic-rules",
-      "status": "implemented-unit-tested-locally-pending-ci-evidence",
+      "status": "implemented-tests-authored-not-executed",
       "entrypoint": "src/sabpuja_kundali/rules.py"
     },
     {
