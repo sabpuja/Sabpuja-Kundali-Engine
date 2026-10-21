@@ -17,11 +17,17 @@ TOL = {"planet_longitude": 0.5, "node_longitude": 0.5, "lagna_longitude": 0.5, "
 
 
 class DecisionAndToleranceGates(unittest.TestCase):
-    def test_committed_decisions_are_all_pending(self):
+    def test_committed_decisions_match_the_register(self):
+        # main:docs/DECISIONS.md at 0023fdc: only SCI-01b and SCI-01c approved.
         decisions = load_json(GOLDEN_DIR / "config" / "decision-status.json")["decisions"]
-        self.assertEqual({e["status"] for e in decisions.values()}, {"PENDING"})
+        approved = sorted(d for d, e in decisions.items() if e["status"] == "APPROVED")
+        self.assertEqual(approved, ["SCI-01b", "SCI-01c"])
+        for d in approved:
+            self.assertEqual(decisions[d]["decisions_md_commit"], "0023fdc66f9061daffe60fe54bb92ea935e75b87")
+        pending = sorted(set(decisions) - set(approved))
+        self.assertEqual({decisions[d]["status"] for d in pending}, {"PENDING"})
         reasons = gates.decision_reasons(sorted(decisions), decisions)
-        self.assertEqual(reasons, [f"SCI_DECISION_PENDING: {d}" for d in sorted(decisions)])
+        self.assertEqual(reasons, [f"SCI_DECISION_PENDING: {d}" for d in pending])
 
     def test_approval_needs_a_complete_record(self):
         record = {"status": "APPROVED", "approver": "x", "approved_on": "2026-01-01", "decisions_md_commit": "abc"}

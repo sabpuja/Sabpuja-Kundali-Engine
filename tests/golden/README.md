@@ -1,6 +1,6 @@
 # Golden-chart QA harness (KUN-01-WP1 skeleton)
 
-**Status: skeleton only. It contains no reference values and validates nothing.** Every committed fixture is a labelled dummy, every owner decision is PENDING, every tolerance is NOT_FROZEN, no reference output has been obtained, and the method manifest is UNREVIEWED. A run therefore always ends **BLOCKED (exit 2)** and its report starts with **DEMO ONLY / NOT ASTRONOMICAL VALIDATION**. Do not read any result from this directory as evidence that the engine is astronomically accurate.
+**Status: skeleton only. It contains no reference values and validates nothing.** Every committed fixture is a labelled dummy, every owner decision except SCI-01b and SCI-01c (approved conventions, `main` 0023fdc) is PENDING, every tolerance is NOT_FROZEN, no reference output has been obtained, and the method manifest is UNREVIEWED. A run therefore always ends **BLOCKED (exit 2)** and its report starts with **DEMO ONLY / NOT ASTRONOMICAL VALIDATION**. Do not read any result from this directory as evidence that the engine is astronomically accurate.
 
 Design: `docs/accuracy/qa-architecture.md` and `docs/accuracy/golden-chart-spec.md`. Runs locally only; no GitHub Actions or hosted CI.
 
@@ -55,7 +55,7 @@ Reports contain versions, hashes, reason codes and comparison numbers only: no f
 | `generator/isolation.py` | AST scan and runtime import guard against `sabpuja_kundali`, `swisseph` and engine report files; D/M reference classes rejected |
 | `generator/generate.py` | Placeholder; always exits 2 (WP2 not authorized) |
 | `method-manifest.json` | Engine method as read from source at `d8193c6`, with blob SHAs. UNREVIEWED until ChatGPT QA reviews it |
-| `config/*.json` | Mirrors of decision status (all PENDING), tolerances (all NOT_FROZEN), reference registry (nothing obtained), time track (BLOCKED) |
+| `config/*.json` | Mirrors of decision status (SCI-01b/c approved, rest PENDING), tolerances (all NOT_FROZEN), reference registry (nothing obtained), time track (BLOCKED) |
 | `tests/fixtures_dummy/` | Four DUMMY fixtures with invented values and fake source IDs, plus `INDEX.json` and one fake raw file |
 | `tests/test_*.py` | Unit tests; "approved world" tests build temporary directories with TEST-ONLY records to exercise PASS/FAIL plumbing with a mock engine |
 
