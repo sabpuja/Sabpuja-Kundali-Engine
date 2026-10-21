@@ -16,12 +16,15 @@
 - Authentication to GitHub **does not** imply Shopify, VPS or customer-profile access. Ask for separate authorized actions and least-privilege scopes.
 - Agents may assist with calculation code and tests. Do not publish unverified chart outputs as accurate and do not expose personalized birth input in issues, commits, PRs or logs.
 
-## Hermes / Hostinger VPS integration (NOT CONFIGURED)
-1. Add this repo to the existing Hermes/Automation source registry **after the org registration PRs are merged**. Keep current social/blog profiles untouched.
-2. Grant a repo-scoped, short-lived, read-only GitHub installation/token for source retrieval if needed; require distinct explicitly approved write permission for PR creation. Do not put tokens in Git.
-3. Use a pinned reviewed commit with a separately verified source/data manifest. Deploy only through an approved operator on Hostinger, not GitHub Actions.
-4. Run the tool inside an isolated container/VM; mount locally verified Swiss ephemeris data read-only. Block outbound astrology API calls. Protect birth inputs, disable request-body logging, and expose no public HTTP listener until security signoff.
-5. Record read-back proof: installed source SHA, local test report, datasource SHA, access check, and deployment approval. Do not mark runtime active until verified.
+## Claude lead-developer handoff (CURRENT - permissions NOT CONFIGURED)
+1. Read `AGENTS.md`, `docs/project-governance.md`, `docs/claude-builder-brief-001.md`, `docs/qa-review-template.md` and `machine/project-roles.json`.
+2. Owner/operator may provide separate repo-scoped Claude Code GitHub credentials or a controlled local clone. Public readability of this repo is not write authorization. Never share credentials with ChatGPT or commit them.
+3. Begin with an **audit of draft foundation PR #1** and send exact SHA/test evidence to ChatGPT for independent review. Do not create a duplicate foundation, change Shopify or launch a service.
+4. For every later code/function change: approved work package -> Claude draft PR -> ChatGPT QA -> remediation loop -> owner merge approval. Separate authorization before VPS/staging/public deployment.
+5. Claude is not an autonomous always-on agent in this project. Do not create a Hermes Kundali profile, scheduled jobs or GitHub Actions for the handoff.
+
+## Optional future agents (NOT REQUESTED)
+There is no Hermes Kundali profile or autonomous worker. Existing `sabpuja/Automation` remains the cross-repo owner for orchestration if the human owner requests it in a later phase. Do not provision new agent credentials or runners now.
 
 ## Access matrix
 | Actor | Repo read | Repo write | VPS / Shopify |
@@ -29,7 +32,7 @@
 | Public visitors | Public source only | None | None |
 | Human maintainers | Via GitHub | Reviewed PRs with authorized role | Separate approval |
 | ChatGPT GitHub connector | Accessible repository data within granted permission | Reviewed branches/PRs if connector authorized | Separate connector authorization |
-| Hermes Kundali worker (planned) | Read-only install/checkout after onboarding | None by default | Restricted approved runtime only |
+| Claude / Claude Code (not yet authorized) | Public read or approved controlled clone | Draft PR only after separately granted access | No VPS / Shopify access without owner approval |
 | Customer | No source authentication needed | None | Future published storefront, if approved |
 
 ## Verification gates
