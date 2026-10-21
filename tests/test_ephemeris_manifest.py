@@ -195,7 +195,7 @@ class IntegrationGateTests(unittest.TestCase):
     def test_unset_path_skips(self):
         proc = self.run_integration(None)
         self.assertEqual(proc.returncode, 0, proc.stderr)
-        self.assertIn("OK (skipped=8)", proc.stderr)
+        self.assertIn("OK (skipped=12)", proc.stderr)
 
     def test_set_but_incomplete_path_fails(self):
         with tempfile.TemporaryDirectory() as tmp:

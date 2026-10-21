@@ -3,8 +3,8 @@
 Skipped only when SABPUJA_TEST_EPHE_PATH is unset (optional developer run).
 Once it is set, the directory must hold the pinned required files (see
 data/ephemeris/README.md) or the whole class errors instead of skipping.
-Proves fail-closed behaviour only, not astronomical accuracy against an
-independent reference.
+Proves fail-closed behaviour, polar ascendant refusal and run-to-run
+determinism only, not astronomical accuracy against an independent reference.
 """
 import json
 import os
@@ -16,7 +16,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from sabpuja_kundali.engine import calculate
+from sabpuja_kundali.engine import ChartComputationError, calculate
 from sabpuja_kundali.ephemeris import EphemerisDataError, verify_ephemeris_dir
 
 DATA_ENV = "SABPUJA_TEST_EPHE_PATH"
@@ -133,6 +133,49 @@ class SwissIntegrationTests(unittest.TestCase):
         self.assertEqual(proc.stdout, "")
         self.assertEqual(json.loads(proc.stderr),
                          {"error": "EPHEMERIS_FILE_MISSING: required file semo_18.se1 not found"})
+
+    def test_polar_latitudes_refused_with_structured_error(self):
+        for lat in (70, -70, 80, -80, 88.9, -88.9):
+            with self.subTest(latitude=lat):
+                with self.assertRaises(ChartComputationError) as ctx:
+                    calculate({**SYNTHETIC, "latitude": lat}, ephe_path=DATA)
+                self.assertEqual(ctx.exception.code, "ASCENDANT_UNCOMPUTABLE")
+
+    def test_supported_latitudes_and_longitude_bounds_compute(self):
+        cases = [
+            SYNTHETIC,  # Delhi
+            {"birth_datetime": "2000-01-01T23:00:00+11:00", "timezone": "Australia/Sydney",
+             "latitude": -33.8688, "longitude": 151.2093},
+            {**SYNTHETIC, "longitude": 180},
+            {**SYNTHETIC, "longitude": -180},
+        ]
+        for request in cases:
+            with self.subTest(request=request["timezone"], longitude=request["longitude"]):
+                result = calculate(request, ephe_path=DATA)
+                self.assertEqual(result["method"]["houses"], "whole_sign")
+                self.assertEqual(result["birth"]["latitude"], float(request["latitude"]))
+
+    def test_valid_output_deterministic(self):
+        first = json.dumps(calculate(SYNTHETIC, ephe_path=DATA), sort_keys=True)
+        second = json.dumps(calculate(dict(SYNTHETIC), ephe_path=DATA), sort_keys=True)
+        self.assertEqual(first, second)
+
+    def test_cli_polar_exits_2_without_traceback_or_birth_data(self):
+        env = {k: v for k, v in os.environ.items() if k != "SE_EPHE_PATH"}
+        env["SABPUJA_EPHE_PATH"] = DATA
+        for lat in (70, -88.9):
+            with self.subTest(latitude=lat):
+                proc = subprocess.run([sys.executable, "-m", "sabpuja_kundali.cli"],
+                                      input=json.dumps({**SYNTHETIC, "latitude": lat}),
+                                      capture_output=True, text=True, env=env)
+                self.assertEqual(proc.returncode, 2)
+                self.assertEqual(proc.stdout, "")
+                payload = json.loads(proc.stderr)
+                self.assertEqual(list(payload), ["error"])
+                self.assertTrue(payload["error"].startswith("ASCENDANT_UNCOMPUTABLE: "))
+                self.assertNotIn("Traceback", proc.stderr)
+                for secret in ("2000-01-01", "Asia/Kolkata", str(lat), "77.209"):
+                    self.assertNotIn(secret, proc.stderr)
 
 
 if __name__ == "__main__":
