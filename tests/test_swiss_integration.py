@@ -177,6 +177,54 @@ class SwissIntegrationTests(unittest.TestCase):
                 for secret in ("2000-01-01", "Asia/Kolkata", str(lat), "77.209"):
                     self.assertNotIn(secret, proc.stderr)
 
+    def test_categories_match_exact_oracle_on_raw_swiss_values(self):
+        # Every category must come from the unrounded Swiss longitude, and the
+        # displayed value must be its 8-decimal rounding inside [0, 360).
+        import swisseph
+        from fractions import Fraction
+        from boundary_oracle import expected, expected_house
+        requests = [
+            SYNTHETIC,
+            {"birth_datetime": "1985-07-14T04:12:00+05:30", "timezone": "Asia/Kolkata",
+             "latitude": 19.076, "longitude": 72.8777},
+            {"birth_datetime": "2024-03-10T12:00:00+00:00", "timezone": "UTC", "latitude": 0, "longitude": 0},
+            {"birth_datetime": "1950-12-31T23:59:59+00:00", "timezone": "UTC", "latitude": 51, "longitude": -0.1},
+            {"birth_datetime": "2099-12-31T00:00:00-05:00", "timezone": "America/New_York",
+             "latitude": 40.7128, "longitude": -74.006},
+        ]
+        names = ["sun", "moon", "mars", "mercury", "jupiter", "venus", "saturn", "rahu_mean"]
+        for request in requests:
+            raw, asc = [], []
+            real_calc, real_houses = swisseph.calc_ut, swisseph.houses_ex
+
+            def calc(*args):
+                result = real_calc(*args)
+                raw.append(result[0][0])
+                return result
+
+            def houses(*args):
+                result = real_houses(*args)
+                asc.append(result[1][0])
+                return result
+
+            with self.subTest(request=request["birth_datetime"]), \
+                    mock.patch.object(swisseph, "calc_ut", calc), mock.patch.object(swisseph, "houses_ex", houses):
+                out = calculate(request, ephe_path=DATA)
+                sources = dict(zip(names, raw), ketu_mean=Fraction(raw[-1]) + 180)
+                self.assertEqual(list(out["planets"]), names + ["ketu_mean"])
+                for name, source in sources.items():
+                    want = expected(source)
+                    got = out["planets"][name]
+                    self.assertEqual((got["rashi"], got["navamsa_rashi"]), (want["rashi"], want["navamsa_rashi"]))
+                    self.assertEqual(got["whole_sign_house"], expected_house(source, asc[0]))
+                    self.assertTrue(0.0 <= got["longitude_deg"] < 360.0)
+                    shown = round(float(source % 360) if isinstance(source, Fraction) else source % 360.0, 8)
+                    self.assertEqual(got["longitude_deg"], 0.0 if shown == 360.0 else shown)
+                self.assertEqual(out["moon_nakshatra"], expected(sources["moon"])["nakshatra"])
+                lagna = expected(asc[0])
+                self.assertEqual(out["lagna"]["rashi"], lagna["rashi"])
+                self.assertEqual(out["lagna"]["navamsa_rashi"], lagna["navamsa_rashi"])
+
 
 if __name__ == "__main__":
     unittest.main()

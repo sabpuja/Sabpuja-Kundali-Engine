@@ -1,5 +1,14 @@
-"""Pure Vedic chart helpers. Longitude must be sidereal degrees."""
+"""Pure Vedic chart helpers. Longitude must be sidereal degrees.
+
+Sector selection is exact: the longitude's exact binary value (or an exact
+rational such as a Fraction) is reduced modulo 360 and floored with integer
+arithmetic, so no float division can move a value across a half-open
+[start, end) boundary. No tolerance or pre-rounding is applied.
+"""
 from __future__ import annotations
+
+import math
+from numbers import Rational
 
 SIGNS = ("Mesha", "Vrishabha", "Mithuna", "Karka", "Simha", "Kanya",
          "Tula", "Vrischika", "Dhanu", "Makara", "Kumbha", "Meena")
@@ -12,30 +21,47 @@ NAKSHATRAS = (
     "Uttara Bhadrapada", "Revati"
 )
 
+# Largest float below 360: the top of the normalized range [0, 360).
+_BELOW_360 = math.nextafter(360.0, 0.0)
+
+
 def normalize(longitude: float) -> float:
-    import math
+    """Return a float in [0, 360) for display; classification never reads it."""
     if not math.isfinite(longitude):
         raise ValueError("Longitude must be finite")
-    return longitude % 360.0
+    pos = longitude % 360.0
+    # A negative input within half an ulp of a multiple of 360 rounds up to
+    # 360.0. Its true angle lies just below 360, so keep it in the last sector.
+    return _BELOW_360 if pos == 360.0 else pos
 
-def sign_index(longitude: float) -> int:
-    return min(11, int(normalize(longitude) / 30.0))
 
-def sign(longitude: float) -> str:
+def _sector(longitude: float | Rational, count: int) -> int:
+    """Zero-based index of the half-open 360/count degree sector holding longitude."""
+    if isinstance(longitude, float) and not math.isfinite(longitude):
+        raise ValueError("Longitude must be finite")
+    num, den = longitude.as_integer_ratio()
+    full_circle = 360 * den
+    return num % full_circle * count // full_circle
+
+
+def sign_index(longitude: float | Rational) -> int:
+    return _sector(longitude, 12)
+
+
+def sign(longitude: float | Rational) -> str:
     return SIGNS[sign_index(longitude)]
 
-def nakshatra(longitude: float) -> dict[str, object]:
-    sector = 360.0 / 27.0
-    pos = normalize(longitude)
-    index = min(26, int(pos / sector))
-    pada = min(4, int((pos - index * sector) / (sector / 4.0)) + 1)
-    return {"index": index, "name": NAKSHATRAS[index], "pada": pada}
 
-def navamsa_sign(longitude: float) -> str:
+def nakshatra(longitude: float | Rational) -> dict[str, object]:
+    pada_index = _sector(longitude, 108)
+    index = pada_index // 4
+    return {"index": index, "name": NAKSHATRAS[index], "pada": pada_index % 4 + 1}
+
+
+def navamsa_sign(longitude: float | Rational) -> str:
     """D9 sign by 3 degree 20 minute sidereal segments across zodiac."""
-    step = 30.0 / 9.0
-    index = int(normalize(longitude) / step) % 12
-    return SIGNS[index]
+    return SIGNS[_sector(longitude, 108) % 12]
 
-def whole_sign_house(longitude: float, ascendant: float) -> int:
+
+def whole_sign_house(longitude: float | Rational, ascendant: float | Rational) -> int:
     return (sign_index(longitude) - sign_index(ascendant)) % 12 + 1
