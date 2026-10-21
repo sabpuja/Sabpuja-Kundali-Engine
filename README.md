@@ -7,6 +7,8 @@
 - [Acceptance and QA Matrix](docs/ACCEPTANCE-MATRIX.md)
 - [Owner Decision Register](docs/DECISIONS.md)
 - [Machine-readable project plan](machine/project-plan.json)
+- [Claude Code repo instructions](CLAUDE.md)
+- [Claude Project Goal and Context - paste-ready](docs/CLAUDE-PROJECT-SETUP.md)
 
 **Delivery model:** Sabpuja owner decides; ChatGPT manages scope and independently reviews all substantive code/functions; Claude builds on scoped branches and submits draft PRs.
 
@@ -14,4 +16,4 @@
 
 **Runtime direction:** Self-hosted Swiss Ephemeris + Sabpuja's Vedic algorithms under AGPL-3.0, with no third-party astrology API. Review licensing, local ephemeris rights, security and accuracy before network use.
 
-All Kundali project documentation lives in this repository. No changes to other Sabpuja repositories are part of this documentation PR.
+All Kundali project documentation lives in this repository. Claude setup and Kundali documentation changes belong here. Claude instructions do not automatically connect Claude Projects or authorize a build.
