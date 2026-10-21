@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "updated": "2026-10-21",
+  "repository": "sabpuja/Sabpuja-Kundali-Engine",
+  "canonical_project_documentation": true,
+  "project_docs_canonical_repository": "sabpuja/Sabpuja-Kundali-Engine",
+  "document_status": "draft-owner-review-required",
+  "documents": {
+    "index": "docs/README.md",
+    "prd": {
+      "path": "docs/PRD.md",
+      "version": "1.0-rc1",
+      "approval": "pending"
+    },
+    "development_roadmap": {
+      "path": "docs/DEVELOPMENT-ROADMAP.md",
+      "version": "1.0-rc1",
+      "approval": "pending"
+    },
+    "acceptance_matrix": {
+      "path": "docs/ACCEPTANCE-MATRIX.md",
+      "version": "1.0-rc1",
+      "approval": "pending"
+    },
+    "decisions": {
+      "path": "docs/DECISIONS.md",
+      "version": "1.0-rc1",
+      "approval": "pending"
+    }
+  },
+  "roles": {
+    "owner": "human-Sabpuja-product-owner",
+    "pm_qa": "ChatGPT",
+    "implementation": "Claude"
+  },
+  "foundation": {
+    "pull_request": 1,
+    "status": "draft-unmerged",
+    "audit_issue": 2,
+    "audit_completed": false
+  },
+  "workflow": [
+    "owner-prd-approval",
+    "owner-method-decisions",
+    "approved-scoped-task",
+    "claude-branch-and-tests",
+    "claude-draft-pr",
+    "chatgpt-independent-qa",
+    "owner-merge-approval",
+    "separate-deployment-approval"
+  ],
+  "milestones": [
+    {
+      "id": "KUN-DOC",
+      "name": "Approved project specification",
+      "status": "DRAFT"
+    },
+    {
+      "id": "KUN-00",
+      "name": "Foundation audit and repair",
+      "status": "PENDING"
+    },
+    {
+      "id": "KUN-01",
+      "name": "Independent Swiss numerical verification",
+      "status": "PENDING"
+    },
+    {
+      "id": "KUN-02",
+      "name": "Offline birthplace and timezone",
+      "status": "PENDING"
+    },
+    {
+      "id": "KUN-03",
+      "name": "D1 and D9 domain schema",
+      "status": "PENDING"
+    },
+    {
+      "id": "KUN-04",
+      "name": "Secure first-party service",
+      "status": "PENDING"
+    },
+    {
+      "id": "KUN-05",
+      "name": "English/Hindi Component Lab",
+      "status": "PENDING"
+    },
+    {
+      "id": "KUN-06",
+      "name": "Branded bilingual PDFs",
+      "status": "PENDING"
+    },
+    {
+      "id": "KUN-07",
+      "name": "Shopify staging integration",
+      "status": "PENDING"
+    },
+    {
+      "id": "KUN-08",
+      "name": "Legal security and approved launch",
+      "status": "PENDING"
+    }
+  ],
+  "change_policy": {
+    "never_touch_core_for_project_docs": true,
+    "no_github_actions": true,
+    "no_unattended_deployment": true,
+    "no_third_party_astrology_api": true,
+    "no_direct_main_push": true,
+    "source_control_no_birth_personal_data": true,
+    "approval_before_implementation": true,
+    "shopify_staging_only_until_release": true
+  }
+}
