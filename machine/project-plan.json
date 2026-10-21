@@ -26,6 +26,14 @@
       "path": "docs/DECISIONS.md",
       "version": "1.0-rc1",
       "approval": "pending"
+    },
+    "claude_code": {
+      "path": "CLAUDE.md",
+      "status": "ready-on-main-after-reviewed-pr"
+    },
+    "claude_project_setup": {
+      "path": "docs/CLAUDE-PROJECT-SETUP.md",
+      "status": "paste-ready-manual-external-setup"
     }
   },
   "roles": {
@@ -110,5 +118,6 @@
     "source_control_no_birth_personal_data": true,
     "approval_before_implementation": true,
     "shopify_staging_only_until_release": true
-  }
+  },
+  "document_sync_note": "PRD/roadmap are merged owner-review drafts; code/governance PR #1 remains unmerged; CLAUDE-001 audit may start without new feature authorization."
 }
