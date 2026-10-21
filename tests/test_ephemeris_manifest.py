@@ -180,5 +180,37 @@ class CliNegativeTests(unittest.TestCase):
                                  json.loads(proc.stderr)["error"]))
 
 
+class IntegrationGateTests(unittest.TestCase):
+    """QA-002a-01: a requested real-data run must fail, never silently skip."""
+
+    def run_integration(self, data_path):
+        env = {k: v for k, v in os.environ.items() if k not in ("SE_EPHE_PATH", "SABPUJA_TEST_EPHE_PATH")}
+        if data_path is not None:
+            env["SABPUJA_TEST_EPHE_PATH"] = data_path
+        return subprocess.run(
+            [sys.executable, "-m", "unittest", "discover", "-s", str(Path(__file__).parent),
+             "-p", "test_swiss_integration.py"],
+            capture_output=True, text=True, env=env)
+
+    def test_unset_path_skips(self):
+        proc = self.run_integration(None)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertIn("OK (skipped=8)", proc.stderr)
+
+    def test_set_but_incomplete_path_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp, "sepl_18.se1").write_bytes(b"stand-in")
+            proc = self.run_integration(tmp)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("is set but does not hold the pinned required files", proc.stderr)
+        self.assertNotIn("skipped", proc.stderr)
+
+    def test_set_but_empty_path_fails(self):
+        proc = self.run_integration("")
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("EPHEMERIS_PATH_MISSING", proc.stderr)
+        self.assertNotIn("skipped", proc.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

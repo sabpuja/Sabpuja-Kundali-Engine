@@ -1,8 +1,10 @@
 """Real Swiss Ephemeris integration for the manifest gate.
 
-Needs the pinned upstream files in SABPUJA_TEST_EPHE_PATH (see
-data/ephemeris/README.md); skipped otherwise. Proves fail-closed behaviour
-only, not astronomical accuracy against an independent reference.
+Skipped only when SABPUJA_TEST_EPHE_PATH is unset (optional developer run).
+Once it is set, the directory must hold the pinned required files (see
+data/ephemeris/README.md) or the whole class errors instead of skipping.
+Proves fail-closed behaviour only, not astronomical accuracy against an
+independent reference.
 """
 import json
 import os
@@ -15,9 +17,10 @@ from pathlib import Path
 from unittest import mock
 
 from sabpuja_kundali.engine import calculate
-from sabpuja_kundali.ephemeris import EphemerisDataError
+from sabpuja_kundali.ephemeris import EphemerisDataError, verify_ephemeris_dir
 
-DATA = os.environ.get("SABPUJA_TEST_EPHE_PATH", "")
+DATA_ENV = "SABPUJA_TEST_EPHE_PATH"
+DATA = os.environ.get(DATA_ENV)
 SYNTHETIC = {
     "birth_datetime": "2000-01-01T17:30:00+05:30",
     "timezone": "Asia/Kolkata",
@@ -26,9 +29,23 @@ SYNTHETIC = {
 }
 
 
-@unittest.skipUnless(DATA and Path(DATA, "sepl_18.se1").is_file() and Path(DATA, "semo_18.se1").is_file(),
-                     "SABPUJA_TEST_EPHE_PATH with pinned sepl_18.se1 and semo_18.se1 not provided")
+# Stand-in for the optional asteroid file when it is not supplied: the gate must
+# ignore it either way, so these cases never need to skip.
+ASTEROID_STAND_IN = b"optional asteroid file stand-in"
+
+
+@unittest.skipIf(DATA is None, f"{DATA_ENV} unset: real-data integration tests not requested")
 class SwissIntegrationTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Explicitly requested real-data run: incomplete or wrong data is a failure, not a skip.
+        try:
+            with mock.patch.dict(os.environ):
+                os.environ.pop("SE_EPHE_PATH", None)
+                verify_ephemeris_dir(DATA)
+        except EphemerisDataError as exc:
+            raise AssertionError(f"{DATA_ENV} is set but does not hold the pinned required files: {exc}") from None
+
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.dir = Path(self._tmp.name)
@@ -42,7 +59,11 @@ class SwissIntegrationTests(unittest.TestCase):
 
     def copy(self, *names):
         for name in names:
-            shutil.copy(Path(DATA, name), self.dir / name)
+            source = Path(DATA, name)
+            if name == "seas_18.se1" and not source.is_file():
+                (self.dir / name).write_bytes(ASTEROID_STAND_IN)
+            else:
+                shutil.copy(source, self.dir / name)
 
     def calc_ut_spy(self):
         import swisseph
@@ -70,15 +91,11 @@ class SwissIntegrationTests(unittest.TestCase):
         spy.assert_not_called()
 
     def test_planets_and_asteroid_files_fail(self):
-        if not Path(DATA, "seas_18.se1").is_file():
-            self.skipTest("seas_18.se1 not provided")
         self.copy("sepl_18.se1", "seas_18.se1")
         with self.assertRaises(EphemerisDataError):
             calculate(SYNTHETIC, ephe_path=str(self.dir))
 
     def test_asteroid_only_fails(self):
-        if not Path(DATA, "seas_18.se1").is_file():
-            self.skipTest("seas_18.se1 not provided")
         self.copy("seas_18.se1")
         with self.assertRaises(EphemerisDataError):
             calculate(SYNTHETIC, ephe_path=str(self.dir))

@@ -29,7 +29,11 @@ Rules:
 1. Store dataset files on the protected local runtime volume, not in GitHub.
 2. Do not set `SE_EPHE_PATH`: Swiss Ephemeris would read it in preference to the verified directory, so the engine refuses to run while it is set.
 3. Changing the source commit or file set requires a reviewed manifest update with new checksums.
-4. Run the real-data tests with the same files: `SABPUJA_TEST_EPHE_PATH=/srv/sabpuja/ephe python -m unittest discover -s tests -v`.
+4. Run the real-data tests with the same files. Without `SABPUJA_TEST_EPHE_PATH` the 8 real-data tests skip; once it is set, missing or mismatched required files make the run fail instead of skipping. Release verification must show 0 skipped tests:
+   ```bash
+   SABPUJA_TEST_EPHE_PATH=/srv/sabpuja/ephe python -m unittest discover -s tests -v 2>&1 | tee test-run.log
+   tail -n 1 test-run.log | grep -qx 'OK' && ! grep -q 'skipped' test-run.log && echo "RELEASE TESTS: PASS (0 skipped)"
+   ```
 5. Record Swiss code/binding/ephemeris data version in deployment logs **without logging birth data**.
 
 Do not enable public requests if data is missing. The code also still rejects any Moshier fallback reported by Swiss Ephemeris.
