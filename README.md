@@ -9,6 +9,13 @@ Sabpuja-owned, self-hosted Vedic Kundali calculations based on the locally insta
 - Agents: [AGENTS.md](AGENTS.md), [machine/capabilities.json](machine/capabilities.json), [access/onboarding](docs/access-and-agent-onboarding.md), [API/data contract](docs/api-contract.md).
 - Canonical org discovery: `sabpuja/core/docs/architecture/repo-map.md` and `sabpuja/Progress-Memory/ROUTER.md` + `machine/repos.json`.
 
+## Project ownership and delivery
+**Owner:** Sabpuja human project owner. **PM and independent QA:** ChatGPT. **Lead implementer:** Claude / Claude Code.
+
+All material code, functions, interfaces and PRs are assigned and reviewed through ChatGPT. Claude implements and supplies reproducible test evidence; owner approval is required for merge, staging deployment and release. See [project governance](docs/project-governance.md), [Claude's first task](docs/claude-builder-brief-001.md), [QA template](docs/qa-review-template.md), and [machine role registry](machine/project-roles.json). Claude execution permissions are **not yet configured**.
+
+Existing foundation is draft PR #1, which is awaiting independent test and numerical validation. Do not create a duplicate engine or merge until accepted.
+
 ## Implemented foundation
 - Pure Vedic helpers for Rashi, Nakshatra/Pada and Navamsa (D9) sign mapping, with authored unit tests awaiting execution.
 - Local Swiss Ephemeris adapter: explicit Lahiri sidereal mode, Sun/Moon/classical grahas, mean Rahu and opposite Ketu, sidereal ascendant and whole-sign houses.
