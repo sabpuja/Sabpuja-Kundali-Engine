@@ -1,0 +1,96 @@
+{
+  "schema": "sabpuja-swiss-conformance-spec/1",
+  "status": "FROZEN for KUN-01-SWISS-01 (predeclared before the first real run; changing any value needs a written reason and QA review)",
+  "claim_boundary": "Swiss-on-Swiss integration conformance: Sabpuja's Python integration agrees with the tested Swiss Ephemeris CLI for these cases, versions and options. NOT independent astronomical validation; not related to tests/golden independent-reference classes or tolerances.",
+  "required_versions": {
+    "swiss_library": "2.10.03",
+    "pyswisseph": "2.10.3.2"
+  },
+  "swetest_switches": {
+    "planets": [
+      "-edir<EPHE>",
+      "-bj<JD>",
+      "-ut",
+      "-sid1",
+      "-i65538",
+      "-p0123456m",
+      "-fPl",
+      "-ep",
+      "-g,"
+    ],
+    "houses": [
+      "-edir<EPHE>",
+      "-bj<JD>",
+      "-ut",
+      "-sid1",
+      "-i65536",
+      "-p",
+      "-fPl",
+      "-ep",
+      "-g,",
+      "-house<LON>,<LAT>,P"
+    ],
+    "meaning": {
+      "-edir": "same verified directory as the engine (sepl_18.se1, semo_18.se1)",
+      "-bj": "Julian Day (UT) printed with repr() so the double round-trips exactly",
+      "-ut": "input is UT; the engine also treats civil UTC as UT1 (SCI-01h pending)",
+      "-sid1": "SE_SIDM_LAHIRI (mode 1), t0 and ayan_t0 0, as swe.set_sid_mode(SIDM_LAHIRI, 0, 0)",
+      "-i65538": "iflag SEFLG_SWIEPH(2) | SEFLG_SIDEREAL(65536), the engine's calc_ut flags; swetest applies -i only with its header enabled, so the header is kept",
+      "-i65536": "iflag SEFLG_SIDEREAL only, the engine's houses_ex flags",
+      "-p0123456m": "Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, mean node",
+      "-p": "empty planet list for the houses run",
+      "-house<LON>,<LAT>,P": "Placidus houses at the case location; Ascendant is ascmc[0], the engine's Lagna vehicle",
+      "-fPl -ep -g,": "name and decimal longitude with 11 decimals, comma separated"
+    }
+  },
+  "tolerances_deg": {
+    "binding_vs_swetest": {
+      "value": 1e-09,
+      "basis": "same C source; swetest prints 11 decimals (half unit 5e-12 deg); allowance for compiler/optimisation differences between the -O0 swetest build and the pyswisseph wheel"
+    },
+    "engine_vs_swetest": {
+      "value": 1e-08,
+      "basis": "engine displays 8 decimals (half unit 5e-9 deg) plus binding_vs_swetest"
+    },
+    "swetest_ut_jd_day": {
+      "value": 1e-09,
+      "basis": "swetest prints UT JD with 9 decimals (half unit 5e-10 day)"
+    },
+    "independent_jd_day": {
+      "value": 1e-09,
+      "basis": "double JD near 2.45e6 has a spacing of 4.66e-10 day"
+    },
+    "ketu_identity_deg": {
+      "value": 1e-08,
+      "basis": "two 8-decimal displays of an exact identity"
+    }
+  },
+  "boundary_rule": "A category check whose swetest longitude lies within binding_vs_swetest of a Pada edge (all Rashi, Nakshatra and D9 edges are Pada edges) is BOUNDARY-INDETERMINATE unless the binding's unrounded value and the swetest value fall in the same segment, in which case it is resolved and compared.",
+  "verdict_rule": "Any FAIL makes the run SWISS-CONFORMANCE FAIL. Otherwise any BLOCKED or BOUNDARY-INDETERMINATE check, any failed provenance gate, or a run with no checks makes it SWISS-CONFORMANCE BLOCKED. Only a run in which every check passes is SWISS-CONFORMANCE PASS.",
+  "verdicts": {
+    "SWISS-CONFORMANCE PASS": 0,
+    "SWISS-CONFORMANCE FAIL": 1,
+    "SWISS-CONFORMANCE BLOCKED": 2
+  },
+  "bodies": [
+    "sun",
+    "moon",
+    "mercury",
+    "venus",
+    "mars",
+    "jupiter",
+    "saturn",
+    "rahu_mean"
+  ],
+  "swetest_names": {
+    "sun": "Sun",
+    "moon": "Moon",
+    "mercury": "Mercury",
+    "venus": "Venus",
+    "mars": "Mars",
+    "jupiter": "Jupiter",
+    "saturn": "Saturn",
+    "rahu_mean": "mean Node",
+    "lagna": "Ascendant"
+  }
+}
