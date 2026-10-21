@@ -13,20 +13,21 @@ These run with `python -m unittest discover -s tests`. With `SABPUJA_TEST_EPHE_P
 |---|---|
 | [accuracy/scientific-decisions.md](accuracy/scientific-decisions.md) | Recommendations and owner questions for SCI-01 (conventions), SCI-02 (MVP scope), SCI-03 (date range). Decisions are recorded only in `docs/DECISIONS.md` on `main` |
 | [accuracy/reference-sources.md](accuracy/reference-sources.md) | Independent reference-source register, provenance and the conversions that make sources comparable |
-| [accuracy/golden-chart-spec.md](accuracy/golden-chart-spec.md) | Golden-chart specification, fixture record format, fixture inventory, comparison rules and predeclared tolerances |
+| [accuracy/golden-chart-spec.md](accuracy/golden-chart-spec.md) | Golden-chart specification, fixture record format, fixture inventory, comparison rules, proposed tolerances (all numeric rows BLOCKED for freeze until evidence pre-gates pass) and the separate time-scale track |
 | [accuracy/qa-architecture.md](accuracy/qa-architecture.md) | Local QA harness design, PASS / FAIL / BLOCKED semantics, report contents and execution work packages |
 | [accuracy/risk-register.md](accuracy/risk-register.md) | Risks blocking a verified-accuracy claim |
 | [accuracy/evidence/](accuracy/evidence/) | Research scripts and raw outputs (convention-sensitivity probes; fixture input check). Not reference values |
 
 ## Required golden-chart verification (NOT DONE)
 1. Owner approves SCI-01, SCI-02 and SCI-03 (or modifies them) in `docs/DECISIONS.md`.
-2. ChatGPT QA passes the specification, sources and tolerances **before** any comparison is run.
+2. Evidence pre-gates PG-1 to PG-5 complete and ChatGPT QA freezes the tolerances **before** any engine comparison is run.
 3. Generate reference fixtures from independent sources only (never the engine, never Swiss-based software), with full provenance.
 4. Run the golden harness on the exact commit; report per-body circular differences, category checks and environment versions.
-5. Cover sign, Nakshatra/Pada and D9 boundaries, the 0°/360° transition, leap years, UTC-date crossover, DST gaps and folds, historical Indian offsets, both hemispheres and the date-range edges (see the fixture inventory).
-6. Confirm no silent ephemeris fallback and no stale global state across concurrent requests (QA-008).
-7. Validate Hindi/English report labels separately from numerical outputs.
-8. Dasha, Dosha, Yoga and further divisional charts only after their own specification and independent fixtures.
-9. Human review of methodology, astrology variants, privacy and AGPL deployment boundary.
+5. Verify time handling on its own track (UTC → UT1 by era, Delta T) and implement the historical-clock release gate before any public 1900–2100 promise.
+6. Cover sign, Nakshatra/Pada and D9 boundaries, the 0°/360° transition, leap years, UTC-date crossover, DST gaps and folds, historical Indian offsets, both hemispheres and the date-range edges (see the fixture inventory).
+7. Confirm no silent ephemeris fallback and no stale global state across concurrent requests (QA-008).
+8. Validate Hindi/English report labels separately from numerical outputs.
+9. Dasha, Dosha, Yoga and further divisional charts only after their own specification and independent fixtures.
+10. Human review of methodology, astrology variants, privacy and AGPL deployment boundary.
 
 No factual accuracy or release claim without evidence in the PR and a versioned validation report.

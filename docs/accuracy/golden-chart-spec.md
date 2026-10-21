@@ -10,7 +10,7 @@ Acceptance IDs served: QA-005, QA-006, QA-007, QA-008, QA-009, QA-010, QA-012, Q
 
 1. **Independent truth.** Expected values come only from sources in [reference-sources.md](reference-sources.md) classes I-data, I-code or I-pub. The reference generator must not import `sabpuja_kundali` or `swisseph`; the QA harness enforces this (see [qa-architecture.md](qa-architecture.md)).
 2. **Synthetic inputs only.** Every input is an invented date and time at a public city-centre coordinate. No real person's birth data, ever.
-3. **Same question to both sides.** Each fixture records the method signature (ayanamsa variant, node, house model, ascendant vehicle, frame, apparent/geometric, geocentric, time-scale assumption). A fixture with a signature that differs from the engine's output metadata is reported as METHOD-MISMATCH, never as a pass or an implementation failure.
+3. **Same question to both sides.** Each fixture records the method signature (ayanamsa variant, node, house model, ascendant vehicle, frame, apparent/geometric, geocentric, time-scale assumption). The engine's side is **not** taken from its emitted `method` block, which today carries only `ayanamsa: Lahiri`, `nodes: mean`, `houses: whole_sign`, a source label and the binding version. It comes from an independently inspected, commit-pinned **method manifest** ([qa-architecture.md](qa-architecture.md) section 3a). A signature that differs from the manifest is METHOD-MISMATCH; a manifest that is missing, stale or cannot be verified makes the fixture BLOCKED, never a match.
 4. **Categories are not compared near their edges by accident.** Ordinary golden charts are selected (using the reference only) so that every category is at least 10× its tolerance away from a segment boundary. Boundaries are tested on purpose by transition fixtures (section 5.3).
 5. **Self-consistency is labelled.** Checks such as "Ketu is Rahu + 180°" or the exact-arithmetic boundary oracle prove internal consistency only, and are reported in a separate section titled as such.
 
@@ -76,36 +76,73 @@ Every `null` above is filled by the reference generator only after approval. `fi
 - **Reference categories** are computed by the QA harness's own oracle from the reference longitude, written from the rule definitions (R-11), not by calling `sabpuja_kundali.rules`.
 - **Category outcome:** exact equality required. If the reference longitude lies within the relevant tolerance of a segment boundary, the outcome is BOUNDARY-INDETERMINATE (neither pass nor fail) and the fixture must be redesigned or resolved with a tighter reference.
 - **Time conversion:** the engine's `birth.utc` must equal the expected UTC string exactly; rejected inputs must produce the expected error class with no partial chart.
-- **Planets and nodes** are compared at the same TT (section 4 note); the **ascendant** at the same UT1.
+- **Planets and nodes** are compared at the engine's TT and the **ascendant** at the same UT1, which isolates the kernel and coordinate transforms. Time handling (UTC → UT1, Delta T) is verified on its own track (section 4.4); a kernel PASS alone is not an end-to-end PASS.
 
 ## 4. Tolerance proposal (declared before any comparison)
 
-All values are maximum absolute circular differences. "S" is the ascendant's sensitivity to local sidereal time, `|∂λ_asc/∂θ|`, computed analytically by the reference for each fixture (≈1 near the equator, about 4 at 60°, much larger near the polar circle; probe [7]).
+**Status of every numeric tolerance: PROPOSED BUDGETING HYPOTHESIS, BLOCKED FOR FREEZE.** None is yet backed by independent evidence for every body and epoch. A row may be frozen only after its pre-gate (section 4.2) has produced evidence that ChatGPT QA has reviewed. Pre-gate evidence must not include any comparison against the engine or Swiss Ephemeris output, so tolerances are still fixed before engine results are seen. If a pre-gate shows a budget is too small, the row is re-derived from that pre-gate evidence and re-reviewed; it is never widened because an engine comparison failed.
 
-| ID | Quantity | Reference | Tolerance | Derivation |
+"S" is the ascendant's sensitivity to local sidereal time, `|∂λ_asc/∂θ|`, computed analytically by the reference for each fixture (≈1 near the equator, about 4 at 60°, much larger near the polar circle; probe [7]).
+
+### 4.1 Rows
+
+| ID | Quantity | Reference | Proposed budget | Basis and what is unverified | Freeze status |
+|---|---|---|---|---|---|
+| T-ICRF | Geocentric astrometric RA/Dec, ICRF (angular separation), Sun–Saturn and Moon | R-02 / R-02b / R-01 quantity 1 | 0.10" | Documented: Swiss compression vs JPL ≤ 0.001", Swiss reproduction of Horizons ≈ 0.001" (R-10). **Unverified:** the size of DE431 vs DE421/DE440 differences per body and epoch, assumed < 0.05" for 1900–2100 including the Moon | **BLOCKED** until PG-1 |
+| T-TROP-S | Tropical apparent ecliptic longitude of date | R-02 / R-02b (IAU 2006/2000A) | 0.10" | T-ICRF budget plus model differences (Vondrák 2011 vs IAU 2006 precession, IAU 2000B vs 2000A nutation) **assumed** at milliarcsecond level | **BLOCKED** until PG-1, PG-4 |
+| T-TROP-H | Same, against Horizons quantity 31 | R-01 | 0.50" | Documented constant 53 mas reference-ecliptic offset (R-10); IAU 1976 precession-rate error ≈ 3 mas/yr quoted from IAE 2019 via R-10, giving ≈ 0.3" at 1900 and 2100 | **BLOCKED** until PG-1, PG-4 |
+| T-AYA | True Lahiri ayanamsha | Reimplementation of the approved definition with ERFA (R-04), and IAE printed tables (R-05) | 0.40" | **Hypothesis only.** Derived from Swiss-vs-Swiss variant sensitivity (probe [1]: mode 1 vs the IAU 1976 variant, −0.30" to +0.31") plus 0.05" IAE print rounding. Neither the IAE editions/epochs nor the ERFA derivation has been reviewed | **BLOCKED** until PG-3 |
+| T-SID | Sidereal longitude, Sun–Saturn and Moon | T-TROP-S path − T-AYA path | 0.50" | Sum of two blocked rows | **BLOCKED** |
+| T-SID-H | Same via Horizons | T-TROP-H − T-AYA | 0.90" | Sum of two blocked rows | **BLOCKED** |
+| T-NODE | Mean Rahu | none yet | **no budget proposed** | See section 4.3. Swiss's mean node (Moshier's adjustment of ELP2000-85, corrected towards DE431-derived values) and a textbook ELP polynomial are **different conventions**: upstream says they differ by up to 20" over 3000 BCE–3000 CE, and its "1" relative to DE431" estimate is a precision claim against a different reference. A 1" or 20" pass band would both be unjustified | **BLOCKED** pending convention comparability (PG-2) |
+| T-NODE-SID | Sidereal mean Rahu and Ketu | T-NODE − mean ayanamsha | none | Follows T-NODE | **BLOCKED** |
+| T-KETU | Ketu − Rahu − 180° (self-consistency, labelled) | none | ≤ 1e-8° | Exact construction; only display rounding of two values remains. Not independent validation | Can freeze (arithmetic) |
+| T-ASC | Tropical ascendant | ERFA sidereal time + true obliquity + spherical formula (R-04) at the same UT1 | 0.10" × max(1, S) | **Assumed** milliarcsecond-level sidereal-time and obliquity model differences; the formula amplifies sidereal-time error by S | **BLOCKED** until PG-4 |
+| T-ASC-SID | Sidereal ascendant | T-ASC − T-AYA | 0.10" × max(1, S) + 0.40" | Sum of blocked rows | **BLOCKED** |
+| T-UTC | UTC instant from civil input | IANA rule (R-08) | exact | Discrete. Tests IANA rule **application** only, not historical clock truth (section 5.2) | Can freeze per tzdata version |
+| T-CAT | Rashi, house, Nakshatra, Pada, D9 sign, D9 house | Harness oracle on reference longitude | exact, with BOUNDARY-INDETERMINATE band equal to the longitude tolerance used | Discrete; band inherits the status of the longitude row | Follows its longitude row |
+| T-TIME-* | Time-scale track | Section 4.4 | see 4.4 | | **BLOCKED** until PG-5 |
+
+### 4.2 Evidence pre-gates (before any tolerance freezes)
+
+| Pre-gate | Evidence required | Independent of the engine? | Unblocks |
+|---|---|---|---|
+| PG-1 | Per-body, per-epoch differences between JPL ephemeris versions (DE421 vs DE440s vs DE441 at least; DE431 if obtainable) for Sun–Saturn and Moon across 1900–2100, computed with Skyfield/jplephem on a machine with NAIF access, plus INPOP vs DE440 for the same grid; together with any published inter-version comparison (for example the DE440/DE441 release paper) cited by page. Output: a per-body, per-epoch table | Yes: reference sources only | T-ICRF, T-TROP-* |
+| PG-2 | Owner and QA choose the mean-node **definition** (see 4.3); then a written derivation of what the reference computes (theory, polynomial order, frame, equinox) | Yes | T-NODE, T-NODE-SID |
+| PG-3 | IAE true-ayanamsha pages (at least two editions, edition and page recorded, reuse terms confirmed) and a reviewed ERFA derivation of the approved Lahiri definition, compared **with each other**, not with Swiss | Yes | T-AYA |
+| PG-4 | ERFA vs Skyfield vs Horizons comparison of sidereal time, obliquity and of-date frame on a date grid, to bound model differences | Yes | T-TROP-*, T-ASC |
+| PG-5 | Time-scale evidence: IERS EOP series, Delta T sources and the pre-1972 historical framing in section 4.4 | Yes | T-TIME-* |
+
+### 4.3 Mean node: comparability before precision
+
+The engine's mean node is whatever Swiss Ephemeris defines it to be. Upstream §2.2.1: Swiss computes it from Moshier's lunar routine, an adjustment of ELP2000-85 to the JPL ephemeris, with added corrections derived from the DE431 true node; its deviation from ELP2000-85's mean node is 0 at J2000 and below 20" over 3000 BCE–3000 CE; estimated precision 1" relative to DE431. A published polynomial (Chapront-Touzé & Chapront 1988 ELP2000-82B; Simon et al. 1994; Chapront et al. 2002) gives the mean longitude of the ascending node on the ecliptic of date, referred to the mean equinox of date, without light-time or aberration.
+
+These are two definitions of "mean node", not one quantity measured twice. The owner must choose one of:
+- **(a) Swiss's mean node is the definition.** Then no independent source computes it; node checks become **definition-conformance** checks, reported as such, and never as independent accuracy validation.
+- **(b) A named published polynomial is the definition.** Then the engine is compared with that polynomial; a difference larger than the agreed numerical budget is **METHOD-MISMATCH** (the engine uses a different definition), not an implementation defect, until the engine is changed to compute the approved definition (a separate authorized code PR).
+
+Until that choice and PG-2 are complete, node fixtures are BLOCKED. No pass band, neither 1" nor 20", is proposed.
+
+### 4.4 Time-scale and Delta T verification track (separate from the planetary track)
+
+Planet and node comparisons at the engine's own TT isolate the **ephemeris kernel and coordinate transforms**. They cannot validate the engine's time handling, so time is verified on its own track and the end-to-end claim depends on both.
+
+| Check | What is compared | Independent source | Regime and caveats | Proposed budget |
 |---|---|---|---|---|
-| T-ICRF | Geocentric astrometric RA/Dec, ICRF (angular separation), Sun–Saturn and Moon | R-02 / R-02b / R-01 quantity 1 | **0.10"** | Swiss compression vs JPL ≤ 0.001" and documented Horizons reproduction ≈ 0.001" (R-10). Remaining budget is for DE431 vs DE421/DE440 data differences, **assumed** below 0.05" for 1900–2100; QA to confirm against the DE440 release paper. Frame-free: catches data and light-time defects |
-| T-TROP-S | Tropical apparent ecliptic longitude of date | R-02 / R-02b (IAU 2006/2000A) | **0.10"** | Same physics family as Swiss (Vondrák 2011 vs IAU 2006 precession, IAU 2000B vs 2000A nutation: milliarcsecond level) plus T-ICRF budget |
-| T-TROP-H | Same, against Horizons quantity 31 | R-01 | **0.50"** | Horizons of-date frame is IAU 1976/1980: documented constant 53 mas reference-ecliptic offset plus IAU 1976 precession-rate error ≈ 3 mas/yr, i.e. up to ≈ 0.3" at 1900 and 2100 (R-10, IAE 2019 note quoted there) |
-| T-AYA | True Lahiri ayanamsha | Reimplementation of the approved definition with ERFA (R-04), and IAE printed tables (R-05) | **0.40"** | If SCI-01a approves Swiss mode 1: its documented spread against the IAE-reproducing IAU 1976 variant is −0.30" to +0.31" over 1900–2100 (probe [1]), plus 0.05" IAE print rounding. If the owner instead picks the IAU 1976 variant, this tightens to 0.10" |
-| T-SID | Sidereal longitude, Sun–Saturn and Moon | T-TROP-S path − T-AYA path | **0.50"** | 0.10" + 0.40" |
-| T-SID-H | Same via Horizons | T-TROP-H − T-AYA | **0.90"** | 0.50" + 0.40" |
-| T-NODE | Tropical mean node, mean equinox of date | R-06 polynomial | **1.0"** | Upstream: Swiss mean node "estimated precision 1 arcsec" relative to DE431; R-06 is the published definition |
-| T-NODE-SID | Sidereal mean Rahu and Ketu | T-NODE − mean ayanamsha path | **1.4"** | 1.0" + 0.40" |
-| T-KETU | Ketu − Rahu − 180° (self-consistency, labelled) | none | **≤ 1e-8°** | Exact construction; only display rounding of two values remains |
-| T-ASC | Tropical ascendant | ERFA sidereal time + true obliquity + spherical formula (R-04) at the same UT1 | **0.10" × max(1, S)** | Sidereal-time and obliquity model differences are milliarcsecond level; the formula amplifies any sidereal-time error by S, so the tolerance scales with S |
-| T-ASC-SID | Sidereal ascendant | T-ASC − T-AYA | **0.10" × max(1, S) + 0.40"** | Sum |
-| T-UTC | UTC instant from civil input | IANA rule (R-08) | **exact** | Discrete |
-| T-CAT | Rashi, house, Nakshatra, Pada, D9 sign, D9 house | Harness oracle on reference longitude | **exact**, with BOUNDARY-INDETERMINATE band equal to the longitude tolerance used | Discrete |
-| T-DT | Swiss Delta T vs IERS-derived Delta T | R-07 | **report only** | Delta T is not a pass/fail product quantity; recorded so that future-date Moon differences can be explained |
+| T-TIME-1 UTC → UT1 | Engine assumption "civil UTC = UT1" vs measured UT1 − UTC | IERS EOP C04 (1962 onward) and `finals2000A` (R-07) | **1972 onward:** leap-second UTC, \|UT1 − UTC\| kept below 0.9 s (IERS, NIST). **1961–1971:** UTC used frequency offsets and step adjustments; size to be sourced from IERS/BIH records. **Before 1961:** no UTC; civil time was a national realisation of mean solar time (GMT-based standard times), and recorded birth times are civil clock readings of uncertain accuracy. These eras are a **historical civil-time approximation**, not covered by the 0.9 s bound | Report-and-bound by era; no single number |
+| T-TIME-2 Delta T, observed era | Engine TT − UT (Swiss `deltat`) vs Delta T derived from IERS: (TAI − UTC) + 32.184 s − (UT1 − UTC) | IERS EOP, IERS TAI − UTC | 1962 to the last published EOP date | Hypothesis 0.1 s, **BLOCKED** until PG-5 |
+| T-TIME-3 Delta T, historical | Engine Delta T vs published tables for 1900–1961 | Stephenson, Morrison & Hohenkerk (2016) tables; Astronomical Almanac K-section values | Swiss uses these same publications, so this checks **implementation** of the tables, not their truth | Hypothesis 0.5 s, **BLOCKED** until PG-5 |
+| T-TIME-4 Delta T, future | Engine Delta T after the last observed value vs a spread of published extrapolations | e.g. Stephenson et al. (2016) long-term parabola; Espenak & Meeus (2006) polynomials | No truth exists. Output is an **uncertainty band** per year, converted to Moon longitude (0.565"/s, probe [7]) and disclosed | Report only, with disclosed band |
 
-**Not hidden in the tolerances.** Birth-time precision (a one-minute uncertainty is up to about 16' of Lagna at the equator and ~1° at 60°), UTC-vs-UT1 (≤ 0.9 s) and future Delta T are product limitations. Fixtures share the same assumptions so these do not appear as false failures, and they are disclosed in method notes instead.
+**End-to-end gate.** A golden chart can be called end-to-end PASS only when (i) its kernel checks pass at the engine's TT, (ii) T-TIME-2 or T-TIME-3 passes for its epoch, and (iii) its civil-time input is inside a verified era (section 5.2 and the historical-clock release gate in [scientific-decisions.md](scientific-decisions.md), SCI-03). For future dates the result is QUALIFIED by the T-TIME-4 band, never an unqualified PASS.
+
+**Not hidden in the tolerances.** Birth-time precision (one minute is about 16' of Lagna at the equator and more than 1° at 60°), UTC-vs-UT1 by era, and future Delta T are product limitations. Fixtures share the engine's assumptions so these do not appear as false kernel failures, and the time track reports them separately.
 
 ## 5. Fixture inventory
 
 ### 5.1 Golden charts (GC)
 
-Coordinates are public city-centre values. Every input below was checked against IANA tzdata 2026e with [`evidence/fixture_input_check.py`](evidence/fixture_input_check.py) ([output](evidence/fixture_input_check.out)).
+Coordinates are public city-centre values. All dates are **proleptic Gregorian** as a mathematical input convention (Python and `swe.julday` both use it); this says nothing about which calendar or clock was legally in use at that place and time. Every input below was checked against IANA tzdata 2026e with [`evidence/fixture_input_check.py`](evidence/fixture_input_check.py) ([output](evidence/fixture_input_check.out)).
 
 | ID | Civil input | Zone | Lat, Lon | UTC | Covers | Reference path | Blocked on |
 |---|---|---|---|---|---|---|---|
@@ -124,18 +161,18 @@ Coordinates are public city-centre values. Every input below was checked against
 | GC-13 | 2015-06-21 12:00 +00:00 | Atlantic/Reykjavik | 64.1466, −21.9426 | 2015-06-21 12:00 | Inside proposed 66.0° band, high S | R-02 | SCI-01e, g |
 | GC-14 | 1990-05-05 06:00 +05:45 | Asia/Kathmandu | 27.7172, 85.3240 | 1990-05-05 00:15 | 45-minute offset | R-02 | SCI-01 |
 | GC-15 | 1981-12-31 23:00 +07:30 | Asia/Singapore | 1.3521, 103.8198 | 1981-12-31 15:30 | Historical offset just before a zone change | R-02 | SCI-01 |
-| GC-16 | 1905-06-01 09:00 +05:21:10 | Asia/Kolkata | 13.0827, 80.2707 | 1905-06-01 03:38:50 | IANA Madras railway time era | R-02 | SCI-01, SCI-03 |
-| GC-17 | 1943-06-15 10:00 +06:30 | Asia/Kolkata | 13.0827, 80.2707 | 1943-06-15 03:30 | War time (single dubious source) | R-02 | SCI-01, SCI-03 |
-| GC-18 | 1900-01-01 00:00 +05:21:10 | Asia/Kolkata | 22.5726, 88.3639 | 1899-12-31 18:38:50 | First local instant; **rejected by today's UTC-year rule, accepted by proposed local-date rule** | R-02 | SCI-03 |
+| GC-16 | 1905-06-01 09:00 +05:21:10 | Asia/Kolkata | 13.0827, 80.2707 | 1905-06-01 03:38:50 | **IANA-rule test input** (Madras railway time era); not a historically verified local clock for this place | R-02 | SCI-01, SCI-03 |
+| GC-17 | 1943-06-15 10:00 +06:30 | Asia/Kolkata | 13.0827, 80.2707 | 1943-06-15 03:30 | **IANA-rule test input** (war time, single source IANA calls dubious); not historically verified | R-02 | SCI-01, SCI-03 |
+| GC-18 | 1900-01-01 00:00 +05:21:10 | Asia/Kolkata | 22.5726, 88.3639 | 1899-12-31 18:38:50 | First local instant; **rejected by today's UTC-year rule, accepted by proposed local-date rule**. **IANA-rule test input**: IANA does not model Calcutta civil time in 1900 | R-02 | SCI-03 |
 | GC-19 | 2100-12-31 23:59 +14:00 | Pacific/Kiritimati | 1.8721, −157.4278 | 2100-12-31 09:59 | Last local instant, far east; DE421 out of range | R-02b | SCI-03 |
 | GC-20 | 2100-12-31 23:59 −08:00 | America/Los_Angeles | 34.0522, −118.2437 | 2101-01-01 07:59 | Last local instant, west; UTC year 2101: **accepted only by the proposed local-date rule** | R-02b | SCI-03 |
-| GC-21 | (input chosen after SCI-01g) | Europe/Oslo | 69.6492, 18.9553 | — | Outside proposed band: expect a fixed refusal, no chart | none (error expected) | SCI-01g |
+| GC-21 | (input chosen after SCI-01g) | Europe/Oslo | 69.6492, 18.9553 | — | **Optional, retained pending SCI-01g.** If the owner keeps a band, expect a fixed refusal; if not, it becomes an ordinary high-latitude chart with its own reference. Moving the ascendant to `b"W"` removes the Placidus failure; a band is a separate product-support restriction. Neither is required by the rule arithmetic | depends on SCI-01g | SCI-01e, SCI-01g |
 
 At least four GC fixtures (proposed: GC-01, GC-04, GC-10, GC-06) are also generated through R-01 Horizons, and at least two through R-03 INPOP, so that every tropical path has a second, differently built reference.
 
 ### 5.2 Time-conversion fixtures (TZ)
 
-These test civil-to-UTC conversion and refusal. They are **not independent of IANA** (the engine uses the same database); they verify correct application of a pinned tzdata version. Expected UTC values are in the evidence output.
+These test civil-to-UTC conversion and refusal. They are **not independent of IANA** (the engine uses the same database); they verify correct application of a pinned tzdata version. **An IANA-matched UTC string is not independent historical time truth.** IANA's own theory notes that pre-1970 data need not represent every locality, so any pre-1970 TZ row is an IANA-rule test, not proof of what a clock in that city read. Expected UTC values are in the evidence output.
 
 | ID | Input | Zone | Expected |
 |---|---|---|---|
@@ -153,7 +190,7 @@ These test civil-to-UTC conversion and refusal. They are **not independent of IA
 | TZ-09b | 2000-02-28 20:00 −08:00 | America/Los_Angeles | Accept, UTC 2000-02-29 04:00 (west crossover) |
 | TZ-10a | 1930-01-15 10:00 +04:51 | Asia/Kolkata | **Reject under IANA**, although Bombay civil time was about +04:51. Documents the pre-1956 India limitation (SCI-03) |
 | TZ-10b | 1930-01-15 10:00 +05:30 | Asia/Kolkata | Accept under IANA; would be ~39 min wrong for a Bombay-time record. Limitation fixture |
-| TZ-11a/b | 1945-10-14 23:30 +06:30 / +05:30 | Asia/Kolkata | Both accepted (end of war time, fold) |
+| TZ-11a/b | 1945-10-14 23:30 +06:30 / +05:30 | Asia/Kolkata | Both accepted under IANA (end of war time, fold). IANA-rule test only; the 1941–1945 data rests on a source IANA calls dubious |
 | TZ-12a | 2011-12-30 12:00 +14:00 | Pacific/Apia | Reject (date skipped at the date line) |
 | TZ-12b | 2011-12-31 00:00 +14:00 | Pacific/Apia | Accept |
 | TZ-13 | 1981-12-31 23:45 +07:30 | Asia/Singapore | Reject (gap at the 1982 zone change) |
@@ -182,9 +219,11 @@ Exact synthetic longitudes (e.g. `30 − 2^-40`, `40/3`, `10/3`, `359.999999996`
 ## 6. Limitations and unresolved ambiguities
 
 1. **Lahiri start value.** IAE has printed both 23°15'00" and 23°15'00.658" for 21 Mar 1956, and its "mean" tables have an epoch ambiguity (R-10 notes). The reference implements the approved definition literally; IAE tables are an external check at 0.1" precision.
-2. **Mean node definition.** No observational truth exists; the reference is a published polynomial and T-NODE reflects definitional differences.
+2. **Mean node definition.** No observational truth exists, and Swiss's mean node and published polynomials are different conventions (section 4.3). Node validation is BLOCKED until the owner chooses the definition.
 3. **DE421 ends 2053-10-09.** GC-06, GC-19, GC-20 and part of TR-09 need DE440s (R-02b) or Horizons, both unavailable from this container.
 4. **Time zones are not independently validated.** IANA is both the engine's and the fixtures' source. Pre-1956 India is a known gap (TZ-10).
-5. **UTC as UT1.** Fixtures use the same assumption; the true UT1 effect (≤ 0.9 s) is quantified with R-07 in the report, not tested against.
-6. **Future Delta T.** For 2027–2100 the Swiss extrapolation and the reference's Delta T differ; planets are therefore compared at the engine's TT. The Delta T difference is reported (T-DT).
+5. **UTC as UT1.** Fixtures use the same assumption. The ≤ 0.9 s bound holds only from 1972; earlier eras are historical civil-time approximations (section 4.4, T-TIME-1).
+6. **Future Delta T.** For 2027–2100 the Swiss extrapolation and the reference's Delta T differ; planets are therefore compared at the engine's TT. Delta T is verified and bounded on the time track (T-TIME-2 to T-TIME-4), and future-date results are QUALIFIED.
 7. **Expected values are absent on purpose.** They are generated in the implementation work package after approval.
+8. **Historical clocks.** GC-16, GC-17, GC-18, TZ-10 and TZ-11 test IANA rules only. Correct handling of historical city clocks is a release gate (SCI-03), not something these fixtures prove.
+9. **Tolerances are not frozen.** Every numeric row in section 4 is BLOCKED for freeze until its pre-gate evidence is reviewed.

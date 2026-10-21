@@ -18,9 +18,9 @@ Numbers quoted as "probe" come from [`evidence/convention_probes.py`](evidence/c
 | SCI-01e | Sidereal Lagna | `houses_ex(..., b"P", FLG_SIDEREAL)` ascendant | Keep the definition; take it from `b"W"` instead of `b"P"` | No numeric change where it works today; removes date-dependent polar failure |
 | SCI-01f | D1 houses | Whole sign from Lagna sign | Keep | No |
 | SCI-01g | Latitude band | Accept -89 < lat < 89, then fail where Placidus fails (date dependent) | Validated band \|lat\| ≤ 66.0°, refuse outside with a fixed rule | Yes, for 66.0° < \|lat\| < ~66.6° and polar inputs (now refused by a stable rule) |
-| SCI-01h | Time scale | Civil UTC passed to Swiss as UT1 | Keep for MVP, document ≤0.9 s limitation | No |
+| SCI-01h | Time scale | Civil UTC passed to Swiss as UT1 | Keep for MVP; disclose by era (≤0.9 s only from 1972; earlier is a historical civil-time approximation) | No |
 | SCI-02 | MVP scope | D1 + D9 sign per body and Lagna, Moon Nakshatra/Pada | D1, D9 incl. D9 Lagna and D9 whole-sign houses, Moon Rashi, Moon Nakshatra/Pada; Nakshatra/Pada for all bodies is an owner option | Adds fields only |
-| SCI-03 | Date range | Rejects when **UTC** year outside 1900–2100 | Validated window 1900-01-01 to 2100-12-31 by **local civil date**; India pre-1956 local-time limitation disclosed | Yes, at the two edges only |
+| SCI-03 | Date range | Rejects when **UTC** year outside 1900–2100 | Window 1900-01-01 to 2100-12-31 by **local civil date**, public only after a **historical-clock release gate** (RG-HIST) for unverified city/era clocks | Yes, at the edges, and refusals or clock selection for gated eras |
 
 ---
 
@@ -47,7 +47,7 @@ Numbers quoted as "probe" come from [`evidence/convention_probes.py`](evidence/c
 - Mode 1 with `SIDBIT_PREC_ORIG` would match IAE more closely, but upstream warns it degrades the ephemeris. Not worth it for ≤0.31".
 - Modes 43, 44 and 46 are historically real but are not what Indian ephemerides publish today.
 
-**Implications.** No change to current numbers. The independent ayanamsa reference (see [reference-sources.md](reference-sources.md), R-04 and R-05) must implement *this* definition, and the IAE published values are expected to differ by up to 0.31" plus their 0.05" rounding. That expectation is built into the tolerance (T-AYA) before any comparison is run.
+**Implications.** No change to current numbers. The independent ayanamsa reference (see [reference-sources.md](reference-sources.md), R-04 and R-05) must implement *this* definition. The IAE published values are expected to differ by up to 0.31" plus their 0.05" rounding, but that figure comes from Swiss compared with itself, so the resulting 0.40" T-AYA is only a **budgeting hypothesis**, blocked for freeze until the IAE editions and the ERFA derivation are reviewed (golden spec PG-3).
 
 **Owner question SCI-01a.** Do you approve "Lahiri = Swiss Ephemeris mode 1 (`SE_SIDM_LAHIRI`), 23°15'00.658" at 1956-03-21 0h TT, true ayanamsha, Swiss default precession" as Sabpuja's ayanamsa, with the IAE yearly tables as the published cross-check?
 
@@ -59,9 +59,9 @@ Numbers quoted as "probe" come from [`evidence/convention_probes.py`](evidence/c
 
 **Recommendation.** Mean node, as the PRD proposes and the code does. It is smooth (always retrograde, no wobble) and exactly defined by a published polynomial, which makes it independently checkable. Practice is genuinely split: both mean and true nodes are in common use in Jyotish software and Panchangs, and this package does not claim one is "correct". True node remains a documented alternative; it should never be mixed in silently.
 
-**Accuracy note.** JPL ephemerides contain no mean node. Upstream says Swiss computes it from Moshier's adjustment of ELP2000-85, deviating from ELP2000-85's mean node by 0 at J2000 and less than 20" across 3000 BCE–3000 CE, with estimated precision 1" relative to DE431. The independent reference for the mean node is therefore a published lunar-theory polynomial (R-06), and the tolerance (T-NODE) reflects that the mean node is a definition, not an observable.
+**Which mean node.** JPL ephemerides contain no mean node, so "mean node" is a definition, and there are two candidates. Upstream §2.2.1: Swiss computes its mean node from Moshier's adjustment of ELP2000-85 to the JPL ephemeris, plus corrections derived from the DE431 true node; it differs from ELP2000-85's own mean node by 0 at J2000 and by less than 20" across 3000 BCE–3000 CE, and has an estimated precision of 1" **relative to DE431** (a different reference from any polynomial). A published polynomial (R-06) is the other candidate. Until one is chosen, no node tolerance is proposed and node fixtures are BLOCKED (golden spec section 4.3).
 
-**Owner question SCI-01b.** Do you approve **mean** Rahu for MVP? (If true node is wanted later, it is a separate, labelled option with its own fixtures.)
+**Owner question SCI-01b.** Do you approve **mean** Rahu for MVP? And which definition of mean node: **(a)** Swiss Ephemeris's own mean node (then node checks are definition-conformance checks, not independent validation), or **(b)** a named published lunar-theory polynomial (then the engine is checked against it, and a difference is a method mismatch until the engine is changed by a separate authorized PR)? Recommendation: (a), because it keeps today's numbers; the cost is that the mean node is then recorded plainly as definition-conformance only, not independently validated. The size of the (a)–(b) difference over 1900–2100 is not assumed here. (If true node is wanted later, it is a separate, labelled option with its own fixtures.)
 
 ### SCI-01c Ketu
 
@@ -93,6 +93,8 @@ Numbers quoted as "probe" come from [`evidence/convention_probes.py`](evidence/c
 
 **Recommendation.** Keep the definition "tropical ascendant from UT, minus true Lahiri ayanamsha". Change only the vehicle from `b"P"` to `b"W"` (whole sign, matching the house model) in a later, separately authorized code package. Where Placidus works today the numbers are bit-identical, so this is a reliability change, not a method change. It still needs your approval because it changes which inputs are refused.
 
+The sample comparison shows the change is numerically neutral where Placidus works; it is evidence for the decision, not an approval of it.
+
 **Owner question SCI-01e.** Do you approve computing the ascendant through `houses_ex(..., b"W", FLG_SIDEREAL)` in place of `b"P"`, with no other change to the ascendant definition?
 
 ### SCI-01f Whole-sign houses
@@ -111,17 +113,20 @@ Numbers quoted as "probe" come from [`evidence/convention_probes.py`](evidence/c
 
 **Alternatives.** (1) Keep today's behaviour. (2) After SCI-01e, accept up to ±89° and validate high-latitude fixtures too, accepting extreme time sensitivity. (3) A narrower band such as ±60°.
 
+**Two separate choices.** SCI-01e (switching to `b"W"`) removes the Placidus failure. A latitude band is a separate **product-support restriction** on which users get a chart. Neither is required by the Rashi, house or Navamsa arithmetic. The owner can take either, both or neither; GC-21 stays an optional fixture until this is decided.
+
 **Owner question SCI-01g.** Do you approve a validated latitude band of \|lat\| ≤ 66.0°, refused outside by a fixed rule?
 
 ### SCI-01h Time scale (UTC versus UT1)
 
-**Current behaviour.** The engine converts civil time to UTC and passes it to `swe.julday`/`calc_ut`, which treat it as UT1. UT1 − UTC is kept within ±0.9 s since 1972 (probe [9] shows Swiss's own model puts it at +0.41 s on 2016-12-31). Before 1972, broadcast time and civil records are themselves only good to about a second or worse.
+**Current behaviour.** The engine converts civil time to UTC (through IANA rules) and passes it to `swe.julday`/`calc_ut`, which treat it as UT1. How good that is depends on the era:
+- **1972 onward:** leap-second UTC; UT1 − UTC is kept within ±0.9 s (IERS, NIST). Probe [9] shows Swiss's own model puts it at +0.41 s on 2016-12-31. Effect: Moon ≤ 0.5"; ascendant up to about 15" at the equator and 1' at 60° (probe [7]).
+- **1961–1971:** UTC existed but with frequency offsets and step adjustments; the size of UT1 − UTC in this era is to be sourced from IERS/BIH records (golden spec PG-5), not assumed.
+- **Before 1961:** there was no UTC. "UTC" here means the engine's conversion of a civil clock reading through IANA's offset; what the clock actually showed depended on the local standard and its realisation. This is a **historical civil-time approximation** with no one-second guarantee.
 
-**Size.** Moon 0.565"/s, so ≤0.5". Ascendant up to about 15" at the equator and 1' at 60° (probe [7]). Both are tiny next to a birth time recorded to the minute.
+**Recommendation.** Keep the current conversion for MVP, disclose it by era, and record the assumption in method metadata in a later authorized metadata PR. Verify it on the separate time track (golden spec section 4.4) rather than inside the planetary tolerances. Switching to `swe.utc_to_jd` is a possible later refinement and would need its own approval.
 
-**Recommendation.** Keep for MVP, and record "civil UTC used as UT1" in method metadata. Reference fixtures make the same assumption so this does not show up as a false failure (see T-ASC). Switching to `swe.utc_to_jd` is a possible later refinement and would need its own approval.
-
-**Owner question SCI-01h.** Do you accept "civil UTC treated as UT1" as a documented MVP limitation?
+**Owner question SCI-01h.** Do you accept "civil UTC treated as UT1" as an MVP limitation, disclosed by era as above?
 
 ---
 
@@ -161,16 +166,21 @@ Numbers quoted as "probe" come from [`evidence/convention_probes.py`](evidence/c
 - Consequence today: a correctly recorded 1930 Mumbai birth in Bombay Time is **refused** as an offset mismatch, and the same birth entered as `+05:30` is **accepted with about 39 minutes of error**, roughly 10° of Lagna. The engine cannot tell the difference.
 
 **Recommendation.**
-1. Supported and validated window: local civil birth date from **1900-01-01 through 2100-12-31 inclusive**, checked on the local date, with the UTC instant then necessarily inside the ephemeris range.
-2. Astronomy is validated across the whole window (fixtures at both ends, see golden spec).
-3. For India births before 1956-01-01 the product discloses that local time keeping varied by city and that the time zone rules used may not match the recorded clock. How the place/time UI handles this belongs to DATA-01 and KUN-02, not this package; this package only requires that the limitation be stated and tested.
-4. Near 2100, Moon positions carry the Delta T extrapolation uncertainty; disclose in method notes rather than narrowing the window.
+1. Calculation window: local civil birth date from **1900-01-01 through 2100-12-31 inclusive**, checked on the local date, with the UTC instant then necessarily inside the ephemeris range.
+2. Astronomy is validated across the whole window (fixtures at both ends, see golden spec), with future dates QUALIFIED by the Delta T band (golden spec T-TIME-4).
+3. **Historical-clock release gate (RG-HIST), before any customer launch.** A disclaimer alone is not enough, because an old Mumbai time entered as IST is accepted and can move the Lagna by about 10°. For every place and era where IANA's rule is not known to match the local clock, the product must do one of these, chosen by the owner under DATA-01/KUN-02:
+   - **fail closed:** refuse the chart and explain why;
+   - **explicit verified clock selection:** the user picks from a reviewed, sourced list of historical clocks for that city and era (for example Bombay Time), with no default; or
+   - **conditional refusal:** refuse unless the user explicitly confirms the time was recorded on the clock IANA assumes.
+
+   Minimum scope: all `Asia/Kolkata` locations before 1956-01-01 (Bombay and Calcutta time are known to differ from IANA there). The owner decides whether the gate also covers other pre-1970 zones, since IANA's theory notes that pre-1970 data need not represent every locality. This package does **not** choose any historical offset or override IANA; that is DATA-01/KUN-02 work with its own sources and approval.
+4. The public promise of the full 1900–2100 window should wait until RG-HIST is implemented and validated. Correct interpretation of historical birth times matters more than the width of the window.
 
 **Alternatives.** Keep the UTC-year rule; narrow to 1947 or 1956 onwards; widen to 1800–2399 (needs pre-1900 time-zone work).
 
 **Required boundary tests** (detailed in [golden-chart-spec.md](golden-chart-spec.md)): first and last accepted local instants; the instants just outside; UTC-date crossover at both edges in east and west zones; 29 Feb in 1900 (reject), 2000 (accept), 2024 (accept), 2100 (reject); Asia/Kolkata 1905 (`+05:21:10`), 1943 (`+06:30`) and 1946 (`+05:30`); a DST gap (reject) and fold (both offsets accepted) in the northern and southern hemispheres; 30- and 45-minute zones; the date line.
 
-**Owner question SCI-03.** Do you approve 1900-01-01 to 2100-12-31 by **local** birth date as the validated window, with a stated limitation for pre-1956 India local time?
+**Owner question SCI-03.** Do you approve 1900-01-01 to 2100-12-31 by **local** birth date as the calculation window, made public only after the historical-clock release gate RG-HIST, and which RG-HIST behaviour (fail closed, verified clock selection, or conditional refusal) should DATA-01/KUN-02 design for?
 
 ---
 
