@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "updated": "2026-10-21",
+  "repository": "sabpuja/Sabpuja-Kundali-Engine",
+  "owner": "kundali-deterministic-calculation",
+  "visibility": "public",
+  "license": "AGPL-3.0-only",
+  "runtime": "self-hosted-local-or-approved-hostinger-vps",
+  "release_status": "foundation-unreviewed",
+  "capabilities": [
+    {
+      "id": "kundali.pure-vedic-rules",
+      "status": "implemented-unit-tested-locally-pending-ci-evidence",
+      "entrypoint": "src/sabpuja_kundali/rules.py"
+    },
+    {
+      "id": "kundali.local-chart-cli",
+      "status": "implemented-requires-ephemeris-unverified",
+      "entrypoint": "src/sabpuja_kundali/cli.py"
+    },
+    {
+      "id": "kundali.offline-birthplace",
+      "status": "not-implemented"
+    },
+    {
+      "id": "kundali.pdf",
+      "status": "not-implemented"
+    },
+    {
+      "id": "kundali.shopify",
+      "status": "not-implemented"
+    },
+    {
+      "id": "kundali.customer-profile",
+      "status": "not-implemented"
+    }
+  ],
+  "source_of_truth": {
+    "requirements": "sabpuja/core",
+    "code": "sabpuja/Sabpuja-Kundali-Engine",
+    "storefront": "sabpuja/theme",
+    "brand": "sabpuja/design-system",
+    "agent_orchestration": "sabpuja/Automation",
+    "workflows": "sabpuja/Process-and-Workflows",
+    "state": "sabpuja/Progress-Memory"
+  },
+  "mandatory_read": [
+    "README.md",
+    "AGENTS.md",
+    "docs/architecture.md",
+    "docs/licensing.md",
+    "docs/accuracy-plan.md"
+  ],
+  "no_github_actions": true,
+  "no_external_astrology_api": true,
+  "public_launch_approved": false,
+  "shopify_staging_connected": false
+}
