@@ -1,0 +1,44 @@
+tzdata: # version 2026e
+GC-01   2000-01-01T17:30:00+05:30     Asia/Kolkata                    VALID  utc=2000-01-01T12:00:00Z
+GC-02   1956-03-21T05:30:00+05:30     Asia/Kolkata                    VALID  utc=1956-03-21T00:00:00Z
+GC-03   1975-08-15T06:10:00+05:30     Asia/Kolkata                    VALID  utc=1975-08-15T00:40:00Z
+GC-04   2026-10-21T14:45:00+05:30     Asia/Kolkata                    VALID  utc=2026-10-21T09:15:00Z
+GC-05   2050-06-15T23:55:00+05:30     Asia/Kolkata                    VALID  utc=2050-06-15T18:25:00Z
+GC-06   2099-12-31T20:00:00+05:30     Asia/Kolkata                    VALID  utc=2099-12-31T14:30:00Z
+GC-07   2024-02-29T08:15:00+11:00     Australia/Sydney                VALID  utc=2024-02-28T21:15:00Z
+GC-08   1985-07-10T21:45:00-03:00     America/Argentina/Buenos_Aires  VALID  utc=1985-07-11T00:45:00Z
+GC-09   1966-01-20T03:05:00+00:00     Europe/London                   VALID  utc=1966-01-20T03:05:00Z
+GC-10   1919-11-11T11:00:00-05:00     America/New_York                VALID  utc=1919-11-11T16:00:00Z
+GC-11   1937-04-01T12:00:00+02:00     Africa/Johannesburg             VALID  utc=1937-04-01T10:00:00Z
+GC-12   2010-09-23T00:00:00-05:00     America/Guayaquil               VALID  utc=2010-09-23T05:00:00Z
+GC-13   2015-06-21T12:00:00+00:00     Atlantic/Reykjavik              VALID  utc=2015-06-21T12:00:00Z
+GC-14   1990-05-05T06:00:00+05:45     Asia/Kathmandu                  VALID  utc=1990-05-05T00:15:00Z
+GC-15   1981-12-31T23:00:00+07:30     Asia/Singapore                  VALID  utc=1981-12-31T15:30:00Z
+GC-16   1905-06-01T09:00:00+05:21:10  Asia/Kolkata                    VALID  utc=1905-06-01T03:38:50Z
+GC-17   1943-06-15T10:00:00+06:30     Asia/Kolkata                    VALID  utc=1943-06-15T03:30:00Z
+GC-18   1900-01-01T00:00:00+05:21:10  Asia/Kolkata                    VALID  utc=1899-12-31T18:38:50Z
+GC-19   2100-12-31T23:59:00+14:00     Pacific/Kiritimati              VALID  utc=2100-12-31T09:59:00Z
+GC-20   2100-12-31T23:59:00-08:00     America/Los_Angeles             VALID  utc=2101-01-01T07:59:00Z
+TZ-01   2021-03-14T02:30:00-05:00     America/New_York                REJECT utc=2021-03-14T07:30:00Z
+TZ-02a  2021-11-07T01:30:00-04:00     America/New_York                VALID  utc=2021-11-07T05:30:00Z
+TZ-02b  2021-11-07T01:30:00-05:00     America/New_York                VALID  utc=2021-11-07T06:30:00Z
+TZ-03a  2023-04-02T02:30:00+10:30     Australia/Adelaide              VALID  utc=2023-04-01T16:00:00Z
+TZ-03b  2023-04-02T02:30:00+09:30     Australia/Adelaide              VALID  utc=2023-04-01T17:00:00Z
+TZ-03c  2023-10-01T02:30:00+09:30     Australia/Adelaide              REJECT utc=2023-09-30T17:00:00Z
+TZ-04   2023-10-01T02:15:00+10:30     Australia/Lord_Howe             REJECT utc=2023-09-30T15:45:00Z
+TZ-05   2024-01-10T12:00:00+13:45     Pacific/Chatham                 VALID  utc=2024-01-09T22:15:00Z
+TZ-06   1995-07-01T12:00:00-02:30     America/St_Johns                VALID  utc=1995-07-01T14:30:00Z
+TZ-07   2000-01-01T17:30:00+05:00     Asia/Kolkata                    REJECT utc=2000-01-01T12:30:00Z
+TZ-08a  2000-02-29T12:00:00+05:30     Asia/Kolkata                    VALID  utc=2000-02-29T06:30:00Z
+TZ-08b  2024-02-29T12:00:00+05:30     Asia/Kolkata                    VALID  utc=2024-02-29T06:30:00Z
+TZ-09a  2000-03-01T02:00:00+05:30     Asia/Kolkata                    VALID  utc=2000-02-29T20:30:00Z
+TZ-09b  2000-02-28T20:00:00-08:00     America/Los_Angeles             VALID  utc=2000-02-29T04:00:00Z
+TZ-10a  1930-01-15T10:00:00+04:51     Asia/Kolkata                    REJECT utc=1930-01-15T05:09:00Z
+TZ-10b  1930-01-15T10:00:00+05:30     Asia/Kolkata                    VALID  utc=1930-01-15T04:30:00Z
+TZ-11a  1945-10-14T23:30:00+06:30     Asia/Kolkata                    VALID  utc=1945-10-14T17:00:00Z
+TZ-11b  1945-10-14T23:30:00+05:30     Asia/Kolkata                    VALID  utc=1945-10-14T18:00:00Z
+TZ-12a  2011-12-30T12:00:00+14:00     Pacific/Apia                    REJECT utc=2011-12-29T22:00:00Z
+TZ-12b  2011-12-31T00:00:00+14:00     Pacific/Apia                    VALID  utc=2011-12-30T10:00:00Z
+TZ-13   1981-12-31T23:45:00+07:30     Asia/Singapore                  REJECT utc=1981-12-31T16:15:00Z
+1900-02-29T12:00:00+05:21:10: invalid calendar date (day is out of range for month)
+2100-02-29T12:00:00+05:30: invalid calendar date (day is out of range for month)

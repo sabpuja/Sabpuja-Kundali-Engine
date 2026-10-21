@@ -1,0 +1,59 @@
+pyswisseph 2.10.3.2 | swisseph.__version__ 20230604 | Swiss library 2.10.03
+
+[1] Ayanamsha difference vs SE_SIDM_LAHIRI, 10057 UT samples 1900-01-01..2100-12-31
+    LAHIRI|SIDBIT_PREC_ORIG (IAE IAU1976 reproduction)   min     -0.304"  max     +0.313"
+    LAHIRI_ICRC (46, 23d15m00s 1956)                     min     -1.396"  max     -0.779"
+    LAHIRI_1940 (43)                                     min    -53.473"  max    -52.855"
+    LAHIRI_VP285 (44)                                    min    +22.715"  max    +23.286"
+    KRISHNAMURTI (5)                                     min   -348.973"  max   -348.355"
+    RAMAN (3)                                            min  -5206.989"  max  -5206.371"
+    SE_SIDM_LAHIRI true ayanamsha 1900-01-01 0h UT: 22.465290 deg
+    SE_SIDM_LAHIRI true ayanamsha 1956-01-01 0h UT: 23.247327 deg
+    SE_SIDM_LAHIRI true ayanamsha 2000-01-01 0h UT: 23.853206 deg
+    SE_SIDM_LAHIRI true ayanamsha 2026-01-01 0h UT: 24.221831 deg
+    SE_SIDM_LAHIRI true ayanamsha 2100-01-01 0h UT: 25.255266 deg
+
+[2] sidereal = tropical(true equinox) - ayanamsha_ex(...)
+    max |residual| with TRUE ayanamsha (incl. nutation): 0.000000"
+    max |residual| with MEAN ayanamsha (FLG_NONUT):      18.688"  (= nutation in longitude)
+
+[3] true node - mean node, 1900-2100: min -1.9423 deg  max +1.9774 deg
+    samples where Rahu sign differs mean vs true: 317/10057 (3.15%)
+    samples where Rahu nakshatra differs mean vs true: 719/10057 (7.15%)
+
+[4] |ascmc[0](hsys) - ascmc[0](P)| over 21168 time/place samples, |lat|<=66:
+    W: 0.000000000"
+    E: 0.000000000"
+    O: 0.000000000"
+
+[5] Polar latitudes (2000-01-01 12h UT, lon 0):
+    lat  +66.0: P=63.342527  W=63.342527  E=63.342527  O=63.342527
+    lat  +67.0: P=ERROR  W=256.997420  E=256.997420  O=256.997420
+    lat  +70.0: P=ERROR  W=292.541662  E=292.541662  O=292.541662
+    lat  +80.0: P=ERROR  W=328.509240  E=328.509240  O=328.509240
+    lat  +88.9: P=ERROR  W=335.621924  E=335.621924  O=335.621924
+    lat  -70.0: P=ERROR  W=341.344879  E=341.344879  O=341.344879
+    lat  -88.9: P=ERROR  W=336.627817  E=336.627817  O=336.627817
+
+[6] max |tropical asc - true ayanamsha - sidereal asc|: 0.000000"
+
+[7] Rate of change per 1 s of time (finite difference, 2000-03-20 06h UT):
+    ascendant lat   0.0: max   16.39"/s over 24 hourly samples
+    ascendant lat  28.6: max   21.46"/s over 24 hourly samples
+    ascendant lat  51.5: max   35.91"/s over 24 hourly samples
+    ascendant lat  60.0: max   64.82"/s over 24 hourly samples
+    ascendant lat  66.0: max  220.25"/s over 24 hourly samples
+    Moon: 0.565"/s
+
+[8] Swiss Delta T (TT-UT) in seconds:
+    1900:    -1.95 s
+    1950:    28.93 s
+    2000:    63.83 s
+    2026:    68.90 s
+    2050:    74.58 s
+    2100:    93.18 s
+
+[9] 2016-12-31 23:59:59 UTC: julday() - utc_to_jd() UT1 = +0.410 s
+
+[10] |topocentric - geocentric| Moon at New Delhi, 1900-2100: max 1.0191 deg; nakshatra differs in 389/10057 samples (3.87%)
+[11] max |geometric - apparent| (arcsec): sun 20.8, moon 0.8, mars 39.0, saturn 27.3
