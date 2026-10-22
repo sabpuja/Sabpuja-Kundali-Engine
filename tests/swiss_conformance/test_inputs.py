@@ -78,6 +78,7 @@ class Inputs(unittest.TestCase):
             with self.subTest(bad=bad):
                 reasons = self.blocked_run(spec_text=SPEC_TEXT.replace(frozen, f'"value": {bad},', 1))
                 self.assertIn("SPEC_SHA256_MISMATCH", reasons)
+                self.assertNotIn("DIRTY_TREE", reasons)
                 self.assertIn(code, reasons)
 
     def test_other_spec_edits_block(self):
@@ -123,6 +124,14 @@ class Inputs(unittest.TestCase):
                 self.assertIn("CASE_REQUEST: SC-01", self.blocked_run(cases_text=with_cases(edited)))
         self.assertIn("CASE_ORDER", self.blocked_run(cases_text=with_cases(doc["cases"][::-1])))
         self.assertIn("CASES_NOT_OBJECT", self.blocked_run(cases_text='{"cases": []}'))
+
+    def test_input_errors_and_environment_reasons_are_both_reported(self):
+        spec = self.write("spec.json", "[]")
+        with mock.patch.object(c, "run_case", side_effect=must_not_run):
+            report = c.run_all("x", "y", "z", spec_path=spec, env=env_ok(git={"commit": "a" * 40, "dirty": True}))
+        self.assertIn("SPEC_NOT_OBJECT", report["run_reasons"])
+        self.assertIn("DIRTY_TREE", report["run_reasons"])
+        self.assertEqual(report["coverage_errors"], [])
 
     def test_missing_input_file_blocks(self):
         report = c.run_all("x", "y", "z", spec_path=Path(self.tmp.name) / "none.json", env=env_ok())

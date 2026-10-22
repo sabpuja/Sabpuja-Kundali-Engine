@@ -389,12 +389,13 @@ def run_all(swetest: str | None, ephe: str | None, receipt: str | None, *, cases
     started = clock().strftime("%Y-%m-%dT%H:%M:%SZ")
     spec, cases, input_record, reasons = inputs.load_inputs(spec_path, cases_path)
     env = env if env is not None else capture_environment(swetest, receipt, ephe)
-    if spec is not None:
-        reasons = run_reasons(env, spec)
+    reasons = reasons + run_reasons(env, {"required_versions": inputs.REQUIRED_VERSIONS})
     results = []
     if not reasons:
         results = [run_case(case, swetest, ephe, spec) for case in cases]
     counts, coverage_errors = coverage(results)
+    if reasons:
+        coverage_errors = []  # nothing ran; the run-level reasons already block
     verdict = BLOCKED if reasons else overall([r["outcome"] for r in results])
     if verdict == PASS and coverage_errors:
         verdict = BLOCKED
