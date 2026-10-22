@@ -1,8 +1,9 @@
 """KUN-03 P2 (SCI-01g): fixed supported latitude band, -66.0 to 66.0 inclusive.
 
 Synthetic inputs only. The band is checked before any Swiss call and is the same
-for every date; the ascendant method stays Placidus (b"P") in P2. Real-data
-cases run only when SABPUJA_TEST_EPHE_PATH is set.
+for every date. Since KUN-03 P3 the ascendant vehicle is b"W" (SCI-01e), which
+computes at any latitude, so the band alone decides acceptance. Real-data cases
+run only when SABPUJA_TEST_EPHE_PATH is set.
 """
 import json
 import math
@@ -122,7 +123,7 @@ class BandValidationTests(unittest.TestCase):
 
 
 class AscendantMethodTests(unittest.TestCase):
-    """The band must not change or replace the ascendant method (Placidus stays until P3)."""
+    """The band never changes or replaces the ascendant method (b"W" since P3, b"P" in P2)."""
 
     def setUp(self):
         for patch in (mock.patch.object(engine, "verify_ephemeris_dir", return_value="/mock"),
@@ -132,14 +133,14 @@ class AscendantMethodTests(unittest.TestCase):
             patch.start()
             self.addCleanup(patch.stop)
 
-    def test_every_in_band_request_uses_placidus_once(self):
+    def test_every_in_band_request_uses_whole_sign_once(self):
         ascmc = (100.0,) + (0.0,) * 7
         for lat in (*INSIDE_EDGES, 0, 28.6139):
             with self.subTest(latitude=lat):
                 with mock.patch.object(swisseph, "houses_ex", return_value=((0.0,) * 12, ascmc)) as houses:
                     calculate({**SYNTHETIC, "latitude": lat})
                 houses.assert_called_once()
-                self.assertEqual(houses.call_args.args[1:], (float(lat), 77.2090, b"P", swisseph.FLG_SIDEREAL))
+                self.assertEqual(houses.call_args.args[1:], (float(lat), 77.2090, b"W", swisseph.FLG_SIDEREAL))
 
     def test_out_of_band_never_reaches_any_house_method(self):
         with mock.patch.object(swisseph, "houses_ex") as houses, mock.patch.object(swisseph, "houses") as plain:
@@ -149,7 +150,7 @@ class AscendantMethodTests(unittest.TestCase):
         houses.assert_not_called()
         plain.assert_not_called()
 
-    def test_placidus_failure_is_still_refused_not_replaced(self):
+    def test_ascendant_failure_is_still_refused_not_replaced(self):
         with mock.patch.object(swisseph, "houses_ex", side_effect=swisseph.Error("houses_ex: error")) as houses:
             with self.assertRaises(ChartComputationError) as ctx:
                 calculate({**SYNTHETIC, "latitude": 66.0})
@@ -163,6 +164,7 @@ DATA = os.environ.get("SABPUJA_TEST_EPHE_PATH")
 @unittest.skipIf(DATA is None, "SABPUJA_TEST_EPHE_PATH unset: real-data integration tests not requested")
 class RealDataBandTests(unittest.TestCase):
     def test_in_band_charts_equal_direct_swiss_placidus_values(self):
+        # Unchanged by P3: inside the band the b"W" Lagna equals direct b"P" bit for bit.
         swe = swisseph
         for request in IN_BAND:
             with self.subTest(request=request):

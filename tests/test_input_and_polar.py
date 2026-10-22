@@ -132,12 +132,13 @@ class MockedSwissTests(unittest.TestCase):
             with self.assertRaises(TypeError):
                 calculate(SYNTHETIC)
 
-    def test_house_method_and_flags_unchanged(self):
+    def test_house_method_and_flags(self):
+        # KUN-03 P3 (SCI-01e): whole-sign vehicle; was b"P" before P3.
         ascmc = (100.0,) + (0.0,) * 7
         with mock.patch.object(swisseph, "houses_ex", return_value=((0.0,) * 12, ascmc)) as houses:
             calculate(SYNTHETIC)
         args = houses.call_args.args
-        self.assertEqual(args[3], b"P")
+        self.assertEqual(args[3], b"W")
         self.assertEqual(args[4], swisseph.FLG_SIDEREAL)
 
     def test_cli_polar_failure_exit_2_without_traceback(self):
