@@ -256,6 +256,101 @@ class FailClosedTests(unittest.TestCase):
             self.assertNotIn(detail, error)
 
 
+def _manifest_variants():
+    """(name, expected code, writer) for each corrupted manifest resource."""
+    def rewrite(change):
+        def write(path):
+            manifest = json.loads(path.read_text(encoding="utf-8"))
+            change(manifest)
+            path.write_text(json.dumps(manifest), encoding="utf-8")
+        return write
+
+    def redigest(change):
+        def both(manifest):
+            change(manifest)
+            if isinstance(manifest, dict):
+                manifest["manifest_sha256"] = manifest_digest(manifest)
+        return both
+
+    def unreadable(path):
+        path.unlink()
+        path.mkdir()
+
+    return [
+        ("missing", "TZDATA_MANIFEST_MISSING", lambda path: path.unlink()),
+        ("unreadable", "TZDATA_MANIFEST_INVALID", unreadable),
+        ("invalid_utf8", "TZDATA_MANIFEST_INVALID", lambda path: path.write_bytes(b"\xff\xfe{")),
+        ("malformed_json", "TZDATA_MANIFEST_INVALID", lambda path: path.write_text('{"zones": ', encoding="utf-8")),
+        ("top_level_list", "TZDATA_MANIFEST_INVALID", lambda path: path.write_text("[]", encoding="utf-8")),
+        ("zones_missing", "TZDATA_MANIFEST_INVALID", rewrite(redigest(lambda m: m.pop("zones")))),
+        ("zones_not_object", "TZDATA_MANIFEST_INVALID", rewrite(redigest(lambda m: m.update(zones=["Asia/Kolkata"])))),
+        ("zone_entry_not_object", "TZDATA_MANIFEST_INVALID",
+         rewrite(redigest(lambda m: m["zones"].update({"Asia/Kolkata": "abc"})))),
+        ("zone_size_bool", "TZDATA_MANIFEST_INVALID",
+         rewrite(redigest(lambda m: m["zones"]["Asia/Kolkata"].update(size_bytes=True)))),
+        ("version_not_string", "TZDATA_MANIFEST_INVALID", rewrite(redigest(lambda m: m.update(iana_version=2026)))),
+        ("corrupted_digest", "TZDATA_MANIFEST_INVALID", rewrite(lambda m: m.update(manifest_sha256="0" * 64))),
+    ]
+
+
+class ManifestFailureTests(unittest.TestCase):
+    """P1-QA-01: a missing or malformed manifest is a structured TZDATA_* refusal, never a traceback."""
+
+    CLI = (
+        "import sys\n"
+        "from sabpuja_kundali import cli, engine\n"
+        "def swiss_reached(*args, **kwargs):\n"
+        "    raise SystemExit(99)\n"
+        "engine.verify_ephemeris_dir = swiss_reached\n"
+        "raise SystemExit(cli.main())\n")
+
+    def broken_package(self, tmp, writer):
+        root = Path(tmp, "src")
+        shutil.copytree(SRC / "sabpuja_kundali", root / "sabpuja_kundali",
+                        ignore=shutil.ignore_patterns("__pycache__"))
+        writer(root / "sabpuja_kundali" / "tzif-manifest.json")
+        return root
+
+    def test_loader_refuses_each_broken_manifest_without_reaching_swiss(self):
+        for name, code, writer in _manifest_variants():
+            with self.subTest(case=name), tempfile.TemporaryDirectory() as tmp:
+                path = self.broken_package(tmp, writer) / "sabpuja_kundali" / "tzif-manifest.json"
+                with mock.patch.object(timezones, "_manifest_resource", return_value=path), \
+                        mock.patch.object(timezones, "_LOADER", None), \
+                        mock.patch.object(engine, "verify_ephemeris_dir") as ephemeris:
+                    with self.assertRaises(TimezoneDataError) as ctx:
+                        calculate(SYNTHETIC)
+                    self.assertEqual(ctx.exception.code, code)
+                    ephemeris.assert_not_called()
+                    # Refusal repeats on the next request; nothing broken is cached.
+                    with self.assertRaises(TimezoneDataError):
+                        timezones.get_zone("Asia/Kolkata")
+
+    def test_cli_refuses_each_broken_manifest_without_traceback_or_details(self):
+        for name, code, writer in _manifest_variants():
+            with self.subTest(case=name), tempfile.TemporaryDirectory() as tmp:
+                root = self.broken_package(tmp, writer)
+                env = {k: v for k, v in os.environ.items() if k not in ("TZ", "SE_EPHE_PATH")}
+                env["PYTHONPATH"] = str(root)
+                proc = subprocess.run([sys.executable, "-c", self.CLI], input=json.dumps(SYNTHETIC),
+                                      capture_output=True, text=True, env=env)
+                self.assertEqual(proc.returncode, 2, proc.stderr)
+                self.assertEqual(proc.stdout, "")
+                self.assertNotIn("Traceback", proc.stderr)
+                error = json.loads(proc.stderr)["error"]
+                self.assertTrue(error.startswith(code + ":"), error)
+                for detail in ("Asia/Kolkata", "17:30", "28.6139", "77.209"):
+                    self.assertNotIn(detail, error)
+
+    def test_intact_copy_is_accepted_control(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.broken_package(tmp, lambda path: None)
+            env = {**os.environ, "PYTHONPATH": str(root)}
+            code = "from sabpuja_kundali.timezones import get_zone; print(get_zone('Asia/Kolkata').key)"
+            proc = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env=env, check=True)
+        self.assertEqual(proc.stdout.strip(), "Asia/Kolkata")
+
+
 class CacheTests(unittest.TestCase):
     def setUp(self):
         self.loader = PinnedZoneLoader(load_manifest())

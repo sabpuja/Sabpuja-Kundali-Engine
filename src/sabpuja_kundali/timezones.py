@@ -37,9 +37,43 @@ class TimezoneDataError(RuntimeError):
         self.code = code
 
 
+def _manifest_resource():
+    return resources.files(__package__).joinpath(_MANIFEST_NAME)
+
+
 def load_manifest() -> dict:
-    text = resources.files(__package__).joinpath(_MANIFEST_NAME).read_text(encoding="utf-8")
-    return json.loads(text)
+    """Read the packaged manifest; any read or parse failure is a structured refusal."""
+    try:
+        text = _manifest_resource().read_text(encoding="utf-8")
+    except FileNotFoundError:
+        raise TimezoneDataError("TZDATA_MANIFEST_MISSING", "timezone manifest is missing") from None
+    except (OSError, UnicodeDecodeError):
+        raise TimezoneDataError("TZDATA_MANIFEST_INVALID", "timezone manifest cannot be read") from None
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        raise TimezoneDataError("TZDATA_MANIFEST_INVALID", "timezone manifest is not valid JSON") from None
+
+
+def _valid_shape(manifest: object) -> bool:
+    if not isinstance(manifest, dict):
+        return False
+    if not all(isinstance(manifest.get(field), str)
+               for field in ("package_version", "iana_version", "manifest_sha256")):
+        return False
+    zones = manifest.get("zones")
+    if not isinstance(zones, dict) or not zones:
+        return False
+    for key, entry in zones.items():
+        if not isinstance(key, str) or not isinstance(entry, dict):
+            return False
+        digest, size = entry.get("sha256"), entry.get("size_bytes")
+        if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+            return False
+        # bool is an int subclass; exact type check keeps rejecting it.
+        if type(size) is not int or size <= 0:
+            return False
+    return True
 
 
 def manifest_digest(manifest: dict) -> str:
@@ -50,7 +84,9 @@ def manifest_digest(manifest: dict) -> str:
 
 class PinnedZoneLoader:
     def __init__(self, manifest: dict, package: str = "tzdata"):
-        if manifest_digest(manifest) != manifest.get("manifest_sha256"):
+        if not _valid_shape(manifest):
+            raise TimezoneDataError("TZDATA_MANIFEST_INVALID", "timezone manifest has an unexpected structure")
+        if manifest_digest(manifest) != manifest["manifest_sha256"]:
             raise TimezoneDataError("TZDATA_MANIFEST_INVALID", "timezone manifest digest does not match its content")
         self._manifest = manifest
         self._files = manifest["zones"]
@@ -109,7 +145,12 @@ class PinnedZoneLoader:
             return zone
 
     def verify_all(self) -> int:
-        """Load and verify every manifest zone; for a service start-up gate."""
+        """Load and verify every manifest zone.
+
+        Intended start-up gate: a future service must call this before accepting
+        requests and refuse to start on failure. No service exists yet, so nothing
+        calls it today.
+        """
         for key in self._files:
             self.get(key)
         return len(self._files)
