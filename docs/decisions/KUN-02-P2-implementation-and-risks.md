@@ -11,11 +11,12 @@ All of the following are open. They are listed in the order that unblocks implem
 |---|---|---|---|
 | A-1 | ChatGPT scientific QA of this decision PR (PASS / CHANGES REQUESTED) | ChatGPT | A-2 |
 | A-2 | Owner decision on each of SCI-01a, 01d, 01e, 01f, 01g, 01h, SCI-02, SCI-03: approve, modify or reject, one entry at a time | Sabpuja | A-3 |
-| A-3 | Record each owner decision in `docs/DECISIONS.md` with the date, approval link and the merge SHA; merge this PR only with the owner's explicit authorization | Sabpuja authorizes; Claude edits on request | P-packages |
-| A-4 | Owner choices inside decisions: SCI-01e and SCI-01g together (W plus ±66.0°, or another band); SCI-02 Nakshatra/Pada for all bodies or Moon only; SCI-03 RG-HIST scope: (A) Kolkata before 1956 floor, (B) plus every zone before 1970 (recommended before public release), or (C) plus South Asian zones before 1970; whether non-location zones (`Etc/*`, `UTC`) are refused for births | Sabpuja | P2, P3, P6, P8, P5 |
+| A-3 | Record each owner decision in two steps: a **pre-merge approval record** in `docs/DECISIONS.md` (choice, date, approval link, effective scope, exact reviewed head SHA; row text stays PENDING), then, after the owner-authorized merge, a **post-merge adoption receipt** (merge SHA and date) that makes the row OWNER APPROVED | Sabpuja authorizes; Claude edits on request | P-packages |
+| A-4 | Owner choices inside decisions: SCI-01e and SCI-01g together (W plus ±66.0°, or another band); SCI-02 Nakshatra/Pada for all bodies or Moon only; SCI-03 RG-HIST scope: (A) Kolkata before 1956 (mandatory floor), (B) plus every other zone before 1970 (Kolkata 1956–1969 still accepted), (B-full) every zone before 1970 including Kolkata 1956–1969 (recommended for public release), or (C) plus South Asian zones before 1970; whether non-location zones (`Etc/*`, `UTC`) are refused for births | Sabpuja | P2, P3, P6, P8, P5 |
 | A-5 | Merge order of the existing drafts (#1 foundation, then #18, #19 and the KUN-01 documentation stack #11, #14, #17), so that production packages have a reviewed base | Sabpuja, with ChatGPT QA | P-packages |
 | A-6 | Authorize DATA-01 historical-clock research as its own package | Sabpuja | verified exceptions to RG-HIST |
 | A-7 | Each P-package: separate authorization to start, ChatGPT QA of its draft PR, and separate merge authorization | Sabpuja / ChatGPT | each package |
+| A-8 | **Reconcile the release-gate source of truth:** decide in a separate, small doc-only owner decision PR how `docs/PRD.md` (product truth, KUN-F16, the "Astronomy accuracy" release gate) and `docs/ACCEPTANCE-MATRIX.md` (QA-009, QA-010, QA-012, G-ENGINE) relate to the Swiss-first change ([issue #15](https://github.com/sabpuja/Sabpuja-Kundali-Engine/issues/15), [PR #17](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/17)). Until approved, those P0 requirements stand unchanged (§4) | Sabpuja, with ChatGPT QA | public accurate-chart claims |
 
 ## 2. Implementation sequence and dependencies
 
@@ -57,7 +58,7 @@ Today's engine (foundation @ `d8193c6`) is the baseline. "Breaking" means a requ
 | Lagna via `b"W"` | P3 | bit-identical | none | none (with P2) | method text | No (with P2) |
 | Local-date window | P4 | unchanged | local 1899-12-31 in western zones (UTC 1900); local 2101-01-01 in eastern zones (UTC 2100) | local 1900-01-01 in eastern zones (UTC 1899); local 2100-12-31 in western zones (UTC 2101) | new error code | Yes, at the two edges only |
 | Strict format and codes | P5 | unchanged | space separator, ISO basic format (accepted today only on Python ≥ 3.11) | none | structured codes replace free-text `ValueError` messages | Yes for clients that parse message text or send non-RFC 3339 strings |
-| RG-HIST gate | P8 | unchanged outside the gate | Asia/Kolkata before 1956-01-01 at minimum (more under option B or C) | none | new error code | Yes, by design |
+| RG-HIST gate | P8 | unchanged outside the gate | Asia/Kolkata before 1956-01-01 at minimum (more under option B, B-full or C) | none | new error code | Yes, by design |
 | D9 houses (+ Nakshatra for all bodies) | P6 | unchanged | none | none | additive fields, version bump | No for tolerant clients; strict-schema clients must update |
 | Metadata | P7 | unchanged | none | none | additive fields, version bump | As above |
 | Swiss-state tests | P9 | unchanged | none | none | none | No |
@@ -67,22 +68,29 @@ Other compatibility notes:
 - No pinned Swiss file, Swiss version, ayanamsa, node or frame changes in any package.
 - No existing chart's planetary longitude changes in any package.
 
-## 4. Release risks requiring separate verification
+## 4. Release gates and risks requiring separate verification
 
-These are outside what KUN-01 and KUN-02 evidence shows. Each needs its own verification before any public release, and none is closed by this PR.
+These are outside what KUN-01 and KUN-02 evidence shows, and none is closed by this PR. They are of three kinds:
+- **Mandatory release gates** block any public release.
+- **Mandatory periodic reviews** must be repeated on a schedule or a trigger.
+- **Optional assurance** supports a separate, stronger claim and is not a release gate.
 
-| # | Risk | Why it is open | Verification needed |
-|---|---|---|---|
-| R-1 | No independent astronomical accuracy | All evidence is Swiss-on-Swiss, independent formula on Swiss inputs, or timekeeping. No golden-chart tolerance is frozen (KUN-01 PG-2, PG-3, PG-5 open) | Independently sourced golden charts at predeclared tolerances (QA-009, QA-010, QA-012) |
-| R-2 | Historical birth clocks | IANA is not historical-clock evidence before 1970; RG-HIST is a temporary floor; Asia/Kolkata 1956–1969 remains accepted with IANA's caveat | DATA-01 package; owner decision on RG-HIST scope (A-4) |
-| R-3 | UT1 − UTC after 2027 and especially from 2035 | IERS list expires 2027-06-28; CGPM 2022 Res. 4 raises the limit in or before 2035; ΔT extrapolated after 2028 | Re-review SCI-01h before 2035 and on every Swiss or tzdata update |
-| R-4 | Swiss 2.10.03 version-specific behaviour | −1.908″ sidereal-time step at 2050; state leaks between `set_sid_mode` calls | P9 tests; re-run KUN-02 runner on any Swiss upgrade |
-| R-5 | tzdata drift between hosts | Same IANA version, different builds, different pre-1956 offsets | P1 two-host reproducibility test; pinned TZif manifest |
-| R-6 | Place-to-zone consistency | The engine accepts any IANA zone with any coordinates (for example Asia/Kolkata with New York coordinates) and accepts `Etc/*` keys | DATA-01 gazetteer and `LOCATION_TIMEZONE_INCONSISTENT`; owner choice on non-location zones |
-| R-7 | Birth-time sensitivity | A one-minute error changes the Lagna Navamsa in about 8% of charts; above 60° more than 1° of Lagna per minute | Product disclosure copy (UX) and editorial review |
-| R-8 | Unknown birth time | Not handled by these decisions (UX-01 pending) | UX-01 decision and QA-002 |
-| R-9 | Licensing | Swiss Ephemeris AGPL and data-rights perimeter (LEG-01 pending) | QA-026 legal review |
-| R-10 | Concurrency of Swiss global state in a multi-worker service | The engine serializes Swiss calls under one lock; service architecture not yet built | QA-008 concurrency tests in the service package |
+| # | Risk | Gate type | Why it is open | Verification needed |
+|---|---|---|---|---|
+| R-1a | Chart correctness within the Swiss-first MVP | **Mandatory release gate** | Covered so far only by draft-PR evidence. That evidence is pinned Swiss CLI conformance (PR #18, 882/882) and independent mathematical D1/D9, segment and house checks (PR #18 rule oracle; PR #19 A8–A10). Known boundary and refusal cases are part of it. None of these PRs is merged | Keep both suites passing on every package; boundary and refusal fixtures for P2–P5 and P8; product claims limited to what the evidence shows (Swiss-based calculation with stated conventions, not independently verified astronomy) |
+| R-1b | Independent astronomy (JPL/INPOP) | **Optional assurance**, per the owner-approved Swiss-first change ([issue #15](https://github.com/sabpuja/Sabpuja-Kundali-Engine/issues/15), [PR #17](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/17)) | No independent planetary reference has been run; no golden-chart tolerance is frozen (KUN-01 PG-1 to PG-5 open) | Only for a separate independent-accuracy claim or a discrepancy escalation |
+| R-1c | **Source-of-truth conflict** on R-1b | **Mandatory, pending owner reconciliation** | `docs/PRD.md` (product truth, KUN-F16, the "Astronomy accuracy" gate) and `docs/ACCEPTANCE-MATRIX.md` (P0 QA-009, QA-010, QA-012; G-ENGINE) still require independently sourced golden charts before accurate public claims. Issue #15 made JPL/INPOP assurance optional. Neither document has been aligned | Owner decision A-8 in a separate doc-only PR. **Until then those P0 requirements stand and the public-release gate is not relaxed.** This package neither waives nor satisfies them |
+| R-2 | Historical birth clocks | **Mandatory release gate** | IANA is not historical-clock evidence before 1970. RG-HIST (A) is a temporary floor. Under (A), (B) and (C), Asia/Kolkata 1956–1969 is accepted without DATA-01 evidence; under (A) and (C) other pre-1970 zones are too. Only (B-full) removes the pre-1970 residual | Owner decision on RG-HIST scope (A-4; B-full recommended); DATA-01 package before any exception |
+| R-3 | UT1 − UTC after 2027 and especially from 2035 | Mandatory metadata (P7) and **periodic review** | The IERS list expires 2027-06-28. CGPM 2022 Res. 4 raises the limit in or before 2035. ΔT is extrapolated after 2028 | Era-labelled metadata before release; re-review SCI-01h before 2035 and on every Swiss or tzdata update |
+| R-4 | Swiss 2.10.03 version-specific behaviour | **Mandatory release gate** (P9) and periodic review | −1.908″ sidereal-time step at 2050; Swiss state leaks between `set_sid_mode` calls | P9 tests; re-run the KUN-02 runner on any Swiss upgrade |
+| R-5 | tzdata drift between hosts | **Mandatory release gate** (P1) | Same IANA version, different builds, different pre-1956 offsets | P1 two-host reproducibility test; pinned TZif manifest |
+| R-6 | Place-to-zone consistency | **Mandatory release gate** | The engine accepts any IANA zone with any coordinates (for example Asia/Kolkata with New York coordinates) and accepts `Etc/*` keys | DATA-01 gazetteer and `LOCATION_TIMEZONE_INCONSISTENT`; owner choice on non-location zones |
+| R-7 | Birth-time sensitivity | **Mandatory release gate** (product claims) | A one-minute error changes the Lagna Navamsa in about 8% of sampled charts; above 60° the Lagna moves more than 1° per minute | Product disclosure copy and editorial review |
+| R-8 | Unknown birth time | **Mandatory release gate** | Not handled by these decisions (UX-01 pending) | UX-01 decision and QA-002 |
+| R-9 | Licensing | **Mandatory release gate** | Swiss Ephemeris AGPL and data-rights perimeter (LEG-01 pending) | QA-026 legal review |
+| R-10 | Concurrency of Swiss global state in a multi-worker service | **Mandatory release gate** | The engine serializes Swiss calls under one lock; the service architecture is not yet built | QA-008 concurrency tests in the service package |
+
+Security, privacy (QA-018, QA-024, QA-025), accessibility, Hindi review and the owner's release sign-off remain mandatory gates under `docs/ACCEPTANCE-MATRIX.md` and are unaffected by this package.
 
 ## 5. What this PR does not change
 

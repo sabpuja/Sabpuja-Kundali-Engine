@@ -14,7 +14,7 @@ Every pending decision keeps four things separate. One of them is never taken as
 | **Proposed convention** | The exact setting or formula Claude proposes | Claude (lead implementer) |
 | **Evidence** | Reproducible test results, with the exact PR, SHA and QA review that accepted them | KUN-01 and KUN-02 runs, accepted by ChatGPT QA |
 | **ChatGPT scientific QA** | ChatGPT's recorded recommendation, with a link | ChatGPT PM / independent QA |
-| **Owner approval and canonical adoption** | Sabpuja's explicit choice, the date, and the merge SHA of the `DECISIONS.md` change that records it | Sabpuja (owner) |
+| **Owner approval and canonical adoption** | Two records: a **pre-merge approval record** (owner choice, date, approval link, effective scope, exact reviewed head SHA) and, after the owner-authorized merge, a **post-merge adoption receipt** (merge SHA and date). The entry becomes canonical only at that merge | Sabpuja (owner) |
 
 A ChatGPT QA PASS of an evidence package is **not** an owner approval. An owner approval is **not** an implementation authorization: every code change still needs its own scoped draft PR, QA and merge authorization ([implementation sequence](KUN-02-P2-implementation-and-risks.md)).
 
@@ -49,7 +49,7 @@ The text of these two entries in `DECISIONS.md` is not edited by this PR.
 | SCI-01g | Supported latitude −66.0 ≤ lat ≤ +66.0 inclusive, refused outside with `LATITUDE_OUTSIDE_SUPPORTED_BAND`, independent of date | No inside the band | Yes: refuses 66.0° < \|lat\| < 89° (some of which is accepted today, depending on date) | KUN-02 A3, A4, envelope §2 | Favoured as a fixed product envelope (PR #19 final QA) | **PENDING** |
 | SCI-01h | Keep: civil UTC (from the IANA offset) passed to Swiss as UT1; TT = UT1 + Swiss ΔT. Label the assumption by era in metadata; review before 2035 | No | No | KUN-02 B3, time-scale and sidereal-time probes; KUN-01 probes [8], [9] | Honest epoch-specific metadata required (PR #19 final QA) | **PENDING** |
 | SCI-02 | MVP outputs: D1 sidereal longitude, Rashi and whole-sign house for Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, mean Rahu, Ketu; Lagna longitude and Rashi; D9 sign of every body and the Lagna; D9 whole-sign houses; Moon Rashi, Nakshatra and Pada; calculation metadata. Owner option: Nakshatra/Pada for all bodies and the Lagna | Adds fields only | No | KUN-02 A10; PR #18 rule oracle | Supports direction; no new approval (PR #19 final QA) | **PENDING** |
-| SCI-03 | Local civil birth date 1900-01-01 to 2100-12-31 inclusive; explicit offset validated against IANA; gaps refused, folds disambiguated by the given offset; pinned tzdata with a TZif byte manifest and deterministic loading; `HISTORICAL_CLOCK_UNVERIFIED` fail-closed for Asia/Kolkata before 1956-01-01 at minimum; future dates disclosed as projected | Only at the date edges | Yes: edge dates and gated historical births | KUN-02 B1, B2, C1, T01–T63, tzdata probe | Local-date window, pinned TZif and temporary pre-1956 minimum endorsed (PR #19 final QA) | **PENDING** |
+| SCI-03 | Local civil birth date 1900-01-01 to 2100-12-31 inclusive; explicit offset validated against IANA; gaps refused, folds disambiguated by the given offset; pinned tzdata with a TZif byte manifest and deterministic loading; `HISTORICAL_CLOCK_UNVERIFIED` fail-closed for Asia/Kolkata before 1956-01-01 at minimum, wider scope by owner choice (A, B, B-full, C; B-full recommended); future dates disclosed as projected | Only at the date edges | Yes: edge dates and gated historical births | KUN-02 B1, B2, C1, T01–T63, tzdata probe | Local-date window, pinned TZif and temporary pre-1956 minimum endorsed (PR #19 final QA) | **PENDING** |
 
 Each row is expanded below with the exact setting, alternatives, evidence, references, limitations, effect on existing results, input-acceptance changes and required regression tests. "Evidence" items are defined in the [evidence map](KUN-02-P2-evidence-map.md).
 
@@ -163,12 +163,18 @@ Each row is expanded below with the exact setting, alternatives, evidence, refer
   - KUN-02 accepts IANA-modelled LMT, HMT and war-time offsets for Karachi, Dhaka, Kathmandu, Colombo and Yangon (T21, T23, T24, T61, T62); these rest on the same kind of source.
   - Two builds of the same tzdata 2026e (Ubuntu with `backzone`, PyPI without) disagree for 8 Asian zones before 1956 (Aden, Kuwait, Bahrain, Brunei, Phnom Penh, Vientiane, Muscat, Kuala Lumpur).
 
-  Options for the owner:
-  - **(A) Floor (mandatory):** Asia/Kolkata before 1956-01-01.
-  - **(B) Recommended before public release:** (A) plus every other IANA zone before 1970-01-01, fail closed, until DATA-01 reviews a zone and era. For an India-first MVP this refuses few real users and removes every unreviewed pre-1970 clock.
-  - **(C)** (A) plus the other South Asian zones (Asia/Karachi, Asia/Dhaka, Asia/Kathmandu, Asia/Colombo, Asia/Yangon, Asia/Thimphu) before 1970-01-01 only.
+  Options for the owner (all fail closed with `HISTORICAL_CLOCK_UNVERIFIED`, all by local civil birth date, none invents an offset):
 
-  The gate is a versioned table (zone, local-date start, end, policy), reviewed like any decision. Asia/Kolkata from 1956 to 1969 stays accepted under (A); IANA's pre-1970 caveat still applies to it, and this is recorded as a residual risk.
+  | Option | Refused until DATA-01 reviews the place and date | Known residual pre-1970 risk (accepted without DATA-01 evidence) |
+  |---|---|---|
+  | **(A) Temporary minimum** | Asia/Kolkata before 1956-01-01 | Asia/Kolkata 1956-01-01 to 1969-12-31; every other zone before 1970 |
+  | **(B)** | (A), plus every **other** IANA zone before 1970-01-01 | Asia/Kolkata 1956-01-01 to 1969-12-31 |
+  | **(B-full)** | **Every** birthplace and zone before 1970-01-01, **including Asia/Kolkata 1956–1969** | none of the pre-1970 kind; post-1970 IANA modelling is still a model |
+  | **(C) Regional** | (A), plus Asia/Karachi, Asia/Dhaka, Asia/Kathmandu, Asia/Colombo, Asia/Yangon and Asia/Thimphu before 1970-01-01 | Asia/Kolkata 1956–1969; every zone outside South Asia before 1970 |
+
+  **Recommendation for public release: (B-full)**, matching ChatGPT's scientific-policy recommendation on [PR #20](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/20#pullrequestreview-5610686390). It is the only option that follows IANA's statement that pre-1970 records are not sufficient for actual local history. It deliberately reduces pre-1970 coverage, including Indian births from 1956 to 1969, and that cost should be shown to users and the owner as a product trade-off. No estimate of how many users this refuses exists in the evidence, so none is claimed. (A) remains the mandatory floor that P8 must implement under any choice.
+
+  The gate is a versioned table (zone, local-date start, local-date end, policy), reviewed and approved like any decision.
 - **DATA-01 historical-clock research package (separate, not started).** For each verified exception it must record:
   - birthplace as named and administered at the birth date, with coordinates and source;
   - historical jurisdiction;
