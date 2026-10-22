@@ -33,7 +33,7 @@ Input refusal codes (KUN-03 P5, D1/D4). Every input refusal raises `InputRefusal
 
 | Order | Code | Refused when | Class |
 |---|---|---|---|
-| 1 | `REQUEST_INVALID` | not one JSON object, over 4 KB, not UTF-8, wrong keys, or `birth_datetime`/`timezone` not strings | `InputRefusalError` |
+| 1 | `REQUEST_INVALID` | not one JSON object, over 4,096 bytes (counted before UTF-8 decoding), not UTF-8, wrong keys, or `birth_datetime`/`timezone` not strings | `InputRefusalError` |
 | 2 | `TIME_FORMAT_INVALID` | outside the strict profile, including hour > 23, minute > 59, second > 60, offset hour > 23 or offset minute/second > 59 | `InputRefusalError` |
 | 3 | `TIME_OFFSET_REQUIRED` | a profile-conforming local time with no offset | `InputRefusalError` |
 | 4 | `TIME_LEAP_SECOND_UNSUPPORTED` | seconds field `60` | `UnsupportedInputError` |

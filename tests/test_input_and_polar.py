@@ -27,7 +27,8 @@ HUGE = "1" + "0" * 400  # 10**400 as JSON integer text
 
 def run_cli(text):
     out, err = io.StringIO(), io.StringIO()
-    with mock.patch("sys.stdin", io.StringIO(text)), \
+    # Real stdin has a byte buffer; the CLI's 4 KB limit counts bytes (KUN-03 P5-QA-01).
+    with mock.patch("sys.stdin", io.TextIOWrapper(io.BytesIO(text.encode("utf-8")), encoding="utf-8")), \
             contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
         code = cli.main()
     return code, out.getvalue(), err.getvalue()

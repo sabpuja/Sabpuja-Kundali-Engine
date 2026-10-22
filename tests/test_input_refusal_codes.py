@@ -277,6 +277,35 @@ class CliPrivacyTests(unittest.TestCase):
                 for secret in self.SECRETS:
                     self.assertNotIn(secret, proc.stderr)
 
+    def run_cli_bytes(self, data):
+        env = {**os.environ, "PYTHONPATH": str(SRC), "SABPUJA_EPHE_PATH": MISSING}
+        return subprocess.run([sys.executable, "-m", "sabpuja_kundali.cli"], input=data,
+                              capture_output=True, env=env, timeout=60)
+
+    def test_size_limit_counts_utf8_bytes(self):
+        # P5-QA-01: 4,096 bytes of input, not characters; checked before decoding,
+        # so an oversized request is REQUEST_INVALID even if a later check would fail.
+        multibyte = json.dumps({**BASE, "timezone": "Mars/" + "\u00e9" * 2200}, ensure_ascii=False).encode()
+        self.assertLess(len(multibyte.decode()), 4096)
+        self.assertGreater(len(multibyte), 4096)
+        exact = json.dumps({**BASE, "timezone": "Mars/Base"}).encode()
+        exact = exact + b" " * (4096 - len(exact))
+        over = exact + b" "
+        cases = {"multibyte over 4 KB": (multibyte, "REQUEST_INVALID"),
+                 "4,096 bytes": (exact, "TIMEZONE_INVALID"),
+                 "4,097 bytes": (over, "REQUEST_INVALID"),
+                 "malformed UTF-8": (b'{"birth_datetime": "\xff\xfe"}', "REQUEST_INVALID")}
+        self.assertEqual(len(exact), 4096)
+        for name, (data, code) in cases.items():
+            with self.subTest(case=name):
+                proc = self.run_cli_bytes(data)
+                self.assertEqual(proc.returncode, 2)
+                self.assertEqual(proc.stdout, b"")
+                stderr = proc.stderr.decode()
+                self.assertNotIn("Traceback", stderr)
+                self.assertTrue(json.loads(stderr)["error"].startswith(code + ": "), stderr)
+                self.assertNotIn("Mars", stderr)
+
     def test_unreadable_input_is_request_invalid(self):
         for text in ("", "not json", "[1, 2]", '{"birth_datetime": "2000-01-01T17:30:00+05:30"', "x" * 4097):
             with self.subTest(size=len(text)):

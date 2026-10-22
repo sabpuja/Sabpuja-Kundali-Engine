@@ -5,12 +5,14 @@ from .engine import InputRefusalError, calculate
 
 def main() -> int:
     try:
+        # The 4 KB limit counts bytes, before decoding (P5-QA-01).
+        data = sys.stdin.buffer.read(4097)
+        if len(data) > 4096:
+            raise InputRefusalError("REQUEST_INVALID", "Input exceeds 4 KB limit")
         try:
-            raw = sys.stdin.read(4097)
+            raw = data.decode("utf-8")
         except UnicodeDecodeError:
             raise InputRefusalError("REQUEST_INVALID", "input must be UTF-8 text") from None
-        if len(raw) > 4096:
-            raise InputRefusalError("REQUEST_INVALID", "Input exceeds 4 KB limit")
         try:
             request = json.loads(raw)
         except ValueError:
