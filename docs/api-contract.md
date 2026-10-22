@@ -15,7 +15,7 @@ Input from stdin (JSON object, max 4KB):
 Requirements:
 - `birth_datetime` is exact birth-local ISO-8601 with an explicit UTC offset.
 - `timezone` is the IANA timezone identifier; conversion must match the offset, including DST/historical rules.
-- Latitude decimal north-positive, longitude east-positive. Both must be JSON numbers (not booleans or strings), finite (no `NaN`/`Infinity`, no integers too large for a float) and within the accepted range: latitude strictly between -89 and 89, longitude -180 to 180 inclusive. This range is unchanged pending the owner's high-latitude method decision (SCI-01).
+- Latitude decimal north-positive, longitude east-positive. Both must be JSON numbers (not booleans or strings), finite (no `NaN`/`Infinity`, no integers too large for a float) and within the accepted range: latitude -66.0 to 66.0 inclusive (SCI-01g supported band, the same for every date), longitude -180 to 180 inclusive. A finite latitude outside the band is refused with `LATITUDE_OUTSIDE_SUPPORTED_BAND` before any Swiss call; non-numbers and non-finite values keep their existing input errors.
 - No name, email, phone, address, account ID or other identifying attributes in the calculation request.
 - A birthplace autocomplete service is future work and must be offline/self-hosted.
 
@@ -28,8 +28,9 @@ Longitude and category semantics:
 
 Errors: CLI writes JSON `{"error":"..."}` to stderr, writes nothing to stdout, prints no traceback and exits 2. Error text never repeats the birth time, timezone or coordinates. No HTTP response codes are promised yet. Network service contracts must be separately reviewed and versioned.
 
-Two coordinate failures are deliberately distinct:
-- **Invalid latitude/longitude** (input error): the value is not a usable number or is outside the accepted range, for example `"latitude must be a finite number"` or `"latitude must be between -89 and 89 (exclusive)"`. The caller must correct the input.
-- **Cannot compute reliably with the current method** (`ASCENDANT_UNCOMPUTABLE: ...`): the input is valid, but Swiss Ephemeris cannot compute the ascendant there with the house call the engine currently uses (Placidus, `houses_ex` with `b"P"`), which is undefined beyond the polar circles (roughly |latitude| > 66.5°; the exact edge depends on date and time). No partial chart is returned and no other house method is substituted. This is a limitation of the current foundation method, not a statement that these regions are permanently unsupported; broader high-latitude support is an open owner decision (SCI-01).
+Three coordinate failures are deliberately distinct:
+- **Invalid latitude/longitude** (`ValueError`, input error): the value is not a usable number, or the longitude is outside -180 to 180, for example `"latitude must be a number"`, `"latitude must be a finite number"` or `"longitude must be between -180 and 180 (inclusive)"`. The caller must correct the input.
+- **Outside the supported latitude band** (`UnsupportedInputError`, a `ValueError` subclass carrying `.code`; error text `LATITUDE_OUTSIDE_SUPPORTED_BAND: latitude must be between -66 and 66 (inclusive)`): the latitude is a finite number outside -66.0 to 66.0. It is refused for every date and longitude, before the ephemeris check and before any Swiss Ephemeris call, so such a request never reaches the ascendant (Placidus) calculation. This is the owner-approved SCI-01g initial support policy, not a permanent astronomical limit; any wider support would need a new owner decision. A disclosure of birth-time sensitivity above 60° (`HIGH_LATITUDE_TIME_SENSITIVITY`) is not emitted yet; it is assigned to future P7 calculation metadata.
+- **Cannot compute** (`ChartComputationError`, error text `ASCENDANT_UNCOMPUTABLE: ...`): defensive only. It is raised if Swiss Ephemeris unexpectedly fails the ascendant call (`houses_ex` with `b"P"`) for an in-band request. Placidus is defined everywhere within ±66.0° (the polar circle is at about 66.55° or more for 1900 to 2100), so this is not expected for valid input. No partial chart is returned and no other house method is substituted.
 
 **Privacy**: CLI retains no state; stdout contains sensitive birth timestamp/coordinates and must be protected by the caller. Never send customer content to telemetry or GitHub.
