@@ -320,6 +320,69 @@ class CacheTests(unittest.TestCase):
                          before)
 
 
+class CompatibilityTests(unittest.TestCase):
+    """Outcomes that P1 changes on some hosts, pinned so they cannot drift unreviewed.
+
+    Against Ubuntu's 2026e system build: 101 keys absent there are accepted (old
+    names), and 110 keys give different offsets, all before 1970 except the
+    non-location rule zones WET (to 1996-03-30) and EET (to 1980-04-05), which
+    tzdata 2024b+ links to Europe/Lisbon and Europe/Athens. P5 is proposed to
+    refuse non-location keys; until then P1 accepts every manifest key.
+    """
+
+    def test_non_location_rule_zones_after_1970_follow_the_pinned_links(self):
+        cases = [
+            ("1995-07-01T14:00:00+02:00", "WET", ("ACCEPT", "1995-07-01T12:00:00Z")),
+            ("1995-07-01T13:00:00+01:00", "WET", ("OFFSET_MISMATCH", None)),
+            ("1975-07-01T13:00:00+01:00", "WET", ("ACCEPT", "1975-07-01T12:00:00Z")),
+            ("1975-07-01T15:00:00+03:00", "EET", ("ACCEPT", "1975-07-01T12:00:00Z")),
+            ("1975-07-01T14:00:00+02:00", "EET", ("OFFSET_MISMATCH", None)),
+        ]
+        for birth, key, expected in cases:
+            with self.subTest(birth=birth, key=key):
+                self.assertEqual(outcome(birth, key), expected)
+        zones = load_manifest()["zones"]
+        self.assertEqual(zones["WET"], zones["Europe/Lisbon"])
+        self.assertEqual(zones["EET"], zones["Europe/Athens"])
+
+    def test_old_names_match_their_current_zone_after_1970(self):
+        pairs = [("Asia/Calcutta", "Asia/Kolkata"), ("Asia/Katmandu", "Asia/Kathmandu"),
+                 ("Asia/Saigon", "Asia/Ho_Chi_Minh"), ("Europe/Kiev", "Europe/Kyiv"),
+                 ("Australia/ACT", "Australia/Sydney"), ("America/Buenos_Aires", "America/Argentina/Buenos_Aires"),
+                 ("US/Eastern", "America/New_York"), ("Japan", "Asia/Tokyo")]
+        loader = timezones.default_loader()
+        instants = [datetime(y, m, 15, 12, tzinfo=timezone.utc) for y in range(1970, 2101, 5) for m in (1, 7)]
+        for old, current in pairs:
+            with self.subTest(old=old):
+                self.assertEqual([t.astimezone(loader.get(old)).utcoffset() for t in instants],
+                                 [t.astimezone(loader.get(current)).utcoffset() for t in instants])
+
+    def test_byte_identical_keys_give_identical_offsets(self):
+        groups = {}
+        for key, entry in load_manifest()["zones"].items():
+            groups.setdefault(entry["sha256"], []).append(key)
+        loader = timezones.default_loader()
+        shared = [keys for keys in groups.values() if len(keys) > 1]
+        self.assertGreater(len(shared), 1)
+        for keys in shared:
+            tables = {tuple(row[1:]) for row in offsets_table(loader.get, keys)}
+            self.assertEqual(len(tables), 1, keys)
+
+    def test_start_up_gate_fails_closed_on_a_tampered_package(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = copy_package(tmp, "tzdata_gate_copy")
+            target = pkg / "zoneinfo" / "Pacific" / "Chatham"
+            target.write_bytes(target.read_bytes()[:-1])
+            sys.path.insert(0, tmp)
+            try:
+                with self.assertRaises(TimezoneDataError) as ctx:
+                    PinnedZoneLoader(load_manifest(), package="tzdata_gate_copy").verify_all()
+                self.assertEqual(ctx.exception.code, "TZDATA_FILE_MISMATCH")
+            finally:
+                sys.path.remove(tmp)
+                sys.modules.pop("tzdata_gate_copy", None)
+
+
 class HostIndependenceTests(unittest.TestCase):
     """Two simulated hosts whose system zoneinfo trees disagree must give identical results."""
 
