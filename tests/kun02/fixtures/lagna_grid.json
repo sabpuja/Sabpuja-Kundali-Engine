@@ -1,0 +1,75 @@
+{
+  "fixture": "KUN-02 Workstream A synthetic Lagna grid",
+  "note": "Synthetic places and instants only. Coordinates are public city-centre approximations or constructed boundary points; no person's birth is represented.",
+  "locations": [
+    {"id": "IN-DEL", "group": "india", "lat": 28.6139, "lon": 77.2090},
+    {"id": "IN-BOM", "group": "india", "lat": 19.0760, "lon": 72.8777},
+    {"id": "IN-CCU", "group": "india", "lat": 22.5726, "lon": 88.3639},
+    {"id": "IN-MAA", "group": "india", "lat": 13.0827, "lon": 80.2707},
+    {"id": "IN-BLR", "group": "india", "lat": 12.9716, "lon": 77.5946},
+    {"id": "IN-SXR", "group": "india", "lat": 34.0837, "lon": 74.7973},
+    {"id": "IN-IXL", "group": "india", "lat": 34.1526, "lon": 77.5771},
+    {"id": "IN-KAN", "group": "india", "lat": 8.0883, "lon": 77.5385},
+    {"id": "IN-IXZ", "group": "india", "lat": 11.6234, "lon": 92.7265},
+    {"id": "IN-GAU", "group": "india", "lat": 26.1445, "lon": 91.7362},
+    {"id": "IN-KVT", "group": "india", "lat": 10.5626, "lon": 72.6369},
+    {"id": "EQ-0-0", "group": "equator", "lat": 0.0, "lon": 0.0},
+    {"id": "EQ-UIO", "group": "equator", "lat": -0.1807, "lon": -78.4678},
+    {"id": "EQ-SIN", "group": "equator", "lat": 1.3521, "lon": 103.8198},
+    {"id": "EQ-NBO", "group": "equator", "lat": -1.2921, "lon": 36.8219},
+    {"id": "DL-E180", "group": "date-line", "lat": 0.0, "lon": 180.0},
+    {"id": "DL-W180", "group": "date-line", "lat": 0.0, "lon": -180.0},
+    {"id": "DL-SUV", "group": "date-line", "lat": -18.1248, "lon": 178.4501},
+    {"id": "S-SYD", "group": "southern", "lat": -33.8688, "lon": 151.2093},
+    {"id": "S-CPT", "group": "southern", "lat": -33.9249, "lon": 18.4241},
+    {"id": "S-BUE", "group": "southern", "lat": -34.6037, "lon": -58.3816},
+    {"id": "S-AKL", "group": "southern", "lat": -36.8485, "lon": 174.7633},
+    {"id": "S-USH", "group": "southern-high", "lat": -54.8019, "lon": -68.3030},
+    {"id": "N-LON", "group": "northern", "lat": 51.5074, "lon": -0.1278},
+    {"id": "N-YYZ", "group": "northern", "lat": 43.6532, "lon": -79.3832},
+    {"id": "N-ANC", "group": "northern-high", "lat": 61.2181, "lon": -149.9003},
+    {"id": "N-REK", "group": "northern-high", "lat": 64.1466, "lon": -21.9426},
+    {"id": "B-N66.0", "group": "band-edge", "lat": 66.0, "lon": 25.0},
+    {"id": "B-S66.0", "group": "band-edge", "lat": -66.0, "lon": 110.0},
+    {"id": "B-N66.5", "group": "polar-strip", "lat": 66.5, "lon": -50.0},
+    {"id": "B-S66.5", "group": "polar-strip", "lat": -66.5, "lon": 140.0},
+    {"id": "P-TOS", "group": "beyond-polar", "lat": 69.6492, "lon": 18.9553},
+    {"id": "P-N75", "group": "beyond-polar", "lat": 75.0, "lon": 15.0},
+    {"id": "P-MCM", "group": "beyond-polar", "lat": -77.85, "lon": 166.67},
+    {"id": "P-N88.99", "group": "accept-limit", "lat": 88.99, "lon": 0.0},
+    {"id": "P-S88.99", "group": "accept-limit", "lat": -88.99, "lon": 0.0}
+  ],
+  "structured_instants": {
+    "years": [1900, 1901, 1925, 1947, 1956, 1975, 2000, 2024, 2050, 2075, 2099, 2100],
+    "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    "days": [1, 16],
+    "hours_utc": [0.0, 1.9, 4.1, 6.0, 8.3, 10.0, 12.0, 13.7, 16.0, 18.2, 20.0, 22.5]
+  },
+  "random_sample": {
+    "seed": 20261022,
+    "count": 60000,
+    "abs_lat_max": 66.0,
+    "jd_ut_start": 2415020.5,
+    "jd_ut_end": 2488434.5
+  },
+  "random_polar_sample": {
+    "seed": 20261023,
+    "count": 20000,
+    "abs_lat_min": 66.0,
+    "abs_lat_max": 88.99
+  },
+  "boundary_sweep": {
+    "locations": ["IN-DEL", "S-SYD", "B-N66.0"],
+    "date_utc": [2024, 3, 21],
+    "segments": 108
+  },
+  "threshold_dates": [[1900, 1, 1], [1925, 7, 1], [1956, 3, 21], [2000, 1, 1], [2024, 6, 1], [2050, 1, 1], [2075, 9, 1], [2100, 12, 31]],
+  "engine_cases": [
+    {"id": "EC-DEL-2000", "birth_datetime": "2000-01-01T17:30:00+05:30", "timezone": "Asia/Kolkata", "latitude": 28.6139, "longitude": 77.2090},
+    {"id": "EC-BOM-1975", "birth_datetime": "1975-08-15T06:10:00+05:30", "timezone": "Asia/Kolkata", "latitude": 19.0760, "longitude": 72.8777},
+    {"id": "EC-SYD-2024", "birth_datetime": "2024-02-29T23:59:59+11:00", "timezone": "Australia/Sydney", "latitude": -33.8688, "longitude": 151.2093},
+    {"id": "EC-UIO-1956", "birth_datetime": "1956-03-21T07:00:00-05:00", "timezone": "America/Guayaquil", "latitude": -0.1807, "longitude": -78.4678},
+    {"id": "EC-N66-2050", "birth_datetime": "2050-12-21T12:00:00+02:00", "timezone": "Europe/Helsinki", "latitude": 66.0, "longitude": 25.0},
+    {"id": "EC-TOS-2000", "birth_datetime": "2000-06-21T12:00:00+02:00", "timezone": "Europe/Oslo", "latitude": 69.6492, "longitude": 18.9553}
+  ]
+}
