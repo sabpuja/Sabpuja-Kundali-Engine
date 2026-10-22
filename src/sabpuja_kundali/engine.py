@@ -5,7 +5,7 @@ lookup. This adapter is NOT independently reference-chart validated.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from fractions import Fraction
 from threading import RLock
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -46,6 +46,10 @@ class UnsupportedInputError(ValueError):
 # are accepted; it also stays inside the Placidus limit of 90 deg - true
 # obliquity (66.5467 to 66.5752 deg over 1900-2100).
 SUPPORTED_LATITUDE_DEG = 66.0
+
+# SCI-03 initial window, by local civil birth date (inclusive). Extend only
+# after historical-time QA and an owner decision.
+SUPPORTED_LOCAL_DATES = (date(1900, 1, 1), date(2100, 12, 31))
 
 
 def _finite_number(value: object, name: str) -> float:
@@ -103,14 +107,16 @@ def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
         zone = ZoneInfo(tz_name)
     except (ZoneInfoNotFoundError, TypeError, ValueError) as exc:
         raise ValueError("timezone must be a valid IANA timezone identifier") from exc
+    # SCI-03: the window applies to the local civil date as written, before
+    # conversion, so it never depends on the offset (UTC may be 1899 or 2101).
+    if not SUPPORTED_LOCAL_DATES[0] <= local.date() <= SUPPORTED_LOCAL_DATES[1]:
+        raise UnsupportedInputError(
+            "DATE_OUTSIDE_SUPPORTED_RANGE",
+            "local birth date must be between 1900-01-01 and 2100-12-31 (inclusive)")
     actual = local.astimezone(zone)
     if actual.replace(tzinfo=None) != local.replace(tzinfo=None) or actual.utcoffset() != local.utcoffset():
         raise ValueError("Birth time/offset does not match IANA timezone (DST or historical rule)")
-    utc = local.astimezone(timezone.utc)
-    # Initial supported accuracy envelope. Extend only after historical time QA.
-    if not 1900 <= utc.year <= 2100:
-        raise ValueError("Initial build supports births from 1900 through 2100 only")
-    return utc
+    return local.astimezone(timezone.utc)
 
 
 def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[str, object]:
