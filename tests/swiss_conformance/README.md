@@ -98,7 +98,9 @@ against it before it calls the engine or swetest:
 
 Any failure gives SWISS-CONFORMANCE BLOCKED (exit 2), with error codes only.
 `numeric()` itself returns BLOCKED for a non-finite, non-positive, boolean or
-oversized tolerance, and for a non-finite or non-numeric value.
+oversized tolerance, and for a non-finite or non-numeric value. This includes
+an integer too large to convert to a float, such as a 401-digit latitude. Such
+a value is reported by its type only, never by the raw value.
 
 Engine errors are recorded as codes only. Paths in captured CLI output are
 replaced by `<SWETEST>` and `<EPHE>`.

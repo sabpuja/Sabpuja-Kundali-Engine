@@ -133,6 +133,21 @@ class Inputs(unittest.TestCase):
         self.assertIn("DIRTY_TREE", report["run_reasons"])
         self.assertEqual(report["coverage_errors"], [])
 
+    def test_huge_integer_latitude_blocks_without_calls(self):
+        doc = json.loads(CASES_TEXT)
+        text = json.dumps(doc, indent=2).replace('"latitude": 28.6139', '"latitude": 1' + "0" * 400, 1)
+        self.assertIn("1" + "0" * 400, text)
+        spec, cases = self.write("spec.json", SPEC_TEXT), self.write("cases.json", text)
+        with mock.patch.object(c, "call_engine") as engine, mock.patch.object(c.swetest_cli, "run") as cli_run:
+            engine.side_effect = cli_run.side_effect = must_not_run
+            report = c.run_all("x", "y", "z", spec_path=spec, cases_path=cases, env=env_ok())
+        self.assertEqual((engine.call_count, cli_run.call_count), (0, 0))
+        self.assertEqual((report["verdict"], report["exit_code"], report["cases"]), ("SWISS-CONFORMANCE BLOCKED", 2, []))
+        self.assertIn("CASE_REQUEST: SC-01", report["run_reasons"])
+        serialized = json.dumps(report, allow_nan=False)
+        self.assertNotIn("0" * 400, serialized)
+        self.assertFalse(inputs.is_number(10 ** 400))
+
     def test_missing_input_file_blocks(self):
         report = c.run_all("x", "y", "z", spec_path=Path(self.tmp.name) / "none.json", env=env_ok())
         self.assertEqual(report["exit_code"], 2)

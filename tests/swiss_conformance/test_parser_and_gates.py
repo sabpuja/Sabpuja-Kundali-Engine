@@ -198,16 +198,17 @@ class ComparisonLogic(unittest.TestCase):
         self.assertEqual(c.numeric("X", "engine_vs_swetest_deg", "moon", None, 1.0, 1e-8)["outcome"], c.BLOCKED)
 
     def test_numeric_rejects_unsafe_tolerances_and_values(self):
-        for tol in (float("inf"), float("-inf"), float("nan"), 0.0, -1e-9, 0, True, 1, 1e-3, None, "1e-9"):
+        for tol in (float("inf"), float("-inf"), float("nan"), 0.0, -1e-9, 0, True, 1, 1e-3, None, "1e-9", 10 ** 400):
             with self.subTest(tol=tol):
                 record = c.numeric("X", "engine_vs_swetest_deg", "moon", 10.0, 200.0, tol)
                 self.assertEqual(record["outcome"], c.BLOCKED)
                 json.dumps(record, allow_nan=False)
-        for value in (float("nan"), float("inf"), True, "10.0"):
+        for value in (float("nan"), float("inf"), True, "10.0", 10 ** 400, -(10 ** 400)):
             with self.subTest(value=value):
                 self.assertEqual(c.numeric("X", "engine_vs_swetest_deg", "moon", value, 10.0, 1e-8)["outcome"], c.BLOCKED)
                 self.assertEqual(c.numeric("X", "engine_vs_swetest_deg", "moon", 10.0, value, 1e-8)["outcome"], c.BLOCKED)
-                json.dumps(c.numeric("X", "engine_vs_swetest_deg", "moon", value, value, 1e-8), allow_nan=False)
+                text = json.dumps(c.numeric("X", "engine_vs_swetest_deg", "moon", value, value, 1e-8), allow_nan=False)
+                self.assertNotIn("0" * 50, text)
 
     def test_category_rule(self):
         from . import oracle

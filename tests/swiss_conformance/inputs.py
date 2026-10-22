@@ -133,7 +133,13 @@ def sha256_bytes(data: bytes) -> str:
 
 
 def is_number(value) -> bool:
-    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+    """Finite int or float; never raises (an int too large for a float is not a usable number)."""
+    if type(value) not in (int, float):
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
 
 
 def valid_tolerance(value) -> bool:

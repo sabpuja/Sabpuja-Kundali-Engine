@@ -171,16 +171,19 @@ def call_engine(request: dict, ephe: str):
 
 # ---------------------------------------------------------------- comparison
 
+def _unusable(value):
+    """Report-safe stand-in for a value that cannot be compared: its type only, never the raw value."""
+    return None if value is None else f"<unusable {type(value).__name__}>"
+
+
 def numeric(case_id: str, kind: str, quantity: str, value, reference, tol: float) -> dict:
     record = {"case": case_id, "kind": kind, "quantity": quantity, "value": value, "reference": reference,
               "diff": None, "tolerance": tol, "outcome": FAIL}
     if not inputs.valid_tolerance(tol):
-        record.update(value=repr(value), reference=repr(reference), tolerance=repr(tol), outcome=BLOCKED)
+        record.update(value=_unusable(value), reference=_unusable(reference), tolerance=_unusable(tol), outcome=BLOCKED)
         return record
     if not (inputs.is_number(value) and inputs.is_number(reference)):
-        # Keep the report valid strict JSON: unusable values are recorded by repr only.
-        record.update(value=None if value is None else repr(value),
-                      reference=None if reference is None else repr(reference), outcome=BLOCKED)
+        record.update(value=_unusable(value), reference=_unusable(reference), outcome=BLOCKED)
         return record
     if kind.endswith("_deg"):
         diff = float((Fraction(value) - Fraction(reference) + 180) % 360 - 180)
