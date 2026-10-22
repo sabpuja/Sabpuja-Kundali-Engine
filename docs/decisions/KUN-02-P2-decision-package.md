@@ -49,7 +49,7 @@ The text of these two entries in `DECISIONS.md` is not edited by this PR.
 | SCI-01g | Supported latitude −66.0 ≤ lat ≤ +66.0 inclusive, refused outside with `LATITUDE_OUTSIDE_SUPPORTED_BAND`, independent of date | No inside the band | Yes: refuses 66.0° < \|lat\| < 89° (some of which is accepted today, depending on date) | KUN-02 A3, A4, envelope §2 | Favoured as a fixed product envelope (PR #19 final QA) | **PENDING** |
 | SCI-01h | Keep: civil UTC (from the IANA offset) passed to Swiss as UT1; TT = UT1 + Swiss ΔT. Label the assumption by era in metadata; review before 2035 | No | No | KUN-02 B3, time-scale and sidereal-time probes; KUN-01 probes [8], [9] | Honest epoch-specific metadata required (PR #19 final QA) | **PENDING** |
 | SCI-02 | MVP outputs: D1 sidereal longitude, Rashi and whole-sign house for Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, mean Rahu, Ketu; Lagna longitude and Rashi; D9 sign of every body and the Lagna; D9 whole-sign houses; Moon Rashi, Nakshatra and Pada; calculation metadata. Owner option: Nakshatra/Pada for all bodies and the Lagna | Adds fields only | No | KUN-02 A10; PR #18 rule oracle | Supports direction; no new approval (PR #19 final QA) | **PENDING** |
-| SCI-03 | Local civil birth date 1900-01-01 to 2100-12-31 inclusive; explicit offset validated against IANA; gaps refused, folds disambiguated by the given offset; pinned tzdata with a TZif byte manifest and deterministic loading; `HISTORICAL_CLOCK_UNVERIFIED` fail-closed for Asia/Kolkata before 1956-01-01 at minimum, wider scope by owner choice (A, B, B-full, C; B-full recommended); future dates disclosed as projected | Only at the date edges | Yes: edge dates and gated historical births | KUN-02 B1, B2, C1, T01–T63, tzdata probe | Local-date window, pinned TZif and temporary pre-1956 minimum endorsed (PR #19 final QA) | **PENDING** |
+| SCI-03 | Local civil birth date 1900-01-01 to 2100-12-31 inclusive; explicit offset validated against IANA; gaps refused, folds disambiguated by the given offset; pinned tzdata with a TZif byte manifest and deterministic loading; `HISTORICAL_CLOCK_UNVERIFIED` fail-closed for Asia/Kolkata before 1956-01-01 at minimum, wider scope by owner choice (A, B or C; B, every pre-1970 zone including Kolkata 1956–1969, recommended); future dates disclosed as projected | Only at the date edges | Yes: edge dates and gated historical births | KUN-02 B1, B2, C1, T01–T63, tzdata probe | Local-date window, pinned TZif and temporary pre-1956 minimum endorsed (PR #19 final QA) | **PENDING** |
 
 Each row is expanded below with the exact setting, alternatives, evidence, references, limitations, effect on existing results, input-acceptance changes and required regression tests. "Evidence" items are defined in the [evidence map](KUN-02-P2-evidence-map.md).
 
@@ -163,16 +163,25 @@ Each row is expanded below with the exact setting, alternatives, evidence, refer
   - KUN-02 accepts IANA-modelled LMT, HMT and war-time offsets for Karachi, Dhaka, Kathmandu, Colombo and Yangon (T21, T23, T24, T61, T62); these rest on the same kind of source.
   - Two builds of the same tzdata 2026e (Ubuntu with `backzone`, PyPI without) disagree for 8 Asian zones before 1956 (Aden, Kuwait, Bahrain, Brunei, Phnom Penh, Vientiane, Muscat, Kuala Lumpur).
 
-  Options for the owner (all fail closed with `HISTORICAL_CLOCK_UNVERIFIED`, all by local civil birth date, none invents an offset):
+  Options for the owner (all fail closed with `HISTORICAL_CLOCK_UNVERIFIED`, all by local civil birth date, none invents an offset, all PENDING):
 
-  | Option | Refused until DATA-01 reviews the place and date | Known residual pre-1970 risk (accepted without DATA-01 evidence) |
+  | Option | Refused until DATA-01 verifies the place and date | Known residual risk (accepted without DATA-01 evidence) |
   |---|---|---|
   | **(A) Temporary minimum** | Asia/Kolkata before 1956-01-01 | Asia/Kolkata 1956-01-01 to 1969-12-31; every other zone before 1970 |
-  | **(B)** | (A), plus every **other** IANA zone before 1970-01-01 | Asia/Kolkata 1956-01-01 to 1969-12-31 |
-  | **(B-full)** | **Every** birthplace and zone before 1970-01-01, **including Asia/Kolkata 1956–1969** | none of the pre-1970 kind; post-1970 IANA modelling is still a model |
+  | **(B) All unverified pre-1970 clocks** | **Every** birthplace and IANA zone before 1970-01-01, **including Asia/Kolkata 1956-01-01 to 1969-12-31** | none of the pre-1970 kind (IANA's post-1970 rules remain a model) |
   | **(C) Regional** | (A), plus Asia/Karachi, Asia/Dhaka, Asia/Kathmandu, Asia/Colombo, Asia/Yangon and Asia/Thimphu before 1970-01-01 | Asia/Kolkata 1956–1969; every zone outside South Asia before 1970 |
 
-  **Recommendation for public release: (B-full)**, matching ChatGPT's scientific-policy recommendation on [PR #20](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/20#pullrequestreview-5610686390). It is the only option that follows IANA's statement that pre-1970 records are not sufficient for actual local history. It deliberately reduces pre-1970 coverage, including Indian births from 1956 to 1969, and that cost should be shown to users and the owner as a product trade-off. No estimate of how many users this refuses exists in the evidence, so none is claimed. (A) remains the mandatory floor that P8 must implement under any choice.
+  **Reduction in historical birth-date coverage.** The proposed window, 1900-01-01 to 2100-12-31, spans 201 years. Until DATA-01 adds verified exceptions:
+
+  | Option | Asia/Kolkata births accepted from | Other South Asian zones accepted from | All other zones accepted from |
+  |---|---|---|---|
+  | (A) | 1956-01-01: 1900–1955 lost, 56 years (28% of the window) | 1900-01-01: nothing lost | 1900-01-01: nothing lost |
+  | (B) | 1970-01-01: 1900–1969 lost, 70 years (35%), 14 years more than (A) | 1970-01-01: 70 years lost | 1970-01-01: 70 years lost |
+  | (C) | 1956-01-01: 56 years lost | 1970-01-01: 70 years lost | 1900-01-01: nothing lost |
+
+  These figures are calendar coverage only. No evidence here estimates how many users or births fall in the refused years, so no user-impact figure is claimed. Under (B), for example, nobody born in India before 1970 gets a chart until DATA-01 verifies their place and date.
+
+  **Recommendation for public release: (B)**, matching ChatGPT's scientific-policy recommendation on [PR #20](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/20#pullrequestreview-5610686390). It is the only option that follows IANA's statement that pre-1970 records are not sufficient for actual local history (https://www.iana.org/time-zones/theory). It deliberately gives up the coverage shown above, and that should be presented to users and the owner as a product trade-off. (A) remains the mandatory floor that P8 must implement under any choice. The choice stays PENDING with the owner.
 
   The gate is a versioned table (zone, local-date start, local-date end, policy), reviewed and approved like any decision.
 - **DATA-01 historical-clock research package (separate, not started).** For each verified exception it must record:
@@ -191,6 +200,40 @@ Each row is expanded below with the exact setting, alternatives, evidence, refer
 - **Effect on existing results.** None for accepted charts inside the window, except that results stop depending on the host image's tzdata build.
 - **Input acceptance changes.** Edge dates flip to the local-date rule; gated historical births are refused; non-RFC 3339 time strings refused by the strict format (P5).
 - **Required regression tests.** KUN-02 T01–T63 with the proposed codes; first and last accepted local seconds in UTC+14 and UTC−12 zones; 29 February in 1900 and 2100 (refuse), 2000 and 2024 (accept); a DST gap and fold in both hemispheres; both sides of every gate edge; zones outside the gate unaffected; loaded TZif bytes match the manifest; identical output on two hosts (system tzdata with and without `backzone`); no stale cached zone after a reload.
+
+---
+
+## REL-01: release evidence policy (reconciling Swiss-first with the PRD and Acceptance Matrix)
+
+**Status: PROPOSED, PENDING owner approval.** It is not an SCI decision; it governs which evidence counts for the accuracy gates.
+
+- **Why it is needed.** The owner approved the Swiss-first roadmap change on 2026-10-22 ([issue #15](https://github.com/sabpuja/Sabpuja-Kundali-Engine/issues/15), [PR #17](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/17)). It made independent JPL/INPOP astronomy assurance optional and deferred, not a prerequisite for a limited launch subject to all other gates. `main` still requires independently sourced golden charts in `docs/PRD.md`, `docs/ACCEPTANCE-MATRIX.md` and `docs/DEVELOPMENT-ROADMAP.md`. Until aligned, two sources of truth disagree.
+- **Proposed policy.**
+  1. **Mandatory engineering-accuracy gates (release-blocking):**
+     - pinned Swiss Ephemeris integration conformance against the separately built official Swiss CLI (`swetest`), same version and data, predeclared cases and tolerances (as PR #18);
+     - independently coded mathematics for every chart rule: Rashi, Nakshatra, Pada, Navamsa, D1/D9 houses and the ascendant formula (as PR #18 rule oracle and PR #19 A6–A10);
+     - boundary and refusal fixtures for each supported convention: 0/360, segment edges, date-window edges, DST gaps and folds, the latitude band and the historical-clock gate;
+     - data and state safeguards: verified ephemeris files, no Moshier fallback, Swiss-state isolation, pinned tzdata;
+     - truthful public claims: "calculated with Swiss Ephemeris 2.10.03 under the named conventions"; never "independently verified astronomy" unless item 2 is completed.
+  2. **Optional independent astronomy assurance (not release-blocking):** JPL/INPOP comparison (KUN-01 PG-1), only for a separate independent-accuracy claim or a specific discrepancy escalation.
+  3. **Unchanged mandatory gates:** location and time correctness, historical clocks (RG-HIST), security, privacy, accessibility, Hindi review, AGPL and data licensing, PDF, staging and the owner's release sign-off.
+- **Gates that change if REL-01 is approved.** These are edited on this PR's branch and take effect only through the owner-approved merge:
+
+  | Document | Requirement | Current text on `main` (short) | Proposed |
+  |---|---|---|---|
+  | `PRD.md` §3 | Product truth | "No numerical chart published as accurate without independently reviewed reference fixtures" | Mandatory engineering-accuracy gates; public wording limited to Swiss-based calculation unless optional assurance completed |
+  | `PRD.md` §3 | Reference QA | "different source/process from implementation" | Same, naming the Swiss CLI and independent rules/formulae (mandatory) and JPL/INPOP (optional) |
+  | `PRD.md` §4 | KUN-F04 | "independent accuracy QA" | "the REL-01 accuracy gates" |
+  | `PRD.md` §4 | KUN-F16 | "independently sourced golden-chart validation" | REL-01 mandatory gates; JPL/INPOP golden charts optional |
+  | `PRD.md` §7 | Astronomy accuracy gate | "independent golden fixtures with no blocking deviations" | Swiss CLI conformance and independent rule/formula fixtures; JPL/INPOP only for an independent-accuracy claim. Owner approval before accurate-public claims is kept |
+  | `ACCEPTANCE-MATRIX.md` | QA-009 | "independently sourced method-compatible golden charts" | Official Swiss CLI conformance at predeclared tolerances; JPL/INPOP differential optional |
+  | `ACCEPTANCE-MATRIX.md` | QA-010 | "Independent golden chart + property tests" | Swiss CLI conformance + independent ascendant formula and rule oracle + property tests |
+  | `ACCEPTANCE-MATRIX.md` | QA-012 | "independent reference fixtures" | Independently coded rule-oracle fixtures |
+  | `ACCEPTANCE-MATRIX.md` | Evidence item 3, G-ENGINE | "External independent reference source/method"; "reference-suite assertions" | References as defined by REL-01 |
+  | `DEVELOPMENT-ROADMAP.md` | KUN-01 row, CLAUDE-004, §6 definition of done, Gate A, risk register (Lagna) | independent charts / golden charts | REL-01 references; independent charts optional |
+
+- **Release gates still awaiting owner-approved changes.** Every row above is awaiting approval of REL-01. Until the owner approves REL-01 and authorizes the merge, the `main` wording stands: independent golden-chart validation remains required before accurate public claims, and **the public-release gate is not relaxed**. If the owner approves the SCI rows but not REL-01, the `PRD.md`, `ACCEPTANCE-MATRIX.md` and `DEVELOPMENT-ROADMAP.md` edits are removed from this PR before merge.
+- **What REL-01 does not do.** It does not claim that Swiss-on-Swiss conformance is independent astronomy. It does not freeze a tolerance. It does not satisfy any QA row: every QA-### stays NOT RUN until evidence for an exact SHA is reviewed. It does not touch any other gate.
 
 ---
 

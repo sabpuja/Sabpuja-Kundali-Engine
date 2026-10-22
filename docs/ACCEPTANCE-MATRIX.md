@@ -15,10 +15,10 @@ No requirement is considered implemented or passed based on this document. Every
 | QA-006 | KUN-F03 | Leap day, local date/UTC day crossover, 1900/2100 boundary, unusual fractional offset and negative longitude processed or rejected explicitly | Table-driven boundary tests | P0 |
 | QA-007 | KUN-F04 | Output identifies ayanamsa, node method, house method, ephemeris version/data manifest and exact timezone | Schema/output assertions | P0 |
 | QA-008 | KUN-F04 | Engine fails closed on missing/incorrect .se1; no silent switch to Moshier; global sidereal configuration cannot leak between requests | Real ephemeris startup/concurrency tests | P0 |
-| QA-009 | KUN-F05 | Sun, Moon, five classical grahas, Rahu/Ketu sidereal degrees agree with independently sourced method-compatible golden charts at **tolerances defined before running QA** | Independent numerical differential tests | P0 |
-| QA-010 | KUN-F05 | Sidereal ascendant, D1 sign and whole-sign house assignment agree with reference chart convention, including 0/360 boundaries | Independent golden chart + property tests | P0 |
+| QA-009 | KUN-F05 | Sun, Moon, five classical grahas, Rahu/Ketu sidereal degrees agree with the official Swiss Ephemeris CLI (same version, data and method) on predeclared cases at **tolerances defined before running QA** (REL-01) | Swiss CLI conformance; independent JPL/INPOP differential optional (REL-01) | P0 |
+| QA-010 | KUN-F05 | Sidereal ascendant, D1 sign and whole-sign house assignment agree with reference chart convention, including 0/360 boundaries | Swiss CLI conformance + independent ascendant formula and rule oracle + property tests (REL-01) | P0 |
 | QA-011 | KUN-F05 | North Indian chart houses/signs/planet labels exactly match structured API values; text table is equivalent | Renderer snapshot + manual review | P0 |
-| QA-012 | KUN-F06 | D9 placements and D9 ascendant agree with independent reference fixtures including 3°20' sign divisions and boundaries | Numerical fixtures/property tests | P0 |
+| QA-012 | KUN-F06 | D9 placements and D9 ascendant agree with independently coded rule-oracle fixtures including 3°20' sign divisions and boundaries (REL-01) | Numerical fixtures/property tests | P0 |
 | QA-013 | KUN-F07 | Moon Rashi, Nakshatra and Pada match mathematical outputs and approved explanation rules, without guarantee language | Rule unit + editorial review | P0 |
 | QA-014 | KUN-F08 | Visible birth-data confirmation, method/version, edit/recalculate and correct error state | E2E | P0 |
 | QA-015 | KUN-F09 | Identical inputs produce identical numerical outputs EN vs HI, including number semantics and chart geometry | Locale invariance test | P0 |
@@ -42,7 +42,7 @@ No requirement is considered implemented or passed based on this document. Every
 Evidence should include:
 1. Work package, PR, exact head SHA, OS, Python version, Swiss library/binding versions, dataset revision + SHA-256 and timezone revision.
 2. Exact commands, unedited output, test pass/fail/skip counts, execution dates and environmental constraints (never secrets or birth PII).
-3. External independent reference source/method, source-rights confirmation, anonymized/synthetic inputs, **predeclared** angle/time tolerances and per-body differences.
+3. Reference source/method (the official Swiss CLI or independently coded rules/formulae under REL-01; an external astronomy source when the optional assurance is run), source-rights confirmation, anonymized/synthetic inputs, **predeclared** angle/time tolerances and per-body differences.
 4. UX screenshots without real people or birth details; locale/glyph checks and PDF checksums; source and staging URL read-back when approved.
 5. Reviewer conclusion **PASS / CHANGES REQUESTED / BLOCKED** plus defects, reopen conditions and owner decision link.
 
@@ -56,7 +56,7 @@ A **PASS** means verified evidence for the exact cited SHA, not source merged or
 
 ## Progressive acceptance checkpoints
 - **G-DOC:** Owner signs PRD, method choices and roadmap.
-- **G-ENGINE:** QA-005-010, QA-012 and relevant reference-suite assertions PASS.
+- **G-ENGINE:** QA-005-010, QA-012 and relevant reference-suite assertions PASS (reference suites as defined by REL-01).
 - **G-DATA:** QA-003-006, QA-008 PASS.
 - **G-SERVICE:** QA-018-019, QA-024-026 PASS.
 - **G-UX:** QA-001-002, QA-011, QA-013-016, QA-021-023, QA-029 PASS.

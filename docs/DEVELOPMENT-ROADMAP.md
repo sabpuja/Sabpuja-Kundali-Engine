@@ -17,7 +17,7 @@ This roadmap defines *work and acceptance*, not permission for Claude to execute
 |---|---|---|---|---|
 | KUN-DOC | PRD, detailed roadmap, acceptance matrix, decision register approved by owner | none | Owner's explicit approval and immutable Git SHA | DRAFT |
 | KUN-00 | Existing foundation audit, dependency scan, baseline tests, correct blocking numerical/contract bugs | KUN-DOC for new fixes; audit itself can precede | Real local test output; PR #1 review; zero critical defects | Existing foundation PR #1 DRAFT; audit issue #2 OPEN |
-| KUN-01 | Version-pinned Swiss data, reproducible golden-chart fixture suite, astronomy and D1 method fixes | KUN-00 + SCI-01 decisions | Dataset SHA, methods, independent reference differences within predeclared tolerances | Not started |
+| KUN-01 | Version-pinned Swiss data, reproducible golden-chart fixture suite, astronomy and D1 method fixes | KUN-00 + SCI-01 decisions | Dataset SHA, methods, Swiss CLI conformance and independent rule/formula checks within predeclared tolerances (REL-01; independent JPL/INPOP differences optional) | Not started |
 | KUN-02 | Offline place index and historical local-time resolution | KUN-01 and DATA-01 | DST fold/gap, duplicate cities, historical offset, invalid-place validation tests | Not started |
 | KUN-03 | Deterministic D1/D9 output schema, North Indian chart renderer domain model, rule explanations | KUN-01 + KUN-02 | Independent D9 fixtures, accessible chart data and schema backward-compat tests | Not started |
 | KUN-04 | Secure, rate-limited self-hosted calculation and PDF service contract | KUN-01-03 + SEC-01 | Threat model, endpoint tests, load/profile evidence, no birth data in logs | Not started |
@@ -35,7 +35,7 @@ This roadmap defines *work and acceptance*, not permission for Claude to execute
 | CLAUDE-001 | KUN-00 | **Existing issue #2**: audit draft PR #1, no rewrite | Exact SHA, package versions, raw local tests, prioritized numeric concerns | ChatGPT triages; audit is not accuracy signoff |
 | CLAUDE-002 | KUN-00 | Fix P0 contract/offset/ephemeris bugs identified by audit, one bug family per PR | Unit + negative tests, before/after error reproduction | No unapproved methodology change |
 | CLAUDE-003 | KUN-01 | Pin Swiss source, binding and ephemeris data; exact method manifest; fail-closed fallback | SHA-256 verification and deterministic startup tests | Stop on unresolved licenses or mismatched files |
-| CLAUDE-004 | KUN-01 | Golden chart fixtures: independent reference methodology and tolerance, core planet/Lagna D1 correctness | Accuracy report with comparisons, boundary cases and no silent interpolation | PM independent astronomy review |
+| CLAUDE-004 | KUN-01 | Golden chart fixtures: reference methodology and tolerance per REL-01, core planet/Lagna D1 correctness | Accuracy report with comparisons, boundary cases and no silent interpolation | PM QA review; independent astronomy review only for the optional REL-01 assurance |
 | CLAUDE-005 | KUN-02 | Offline place database/import, ambiguity-aware place lookup, IANA timezone dataset | Same-name cities, no outbound network, licenses/hashes | No guessed place/offset |
 | CLAUDE-006 | KUN-02 | Birth-time conversion and DST/historic time rules | Missing/fold/gap and leap-year tests; explicit error contract | PM location/time QA |
 | CLAUDE-007 | KUN-03 | Complete canonical structured D1/D9 domain output, renderer data model, accessible tables | Cross-chart mathematical consistency, D9 ascendant, JSON schema fixture | No browser/UI until model passes |
@@ -65,13 +65,13 @@ Each task should be one bounded issue with acceptance IDs (from [ACCEPTANCE-MATR
 
 ## 6. Definition of done for a coding task
 - Code and docs in specialist owning repo, PR linked to work package; no unrelated modifications.
-- Static review, automated unit/contract and relevant integration tests run with raw results on exact SHA, plus independently sourced numerical cases for astronomical work.
+- Static review, automated unit/contract and relevant integration tests run with raw results on exact SHA, plus the REL-01 reference cases for astronomical work (Swiss CLI conformance and independent rule/formula checks; independently sourced astronomy optional).
 - User-facing EN/HI and accessibility checks when applicable; no exposed birth information.
 - ChatGPT QA PASS on the exact updated SHA, defects remediated, owner merge approval and verified merge read-back.
 - Any deployment is a separate approved phase; passing tests alone never means released.
 
 ## 7. QA gates and non-negotiable blockers
-**Gate A - Astronomy:** Planet/Lagna and D1/D9 differences to independent charts reported with methods and tolerances defined before evaluation. Stop on unverified Swiss .se1 data, silent Moshier fallback, time conversion errors, or wrong house/navamsa math.
+**Gate A - Astronomy:** Planet/Lagna and D1/D9 differences to the REL-01 references (Swiss CLI conformance, independent rule/formula checks; independent charts when the optional assurance is run) reported with methods and tolerances defined before evaluation. Stop on unverified Swiss .se1 data, silent Moshier fallback, time conversion errors, or wrong house/navamsa math.
 
 **Gate B - Security:** Validate app-proxy authenticity, access control, rate limiting, input max, malformed dates, server-side errors, request replay, CORS/CSRF as applicable, and no birth data in logs/query strings. No unauthenticated open service.
 
@@ -99,7 +99,7 @@ Stage/live deployment: not authorized | separately approved with reference
 ## 9. Risk register and contingency
 | Risk | Severity | Mitigation / owner |
 |---|---|---|
-| Incorrect sidereal Lagna / Swiss sidereal house options | Critical | Owner selects methodology; Claude supplies independent golden charts; ChatGPT verifies |
+| Incorrect sidereal Lagna / Swiss sidereal house options | Critical | Owner selects methodology; Claude supplies the REL-01 reference checks (independent golden charts optional); ChatGPT verifies |
 | Historical India offsets or DST folds | High | Offline timezone revision pin, comparison tests, explicit ambiguity UI |
 | Swiss library and .se1 rights / AGPL combined work | Critical pre-launch | External license review and working source offer; owner signoff |
 | Data leakage through PDF, URLs, logs, analytics or caching | Critical | Privacy threats, negative tests, ephemeral default; ChatGPT QA |
