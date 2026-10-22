@@ -161,15 +161,15 @@ class LocalDateWindowTests(unittest.TestCase):
         self.assertIn("does not match IANA timezone", str(ctx.exception))
 
     def test_dst_gap_and_fold_unchanged(self):
-        mismatch = "does not match IANA timezone"
-        # Gaps: neither offset names an existing wall time.
+        # Gaps: neither offset names an existing wall time. Still refused; since
+        # P5 (D1) with TIME_NONEXISTENT_LOCAL instead of the shared mismatch text.
         for birth, tz in (("2024-03-10T02:30:00-05:00", "America/New_York"),
                           ("2024-03-10T02:30:00-04:00", "America/New_York"),
                           ("2024-10-06T02:30:00+10:00", "Australia/Sydney"),
                           ("2024-10-06T02:30:00+11:00", "Australia/Sydney")):
             with self.subTest(gap=birth), self.assertRaises(ValueError) as ctx:
                 calculate(_request(birth, tz), ephe_path=MISSING)
-            self.assertIn(mismatch, str(ctx.exception))
+            self.assertEqual(ctx.exception.code, "TIME_NONEXISTENT_LOCAL")
         # Folds: both offsets accepted, and they give different instants.
         for first, second, tz in (("2024-11-03T01:30:00-04:00", "2024-11-03T01:30:00-05:00", "America/New_York"),
                                   ("2024-04-07T02:30:00+11:00", "2024-04-07T02:30:00+10:00", "Australia/Sydney")):
