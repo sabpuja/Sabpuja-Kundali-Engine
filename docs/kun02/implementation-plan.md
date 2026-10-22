@@ -6,7 +6,7 @@ Order matters in one place: **P2 (latitude band) must land before or with P3 (`b
 
 | Priority | Package | Decision needed | Numeric change | Input change | Size |
 |---|---|---|---|---|---|
-| P1 | Pin tzdata and record it | SCI-03 (tzdata policy) | none for Asia/Kolkata; possible pre-1956 changes in 8 Asian zones vs a backzone host | none | S |
+| P1 | Pin tzdata and record it (engineering fix) | depends on SCI-03 reproducibility policy | none for Asia/Kolkata; possible pre-1956 changes in 8 Asian zones vs a backzone host | none | S |
 | P2 | Latitude band \|lat\| ≤ 66.0° | SCI-01g | none | refuses \|lat\| > 66.0 | S |
 | P3 | Ascendant via `b"W"` | SCI-01e (after P2) | none (bit-identical) | none once P2 is in | XS |
 | P4 | Local-civil-date window | SCI-03 | none | edge dates only | S |
@@ -18,10 +18,11 @@ Order matters in one place: **P2 (latitude band) must land before or with P3 (`b
 
 ## P1. Pin tzdata and record it
 
-- **Change:** add `tzdata==2026.5` to dependencies; at import, make `zoneinfo` use only the package (`zoneinfo.reset_tzpath(to=[])` or `PYTHONTZPATH` set empty at service start); add `method.tzdata_version` to output.
-- **Why:** Ubuntu tzdata 2026e and PyPI tzdata 2026.5 disagree for 8 Asian zones before 1956 (backzone build); results must not depend on the host image.
-- **Tests:** a test that the loaded zone source is the package and its `IANA_VERSION`; the KUN-02 IANA cross-check run against the package; the tzdata agreement probe listing expected differences.
-- **Acceptance:** all 63 KUN-02 time cases unchanged; Asia/Kolkata offsets unchanged.
+- **Nature:** an engineering reproducibility fix that depends on the SCI-03 policy, not an astrological convention. It needs its own draft PR and QA.
+- **Change:** pin `tzdata==2026.5` **and** a committed manifest of SHA-256 hashes of the TZif bytes the engine uses (at least every key accepted for births); load zones deterministically, either by setting an empty `PYTHONTZPATH` in the service environment before the interpreter starts, or through an isolated loader (`ZoneInfo.from_file` on package resources, keyed in the engine's own cache). Do **not** call the global `zoneinfo.reset_tzpath()` inside a running multi-request process: it changes behaviour for every caller and `ZoneInfo` instances already cached keep their old data. Add `method.tzdata_version` and the manifest hash to output; document backward-incompatible changes between tzdata versions.
+- **Why:** Ubuntu tzdata 2026e and PyPI tzdata 2026.5 disagree for 8 Asian zones before 1956 (backzone build); results must not depend on the host image. The same IANA version does not guarantee identical pre-1970 binaries.
+- **Tests:** the loaded bytes match the manifest; `IANA_VERSION` is recorded; cache behaviour (repeated loads, concurrent requests, no stale instance from the system path); a two-host reproducibility check (system tzdata with and without `backzone`) giving identical output; the KUN-02 IANA cross-check run against the package; the tzdata agreement probe listing expected differences.
+- **Acceptance:** all 63 KUN-02 time cases unchanged; Asia/Kolkata offsets unchanged; identical output on both hosts.
 
 ## P2. Latitude band
 
@@ -58,7 +59,7 @@ Order matters in one place: **P2 (latitude band) must land before or with P3 (`b
 
 ## P8. RG-HIST gate
 
-- **Change:** a reviewed, versioned gate table (zone, start, end, policy), minimum `Asia/Kolkata` before 1956-01-01, policy `fail_closed`; code `HISTORICAL_CLOCK_UNVERIFIED`. Verified clock selection is a later DATA-01 package with sourced offsets; this package invents no offset.
+- **Change:** a reviewed, versioned gate table (zone, start, end, policy), minimum `Asia/Kolkata` before 1956-01-01, policy `fail_closed`; code `HISTORICAL_CLOCK_UNVERIFIED`. The minimum is a temporary conservative MVP policy, not a certification of clocks outside it. Verified clock selection is a later DATA-01 package with sourced offsets (historical birthplace, clock source, place-to-zone provenance, jurisdiction-specific date coverage; birth-time report §7); this package invents no offset.
 - **Tests:** dates on both sides of each gate edge; zones outside the gate unaffected.
 
 ## P9. Swiss state isolation test

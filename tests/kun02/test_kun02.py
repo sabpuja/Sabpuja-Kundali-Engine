@@ -77,6 +77,137 @@ class RunnerGates(unittest.TestCase):
         self.assertIn("EPHEMERIS_PATH_OVERRIDE", report["reason"])
 
 
+class InvariantGuards(unittest.TestCase):
+    """Failure injection on a synthetic report: empty, partial or altered evidence must FAIL (no Swiss data)."""
+
+    @staticmethod
+    def good_report() -> dict:
+        exp = run.expected_counts()
+
+        def band(n, refused=0):
+            return {"samples": n, "p_refused": refused, "w_refused": 0, "p_w_bitwise_equal": n - refused,
+                    "p_w_max_abs_arcsec": 0.0, "mc_armc_equal": n - refused, "lahiri_max_abs_arcsec": 0.0,
+                    "independent_max_abs_arcsec": 0.0, "independent_opposite": 0, "max_abs_altitude_arcsec": 0.0,
+                    "not_rising": 0, "w_cusp_failures": 0}
+
+        def sample(n, polar=False):
+            return {"points": n, "by_band": {run.POLAR_BAND: band(n, n)} if polar else {"[0,10)": band(n)}}
+
+        engine = []
+        for cid in exp["engine_case_ids"]:
+            if cid == "EC-TOS-2000":
+                engine.append({"id": cid, "p_asc": None, "w_asc": 150.5, "engine": {"refused": "ASCENDANT_UNCOMPUTABLE"}})
+            else:
+                engine.append({"id": cid, "p_asc": 76.3, "w_asc": 76.3, "engine": {
+                    "lagna_display": 76.3, "display_equals_w": True, "rashi_equals_w": True,
+                    "navamsa_equals_w": True, "all_houses_equal_w": True}})
+        coverage = [{"instant": p, "all_bodies_swiss_files": True} for p in run.COVERAGE_PREFIXES]
+        coverage += [{"instant": f"{y}-06-01 (outside data)", "all_bodies_swiss_files": False} for y in (1799, 2400)]
+        return {
+            "lagna": {
+                "structured_grid": sample(exp["structured_points"]),
+                "random_within_66": sample(exp["random_within_66"]),
+                "random_66_to_89": sample(exp["random_66_to_89"], polar=True),
+                "placidus_threshold": {"per_date": [{"date_utc": d, "north_minus_polar_arcsec": 0.0,
+                                                     "south_minus_polar_arcsec": 0.0} for d in exp["threshold_dates"]]},
+                "boundary_sweep": {"per_location": [{"location": l, "failures": [], "navamsa_crossings": 108}
+                                                    for l in exp["sweep_locations"]]},
+                "chart_consistency": {"checks": 10, "mismatches": 0},
+                "wrong_configurations": {"minus_reference_arcsec": {
+                    "sid_mode_never_set": 3000.0, "lahiri_flag_missing": 90000.0, "lahiri_nonut": 5.0,
+                    "krishnamurti": 300.0, "lahiri_empty_ephe_dir": 0.0,
+                    "lahiri_after_prec_orig_mode_reset_only": 0.0175, "lahiri_after_path_and_mode_reset": 0.0}},
+                "engine_cases": {"cases": engine},
+            },
+            "time": {
+                "engine_time_cases": {"all_match": True, "cases": [
+                    {"id": i, "actual": "ACCEPT", "matches_expectation": True, "engine_utc_matches_parser": True}
+                    for i in exp["time_case_ids"]]},
+                "iana_crosscheck": {"zones": [{"zone": z, "probes": 10, "mismatch_count": 0} for z in exp["iana_zones"]]},
+                "timescale": {
+                    "iers_consistency_1972_2026": {"samples": run.IERS_SAMPLES_1972_2026, "all_within_0_9_s": True},
+                    "swiss_leap_seconds": {"iers_leap_dates": exp["iers_leap_dates"],
+                                           "swiss_accepts_23_59_60": exp["iers_leap_dates"],
+                                           "swiss_refuses_iers_leap": [],
+                                           "non_leap_dates": [{"swiss": "refused"}] * 4}},
+            },
+            "envelope": {"ephemeris_coverage": {"rows": coverage}},
+        }
+
+    def assertOnlyFails(self, report, *ids):
+        result = {c["id"]: c["pass"] for c in run.invariants(report)}
+        self.assertEqual(len(result), 16)
+        self.assertEqual(sorted(k for k, ok in result.items() if not ok), sorted(ids))
+
+    def mutated(self, change):
+        report = self.good_report()
+        change(report)
+        return report
+
+    def test_complete_report_passes(self):
+        self.assertOnlyFails(self.good_report())
+
+    def test_a12_rejects_wrong_engine_rows(self):
+        def accepted(r):
+            return r["lagna"]["engine_cases"]["cases"][0]
+
+        def polar(r):
+            return r["lagna"]["engine_cases"]["cases"][-1]
+
+        cases = {
+            "unexpected refusal": lambda r: accepted(r).update(engine={"refused": "INPUT_REFUSED"}),
+            "empty engine dict": lambda r: accepted(r).update(engine={}),
+            "category false": lambda r: accepted(r)["engine"].update(navamsa_equals_w=False),
+            "truthy non-bool": lambda r: accepted(r)["engine"].update(rashi_equals_w="yes"),
+            "missing field": lambda r: accepted(r)["engine"].pop("all_houses_equal_w"),
+            "unexpected field": lambda r: accepted(r)["engine"].update(refused="INPUT_REFUSED"),
+            "polar refused with another code": lambda r: polar(r).update(engine={"refused": "INPUT_REFUSED"}),
+            "polar accepted": lambda r: polar(r).update(engine=dict(accepted(r)["engine"])),
+            "no cases": lambda r: r["lagna"]["engine_cases"].update(cases=[]),
+            "case missing": lambda r: r["lagna"]["engine_cases"]["cases"].pop(0),
+        }
+        for name, change in cases.items():
+            with self.subTest(name):
+                self.assertOnlyFails(self.mutated(change), "A12")
+
+    def test_empty_or_partial_sections_fail(self):
+        lagna, time, env = (lambda r: r["lagna"]), (lambda r: r["time"]), (lambda r: r["envelope"])
+        cases = {
+            "A4": [lambda r: lagna(r)["placidus_threshold"].update(per_date=[]),
+                   lambda r: lagna(r)["placidus_threshold"]["per_date"].pop()],
+            "A9": [lambda r: lagna(r)["boundary_sweep"].update(per_location=[]),
+                   lambda r: lagna(r)["boundary_sweep"]["per_location"].pop()],
+            "A10": [lambda r: lagna(r)["chart_consistency"].update(checks=0)],
+            "A11": [lambda r: lagna(r).pop("wrong_configurations")],
+            "B1": [lambda r: time(r)["engine_time_cases"].update(cases=[]),
+                   lambda r: time(r)["engine_time_cases"]["cases"][0].pop("engine_utc_matches_parser")],
+            "B2": [lambda r: time(r)["iana_crosscheck"].update(zones=[]),
+                   lambda r: time(r)["iana_crosscheck"]["zones"].pop(),
+                   lambda r: time(r)["iana_crosscheck"]["zones"][0].update(probes=0)],
+            "B3": [lambda r: time(r)["timescale"]["iers_consistency_1972_2026"].update(samples=0),
+                   lambda r: time(r)["timescale"]["swiss_leap_seconds"].update(
+                       iers_leap_dates=0, swiss_accepts_23_59_60=0)],
+            "C1": [lambda r: env(r)["ephemeris_coverage"].update(rows=[]),
+                   lambda r: env(r)["ephemeris_coverage"].update(rows=env(r)["ephemeris_coverage"]["rows"][:2]),
+                   lambda r: env(r)["ephemeris_coverage"]["rows"][-1].update(all_bodies_swiss_files=True)],
+        }
+        for cid, changes in cases.items():
+            for n, change in enumerate(changes):
+                with self.subTest(check=cid, variant=n):
+                    self.assertOnlyFails(self.mutated(change), cid)
+
+    def test_missing_or_short_point_samples_fail_all_band_checks(self):
+        band_checks = ("A1", "A2", "A3", "A5", "A6", "A7", "A8")
+        cases = [
+            lambda r: r["lagna"]["structured_grid"].update(points=0, by_band={}),
+            lambda r: r["lagna"]["random_within_66"]["by_band"]["[0,10)"].update(samples=1),
+            lambda r: r["lagna"]["random_66_to_89"].update(by_band={}),
+        ]
+        for n, change in enumerate(cases):
+            with self.subTest(variant=n):
+                self.assertOnlyFails(self.mutated(change), *band_checks)
+
+
 @unittest.skipIf(DATA is None, f"{DATA_ENV} unset: KUN-02 real-data probes not requested")
 class RealDataProbes(unittest.TestCase):
     @classmethod

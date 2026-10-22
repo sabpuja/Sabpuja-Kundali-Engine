@@ -72,16 +72,16 @@ What IANA itself says about these records (tz 2026e `asia`, India section): rail
 |---|---|---|---|
 | 1900–1960 | a civil clock reading converted with IANA's offset; no UTC existed before 1961 | 0 s (Swiss also treats input before 1972 as UT1) | `swedate.c` lines 366–369 |
 | 1961–1971 | UTC with frequency offsets and steps (not yet leap-second UTC) | 0 s in Swiss | not separately sourced here |
-| 1972–2033 | leap-second UTC, \|UT1 − UTC\| < 0.9 s by IERS rule while leap seconds continue | −0.95 s to +0.39 s (Swiss ΔT model; the larger values after 2030 assume no new leap second) | leap-seconds.list, Swiss ΔT table to 2028 |
+| 1972–2033 | leap-second UTC; the IERS rule keeps \|UT1 − UTC\| < 0.9 s only while that rule stands (CGPM 2022 Res. 4: the limit will be raised in or before 2035) | −0.95 s to +0.39 s (Swiss ΔT model; the larger values after 2030 assume no new leap second) | leap-seconds.list, Swiss ΔT table to 2028 |
 | from 2034 | projected UTC | 0 s again (Swiss treats input as UT1 once ΔT − TAI−UTC − 32.184 > 1 s) | `swedate.c` lines 366–371 |
 
-IERS consistency, independent of Swiss: using the leap-second list transcribed from tz 2026e `leap-seconds.list` (SHA-256 `db5a895f…3433`, updated 2026-07-06, **expires 2027-06-28**, TAI − UTC = 37 s since 2017-01-01), the UT1 − UTC implied by Swiss's ΔT stays within ±0.9 s at all 110 half-year epochs from 1972 to 2026 (largest 0.81 s, 1973-01-01). Swiss's built-in table accepts `23:59:60` on all 27 IERS leap-second dates and refuses it on four non-leap dates (2018-12-31, 2020-12-31, 2024-06-30, 2025-12-31).
+Model consistency check (B3). This is **not** an observational verification of UT1: no IERS Earth-orientation (UT1 − UTC) series was used. UT1 − UTC is *implied under the Swiss ΔT model* as 32.184 s + (TAI − UTC) − ΔT_Swiss, with TAI − UTC from the leap-second list transcribed from tz 2026e `leap-seconds.list` (SHA-256 `db5a895f…3433`, updated 2026-07-06, **expires 2027-06-28**, TAI − UTC = 37 s since 2017-01-01). At all 110 half-year epochs from 1972 to 2026 that implied value stays within ±0.9 s (largest 0.81 s, 1973-01-01), which shows the Swiss ΔT table is consistent with the leap-second record; it does not measure the engine's real UT1 error. After the list expires the bound is a forecast, and after the CGPM change below it no longer holds by rule. Swiss's built-in table accepts `23:59:60` on all 27 IERS leap-second dates and refuses it on four non-leap dates (2018-12-31, 2020-12-31, 2024-06-30, 2025-12-31).
 
 ΔT values used by Swiss (`deltat_ex`, `FLG_SWIEPH`): −1.95 s (1900-01-01), 29.12 s (1950-07-01), 63.97 s (2000-07-01), 68.84 s (2026-07-01), 74.58 s (2050-01-01), 82.81 s (2075-01-01), 93.18 s (2100-01-01). Swiss's tabulated values end in 2028 (`swephlib.c` `TABEND 2028`); after that they are an extrapolation, and upstream says ΔT "cannot be calculated with accuracy for the future" (§7). The Moshier tidal setting gives a different ΔT before 1955 (1900: −2.05 s), but Moshier is refused by the engine.
 
-**Future UTC.** If no leap second is added after 2016, Swiss's extrapolated ΔT implies UT1 − UTC of −1.32 s in 2035, −5.40 s in 2050 and −24.0 s in 2100. The 27th CGPM (2022, Resolution 4) decided to raise the maximum UT1 − UTC tolerance by 2035, so this divergence is plausible; that resolution was not fetched in this environment and should be confirmed by the reviewer. For a future birth the engine's "UTC as UT1" can then be wrong by tens of seconds, which is still a small Lagna effect (about 6′ at the equator for 24 s), while TT = UTC + 69.184 s would then be exact from the leap-second list and better than the ΔT model.
+**Future UTC.** If no leap second is added after 2016, Swiss's extrapolated ΔT implies UT1 − UTC of −1.32 s in 2035, −5.40 s in 2050 and −24.0 s in 2100. The 27th CGPM (2022), Resolution 4 "On the use and future development of UTC" (BIPM, https://www.bipm.org/en/cgpm-2022/resolution-4), decides that the maximum permitted value of UT1 − UTC will be increased in, or before, 2035. The ChatGPT reviewer confirmed this at that primary BIPM page on 2026-10-22; this environment could not fetch it (proxy refused www.bipm.org), so the wording here follows the reviewer's reading, not a quotation. Consequently **the 0.9 s bound is not valid throughout 1900–2100**: for births from 2035 at the latest, \|UT1 − UTC\| is unbounded by rule and only forecastable, and the values above are Swiss-model projections, not limits. For a future birth the engine's "UTC as UT1" can then be wrong by tens of seconds, which is still a small Lagna effect (about 6′ at the equator for 24 s), while TT = UTC + 69.184 s would then be exact from the leap-second list and better than the ΔT model.
 
-**Sidereal time (independent mathematics).** Against our own IERS Conventions 2010 eq. 5.32 expression (ERA + IAU 2006 polynomial + Δψ cos ε, Swiss nutation), Swiss's default sidereal time agrees to **0.0027″** for 1900–2049. From 2050-01-01 0h UT Swiss switches to its long-term model (`SEMOD_SIDT_DEFAULT = SEMOD_SIDT_LONGTERM`, `swephlib.c` lines 3460–3481; documented in §6.1), and the difference becomes −1.79″ to −1.91″, with a **−1.908″ step** at that instant. The Lagna steps by −1.66″ at New Delhi and −1.18″ at 60° N there. This is far below birth-time precision, but it is a deterministic discontinuity inside the proposed window and should be recorded as a Swiss convention.
+**Sidereal time (independent mathematics).** Against our own IERS Conventions 2010 eq. 5.32 expression (ERA + IAU 2006 polynomial + Δψ cos ε, Swiss nutation), Swiss's default sidereal time agrees to **0.0027″** for 1900–2049. From 2050-01-01 0h UT Swiss switches to its long-term model (`SEMOD_SIDT_DEFAULT = SEMOD_SIDT_LONGTERM`, `swephlib.c` lines 3460–3481; documented in §6.1), and the difference becomes −1.79″ to −1.91″, with a **−1.908″ step** at that instant. The Lagna steps by −1.66″ at New Delhi and −1.18″ at 60° N there. This is far below birth-time precision, but it is a deterministic discontinuity inside the proposed window and should be recorded as a Swiss convention. It is a measured behaviour of the pinned Swiss 2.10.03 implementation (version-specific), not an observation-based astronomical accuracy finding.
 
 ### 2.5 Sensitivity
 
@@ -91,19 +91,19 @@ Effect of a clock error, 2,000 random instants rotating over New Delhi, Mumbai a
 
 | Clock error | max Lagna shift | Lagna Rashi | Lagna Navamsa | Moon Rashi | Moon Nakshatra Pada |
 |---|---|---|---|---|---|
-| 0.9 s (IERS bound on \|UT1−UTC\|) | 0.0054° | 0% | 0% | 0% | 0% |
+| 0.9 s (IERS rule on \|UT1−UTC\| while it stands) | 0.0054° | 0% | 0% | 0% | 0% |
 | 1 min | 0.36° | 0.85% | 7.7% | 0.05% | 0.45% |
 | 5 min | 1.79° | 4.3% | 36.6% | 0.2% | 1.45% |
 | 23 min 20 s (+05:53:20 versus IST) | 8.35° | 19.7% | 100% | 1.05% | 7.0% |
 | 38 min 29 s (LMT at 72.8777° E versus IST) | 13.76° | 33.4% | 100% | 1.35% | 11.3% |
 | 60 min (war time versus IST) | 21.40° | 50.5% | 100% | 1.95% | 16.45% |
 
-Local mean time minus IST for the synthetic Indian city centres (exact: 4 minutes of time per degree): Kavaratti −39.5 min, Mumbai −38.5, Srinagar −30.8, New Delhi −21.2, Kanyakumari −19.8, Leh −19.7, Bengaluru −19.6, Chennai −8.9, Kolkata +23.5, Guwahati +36.9, Port Blair +40.9. This is mean solar time only; a historical clock may have followed another meridian, and none of these is asserted to be a historical clock.
+Local mean time minus IST for the synthetic Indian city centres (exact: 4 minutes of time per degree): Kavaratti −39.5 min, Mumbai −38.5, Srinagar −30.8, New Delhi −21.2, Kanyakumari −19.8, Leh −19.7, Bengaluru −19.6, Chennai −8.9, Kolkata +23.5, Guwahati +36.9, Port Blair +40.9. This is mean solar time only; a historical clock may have followed another meridian, and none of these is asserted to be a historical clock. The 38.5-minute Mumbai row in the table above is a **hypothetical sensitivity scenario** (what would change if a reading were on LMT and entered as IST), not evidence that any birth record used LMT.
 
 ## 3. Accuracy limitations
 
-1. **Historical civil time is the dominant risk.** Before 1956 in Asia/Kolkata (and before 1970 in many zones) the offset of the clock that recorded a birth is not knowable from date and place. IANA's choice (railway time; war time from a single "dubious" source) can be wrong for a given household, and the engine cannot tell an IST reading from a Bombay or Calcutta reading entered as +05:30.
-2. **UTC is not UT1.** From 1972 to 2027 the error is under 0.9 s and changed no category in the samples. Before 1972 "UTC" is a reconstruction. After the IERS list expires (2027-06-28) and especially after 2035, UTC − UT1 may grow to tens of seconds by 2100.
+1. **Historical civil time is the dominant risk.** Before 1956 in Asia/Kolkata (and before 1970 in many zones) the offset of the clock that recorded a birth is not knowable from date and place. IANA states that its pre-1970 records are not comprehensive evidence of historical local clocks (`theory.html`), so a matching `zoneinfo` result (B2) shows only that Python reads IANA correctly, not that the clock was right. IANA's choice (railway time; war time from a single "dubious" source) can be wrong for a given household, and the engine cannot tell an IST reading from a Bombay or Calcutta reading entered as +05:30.
+2. **UTC is not UT1.** From 1972 to 2027 the error is within the 0.9 s IERS rule (here only *implied under the Swiss ΔT model*, not measured), and 0.9 s changed no category in the samples. Before 1972 "UTC" is a reconstruction. After the IERS list expires (2027-06-28) and especially after 2035, UTC − UT1 may grow to tens of seconds by 2100.
 3. **ΔT** is measured to 2028 and extrapolated after. For the Moon, 10 s of ΔT error is about 6″.
 4. **Sidereal-time model step** of −1.9″ at 2050-01-01.
 5. **Host tzdata build** changes historical offsets for some zones.
@@ -124,8 +124,8 @@ Local mean time minus IST for the synthetic Indian city centres (exact: 4 minute
 | S1 | Check the supported window on the **local civil date** (1900-01-01 to 2100-12-31) | T46–T51 | only at the edges |
 | S2 | Distinguish `TIME_NONEXISTENT_LOCAL` (gap) from `TIME_OFFSET_MISMATCH`, and refuse `23:59:60` as `TIME_LEAP_SECOND_UNSUPPORTED` | clear user messages; no change in what is accepted | no |
 | S3 | Accept one strict format (RFC 3339 profile: `YYYY-MM-DDTHH:MM[:SS[.ffffff]]±HH:MM[:SS]`) | removes Python-version dependence (T59, T60) | no |
-| S4 | **RG-HIST**: refuse Asia/Kolkata births before 1956-01-01 with `HISTORICAL_CLOCK_UNVERIFIED` until a sourced clock-selection list exists; the owner decides wider scope (other South Asian zones, any pre-1970 zone) | §2.2, §2.5 | refuses some inputs |
-| S5 | Pin tzdata: depend on a fixed PyPI `tzdata` and make `zoneinfo` read only it (empty `TZPATH`), or record and gate the system tzdata version and build; emit the tzdata version in method metadata | §2.3 | possibly, for 8 Asian zones before 1956 |
+| S4 | **RG-HIST**: refuse Asia/Kolkata births before 1956-01-01 with `HISTORICAL_CLOCK_UNVERIFIED` as a **temporary minimum, conservative policy to protect the first MVP**, until reviewed birthplace-clock evidence exists (see §7). It is not a claim that every clock from 1956 on, or every place in India before 1956, kept IST; the owner decides wider scope (other South Asian zones, any pre-1970 zone) | §2.2, §2.5 | refuses some inputs |
+| S5 | Pin tzdata (an **engineering reproducibility fix with an SCI-03 dependency**, not an astrological convention): fix the package version **and** the TZif bytes (per-zone SHA-256 manifest), load zones deterministically at process start or through an isolated loader, never by changing the global `TZPATH` mid-process; emit the tzdata version in method metadata. See implementation plan P1 | §2.3 | possibly, for 8 Asian zones before 1956 |
 | S6 | Refuse non-location keys (`Etc/*`, `UTC`, `GMT`) for births, and check zone against coordinates once the DATA-01 gazetteer exists | T56, T57, T63 | refuses some inputs |
 | S7 | Record the time-scale assumption in output: "civil UTC used as UT1; TT from Swiss ΔT (Stephenson-Morrison-Hohenkerk 2016 / table to 2028 / extrapolated)" and flag dates after the IERS list expiry as projected | §2.4 | no |
 | S8 | Keep `set_ephe_path` + `set_sid_mode` on every call under the lock, and forbid other code from calling swisseph outside it | Lagna report §3.4 state leak | no |
@@ -133,6 +133,18 @@ Local mean time minus IST for the synthetic Indian city centres (exact: 4 minute
 ## 6. Recommendation for SCI-01h
 
 Keep "civil UTC used as UT1, TT from Swiss's ΔT" for the MVP, disclose it by era, and do not switch to `swe.utc_to_jd` now: for 1972–2029 it would move inputs by at most 0.39 s (about 8″ of Lagna at New Delhi), up to 0.95 s in 2030–2033 under its no-new-leap-second assumption, and before 1972 and from 2034 it is identical. Revisit the policy before 2035, when leap-second practice is expected to change. Treat this as a time-scale convention, separate from the historical-clock policy (SCI-03, RG-HIST), which is where the real accuracy risk lies.
+
+## 7. DATA-01 requirements for historical births (follow-up, not in this PR)
+
+Before any pre-1956 Indian birth (or any gated zone and period) can be accepted, a reviewed, versioned DATA-01 package must record for each accepted case:
+
+- **Historical birthplace**, as it was named and administered at the birth date, with coordinates and their source.
+- **Clock source** of the recorded time: birth register or certificate, family recollection, railway time, civil or municipal time, local mean time, war time, or unknown.
+- **Place-to-zone provenance**: why the place maps to a given IANA zone or to a sourced non-IANA offset, with the citation.
+- **Jurisdiction-specific date coverage**: the dates for which that clock rule is documented for that place (for example a city that kept local time after 1906), with gaps refused.
+- A refusal (`HISTORICAL_CLOCK_UNVERIFIED`) whenever any of these is unknown; verified city exceptions are added only through this reviewed list, never by extending the IANA model to every birthplace clock.
+
+No offset is invented in this PR, and none may be added without a cited source.
 
 ## Appendix: synthetic time cases
 

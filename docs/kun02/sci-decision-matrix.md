@@ -73,10 +73,10 @@ Evidence IDs (A1–C1) are the runner invariants in [README.md](README.md). Ever
 
 ## SCI-01h: UTC/UT1 time policy
 
-- **Recommended:** keep "civil UTC passed to Swiss as UT1; TT = UT1 + Swiss ΔT" for MVP; disclose by era (pre-1972 reconstruction; 1972–2027 within 0.9 s; after the IERS list expiry projected); record the assumption in metadata; review before 2035.
+- **Recommended:** keep "civil UTC passed to Swiss as UT1; TT = UT1 + Swiss ΔT" for MVP; disclose by era (pre-1972 reconstruction; 1972–2027 within the 0.9 s IERS rule, here only implied under the Swiss ΔT model and not measured; after the IERS list expiry projected; from 2035 at the latest no 0.9 s bound by rule); record the assumption in metadata; review before 2035.
 - **Alternatives:** `swe.utc_to_jd` (moves inputs by −0.21 s to +0.39 s for 1972–2030, up to −0.95 s in 2030–2033, identical otherwise); a pinned IERS UT1−UTC table (more data to maintain, no product-visible gain).
-- **References:** `doc/swisseph.htm` §7; `swedate.c` lines 366–371; IERS leap seconds via tz 2026e `leap-seconds.list`; IERS Conventions 2010 eq. 5.32; CGPM 2022 Resolution 4 (not fetched; reviewer to confirm).
-- **Evidence:** B3; 0.9 s of clock error changed no category in 2,000 samples (max Lagna shift 0.0054°); Swiss sidereal time agrees with IERS 2010 to 0.0027″ before 2050 and steps −1.908″ at 2050-01-01.
+- **References:** `doc/swisseph.htm` §7; `swedate.c` lines 366–371; IERS leap seconds via tz 2026e `leap-seconds.list`; IERS Conventions 2010 eq. 5.32; 27th CGPM (2022) Resolution 4, https://www.bipm.org/en/cgpm-2022/resolution-4: the maximum permitted UT1 − UTC will be increased in, or before, 2035 (confirmed by the ChatGPT reviewer at that page on 2026-10-22; not fetchable from this environment).
+- **Evidence:** B3 (Swiss leap seconds equal the IERS list; UT1 − UTC *implied under the Swiss ΔT model* within 0.9 s for 1972–2026, a model-consistency check, not observed UT1); 0.9 s of clock error changed no category in 2,000 samples (max Lagna shift 0.0054°); Swiss sidereal time agrees with IERS 2010 to 0.0027″ before 2050 and steps −1.908″ at 2050-01-01.
 - **Consequences:** none numerically; honest disclosure.
 - **Implementation implications:** metadata only (plan P7).
 
@@ -92,10 +92,10 @@ Evidence IDs (A1–C1) are the runner invariants in [README.md](README.md). Ever
 
 - **Recommended:**
   1. Window 1900-01-01 to 2100-12-31 by **local civil date**, inclusive.
-  2. **RG-HIST** before any customer launch: fail closed (`HISTORICAL_CLOCK_UNVERIFIED`) for Asia/Kolkata births before 1956-01-01 at minimum, until a sourced, reviewed historical-clock list (DATA-01) allows explicit user clock selection with no default. The owner decides whether the gate also covers other South Asian zones (Karachi, Dhaka, Colombo, Yangon, Kathmandu, Thimphu) and other pre-1970 zones.
-  3. **Pin tzdata** (version and build) and emit its version in metadata.
+  2. **RG-HIST** before any customer launch: fail closed (`HISTORICAL_CLOCK_UNVERIFIED`) for Asia/Kolkata births before 1956-01-01 as a **temporary minimum, conservative policy to protect the first MVP**, until a sourced, reviewed historical-clock list (DATA-01: historical birthplace, clock source, place-to-zone provenance, jurisdiction-specific date coverage; birth-time report §7) allows explicit user clock selection with no default. This is not proof that clocks from 1956 on, or elsewhere in India before 1956, kept IST: IANA says its pre-1970 records are not comprehensive historical-clock evidence (`theory.html`). Verified city exceptions come only through DATA-01. The owner decides whether the gate also covers other South Asian zones (Karachi, Dhaka, Colombo, Yangon, Kathmandu, Thimphu) and other pre-1970 zones.
+  3. **Pin tzdata** (package version, TZif byte hashes and a deterministic loading policy) and emit its version in metadata. This is an **engineering reproducibility fix that depends on the SCI-03 policy**, not an astrological convention (plan P1).
   4. Births after the pinned IERS list expiry: accept with a projected-civil-time disclosure.
-- **Alternatives:** keep the UTC-year rule; start at 1947 or 1956; widen to 1800–2399 (needs pre-1900 civil-time work); accept historical IST entries with only a disclaimer (not recommended: a 38.5-minute error changes the Lagna Rashi in 33% of samples).
+- **Alternatives:** keep the UTC-year rule; start at 1947 or 1956; widen to 1800–2399 (needs pre-1900 civil-time work); accept historical IST entries with only a disclaimer (not recommended: in the hypothetical scenario of a Mumbai LMT reading entered as IST, the 38.5-minute error would change the Lagna Rashi in 33% of samples).
 - **References:** IANA tz 2026e `asia` (India section comments and Zone lines), `backzone`, `theory.html`; Swiss `doc/swisseph.htm` §7.
 - **Evidence:** B1 (63 cases), B2 (74,864 probes, 0 mismatches), T46–T51 edge cases, C1, tzdata build disagreement for 8 Asian zones before 1956, clock-error impact table.
 - **Consequences:** edge dates change; some historical births are refused until clock verification exists; results stop depending on the host OS tzdata.

@@ -19,8 +19,8 @@ Proposed envelope under evaluation: local civil birth dates **1900-01-01 through
 |---|---|---|---|
 | 1900 – 1955 | ΔT from Stephenson, Morrison & Hohenkerk (2016); UT1 reconstructed | Asia/Kolkata: railway time and war time as modelled by IANA; local clocks (Bombay, Calcutta and others) known to differ | **Refuse or verify clock** (RG-HIST) |
 | 1956 – 1971 | ΔT tabulated | IST stable in Asia/Kolkata; "UTC" before 1972 is not leap-second UTC | Reliable for India; other pre-1970 zones owner scope |
-| 1972 – IERS list expiry (2027-06-28) | \|UT1 − UTC\| < 0.9 s, ΔT measured | IANA rules for current zones | **Reliable** (within birth-time precision) |
-| 2027-06-28 – 2049 | ΔT extrapolated after 2028 | future civil rules are projections | Reliable with **disclosure** (projected civil time) |
+| 1972 – IERS list expiry (2027-06-28) | \|UT1 − UTC\| < 0.9 s by IERS rule (consistent with Swiss ΔT, B3; not measured here), ΔT tabulated | IANA rules for current zones | **Reliable** (within birth-time precision) |
+| 2027-06-28 – 2049 | ΔT extrapolated after 2028; UT1 − UTC is a forecast, and the 0.9 s limit is raised in or before 2035 (CGPM 2022 Res. 4) | future civil rules are projections | Reliable with **disclosure** (projected civil time) |
 | 2050-01-01 0h UT | Swiss sidereal-time model step −1.908″ | — | known convention, record only |
 | 2050 – 2100 | ΔT extrapolated; UT1 − UTC may reach tens of seconds if leap seconds stop | projections | Reliable with **disclosure** |
 
@@ -44,7 +44,7 @@ Recommendation: validate on the **local civil date** of the supplied wall-clock 
 
 Today the latitude at which a chart is refused depends on the date (66.55° refused for 1900-01-01, accepted for 2100-12-31). A user cannot predict that, and above the polar circle the Lagna is not stable against any realistic birth-time error.
 
-Recommendation: **support \|lat\| ≤ 66.0° inclusive and refuse outside with a fixed code, regardless of date.** Inside the band, `b"P"` and `b"W"` give bit-identical ascendants, so the band does not depend on the SCI-01e choice. Above 60° add a disclosure that the Lagna is very sensitive to birth time (more than 1° per minute).
+Recommendation: **support \|lat\| ≤ 66.0° inclusive and refuse outside with a fixed code, regardless of date.** This is a conservative product support envelope, not a computational limit: Swiss `b"W"` computes a rising point beyond 66°. Inside the band, `b"P"` and `b"W"` give bit-identical ascendants, so the band does not depend on the SCI-01e choice. Above 60° add a disclosure that the Lagna is very sensitive to birth time (more than 1° per minute).
 
 Alternatives: keep today's behaviour (date-dependent, not recommended); after SCI-01e accept up to ±89° with high-latitude fixtures and a strong disclosure; a narrower band such as ±60° (refuses Reykjavik, Anchorage and parts of Scandinavia).
 
@@ -82,7 +82,7 @@ Disclosures (charts still produced): `FUTURE_CIVIL_TIME_PROJECTED` for births af
 | Boundary | Recommended rule | Evidence |
 |---|---|---|
 | Date | Local civil date 1900-01-01 to 2100-12-31 inclusive; refuse outside | §1, T46–T51, C1 |
-| Historical clocks | RG-HIST fail-closed for Asia/Kolkata before 1956-01-01 until a sourced clock list exists; owner decides wider scope | birth-time report §2.2, §2.5 |
+| Historical clocks | RG-HIST fail-closed for Asia/Kolkata before 1956-01-01 as a temporary minimum until DATA-01 birthplace-clock evidence exists; not proof that later or other Indian clocks kept IST; owner decides wider scope | birth-time report §2.2, §2.5 |
 | Future | Accept with projected-civil-time disclosure | birth-time report §2.4 |
 | Latitude | \|lat\| ≤ 66.0° inclusive; refuse outside; disclose above 60° | §2, A3, A4 |
 | Longitude | [−180, 180] inclusive (unchanged) | §2 |

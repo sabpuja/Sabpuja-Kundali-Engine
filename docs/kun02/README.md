@@ -82,10 +82,10 @@ The runner refuses to report PASS from a dirty Git tree. Its report records the 
 | A9 | Every Lagna Navamsa crossing in a full-day sweep is consistent on both sides | Swiss + independent mathematics |
 | A10 | D1/D9 houses from rules, W cusps and the classical Navamsa rule agree; P and W categories agree | Swiss + independent mathematics |
 | A11 | Wrong Swiss configurations are detectable | Swiss conformance |
-| A12 | The engine's Lagna equals the `b"W"` value; the polar case is refused today | Engine behaviour |
+| A12 | Every fixture engine case returns a full chart with exactly the expected fields, all equal to `b"W"`; the polar case is refused with `ASCENDANT_UNCOMPUTABLE` today | Engine behaviour |
 | B1 | Every synthetic time case behaves as derived by hand | Engine behaviour + timekeeping |
 | B2 | `zoneinfo` equals the independent IANA 2026e transcription for 7 zones | Timekeeping |
-| B3 | Swiss leap seconds equal the IERS list; Swiss ΔT keeps \|UT1−UTC\| < 0.9 s for 1972–2026 | Timekeeping |
+| B3 | Swiss leap seconds equal the IERS list; UT1−UTC *implied under the Swiss ΔT model* stays within 0.9 s for 1972–2026 (model consistency, not measured UT1) | Timekeeping |
 | C1 | All bodies use Swiss files at both UTC extremes of the local-date window | Swiss conformance |
 
 ## Most important findings
@@ -94,8 +94,8 @@ The runner refuses to report PASS from a dirty Git tree. Its report records the 
 2. **Placidus refusal is a date-dependent latitude rule.** `b"P"` raises exactly when \|lat\| ≥ 90° − true obliquity of date, which moves between 66.5467° and 66.5752° over 1900–2100. So 66.55° is refused in 1900 and accepted in 2100 today.
 3. **W beyond the polar circle returns the rising point.** A naive ascendant formula gives the setting point in about 32% of samples beyond the polar circle; Swiss `b"W"` always returns the eastern rising point (independently verified).
 4. **Swiss global state can leak.** After `SIDBIT_PREC_ORIG` is used, `set_sid_mode(SIDM_LAHIRI)` alone does not restore the default; `set_ephe_path` does. The engine already calls both on every request under its lock, and a new test pins that.
-5. **Swiss sidereal time has a −1.908″ step at 2050-01-01 0h UT** (model switch); the Lagna steps by about −1.7″ at New Delhi at that instant. Negligible against birth-time precision, but inside the proposed window.
+5. **Swiss sidereal time has a −1.908″ step at 2050-01-01 0h UT** (model switch); the Lagna steps by about −1.7″ at New Delhi at that instant. Negligible against birth-time precision, but inside the proposed window. This is version-specific behaviour of the pinned Swiss 2.10.03, not an observation-based accuracy finding.
 6. **The engine's date rule uses the UTC year, not the local date**, so local 1900-01-01 00:00 in Asia/Kolkata (UTC 1899-12-31) is refused and local 2101-01-01 05:29:59 IST (UTC 2100-12-31) is accepted.
-7. **Historical Indian clocks cannot be inferred.** IANA models railway time for Asia/Kolkata. A 1930 Mumbai reading entered as IST is accepted. If the clock was really on Mumbai local mean time, that is a 38.5-minute error, which moves the Lagna by up to 13.8° and changes its Rashi in 33% of sampled instants.
+7. **Historical Indian clocks cannot be inferred.** IANA models railway time for Asia/Kolkata. A 1930 Mumbai reading entered as IST is accepted. In the hypothetical scenario that the clock was really on Mumbai local mean time (a sensitivity case, not a documented record), that is a 38.5-minute error, which moves the Lagna by up to 13.8° and changes its Rashi in 33% of sampled instants.
 8. **Host tzdata decides historical results.** Ubuntu's tzdata 2026e and PyPI tzdata 2026.5 (same IANA release) disagree for 8 Asian zones before 1956, because one build includes IANA `backzone` data. Asia/Kolkata agrees in both.
-9. **Birth-time precision dominates every astronomical convention.** One minute of clock error changes the Lagna Navamsa in 7.7% of sampled Indian charts; 0.9 s (the UT1−UTC bound) changed no category in 2,000 samples.
+9. **Birth-time precision dominates every astronomical convention.** One minute of clock error changes the Lagna Navamsa in 7.7% of sampled Indian charts; 0.9 s (the UT1−UTC limit while the current IERS rule stands; CGPM 2022 Res. 4 raises it in or before 2035) changed no category in 2,000 samples.
