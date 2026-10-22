@@ -112,7 +112,7 @@ class InvariantGuards(unittest.TestCase):
                                                      "south_minus_polar_arcsec": 0.0} for d in exp["threshold_dates"]]},
                 "boundary_sweep": {"per_location": [{"location": l, "failures": [], "navamsa_crossings": 108}
                                                     for l in exp["sweep_locations"]]},
-                "chart_consistency": {"checks": 10, "mismatches": 0},
+                "chart_consistency": {"checks": exp["chart_consistency_checks"], "mismatches": 0},
                 "wrong_configurations": {"minus_reference_arcsec": {
                     "sid_mode_never_set": 3000.0, "lahiri_flag_missing": 90000.0, "lahiri_nonut": 5.0,
                     "krishnamurti": 300.0, "lahiri_empty_ephe_dir": 0.0,
@@ -123,7 +123,8 @@ class InvariantGuards(unittest.TestCase):
                 "engine_time_cases": {"all_match": True, "cases": [
                     {"id": i, "actual": "ACCEPT", "matches_expectation": True, "engine_utc_matches_parser": True}
                     for i in exp["time_case_ids"]]},
-                "iana_crosscheck": {"zones": [{"zone": z, "probes": 10, "mismatch_count": 0} for z in exp["iana_zones"]]},
+                "iana_crosscheck": {"zones": [{"zone": z, "probes": exp["iana_probes"][z], "mismatch_count": 0}
+                                              for z in exp["iana_zones"]]},
                 "timescale": {
                     "iers_consistency_1972_2026": {"samples": run.IERS_SAMPLES_1972_2026, "all_within_0_9_s": True},
                     "swiss_leap_seconds": {"iers_leap_dates": exp["iers_leap_dates"],
@@ -146,6 +147,19 @@ class InvariantGuards(unittest.TestCase):
 
     def test_complete_report_passes(self):
         self.assertOnlyFails(self.good_report())
+
+    def test_predeclared_counts_are_frozen(self):
+        # Derived from the fixtures and probe schedules; pinned to the values measured at 2cff706/0c181a7.
+        exp = run.expected_counts()
+        self.assertEqual((exp["structured_points"], exp["random_within_66"], exp["random_66_to_89"]),
+                         (124_416, 60_000, 20_000))
+        self.assertEqual(exp["chart_consistency_checks"], 90_720)
+        self.assertEqual(exp["iana_probes"], {
+            "Asia/Kolkata": 12_245, "Asia/Karachi": 5_916, "Asia/Dhaka": 7_759, "Asia/Kathmandu": 12_230,
+            "Asia/Colombo": 12_248, "Asia/Yangon": 12_236, "Asia/Thimphu": 12_230})
+        self.assertEqual(sum(exp["iana_probes"].values()), 74_864)
+        self.assertEqual((len(exp["engine_case_ids"]), len(exp["time_case_ids"]), len(exp["threshold_dates"]),
+                          len(exp["sweep_locations"]), exp["iers_leap_dates"]), (6, 63, 8, 3, 27))
 
     def test_a12_rejects_wrong_engine_rows(self):
         def accepted(r):
@@ -177,13 +191,18 @@ class InvariantGuards(unittest.TestCase):
                    lambda r: lagna(r)["placidus_threshold"]["per_date"].pop()],
             "A9": [lambda r: lagna(r)["boundary_sweep"].update(per_location=[]),
                    lambda r: lagna(r)["boundary_sweep"]["per_location"].pop()],
-            "A10": [lambda r: lagna(r)["chart_consistency"].update(checks=0)],
+            "A10": [lambda r: lagna(r)["chart_consistency"].update(checks=0),
+                    lambda r: lagna(r)["chart_consistency"].update(checks=1),
+                    lambda r: lagna(r)["chart_consistency"].update(checks=lagna(r)["chart_consistency"]["checks"] - 1)],
             "A11": [lambda r: lagna(r).pop("wrong_configurations")],
             "B1": [lambda r: time(r)["engine_time_cases"].update(cases=[]),
                    lambda r: time(r)["engine_time_cases"]["cases"][0].pop("engine_utc_matches_parser")],
             "B2": [lambda r: time(r)["iana_crosscheck"].update(zones=[]),
                    lambda r: time(r)["iana_crosscheck"]["zones"].pop(),
-                   lambda r: time(r)["iana_crosscheck"]["zones"][0].update(probes=0)],
+                   lambda r: time(r)["iana_crosscheck"]["zones"][0].update(probes=0),
+                   lambda r: [z.update(probes=1) for z in time(r)["iana_crosscheck"]["zones"]],
+                   lambda r: time(r)["iana_crosscheck"]["zones"][-1].update(
+                       probes=time(r)["iana_crosscheck"]["zones"][-1]["probes"] - 1)],
             "B3": [lambda r: time(r)["timescale"]["iers_consistency_1972_2026"].update(samples=0),
                    lambda r: time(r)["timescale"]["swiss_leap_seconds"].update(
                        iers_leap_dates=0, swiss_accepts_23_59_60=0)],

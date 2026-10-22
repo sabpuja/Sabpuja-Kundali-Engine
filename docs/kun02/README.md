@@ -80,11 +80,11 @@ The runner refuses to report PASS from a dirty Git tree. Its report records the 
 | A7 | `b"W"` ascendant is always the eastern rising point, \|altitude\| < 1e-6″ | Independent mathematics |
 | A8 | `b"W"` cusps are exact multiples of 30° from the Lagna Rashi | Swiss conformance |
 | A9 | Every Lagna Navamsa crossing in a full-day sweep is consistent on both sides | Swiss + independent mathematics |
-| A10 | D1/D9 houses from rules, W cusps and the classical Navamsa rule agree; P and W categories agree | Swiss + independent mathematics |
+| A10 | D1/D9 houses from rules, W cusps and the classical Navamsa rule agree on all 90,720 predeclared checks; P and W categories agree | Swiss + independent mathematics |
 | A11 | Wrong Swiss configurations are detectable | Swiss conformance |
 | A12 | Every fixture engine case returns a full chart with exactly the expected fields, all equal to `b"W"`; the polar case is refused with `ASCENDANT_UNCOMPUTABLE` today | Engine behaviour |
 | B1 | Every synthetic time case behaves as derived by hand | Engine behaviour + timekeeping |
-| B2 | `zoneinfo` equals the independent IANA 2026e transcription for 7 zones | Timekeeping |
+| B2 | `zoneinfo` equals the independent IANA 2026e transcription for 7 zones at all 74,864 predeclared probe instants | Timekeeping |
 | B3 | Swiss leap seconds equal the IERS list; UT1−UTC *implied under the Swiss ΔT model* stays within 0.9 s for 1972–2026 (model consistency, not measured UT1) | Timekeeping |
 | C1 | All bodies use Swiss files at both UTC extremes of the local-date window | Swiss conformance |
 

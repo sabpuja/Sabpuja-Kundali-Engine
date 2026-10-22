@@ -86,22 +86,29 @@ def transcribed_offset(transitions, instant: datetime) -> timedelta:
     return current
 
 
+def iana_probe_instants(zone: dict) -> list[datetime]:
+    """The predeclared probe schedule for one transcribed zone: every transition +-1 s,
+    and 0h/12h UTC every 15 days from 1850, all before the zone's validity limit."""
+    trans = transcribed_transitions(zone)
+    limit = (datetime.fromisoformat(zone["valid_until_utc"]).replace(tzinfo=UTC)
+             if zone["valid_until_utc"] else datetime(2101, 1, 2, tzinfo=UTC))
+    probes = []
+    for start, _ in trans[1:]:
+        probes += [start - timedelta(seconds=1), start, start + timedelta(seconds=1)]
+    day = datetime(1850, 1, 1, tzinfo=UTC)
+    while day < limit:
+        probes += [day, day + timedelta(hours=12)]
+        day += timedelta(days=15)
+    return [p for p in probes if p < limit]
+
+
 def iana_crosscheck() -> dict:
     fixture = load_fixture("iana_zone_transcriptions.json")
     results = []
     for zone in fixture["zones"]:
         tz = ZoneInfo(zone["key"])
         trans = transcribed_transitions(zone)
-        limit = (datetime.fromisoformat(zone["valid_until_utc"]).replace(tzinfo=UTC)
-                 if zone["valid_until_utc"] else datetime(2101, 1, 2, tzinfo=UTC))
-        probes = []
-        for start, _ in trans[1:]:
-            probes += [start - timedelta(seconds=1), start, start + timedelta(seconds=1)]
-        day = datetime(1850, 1, 1, tzinfo=UTC)
-        while day < limit:
-            probes += [day, day + timedelta(hours=12)]
-            day += timedelta(days=15)
-        probes = [p for p in probes if p < limit]
+        probes = iana_probe_instants(zone)
         mismatches = []
         for p in probes:
             expected = transcribed_offset(trans, p)

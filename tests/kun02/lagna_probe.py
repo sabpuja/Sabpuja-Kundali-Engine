@@ -233,50 +233,59 @@ def boundary_sweep(swe, grid) -> dict:
     return {"evidence_class": SWISS_CONFORMANCE + "+" + INDEPENDENT_MATHEMATICS, "per_location": out}
 
 
+CONSISTENCY_GROUPS = ("india", "southern", "equator", "northern")
+CONSISTENCY_MONTHS = (1, 4, 7, 10)
+CONSISTENCY_HOURS = (0.0, 6.0, 12.0, 18.0)
+CONSISTENCY_ROW_CHECKS = 5  # keys of `row` below
+CONSISTENCY_BODIES = len(BODIES) + 1  # plus Ketu
+
+
+def chart_consistency_plan(grid) -> list[tuple[dict, int, int, float]]:
+    """The predeclared (location, year, month, hour UT) instants of the D1/D9 consistency check."""
+    s = grid["structured_instants"]
+    return [(loc, y, mth, h) for loc in grid["locations"] if loc["group"] in CONSISTENCY_GROUPS
+            for y in s["years"][::2] for mth in CONSISTENCY_MONTHS for h in CONSISTENCY_HOURS]
+
+
 def chart_consistency(swe, grid) -> dict:
     """D1/D9 placement from W cusps and from rules agree; P and W give identical categories."""
     sid, flags = swe.FLG_SIDEREAL, swe.FLG_SWIEPH | swe.FLG_SIDEREAL
-    s = grid["structured_instants"]
-    locs = [l for l in grid["locations"] if l["group"] in ("india", "southern", "equator", "northern")]
     checks = mismatches = 0
     examples = []
-    for loc in locs:
-        for y in s["years"][::2]:
-            for mth in (1, 4, 7, 10):
-                for h in (0.0, 6.0, 12.0, 18.0):
-                    jd = swe.julday(y, mth, 1, h)
-                    p = swe.houses_ex(jd, loc["lat"], loc["lon"], b"P", sid)[1][0]
-                    cusps, ascmc = swe.houses_ex(jd, loc["lat"], loc["lon"], b"W", sid)
-                    w = ascmc[0]
-                    longitudes = {}
-                    for name in BODIES:
-                        pos, ret = swe.calc_ut(jd, getattr(swe, name), flags)
-                        assert ret & swe.FLG_SWIEPH, "Moshier fallback"
-                        longitudes[name] = pos[0]
-                    longitudes["KETU"] = Fraction(longitudes["MEAN_NODE"]) + 180
-                    d9_lagna = rules.SIGNS.index(rules.navamsa_sign(w))
-                    for name, lam in longitudes.items():
-                        exact = Fraction(lam)
-                        house_rules = rules.whole_sign_house(lam, w)
-                        # W cusps are exact multiples of 30 (checked elsewhere), so no range wraps.
-                        house_cusps = next(i + 1 for i, c in enumerate(cusps)
-                                           if Fraction(c) <= exact % 360 < Fraction(c) + 30)
-                        d9 = rules.SIGNS.index(rules.navamsa_sign(lam))
-                        d9_house = (d9 - d9_lagna) % 12 + 1
-                        d9_house_classical = (classical_navamsa(exact) - classical_navamsa(Fraction(w))) % 12 + 1
-                        row = {
-                            "d1_house_rules_vs_w_cusps": house_rules == house_cusps,
-                            "d1_house_p_vs_w": rules.whole_sign_house(lam, p) == house_rules,
-                            "d9_sign_rules_vs_classical": d9 == classical_navamsa(exact),
-                            "d9_house_rules_vs_classical": d9_house == d9_house_classical,
-                            "d9_lagna_p_vs_w": rules.navamsa_sign(p) == rules.navamsa_sign(w),
-                        }
-                        checks += len(row)
-                        bad = [k for k, v in row.items() if not v]
-                        if bad:
-                            mismatches += len(bad)
-                            if len(examples) < 10:
-                                examples.append({"loc": loc["id"], "jd": jd, "body": name, "failed": bad})
+    for loc, y, mth, h in chart_consistency_plan(grid):
+        jd = swe.julday(y, mth, 1, h)
+        p = swe.houses_ex(jd, loc["lat"], loc["lon"], b"P", sid)[1][0]
+        cusps, ascmc = swe.houses_ex(jd, loc["lat"], loc["lon"], b"W", sid)
+        w = ascmc[0]
+        longitudes = {}
+        for name in BODIES:
+            pos, ret = swe.calc_ut(jd, getattr(swe, name), flags)
+            assert ret & swe.FLG_SWIEPH, "Moshier fallback"
+            longitudes[name] = pos[0]
+        longitudes["KETU"] = Fraction(longitudes["MEAN_NODE"]) + 180
+        d9_lagna = rules.SIGNS.index(rules.navamsa_sign(w))
+        for name, lam in longitudes.items():
+            exact = Fraction(lam)
+            house_rules = rules.whole_sign_house(lam, w)
+            # W cusps are exact multiples of 30 (checked elsewhere), so no range wraps.
+            house_cusps = next(i + 1 for i, c in enumerate(cusps)
+                               if Fraction(c) <= exact % 360 < Fraction(c) + 30)
+            d9 = rules.SIGNS.index(rules.navamsa_sign(lam))
+            d9_house = (d9 - d9_lagna) % 12 + 1
+            d9_house_classical = (classical_navamsa(exact) - classical_navamsa(Fraction(w))) % 12 + 1
+            row = {
+                "d1_house_rules_vs_w_cusps": house_rules == house_cusps,
+                "d1_house_p_vs_w": rules.whole_sign_house(lam, p) == house_rules,
+                "d9_sign_rules_vs_classical": d9 == classical_navamsa(exact),
+                "d9_house_rules_vs_classical": d9_house == d9_house_classical,
+                "d9_lagna_p_vs_w": rules.navamsa_sign(p) == rules.navamsa_sign(w),
+            }
+            checks += len(row)
+            bad = [k for k, v in row.items() if not v]
+            if bad:
+                mismatches += len(bad)
+                if len(examples) < 10:
+                    examples.append({"loc": loc["id"], "jd": jd, "body": name, "failed": bad})
     return {"evidence_class": SWISS_CONFORMANCE + "+" + INDEPENDENT_MATHEMATICS,
             "checks": checks, "mismatches": mismatches, "examples": examples}
 

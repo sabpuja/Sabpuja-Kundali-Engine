@@ -37,6 +37,7 @@ def expected_counts() -> dict:
     """Sample sizes and IDs fixed by the fixtures; a PASS must cover all of them."""
     grid = load_fixture("lagna_grid.json")
     s = grid["structured_instants"]
+    zones = load_fixture("iana_zone_transcriptions.json")["zones"]
     return {
         "structured_points": len(grid["locations"]) * len(s["years"]) * len(s["months"])
         * len(s["days"]) * len(s["hours_utc"]),
@@ -47,7 +48,10 @@ def expected_counts() -> dict:
         "sweep_segments": grid["boundary_sweep"]["segments"],
         "engine_case_ids": [c["id"] for c in grid["engine_cases"]],
         "time_case_ids": [c["id"] for c in load_fixture("time_cases.json")["cases"]],
-        "iana_zones": [z["key"] for z in load_fixture("iana_zone_transcriptions.json")["zones"]],
+        "chart_consistency_checks": len(lagna_probe.chart_consistency_plan(grid))
+        * lagna_probe.CONSISTENCY_BODIES * lagna_probe.CONSISTENCY_ROW_CHECKS,
+        "iana_zones": [z["key"] for z in zones],
+        "iana_probes": {z["key"]: len(time_probe.iana_probe_instants(z)) for z in zones},
         "iers_leap_dates": len(load_fixture("iers_leap_seconds.json")["entries"]) - 1,
     }
 
@@ -112,6 +116,12 @@ def invariants(report: dict) -> list[dict]:
         require([r["location"] for r in rows] == exp["sweep_locations"], "sweep locations differ from fixture")
         return all(not r["failures"] and r["navamsa_crossings"] >= exp["sweep_segments"] for r in rows)
 
+    def a10():
+        cc = report["lagna"]["chart_consistency"]
+        require(cc["checks"] == exp["chart_consistency_checks"],
+                f"expected {exp['chart_consistency_checks']} D1/D9 checks, got {cc['checks']}")
+        return cc["mismatches"] == 0
+
     def a11():
         w = report["lagna"]["wrong_configurations"]["minus_reference_arcsec"]
         return (abs(w["sid_mode_never_set"]) > 1000 and abs(w["lahiri_flag_missing"]) > 80000
@@ -137,7 +147,8 @@ def invariants(report: dict) -> list[dict]:
     def b2():
         zones = report["time"]["iana_crosscheck"]["zones"]
         require([z["zone"] for z in zones] == exp["iana_zones"], "zones differ from fixture")
-        require(all(z["probes"] > 0 for z in zones), "a zone has no probe instants")
+        short = {z["zone"]: z["probes"] for z in zones if z["probes"] != exp["iana_probes"][z["zone"]]}
+        require(not short, f"probe counts differ from the predeclared schedule: {short}")
         return all(z["mismatch_count"] == 0 for z in zones)
 
     def b3():
@@ -174,14 +185,14 @@ def invariants(report: dict) -> list[dict]:
     check("A8", "b\"W\" cusps are exact multiples of 30 deg from the Lagna Rashi",
           lambda: all(v["w_cusp_failures"] == 0 for _, v in bands()))
     check("A9", "Navamsa-boundary sweep at every fixture location: every Lagna D9 crossing is consistent on both sides", a9)
-    check("A10", "D1/D9 houses from rules, W cusps and the classical Navamsa rule agree; P and W categories agree",
-          lambda: report["lagna"]["chart_consistency"]["checks"] > 0
-          and report["lagna"]["chart_consistency"]["mismatches"] == 0)
+    check("A10", "D1/D9 houses from rules, W cusps and the classical Navamsa rule agree on every predeclared check; "
+          "P and W categories agree", a10)
     check("A11", "Wrong configurations are detectable: unset mode, missing flag, NONUT, KP and PREC_ORIG leak differ; empty ephe dir does not", a11)
     check("A12", "Every fixture engine case: a full chart with exactly the expected fields, Lagna display, Rashi, D9 and houses equal to b\"W\"; "
           "the polar case refused with ASCENDANT_UNCOMPUTABLE today", a12)
     check("B1", "Every fixture time case behaves as derived by hand from IANA/Python rules; accepted cases match the engine's UTC", b1)
-    check("B2", "zoneinfo offsets equal the independent IANA 2026e transcription for every fixture zone", b2)
+    check("B2", "zoneinfo offsets equal the independent IANA 2026e transcription for every fixture zone "
+          "at every predeclared probe instant", b2)
     check("B3", "Swiss leap seconds equal the IERS list; UT1-UTC implied under the Swiss Delta T model (with IERS TAI-UTC) "
           "stays within 0.9 s for 1972-2026 (model consistency, not measured UT1)", b3)
     check("C1", "All bodies use Swiss files at both UTC extremes of the 1900-2100 local-date window and at 1800/2399; "
