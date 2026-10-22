@@ -22,7 +22,7 @@ sabpuja.com Shopify UI (sabpuja/theme, NOT YET IMPLEMENTED)
 - Planets: Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn; lunar nodes separately.
 - Navamsa: D9 sign mapping; full D9 chart/ascendant presentation later.
 - Start with 1900-2100 accuracy envelope; expand only after historical timezone and reference test coverage.
-- Sidereal house ascendant currently calculated via Swiss `houses_ex` with `P` geometry; this must pass reference validation before release.
+- Sidereal ascendant calculated via Swiss `houses_ex` with `W` (whole-sign) geometry, `ascmc[0]` (SCI-01e; bit-identical to `P` at every sampled in-band point); this must pass reference validation before release.
 - No Dasha, Dosha, Yoga, matching, prediction or product-remedy assertions until separately specified and validated.
 
 ## Service boundaries

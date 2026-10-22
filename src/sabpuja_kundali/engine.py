@@ -41,9 +41,10 @@ class UnsupportedInputError(ValueError):
         self.code = code
 
 
-# SCI-01g: fixed band, the same for every date. Placidus is defined up to
-# 90 deg - true obliquity (66.5467 to 66.5752 deg over 1900-2100), so the band
-# never relies on the date-dependent ASCENDANT_UNCOMPUTABLE refusal.
+# SCI-01g: fixed band, the same for every date. The ascendant vehicle (b"W",
+# SCI-01e) computes at any latitude, so this band alone decides which locations
+# are accepted; it also stays inside the Placidus limit of 90 deg - true
+# obliquity (66.5467 to 66.5752 deg over 1900-2100).
 SUPPORTED_LATITUDE_DEG = 66.0
 
 
@@ -154,17 +155,17 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
             if not (flags & swe.FLG_SWIEPH):
                 raise RuntimeError("Swiss ephemeris files unavailable: refused Moshier fallback")
             raw[name] = float(pos[0])
-        # Geographic ascendant in explicit Lahiri sidereal mode.
-        # Placidus is undefined beyond the polar circles; Swiss then raises
-        # swisseph.Error. The latitude band keeps requests inside them, so this
-        # refusal is defensive; never substitute another method.
+        # Geographic ascendant in explicit Lahiri sidereal mode (SCI-01e): ascmc[0]
+        # of the whole-sign call; bit-identical to Placidus at every sampled point
+        # where Placidus is defined (KUN-02 E-A1). Swiss is not expected to fail
+        # here (E-A2); the refusal is defensive and no other method is substituted.
         try:
-            cusps, ascmc = swe.houses_ex(julian_day, lat, lon, b"P", swe.FLG_SIDEREAL)
+            cusps, ascmc = swe.houses_ex(julian_day, lat, lon, b"W", swe.FLG_SIDEREAL)
         except swe.Error:
             raise ChartComputationError(
                 "ASCENDANT_UNCOMPUTABLE",
-                "Swiss Ephemeris could not compute the ascendant for this location and time "
-                "with the current method (expected beyond the polar circles); no chart produced"
+                "Swiss Ephemeris could not compute the ascendant for this location and time; "
+                "no chart produced"
             ) from None
         lagna = float(ascmc[0])
         # Ketu is exactly opposite unrounded Rahu. Classify the exact sum: a float
