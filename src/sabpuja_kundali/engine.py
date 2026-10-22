@@ -8,12 +8,12 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from fractions import Fraction
 from threading import RLock
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import math
 import os
 
 from .ephemeris import verify_ephemeris_dir
 from .rules import nakshatra, normalize, sign, navamsa_sign, whole_sign_house
+from .timezones import get_zone
 
 _SWISS_LOCK = RLock()
 
@@ -66,10 +66,8 @@ def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
         raise ValueError("birth_datetime must be ISO 8601 with an explicit UTC offset") from exc
     if local.tzinfo is None or local.utcoffset() is None:
         raise ValueError("Birth datetime requires explicit UTC offset; do not guess")
-    try:
-        zone = ZoneInfo(tz_name)
-    except (ZoneInfoNotFoundError, TypeError, ValueError) as exc:
-        raise ValueError("timezone must be a valid IANA timezone identifier") from exc
+    # Pinned tzdata only, verified against the TZif manifest; never the host TZPATH.
+    zone = get_zone(tz_name)
     actual = local.astimezone(zone)
     if actual.replace(tzinfo=None) != local.replace(tzinfo=None) or actual.utcoffset() != local.utcoffset():
         raise ValueError("Birth time/offset does not match IANA timezone (DST or historical rule)")

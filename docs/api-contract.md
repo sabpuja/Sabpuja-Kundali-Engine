@@ -15,6 +15,7 @@ Input from stdin (JSON object, max 4KB):
 Requirements:
 - `birth_datetime` is exact birth-local ISO-8601 with an explicit UTC offset.
 - `timezone` is the IANA timezone identifier; conversion must match the offset, including DST/historical rules.
+- Timezone rules come only from the pinned PyPI `tzdata==2026.5` (IANA 2026e), each TZif file verified against `src/sabpuja_kundali/tzif-manifest.json`; the host's system zoneinfo, `PYTHONTZPATH` and `TZ` are never used. A key not in the manifest is invalid input. Missing, mismatched or wrong-version timezone data fails closed with a `TZDATA_*` code (no host fallback).
 - Latitude decimal north-positive, longitude east-positive. Both must be JSON numbers (not booleans or strings), finite (no `NaN`/`Infinity`, no integers too large for a float) and within the accepted range: latitude strictly between -89 and 89, longitude -180 to 180 inclusive. This range is unchanged pending the owner's high-latitude method decision (SCI-01).
 - No name, email, phone, address, account ID or other identifying attributes in the calculation request.
 - A birthplace autocomplete service is future work and must be offline/self-hosted.
