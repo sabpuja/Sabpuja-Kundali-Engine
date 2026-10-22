@@ -29,7 +29,25 @@ class ChartComputationError(RuntimeError):
         self.code = code
 
 
-def _coordinate(value: object, name: str, limit: float, inclusive: bool) -> float:
+class UnsupportedInputError(ValueError):
+    """Valid input outside the supported product envelope (SCI-01g).
+
+    A ValueError like other input refusals, with a structured code. Messages never
+    contain birth data.
+    """
+
+    def __init__(self, code: str, detail: str):
+        super().__init__(f"{code}: {detail}")
+        self.code = code
+
+
+# SCI-01g: fixed band, the same for every date. Placidus is defined up to
+# 90 deg - true obliquity (66.5467 to 66.5752 deg over 1900-2100), so the band
+# never relies on the date-dependent ASCENDANT_UNCOMPUTABLE refusal.
+SUPPORTED_LATITUDE_DEG = 66.0
+
+
+def _finite_number(value: object, name: str) -> float:
     # bool is an int subclass; exact type check keeps rejecting it.
     if type(value) not in (int, float):
         raise ValueError(f"{name} must be a number")
@@ -39,6 +57,20 @@ def _coordinate(value: object, name: str, limit: float, inclusive: bool) -> floa
         raise ValueError(f"{name} must be a finite number") from None
     if not math.isfinite(number):
         raise ValueError(f"{name} must be a finite number")
+    return number
+
+
+def _latitude(value: object) -> float:
+    number = _finite_number(value, "latitude")
+    if not -SUPPORTED_LATITUDE_DEG <= number <= SUPPORTED_LATITUDE_DEG:
+        raise UnsupportedInputError(
+            "LATITUDE_OUTSIDE_SUPPORTED_BAND",
+            f"latitude must be between -{SUPPORTED_LATITUDE_DEG:g} and {SUPPORTED_LATITUDE_DEG:g} (inclusive)")
+    return number
+
+
+def _coordinate(value: object, name: str, limit: float, inclusive: bool) -> float:
+    number = _finite_number(value, name)
     if not (-limit <= number <= limit if inclusive else -limit < number < limit):
         bounds = "inclusive" if inclusive else "exclusive"
         raise ValueError(f"{name} must be between -{limit:g} and {limit:g} ({bounds})")
@@ -92,8 +124,7 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
         raise ValueError("Required keys: birth_datetime, timezone, latitude, longitude (no others)")
     if not isinstance(request["birth_datetime"], str) or not isinstance(request["timezone"], str):
         raise ValueError("birth_datetime and timezone must be strings")
-    # Accepted range is unchanged pending the owner's high-latitude decision (SCI-01).
-    lat = _coordinate(request["latitude"], "latitude", 89.0, inclusive=False)
+    lat = _latitude(request["latitude"])
     lon = _coordinate(request["longitude"], "longitude", 180.0, inclusive=True)
     utc = _parse_birth(request["birth_datetime"], request["timezone"])
     # Every required manifest file must match its pinned SHA-256 before Swiss runs.
@@ -125,7 +156,8 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
             raw[name] = float(pos[0])
         # Geographic ascendant in explicit Lahiri sidereal mode.
         # Placidus is undefined beyond the polar circles; Swiss then raises
-        # swisseph.Error. Refuse the chart rather than substitute another method.
+        # swisseph.Error. The latitude band keeps requests inside them, so this
+        # refusal is defensive; never substitute another method.
         try:
             cusps, ascmc = swe.houses_ex(julian_day, lat, lon, b"P", swe.FLG_SIDEREAL)
         except swe.Error:

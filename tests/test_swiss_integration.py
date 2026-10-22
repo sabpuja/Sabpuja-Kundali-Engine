@@ -16,7 +16,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from sabpuja_kundali.engine import ChartComputationError, calculate
+from sabpuja_kundali.engine import ChartComputationError, UnsupportedInputError, calculate
 from sabpuja_kundali.ephemeris import EphemerisDataError, verify_ephemeris_dir
 
 DATA_ENV = "SABPUJA_TEST_EPHE_PATH"
@@ -135,11 +135,13 @@ class SwissIntegrationTests(unittest.TestCase):
                          {"error": "EPHEMERIS_FILE_MISSING: required file semo_18.se1 not found"})
 
     def test_polar_latitudes_refused_with_structured_error(self):
+        # KUN-03 P2 (SCI-01g): refused by the fixed band before Swiss, for every date
+        # (before P2: ChartComputationError ASCENDANT_UNCOMPUTABLE from Placidus).
         for lat in (70, -70, 80, -80, 88.9, -88.9):
             with self.subTest(latitude=lat):
-                with self.assertRaises(ChartComputationError) as ctx:
+                with self.assertRaises(UnsupportedInputError) as ctx:
                     calculate({**SYNTHETIC, "latitude": lat}, ephe_path=DATA)
-                self.assertEqual(ctx.exception.code, "ASCENDANT_UNCOMPUTABLE")
+                self.assertEqual(ctx.exception.code, "LATITUDE_OUTSIDE_SUPPORTED_BAND")
 
     def test_supported_latitudes_and_longitude_bounds_compute(self):
         cases = [
@@ -172,7 +174,7 @@ class SwissIntegrationTests(unittest.TestCase):
                 self.assertEqual(proc.stdout, "")
                 payload = json.loads(proc.stderr)
                 self.assertEqual(list(payload), ["error"])
-                self.assertTrue(payload["error"].startswith("ASCENDANT_UNCOMPUTABLE: "))
+                self.assertTrue(payload["error"].startswith("LATITUDE_OUTSIDE_SUPPORTED_BAND: "))
                 self.assertNotIn("Traceback", proc.stderr)
                 for secret in ("2000-01-01", "Asia/Kolkata", str(lat), "77.209"):
                     self.assertNotIn(secret, proc.stderr)

@@ -75,14 +75,23 @@ class CoordinateValidationTests(unittest.TestCase):
             with self.subTest(longitude=lon):
                 self.assert_rejected(longitude=lon)
 
-    def test_accepted_range_unchanged(self):
-        # Polar latitudes stay valid input; they fail later as uncomputable, not invalid.
-        for lat in (28.6139, -33.8688, 0, 70, -70, 80, -80, 88.9, -88.9, 88.999999):
+    def test_accepted_range(self):
+        # KUN-03 P2 (SCI-01g): the supported band is -66.0 to 66.0 inclusive. The
+        # polar latitudes once listed here (70, 80, 88.9, 88.999999 and their
+        # negatives) are now refused; see test_polar_latitudes_refused_by_band.
+        for lat in (28.6139, -33.8688, 0, 66, -66, 66.0, -66.0):
             with self.subTest(latitude=lat):
                 self.assert_accepted(latitude=lat)
         for lon in (-180, 180, -180.0, 180.0, 0):
             with self.subTest(longitude=lon):
                 self.assert_accepted(longitude=lon)
+
+    def test_polar_latitudes_refused_by_band(self):
+        for lat in (70, -70, 80, -80, 88.9, -88.9, 88.999999):
+            with self.subTest(latitude=lat):
+                with self.assertRaises(engine.UnsupportedInputError) as ctx:
+                    calculate({**SYNTHETIC, "latitude": lat}, ephe_path=MISSING)
+                self.assertEqual(ctx.exception.code, "LATITUDE_OUTSIDE_SUPPORTED_BAND")
 
     def test_large_finite_integer_rejected_as_range(self):
         with self.assertRaisesRegex(ValueError, "between"):
@@ -109,12 +118,14 @@ class MockedSwissTests(unittest.TestCase):
             self.addCleanup(patch.stop)
 
     def test_swiss_error_becomes_structured_failure(self):
+        # Defensive path: the band keeps real requests inside the polar circles, so
+        # Swiss is mocked to fail at an in-band latitude (was 70.0 before KUN-03 P2).
         with mock.patch.object(swisseph, "houses_ex", side_effect=swisseph.Error("houses_ex: error")):
             with self.assertRaises(ChartComputationError) as ctx:
-                calculate({**SYNTHETIC, "latitude": 70.0})
+                calculate({**SYNTHETIC, "latitude": 45.5})
         self.assertEqual(ctx.exception.code, "ASCENDANT_UNCOMPUTABLE")
         self.assertIsInstance(ctx.exception, RuntimeError)
-        self.assertNotIn("70", str(ctx.exception))
+        self.assertNotIn("45.5", str(ctx.exception))
 
     def test_other_houses_exceptions_not_swallowed(self):
         with mock.patch.object(swisseph, "houses_ex", side_effect=TypeError("bug")):
@@ -131,7 +142,7 @@ class MockedSwissTests(unittest.TestCase):
 
     def test_cli_polar_failure_exit_2_without_traceback(self):
         with mock.patch.object(swisseph, "houses_ex", side_effect=swisseph.Error("houses_ex: error")):
-            code, out, err = run_cli(request_text(latitude="70"))
+            code, out, err = run_cli(request_text(latitude="45.5"))  # was 70 before KUN-03 P2
         self.assertEqual(code, 2)
         self.assertEqual(out, "")
         payload = json.loads(err)

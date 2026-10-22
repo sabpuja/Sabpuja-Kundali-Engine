@@ -15,7 +15,7 @@ Input from stdin (JSON object, max 4KB):
 Requirements:
 - `birth_datetime` is exact birth-local ISO-8601 with an explicit UTC offset.
 - `timezone` is the IANA timezone identifier; conversion must match the offset, including DST/historical rules.
-- Latitude decimal north-positive, longitude east-positive. Both must be JSON numbers (not booleans or strings), finite (no `NaN`/`Infinity`, no integers too large for a float) and within the accepted range: latitude strictly between -89 and 89, longitude -180 to 180 inclusive. This range is unchanged pending the owner's high-latitude method decision (SCI-01).
+- Latitude decimal north-positive, longitude east-positive. Both must be JSON numbers (not booleans or strings), finite (no `NaN`/`Infinity`, no integers too large for a float) and within the accepted range: latitude -66.0 to 66.0 inclusive (SCI-01g supported band, the same for every date), longitude -180 to 180 inclusive. A finite latitude outside the band is refused with `LATITUDE_OUTSIDE_SUPPORTED_BAND` before any Swiss call; non-numbers and non-finite values keep their existing input errors.
 - No name, email, phone, address, account ID or other identifying attributes in the calculation request.
 - A birthplace autocomplete service is future work and must be offline/self-hosted.
 
