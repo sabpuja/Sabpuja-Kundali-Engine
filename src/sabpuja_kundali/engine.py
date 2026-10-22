@@ -5,12 +5,13 @@ lookup. This adapter is NOT independently reference-chart validated.
 """
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from fractions import Fraction
 from threading import RLock
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import math
 import os
+import re
 
 from .ephemeris import verify_ephemeris_dir
 from .rules import nakshatra, normalize, sign, navamsa_sign, whole_sign_house
@@ -29,16 +30,20 @@ class ChartComputationError(RuntimeError):
         self.code = code
 
 
-class UnsupportedInputError(ValueError):
-    """Valid input outside the supported product envelope (SCI-01g).
+class InputRefusalError(ValueError):
+    """Input refused before any calculation, with a stable code (KUN-03 P5).
 
-    A ValueError like other input refusals, with a structured code. Messages never
-    contain birth data.
+    Every input refusal raises this or its subclass; codes and their fixed order
+    are listed in docs/api-contract.md. Messages never contain birth data.
     """
 
     def __init__(self, code: str, detail: str):
         super().__init__(f"{code}: {detail}")
         self.code = code
+
+
+class UnsupportedInputError(InputRefusalError):
+    """Valid input outside the supported product envelope (SCI-01g, SCI-03)."""
 
 
 # SCI-01g: fixed band, the same for every date. The ascendant vehicle (b"W",
@@ -51,17 +56,29 @@ SUPPORTED_LATITUDE_DEG = 66.0
 # after historical-time QA and an owner decision.
 SUPPORTED_LOCAL_DATES = (date(1900, 1, 1), date(2100, 12, 31))
 
+# Reserved, not raised yet: TIMEZONE_NOT_LOCATION_BASED (P5-D3, a separate
+# pre-release package) and HISTORICAL_CLOCK_UNVERIFIED (P8, SCI-03 Option B).
+RESERVED_CODES = ("TIMEZONE_NOT_LOCATION_BASED", "HISTORICAL_CLOCK_UNVERIFIED")
+
+# P5-D2 strict profile: YYYY-MM-DDTHH:MM[:SS[.f{1,6}]] then Z or +-HH:MM[:SS].
+# ASCII digits only; upper-case T and Z only. The offset is optional here so a
+# missing one can be reported as TIME_OFFSET_REQUIRED rather than a format error.
+_BIRTH_PATTERN = re.compile(
+    r"([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})(?::([0-9]{2})(?:\.([0-9]{1,6}))?)?"
+    r"(?:(Z)|([+-])([0-9]{2}):([0-9]{2})(?::([0-9]{2}))?)?")
+_FORMAT_DETAIL = "birth_datetime must be YYYY-MM-DDTHH:MM[:SS[.ffffff]] followed by Z or +HH:MM[:SS]/-HH:MM[:SS]"
+
 
 def _finite_number(value: object, name: str) -> float:
     # bool is an int subclass; exact type check keeps rejecting it.
     if type(value) not in (int, float):
-        raise ValueError(f"{name} must be a number")
+        raise InputRefusalError("COORDINATE_INVALID", f"{name} must be a number")
     try:
         number = float(value)
     except OverflowError:
-        raise ValueError(f"{name} must be a finite number") from None
+        raise InputRefusalError("COORDINATE_INVALID", f"{name} must be a finite number") from None
     if not math.isfinite(number):
-        raise ValueError(f"{name} must be a finite number")
+        raise InputRefusalError("COORDINATE_INVALID", f"{name} must be a finite number")
     return number
 
 
@@ -78,7 +95,7 @@ def _coordinate(value: object, name: str, limit: float, inclusive: bool) -> floa
     number = _finite_number(value, name)
     if not (-limit <= number <= limit if inclusive else -limit < number < limit):
         bounds = "inclusive" if inclusive else "exclusive"
-        raise ValueError(f"{name} must be between -{limit:g} and {limit:g} ({bounds})")
+        raise InputRefusalError("COORDINATE_INVALID", f"{name} must be between -{limit:g} and {limit:g} ({bounds})")
     return number
 
 
@@ -97,26 +114,56 @@ def _placement(longitude: float | Fraction) -> dict[str, object]:
 
 
 def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
+    """Validate the birth time in the fixed P5 order and return it in UTC.
+
+    TIME_FORMAT_INVALID -> TIME_OFFSET_REQUIRED -> TIME_LEAP_SECOND_UNSUPPORTED
+    -> DATE_INVALID -> TIMEZONE_INVALID -> DATE_OUTSIDE_SUPPORTED_RANGE
+    -> TIME_NONEXISTENT_LOCAL -> TIME_OFFSET_MISMATCH. Nothing is coerced.
+    """
+    match = _BIRTH_PATTERN.fullmatch(birth_datetime) if isinstance(birth_datetime, str) else None
+    if match is None:
+        raise InputRefusalError("TIME_FORMAT_INVALID", _FORMAT_DETAIL)
+    year, month, day, hour, minute = (int(match.group(i)) for i in range(1, 6))
+    second = int(match.group(6) or 0)
+    fraction = match.group(7) or ""
+    is_utc, sign, off_h, off_m, off_s = match.group(8, 9, 10, 11, 12)
+    if hour > 23 or minute > 59 or second > 60 or (sign and (int(off_h) > 23 or int(off_m) > 59 or int(off_s or 0) > 59)):
+        raise InputRefusalError("TIME_FORMAT_INVALID", _FORMAT_DETAIL)
+    if not is_utc and not sign:
+        raise InputRefusalError("TIME_OFFSET_REQUIRED", "Birth datetime requires explicit UTC offset; do not guess")
+    if second == 60:
+        raise UnsupportedInputError("TIME_LEAP_SECOND_UNSUPPORTED", "a seconds value of 60 (leap second) is not supported")
     try:
-        local = datetime.fromisoformat(birth_datetime)
-    except (ValueError, TypeError) as exc:
-        raise ValueError("birth_datetime must be ISO 8601 with an explicit UTC offset") from exc
-    if local.tzinfo is None or local.utcoffset() is None:
-        raise ValueError("Birth datetime requires explicit UTC offset; do not guess")
+        civil = date(year, month, day)
+    except ValueError:
+        raise InputRefusalError("DATE_INVALID", "birth date does not exist in the Gregorian calendar") from None
+    offset = timedelta(0)
+    if sign:
+        offset = timedelta(hours=int(off_h), minutes=int(off_m), seconds=int(off_s or 0))
+        offset = -offset if sign == "-" else offset
     try:
         zone = ZoneInfo(tz_name)
-    except (ZoneInfoNotFoundError, TypeError, ValueError) as exc:
-        raise ValueError("timezone must be a valid IANA timezone identifier") from exc
+    except (ZoneInfoNotFoundError, TypeError, ValueError):
+        raise InputRefusalError("TIMEZONE_INVALID", "timezone must be a valid IANA timezone identifier") from None
     # SCI-03: the window applies to the local civil date as written, before
     # conversion, so it never depends on the offset (UTC may be 1899 or 2101).
-    if not SUPPORTED_LOCAL_DATES[0] <= local.date() <= SUPPORTED_LOCAL_DATES[1]:
+    if not SUPPORTED_LOCAL_DATES[0] <= civil <= SUPPORTED_LOCAL_DATES[1]:
         raise UnsupportedInputError(
             "DATE_OUTSIDE_SUPPORTED_RANGE",
             "local birth date must be between 1900-01-01 and 2100-12-31 (inclusive)")
-    actual = local.astimezone(zone)
-    if actual.replace(tzinfo=None) != local.replace(tzinfo=None) or actual.utcoffset() != local.utcoffset():
-        raise ValueError("Birth time/offset does not match IANA timezone (DST or historical rule)")
-    return local.astimezone(timezone.utc)
+    wall = datetime(year, month, day, hour, minute, second, int(fraction.ljust(6, "0") or 0))
+    # IANA offsets for this wall time: one normally, two in a fold, none in a gap.
+    valid = set()
+    for fold in (0, 1):
+        aware = wall.replace(tzinfo=zone, fold=fold)
+        if aware.astimezone(timezone.utc).astimezone(zone).replace(tzinfo=None) == wall:
+            valid.add(aware.utcoffset())
+    if not valid:
+        raise InputRefusalError("TIME_NONEXISTENT_LOCAL", "birth time does not exist in the IANA timezone (DST or historical gap)")
+    if offset not in valid:
+        raise InputRefusalError("TIME_OFFSET_MISMATCH", "Birth time/offset does not match IANA timezone (DST or historical rule)")
+    # Slot for P8 (HISTORICAL_CLOCK_UNVERIFIED) goes here, before the coordinates.
+    return wall.replace(tzinfo=timezone(offset)).astimezone(timezone.utc)
 
 
 def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[str, object]:
@@ -125,15 +172,18 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
     Schema is described in docs/api-contract.md. Never write the request to logs.
     """
     if not isinstance(request, dict):
-        raise ValueError("JSON input must be an object")
+        raise InputRefusalError("REQUEST_INVALID", "JSON input must be an object")
     allowed = {"birth_datetime", "timezone", "latitude", "longitude"}
     if set(request) != allowed:
-        raise ValueError("Required keys: birth_datetime, timezone, latitude, longitude (no others)")
+        raise InputRefusalError("REQUEST_INVALID", "Required keys: birth_datetime, timezone, latitude, longitude (no others)")
     if not isinstance(request["birth_datetime"], str) or not isinstance(request["timezone"], str):
-        raise ValueError("birth_datetime and timezone must be strings")
-    lat = _latitude(request["latitude"])
-    lon = _coordinate(request["longitude"], "longitude", 180.0, inclusive=True)
+        raise InputRefusalError("REQUEST_INVALID", "birth_datetime and timezone must be strings")
+    # P5-D1: every birth-time refusal comes before any coordinate refusal.
     utc = _parse_birth(request["birth_datetime"], request["timezone"])
+    # COORDINATE_INVALID for either coordinate before the latitude band.
+    _finite_number(request["latitude"], "latitude")
+    lon = _coordinate(request["longitude"], "longitude", 180.0, inclusive=True)
+    lat = _latitude(request["latitude"])
     # Every required manifest file must match its pinned SHA-256 before Swiss runs.
     folder = verify_ephemeris_dir(ephe_path or os.environ.get("SABPUJA_EPHE_PATH", ""))
     try:

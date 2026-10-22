@@ -103,7 +103,8 @@ class BandValidationTests(unittest.TestCase):
                 with self.assertRaises(ValueError) as ctx:
                     calculate({**SYNTHETIC, "longitude": lon}, ephe_path=MISSING)
                 self.assertNotIsInstance(ctx.exception, UnsupportedInputError)
-                self.assertEqual(str(ctx.exception), "longitude must be between -180 and 180 (inclusive)")
+                # P5 (D4) adds the code prefix; the detail text is unchanged.
+                self.assertEqual(str(ctx.exception), "COORDINATE_INVALID: longitude must be between -180 and 180 (inclusive)")
 
     def test_cli_refusal_is_structured_and_private(self):
         env = {k: v for k, v in os.environ.items() if k != "SE_EPHE_PATH"}
