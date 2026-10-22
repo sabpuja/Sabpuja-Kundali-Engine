@@ -1,0 +1,62 @@
+{
+  "fixture": "Hand transcription of IANA tz 2026e Zone lines for South Asian zones (file 'asia')",
+  "source_url": "https://raw.githubusercontent.com/eggert/tz/2026e/asia",
+  "source_sha256": "02b69728085f6b0c999da70de2f1f9a2d8952b533a450d53bb41e03eb7d0e92e",
+  "semantics": "Each line applies until its 'until' moment, read on the wall clock of that same line (stdoff + save), the IANA default. 'until' null = still in force. Only lines whose RULES column is '-' or a fixed amount are transcribed, so the comparison stops at 'valid_until_utc' where a named Rule set begins.",
+  "purpose": "Independent re-derivation of UTC offsets to cross-check Python zoneinfo on the installed tzdata. Not a statement that these offsets were the clocks people used.",
+  "zones": [
+    {"key": "Asia/Kolkata", "source_line": 1309, "valid_until_utc": null, "lines": [
+      {"stdoff": "5:53:28", "save": "0", "abbr": "LMT", "until": "1854-06-28T00:00:00"},
+      {"stdoff": "5:53:20", "save": "0", "abbr": "HMT", "until": "1870-01-01T00:00:00"},
+      {"stdoff": "5:21:10", "save": "0", "abbr": "MMT", "until": "1906-01-01T00:00:00"},
+      {"stdoff": "5:30", "save": "0", "abbr": "IST", "until": "1941-10-01T00:00:00"},
+      {"stdoff": "5:30", "save": "1:00", "abbr": "+0630", "until": "1942-05-15T00:00:00"},
+      {"stdoff": "5:30", "save": "0", "abbr": "IST", "until": "1942-09-01T00:00:00"},
+      {"stdoff": "5:30", "save": "1:00", "abbr": "+0630", "until": "1945-10-15T00:00:00"},
+      {"stdoff": "5:30", "save": "0", "abbr": "IST", "until": null}
+    ]},
+    {"key": "Asia/Karachi", "source_line": 3154, "valid_until_utc": "1971-03-25T19:00:00", "lines": [
+      {"stdoff": "4:28:12", "save": "0", "abbr": "LMT", "until": "1907-01-01T00:00:00"},
+      {"stdoff": "5:30", "save": "0", "abbr": "+0530", "until": "1942-09-01T00:00:00"},
+      {"stdoff": "5:30", "save": "1:00", "abbr": "+0630", "until": "1945-10-15T00:00:00"},
+      {"stdoff": "5:30", "save": "0", "abbr": "+0530", "until": "1951-09-30T00:00:00"},
+      {"stdoff": "5:00", "save": "0", "abbr": "+05", "until": "1971-03-26T00:00:00"}
+    ]},
+    {"key": "Asia/Dhaka", "source_line": 229, "valid_until_utc": "2008-12-31T18:00:00", "lines": [
+      {"stdoff": "6:01:40", "save": "0", "abbr": "LMT", "until": "1890-01-01T00:00:00"},
+      {"stdoff": "5:53:20", "save": "0", "abbr": "HMT", "until": "1941-10-01T00:00:00"},
+      {"stdoff": "6:30", "save": "0", "abbr": "+0630", "until": "1942-05-15T00:00:00"},
+      {"stdoff": "5:30", "save": "0", "abbr": "+0530", "until": "1942-09-01T00:00:00"},
+      {"stdoff": "6:30", "save": "0", "abbr": "+0630", "until": "1951-09-30T00:00:00"},
+      {"stdoff": "6:00", "save": "0", "abbr": "+06", "until": "2009-01-01T00:00:00"}
+    ]},
+    {"key": "Asia/Kathmandu", "source_line": 3007, "valid_until_utc": null, "lines": [
+      {"stdoff": "5:41:16", "save": "0", "abbr": "LMT", "until": "1920-01-01T00:00:00"},
+      {"stdoff": "5:30", "save": "0", "abbr": "+0530", "until": "1986-01-01T00:00:00"},
+      {"stdoff": "5:45", "save": "0", "abbr": "+0545", "until": null}
+    ]},
+    {"key": "Asia/Colombo", "source_line": 3918, "valid_until_utc": null, "lines": [
+      {"stdoff": "5:19:24", "save": "0", "abbr": "LMT", "until": "1880-01-01T00:00:00"},
+      {"stdoff": "5:19:32", "save": "0", "abbr": "MMT", "until": "1906-01-01T00:00:00"},
+      {"stdoff": "5:30", "save": "0", "abbr": "+0530", "until": "1942-01-05T00:00:00"},
+      {"stdoff": "5:30", "save": "0:30", "abbr": "+06", "until": "1942-09-01T00:00:00"},
+      {"stdoff": "5:30", "save": "1:00", "abbr": "+0630", "until": "1945-10-16T02:00:00"},
+      {"stdoff": "5:30", "save": "0", "abbr": "+0530", "until": "1996-05-25T00:00:00"},
+      {"stdoff": "6:30", "save": "0", "abbr": "+0630", "until": "1996-10-26T00:30:00"},
+      {"stdoff": "6:00", "save": "0", "abbr": "+06", "until": "2006-04-15T00:30:00"},
+      {"stdoff": "5:30", "save": "0", "abbr": "+0530", "until": null}
+    ]},
+    {"key": "Asia/Yangon", "source_line": 266, "valid_until_utc": null, "lines": [
+      {"stdoff": "6:24:47", "save": "0", "abbr": "LMT", "until": "1880-01-01T00:00:00"},
+      {"stdoff": "6:24:47", "save": "0", "abbr": "RMT", "until": "1920-01-01T00:00:00"},
+      {"stdoff": "6:30", "save": "0", "abbr": "+0630", "until": "1942-05-01T00:00:00"},
+      {"stdoff": "9:00", "save": "0", "abbr": "+09", "until": "1945-05-03T00:00:00"},
+      {"stdoff": "6:30", "save": "0", "abbr": "+0630", "until": null}
+    ]},
+    {"key": "Asia/Thimphu", "source_line": 239, "valid_until_utc": null, "lines": [
+      {"stdoff": "5:58:36", "save": "0", "abbr": "LMT", "until": "1947-08-15T00:00:00"},
+      {"stdoff": "5:30", "save": "0", "abbr": "+0530", "until": "1987-10-01T00:00:00"},
+      {"stdoff": "6:00", "save": "0", "abbr": "+06", "until": null}
+    ]}
+  ]
+}
