@@ -114,6 +114,15 @@ class LocalDateWindowTests(unittest.TestCase):
                 self.assertIn(datetime.fromisoformat(birth).astimezone(_zone("UTC")).year, (1900, 2100))
                 self.assert_refused(birth, tz)
 
+    def test_exact_utc_extremes(self):
+        # Documented in docs/api-contract.md: the earliest and latest accepted instants.
+        self.assertEqual(engine._parse_birth("1900-01-01T00:00:00+14:00", "Etc/GMT-14").isoformat(),
+                         "1899-12-31T10:00:00+00:00")
+        self.assertEqual(engine._parse_birth("2100-12-31T23:59:59.999999-12:00", "Etc/GMT+12").isoformat(),
+                         "2101-01-01T11:59:59.999999+00:00")
+        self.assert_refused("2101-01-01T00:00:00.000000-12:00", "Etc/GMT+12")
+        self.assert_refused("1899-12-31T23:59:59.999999+14:00", "Etc/GMT-14")
+
     def test_historical_zone_edges_use_the_zone_offset(self):
         # Local mean / historical offsets at the start of the window, taken from the engine's zone data.
         for key in ("Asia/Kolkata", "Asia/Karachi", "Asia/Dhaka", "Europe/London", "America/New_York",
