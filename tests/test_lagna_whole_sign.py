@@ -78,6 +78,7 @@ DATA = os.environ.get("SABPUJA_TEST_EPHE_PATH")
 
 @unittest.skipIf(DATA is None, "SABPUJA_TEST_EPHE_PATH unset: real-data integration tests not requested")
 class RealDataLagnaTests(unittest.TestCase):
+    @mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ())  # P8 (G1): calculation check on 1900-1969 dates; restored after the test
     def test_whole_sign_charts_identical_to_placidus_charts_in_band(self):
         # Same full output whether the vehicle is b"W" (P3) or forced back to b"P" (P2).
         checked = 0
@@ -93,6 +94,7 @@ class RealDataLagnaTests(unittest.TestCase):
                         checked += 1
         self.assertEqual(checked, len(BIRTHS) * len(LATITUDES) * len(LONGITUDES))
 
+    @mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ())  # P8 (G1): calculation check on 1900-1969 dates; restored after the test
     def test_raw_ascendant_bit_identical_at_band_edges(self):
         swe = swisseph
         for birth in BIRTHS:

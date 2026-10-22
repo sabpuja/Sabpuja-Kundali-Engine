@@ -11,6 +11,7 @@ import os
 import subprocess
 import sys
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import swisseph
@@ -94,10 +95,22 @@ class LocalDateWindowTests(unittest.TestCase):
         self.assertEqual(str(ctx.exception),
                          f"{CODE}: local birth date must be between 1900-01-01 and 2100-12-31 (inclusive)")
 
+    def assert_gated(self, birth, tz):
+        # KUN-03 P8 (G3): inside the window and otherwise valid, so the only refusal
+        # left is the later historical-clock gate (local dates before 1970-01-01).
+        with self.assertRaises(UnsupportedInputError) as ctx:
+            calculate(_request(birth, tz), ephe_path=MISSING)
+        self.assertEqual(ctx.exception.code, "HISTORICAL_CLOCK_UNVERIFIED")
+
+    def assert_inside_window(self, birth, tz):
+        (self.assert_gated if birth < "1970" else self.assert_accepted)(birth, tz)
+
     def test_window_edges_accepted_by_local_date(self):
+        # P8 (G3, versioned): the local 1900-01-01 edges were accepted before P8;
+        # they still pass the window and now reach HISTORICAL_CLOCK_UNVERIFIED.
         for birth, tz in EDGE_ACCEPTED:
             with self.subTest(birth=birth, timezone=tz):
-                self.assert_accepted(birth, tz)
+                self.assert_inside_window(birth, tz)
 
     def test_outside_window_refused_by_local_date(self):
         for birth, tz in EDGE_REFUSED:
@@ -108,7 +121,10 @@ class LocalDateWindowTests(unittest.TestCase):
         # The cases that flip relative to the old UTC-year rule.
         for birth, tz in EDGE_ACCEPTED[:3]:
             with self.subTest(birth=birth):
-                self.assertIn(engine._parse_birth(birth, tz).year, (1899, 2101))
+                self.assert_inside_window(birth, tz)
+                # P8 (G1): the conversion itself, with the gate table empty in this block only.
+                with mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ()):
+                    self.assertIn(engine._parse_birth(birth, tz).year, (1899, 2101))
         for birth, tz in EDGE_REFUSED[:3]:
             with self.subTest(birth=birth):
                 self.assertIn(datetime.fromisoformat(birth).astimezone(_zone("UTC")).year, (1900, 2100))
@@ -116,8 +132,12 @@ class LocalDateWindowTests(unittest.TestCase):
 
     def test_exact_utc_extremes(self):
         # Documented in docs/api-contract.md: the earliest and latest accepted instants.
-        self.assertEqual(engine._parse_birth("1900-01-01T00:00:00+14:00", "Etc/GMT-14").isoformat(),
-                         "1899-12-31T10:00:00+00:00")
+        # P8 (G1/G3): the lower extreme now reaches the historical-clock gate; its
+        # instant is still checked with the gate table empty in this block only.
+        self.assert_gated("1900-01-01T00:00:00+14:00", "Etc/GMT-14")
+        with mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ()):
+            self.assertEqual(engine._parse_birth("1900-01-01T00:00:00+14:00", "Etc/GMT-14").isoformat(),
+                             "1899-12-31T10:00:00+00:00")
         self.assertEqual(engine._parse_birth("2100-12-31T23:59:59.999999-12:00", "Etc/GMT+12").isoformat(),
                          "2101-01-01T11:59:59.999999+00:00")
         self.assert_refused("2101-01-01T00:00:00.000000-12:00", "Etc/GMT+12")
@@ -128,7 +148,7 @@ class LocalDateWindowTests(unittest.TestCase):
         for key in ("Asia/Kolkata", "Asia/Karachi", "Asia/Dhaka", "Europe/London", "America/New_York",
                     "Australia/Sydney"):
             with self.subTest(timezone=key):
-                self.assert_accepted(_birth("1900-01-01T00:00:00", key), key)
+                self.assert_gated(_birth("1900-01-01T00:00:00", key), key)  # P8 (G3)
                 self.assert_refused(_birth("1899-12-31T23:59:59", key), key)
                 self.assert_accepted(_birth("2100-12-31T23:59:59", key), key)
                 self.assert_refused(_birth("2101-01-01T00:00:00", key), key)
@@ -194,6 +214,7 @@ DATA = os.environ.get("SABPUJA_TEST_EPHE_PATH")
 
 
 @unittest.skipIf(DATA is None, "SABPUJA_TEST_EPHE_PATH unset: real-data integration tests not requested")
+@mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ())  # P8 (G1): calculation check only; restored after each test
 class RealDataWindowTests(unittest.TestCase):
     def test_charts_at_the_utc_extremes_of_the_window(self):
         # The earliest and latest accepted instants (UTC 1899-12-31T10:00 and 2101-01-01T11:59:59)

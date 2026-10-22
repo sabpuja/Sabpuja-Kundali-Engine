@@ -71,6 +71,7 @@ class BandValidationTests(unittest.TestCase):
                     self.assertEqual(str(ctx.exception), f"{CODE}: latitude must be between -66 and 66 (inclusive)")
         ephemeris.assert_not_called()
 
+    @mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ())  # P8 (G1): band over 1900-2100; restored after the test
     def test_refusal_is_independent_of_date_and_longitude(self):
         dates = ("1900-01-01T12:00:00+00:00", "1956-03-21T00:00:00+00:00", "2000-01-01T00:00:00+00:00",
                  "2050-01-01T00:00:00+00:00", "2100-12-31T12:00:00+00:00")
@@ -79,8 +80,9 @@ class BandValidationTests(unittest.TestCase):
                 for lon in (-180, -74.006, 0, 77.209, 180):
                     with self.subTest(latitude=lat, birth=birth, longitude=lon):
                         request = {"birth_datetime": birth, "timezone": "UTC", "latitude": lat, "longitude": lon}
-                        with self.assertRaises(UnsupportedInputError):
+                        with self.assertRaises(UnsupportedInputError) as ctx:
                             calculate(request, ephe_path=MISSING)
+                        self.assertEqual(ctx.exception.code, CODE)
 
     def test_invalid_values_keep_their_existing_errors_first(self):
         cases = {True: "must be a number", False: "must be a number", "28.6": "must be a number",
@@ -183,6 +185,7 @@ class RealDataBandTests(unittest.TestCase):
                 self.assertEqual(result["planets"]["moon"]["longitude_deg"], engine._display_deg(float(moon)))
                 self.assertEqual(result["birth"]["latitude"], float(request["latitude"]))
 
+    @mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ())  # P8 (G1): calculation check on 1900-1969 dates; restored after the test
     def test_band_edges_compute_on_every_date(self):
         # Placidus is defined at +-66.0 throughout 1900-2100 (polar circle >= 66.5467 deg).
         for year in (1900, 1950, 2000, 2050, 2100):
@@ -193,12 +196,14 @@ class RealDataBandTests(unittest.TestCase):
                                    "latitude": lat, "longitude": 25.0}
                         self.assertIn("lagna", calculate(request, ephe_path=DATA))
 
+    @mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ())  # P8 (G1): band on a 1900 date; restored after the test
     def test_former_accepted_strip_is_now_refused(self):
         # 66.55 was accepted on 2100-12-31 and refused on 1900-01-01 before P2 (KUN-02 E-ENV-LAT).
         for birth in ("1900-01-01T12:00:00+00:00", "2100-12-31T12:00:00+00:00"):
-            with self.subTest(birth=birth), self.assertRaises(UnsupportedInputError):
+            with self.subTest(birth=birth), self.assertRaises(UnsupportedInputError) as ctx:
                 calculate({"birth_datetime": birth, "timezone": "UTC", "latitude": 66.55, "longitude": 25.0},
                           ephe_path=DATA)
+            self.assertEqual(ctx.exception.code, CODE)
 
 
 if __name__ == "__main__":

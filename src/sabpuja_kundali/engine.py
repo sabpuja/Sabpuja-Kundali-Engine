@@ -57,8 +57,19 @@ SUPPORTED_LATITUDE_DEG = 66.0
 SUPPORTED_LOCAL_DATES = (date(1900, 1, 1), date(2100, 12, 31))
 
 # Reserved, not raised yet: TIMEZONE_NOT_LOCATION_BASED (P5-D3, a separate
-# pre-release package) and HISTORICAL_CLOCK_UNVERIFIED (P8, SCI-03 Option B).
-RESERVED_CODES = ("TIMEZONE_NOT_LOCATION_BASED", "HISTORICAL_CLOCK_UNVERIFIED")
+# pre-release package).
+RESERVED_CODES = ("TIMEZONE_NOT_LOCATION_BASED",)
+
+# SCI-03 RG-HIST Option B (owner pre-merge record, PR #20 comment 6336254894;
+# P8 choices G1-G5, comment 6350086727): no historical clock is verified, so
+# every recognised zone is refused for local civil dates before 1970-01-01.
+# Rows are (zone or "*", first refused local date, last refused local date).
+# Change only with an owner decision; docs/api-contract.md mirrors this table.
+HISTORICAL_CLOCK_POLICY = "SCI-03 RG-HIST Option B, version 1"
+HISTORICAL_CLOCK_GATE = (("*", date.min, date(1969, 12, 31)),)
+# DATA-01 verified exceptions, same row shape. Empty: each one needs its own
+# evidence, QA and owner approval.
+HISTORICAL_CLOCK_EXCEPTIONS = ()
 
 # P5-D2 strict profile: YYYY-MM-DDTHH:MM[:SS[.f{1,6}]] then Z or +-HH:MM[:SS].
 # ASCII digits only; upper-case T and Z only. The offset is optional here so a
@@ -113,12 +124,20 @@ def _placement(longitude: float | Fraction) -> dict[str, object]:
     return {"rashi": sign(longitude), "navamsa_rashi": navamsa_sign(longitude)}
 
 
+def _historical_clock_unverified(civil: date, tz_name: str) -> bool:
+    def covers(rows, wildcard):
+        return any((zone == tz_name or (wildcard and zone == "*")) and first <= civil <= last
+                   for zone, first, last in rows)
+    return covers(HISTORICAL_CLOCK_GATE, True) and not covers(HISTORICAL_CLOCK_EXCEPTIONS, False)
+
+
 def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
     """Validate the birth time in the fixed P5 order and return it in UTC.
 
     TIME_FORMAT_INVALID -> TIME_OFFSET_REQUIRED -> TIME_LEAP_SECOND_UNSUPPORTED
     -> DATE_INVALID -> TIMEZONE_INVALID -> DATE_OUTSIDE_SUPPORTED_RANGE
-    -> TIME_NONEXISTENT_LOCAL -> TIME_OFFSET_MISMATCH. Nothing is coerced.
+    -> TIME_NONEXISTENT_LOCAL -> TIME_OFFSET_MISMATCH -> HISTORICAL_CLOCK_UNVERIFIED.
+    Nothing is coerced.
     """
     match = _BIRTH_PATTERN.fullmatch(birth_datetime) if isinstance(birth_datetime, str) else None
     if match is None:
@@ -162,7 +181,12 @@ def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
         raise InputRefusalError("TIME_NONEXISTENT_LOCAL", "birth time does not exist in the IANA timezone (DST or historical gap)")
     if offset not in valid:
         raise InputRefusalError("TIME_OFFSET_MISMATCH", "Birth time/offset does not match IANA timezone (DST or historical rule)")
-    # Slot for P8 (HISTORICAL_CLOCK_UNVERIFIED) goes here, before the coordinates.
+    # P8: after every other time check and before the coordinates, by the local
+    # civil date as written (never the UTC date).
+    if _historical_clock_unverified(civil, tz_name):
+        raise UnsupportedInputError(
+            "HISTORICAL_CLOCK_UNVERIFIED",
+            "birth dates before 1970-01-01 need a verified historical clock record")
     return wall.replace(tzinfo=timezone(offset)).astimezone(timezone.utc)
 
 
