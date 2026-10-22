@@ -53,13 +53,52 @@ codes 0, 1 and 2. Any FAIL makes the run FAIL. Otherwise any of the following
 makes it BLOCKED:
 
 - a BLOCKED or BOUNDARY-INDETERMINATE check;
+- a `spec.json` or `cases.json` that fails validation (see below);
+- a run that does not deliver the frozen coverage: all 24 cases in order, the
+  49 named checks for each of the 18 chart cases (882 in all) and 2
+  self-consistency checks per chart case;
 - a dirty git tree;
 - a pyswisseph or Swiss version mismatch;
 - unverified ephemeris data;
 - a set `SE_EPHE_PATH`;
-- a missing swetest, or one with a bad receipt or SHA-256;
+- a missing swetest, or one whose receipt is missing, incomplete, names an
+  unapproved source or version, or does not match the binary's SHA-256;
 - a swetest warning (for example its silent Moshier fallback);
 - malformed swetest output.
+
+### Frozen inputs
+
+`inputs.py` holds the frozen policy, and the runner checks both input files
+against it before it calls the engine or swetest:
+
+- **Byte-exact SHA-256.** Both files must match the SHA-256 pinned in
+  `inputs.py`. Each report records the hash and size of both files.
+- **Strict JSON.** These are rejected:
+  - `NaN`, `Infinity` or `-Infinity`;
+  - a number that overflows to infinity (for example `1e400`);
+  - duplicate keys;
+  - a file over 1 MiB.
+- **Spec checks.** These must be exactly as frozen:
+  - every key and its type;
+  - the schema string and FROZEN status;
+  - the claim-boundary marker;
+  - the required versions;
+  - the swetest switches (they must equal the arguments the runner uses);
+  - the bodies, names and verdict codes.
+- **Tolerance checks.** Every tolerance must be a finite float with
+  0 < value ≤ 1e-6, and must equal its frozen value. A tolerance cannot be
+  widened or narrowed silently.
+- **Case checks.** The exact predeclared case IDs must appear, in order. The
+  checks cover:
+  - each case's type (chart, or the exact expected refusal);
+  - the exact keys of each case;
+  - finite latitude and longitude within range.
+
+  Duplicate, missing, extra, renamed or retyped cases are rejected.
+
+Any failure gives SWISS-CONFORMANCE BLOCKED (exit 2), with error codes only.
+`numeric()` itself returns BLOCKED for a non-finite, non-positive, boolean or
+oversized tolerance, and for a non-finite or non-numeric value.
 
 Engine errors are recorded as codes only. Paths in captured CLI output are
 replaced by `<SWETEST>` and `<EPHE>`.
@@ -87,6 +126,23 @@ Next to the binary, write a `receipt.json` that contains these keys:
 - `compiler`;
 - `license`;
 - `swiss_version`.
+
+Every field must be a non-empty string. The receipt's
+`(source_repository, source_commit)` must be one of the approved sources in
+`inputs.py`:
+
+- the official `https://github.com/aloistr/swisseph` at
+  `c69c14adb7a0f94829586ffd92cd422aacb21e86`, which is the reference build;
+- the pyswisseph 2.10.3.2 sdist `libswe`, identified by the sdist's SHA-256.
+  This is labelled in every report as a cross-check build, NOT the official
+  source.
+
+`swiss_version` must be `2.10.03`.
+
+A receipt is the builder's testimony plus the binary's SHA-256. It is not
+cryptographic proof that the binary was compiled from that source. The raw
+build commands and the source diff are kept with the QA evidence for human
+audit.
 
 Binaries and receipts stay outside Git.
 

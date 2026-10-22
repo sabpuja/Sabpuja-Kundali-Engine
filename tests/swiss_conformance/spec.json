@@ -66,7 +66,7 @@
     }
   },
   "boundary_rule": "A category check whose swetest longitude lies within binding_vs_swetest of a Pada edge (all Rashi, Nakshatra and D9 edges are Pada edges) is BOUNDARY-INDETERMINATE unless the binding's unrounded value and the swetest value fall in the same segment, in which case it is resolved and compared.",
-  "verdict_rule": "Any FAIL makes the run SWISS-CONFORMANCE FAIL. Otherwise any BLOCKED or BOUNDARY-INDETERMINATE check, any failed provenance gate, or a run with no checks makes it SWISS-CONFORMANCE BLOCKED. Only a run in which every check passes is SWISS-CONFORMANCE PASS.",
+  "verdict_rule": "Any FAIL makes the run SWISS-CONFORMANCE FAIL. Otherwise any BLOCKED or BOUNDARY-INDETERMINATE check, any failed provenance or input-validation gate, or a run that does not deliver the frozen coverage (the 24 predeclared cases, 49 named checks for each of the 18 chart cases = 882, and 2 self-consistency checks per chart case) makes it SWISS-CONFORMANCE BLOCKED. Only a run in which every check passes is SWISS-CONFORMANCE PASS.",
   "verdicts": {
     "SWISS-CONFORMANCE PASS": 0,
     "SWISS-CONFORMANCE FAIL": 1,

@@ -165,9 +165,13 @@ class Gates(unittest.TestCase):
             receipt = Path(tmp) / "r.json"
             receipt.write_text("{", encoding="utf-8")
             self.assertEqual(c.swetest_state(str(exe), str(receipt))["receipt_errors"], ["SWETEST_BUILD_RECEIPT_INVALID"])
-            good = {"swetest_sha256": sha, "source_repository": "r", "source_commit": "c", "build_command": "b", "compiler": "g"}
+            good = {"swetest_sha256": sha, "source_repository": "https://github.com/aloistr/swisseph",
+                    "source_commit": "c69c14adb7a0f94829586ffd92cd422aacb21e86", "build_command": "make swetest",
+                    "compiler": "gcc", "license": "AGPL-3.0", "swiss_version": "2.10.03"}
             receipt.write_text(json.dumps(good), encoding="utf-8")
-            self.assertEqual(c.swetest_state(str(exe), str(receipt))["receipt_errors"], [])
+            state = c.swetest_state(str(exe), str(receipt))
+            self.assertEqual(state["receipt_errors"], [])
+            self.assertIn("reference build", state["source"])
             receipt.write_text(json.dumps({**good, "swetest_sha256": "0" * 64}), encoding="utf-8")
             self.assertEqual(c.swetest_state(str(exe), str(receipt))["receipt_errors"], ["SWETEST_BUILD_RECEIPT_MISMATCH"])
             exe.chmod(0o644)
@@ -192,6 +196,18 @@ class ComparisonLogic(unittest.TestCase):
         self.assertEqual(record["outcome"], c.PASS)
         self.assertEqual(c.numeric("X", "engine_vs_swetest_deg", "moon", 0.0, 359.9999999, 1e-8)["outcome"], c.FAIL)
         self.assertEqual(c.numeric("X", "engine_vs_swetest_deg", "moon", None, 1.0, 1e-8)["outcome"], c.BLOCKED)
+
+    def test_numeric_rejects_unsafe_tolerances_and_values(self):
+        for tol in (float("inf"), float("-inf"), float("nan"), 0.0, -1e-9, 0, True, 1, 1e-3, None, "1e-9"):
+            with self.subTest(tol=tol):
+                record = c.numeric("X", "engine_vs_swetest_deg", "moon", 10.0, 200.0, tol)
+                self.assertEqual(record["outcome"], c.BLOCKED)
+                json.dumps(record, allow_nan=False)
+        for value in (float("nan"), float("inf"), True, "10.0"):
+            with self.subTest(value=value):
+                self.assertEqual(c.numeric("X", "engine_vs_swetest_deg", "moon", value, 10.0, 1e-8)["outcome"], c.BLOCKED)
+                self.assertEqual(c.numeric("X", "engine_vs_swetest_deg", "moon", 10.0, value, 1e-8)["outcome"], c.BLOCKED)
+                json.dumps(c.numeric("X", "engine_vs_swetest_deg", "moon", value, value, 1e-8), allow_nan=False)
 
     def test_category_rule(self):
         from . import oracle

@@ -17,19 +17,17 @@ import os
 import platform
 import subprocess
 
-from . import oracle, swetest_cli
+from . import inputs, oracle, swetest_cli
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
 PASS, FAIL, BLOCKED, INDETERMINATE = "PASS", "FAIL", "BLOCKED", "BOUNDARY-INDETERMINATE"
 VERDICT = {PASS: "SWISS-CONFORMANCE PASS", FAIL: "SWISS-CONFORMANCE FAIL", BLOCKED: "SWISS-CONFORMANCE BLOCKED"}
 EXIT = {PASS: 0, FAIL: 1, BLOCKED: 2}
-RECEIPT_KEYS = {"swetest_sha256", "source_repository", "source_commit", "build_command", "compiler"}
 PLACIDUS_FAILED = "House method Placidus failed"
 
 
-def load_json(path: Path) -> dict:
-    return json.loads(path.read_text(encoding="utf-8"))
+load_json = inputs.load_json
 
 
 def overall(outcomes: list[str]) -> str:
@@ -81,7 +79,8 @@ def ephemeris_state(ephe: str | None) -> dict:
 
 
 def swetest_state(swetest: str | None, receipt_path: str | None) -> dict:
-    state = {"present": False, "sha256": None, "receipt": None, "receipt_errors": []}
+    state = {"present": False, "sha256": None, "receipt": None, "source": None, "receipt_errors": [],
+             "receipt_nature": "builder testimony plus binary SHA-256; not proof of reproducible compilation"}
     if not swetest or not Path(swetest).is_file() or not os.access(swetest, os.X_OK):
         return state
     state["present"] = True
@@ -91,15 +90,12 @@ def swetest_state(swetest: str | None, receipt_path: str | None) -> dict:
         return state
     try:
         receipt = load_json(Path(receipt_path))
-    except ValueError:
+    except inputs.InputError:
         state["receipt_errors"].append("SWETEST_BUILD_RECEIPT_INVALID")
         return state
-    if not isinstance(receipt, dict) or not RECEIPT_KEYS <= set(receipt):
-        state["receipt_errors"].append("SWETEST_BUILD_RECEIPT_INVALID")
-        return state
-    state["receipt"] = {k: receipt[k] for k in sorted(RECEIPT_KEYS)}
-    if receipt["swetest_sha256"] != state["sha256"]:
-        state["receipt_errors"].append("SWETEST_BUILD_RECEIPT_MISMATCH")
+    state["source"], state["receipt_errors"] = inputs.validate_receipt(receipt, state["sha256"])
+    if state["receipt_errors"] != ["SWETEST_BUILD_RECEIPT_INVALID"]:
+        state["receipt"] = {k: receipt[k] for k in sorted(inputs.RECEIPT_KEYS)}
     return state
 
 
@@ -178,8 +174,13 @@ def call_engine(request: dict, ephe: str):
 def numeric(case_id: str, kind: str, quantity: str, value, reference, tol: float) -> dict:
     record = {"case": case_id, "kind": kind, "quantity": quantity, "value": value, "reference": reference,
               "diff": None, "tolerance": tol, "outcome": FAIL}
-    if value is None or reference is None:
-        record["outcome"] = BLOCKED
+    if not inputs.valid_tolerance(tol):
+        record.update(value=repr(value), reference=repr(reference), tolerance=repr(tol), outcome=BLOCKED)
+        return record
+    if not (inputs.is_number(value) and inputs.is_number(reference)):
+        # Keep the report valid strict JSON: unusable values are recorded by repr only.
+        record.update(value=None if value is None else repr(value),
+                      reference=None if reference is None else repr(reference), outcome=BLOCKED)
         return record
     if kind.endswith("_deg"):
         diff = float((Fraction(value) - Fraction(reference) + 180) % 360 - 180)
@@ -351,21 +352,58 @@ def capture_environment(swetest: str | None, receipt: str | None, ephe: str | No
             "swetest": swetest_state(swetest, receipt)}
 
 
+def coverage(results: list[dict]) -> tuple[dict, list[str]]:
+    """Counts for the report, and BLOCKED reasons if the frozen coverage was not delivered."""
+    errors = []
+    ids = [r["case"] for r in results]
+    if ids != list(inputs.CASES):
+        errors.append("COVERAGE_CASE_SET")
+    for r in results:
+        if inputs.CASES.get(r["case"]) != "chart" or r["outcome"] != PASS:
+            continue
+        keys = [c["quantity"] if c["kind"] not in ("binding_vs_swetest_deg", "engine_vs_swetest_deg")
+                else f"{c['kind']}:{c['quantity']}" for c in r["checks"]]
+        if len(keys) != len(set(keys)) or set(keys) != inputs.CHART_QUANTITIES:
+            errors.append(f"COVERAGE_CHART_QUANTITIES: {r['case']}")
+        if len(r["self_consistency"]) != inputs.SELF_CHECKS_PER_CHART:
+            errors.append(f"COVERAGE_SELF_CONSISTENCY: {r['case']}")
+    counts = {
+        "cases_expected": len(inputs.CASES), "cases_run": len(results),
+        "chart_cases_expected": inputs.CHART_CASES,
+        "refusal_cases_expected": len(inputs.CASES) - inputs.CHART_CASES,
+        "case_outcomes": {o: sum(r["outcome"] == o for r in results) for o in (PASS, FAIL, BLOCKED, INDETERMINATE)},
+        "comparison_checks_expected": inputs.CHART_CASES * inputs.CHECKS_PER_CHART,
+        "comparison_checks_run": sum(len(r["checks"]) for r in results),
+        "comparison_checks_passed": sum(c["outcome"] == PASS for r in results for c in r["checks"]),
+        "self_consistency_expected": inputs.CHART_CASES * inputs.SELF_CHECKS_PER_CHART,
+        "self_consistency_run": sum(len(r["self_consistency"]) for r in results),
+        "self_consistency_passed": sum(s["result"].endswith(PASS) for r in results for s in r["self_consistency"]),
+    }
+    if not errors and counts["comparison_checks_run"] != counts["comparison_checks_expected"]:
+        errors.append("COVERAGE_CHECK_COUNT")
+    return counts, errors
+
+
 def run_all(swetest: str | None, ephe: str | None, receipt: str | None, *, cases_path: Path = HERE / "cases.json",
             spec_path: Path = HERE / "spec.json", env: dict | None = None, clock=lambda: datetime.now(timezone.utc)) -> dict:
     started = clock().strftime("%Y-%m-%dT%H:%M:%SZ")
-    spec = load_json(spec_path)
-    cases = load_json(cases_path)["cases"]
+    spec, cases, input_record, reasons = inputs.load_inputs(spec_path, cases_path)
     env = env if env is not None else capture_environment(swetest, receipt, ephe)
-    reasons = run_reasons(env, spec)
+    if spec is not None:
+        reasons = run_reasons(env, spec)
     results = []
     if not reasons:
         results = [run_case(case, swetest, ephe, spec) for case in cases]
-    case_outcomes = [r["outcome"] for r in results]
-    verdict = BLOCKED if reasons else overall(case_outcomes)
-    return {"report_schema": "sabpuja-swiss-conformance-report/1", "claim_boundary": spec["claim_boundary"],
+    counts, coverage_errors = coverage(results)
+    verdict = BLOCKED if reasons else overall([r["outcome"] for r in results])
+    if verdict == PASS and coverage_errors:
+        verdict = BLOCKED
+    return {"report_schema": "sabpuja-swiss-conformance-report/2",
+            "claim_boundary": spec["claim_boundary"] if spec else inputs.CLAIM_MARKER,
             "started_utc": started, "finished_utc": clock().strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "environment": env, "run_reasons": reasons, "spec_tolerances_deg": spec["tolerances_deg"],
+            "environment": env, "inputs": input_record, "run_reasons": reasons,
+            "coverage": counts, "coverage_errors": coverage_errors,
+            "spec_tolerances_deg": spec["tolerances_deg"] if spec else None,
             "cases": results, "verdict": VERDICT[verdict], "exit_code": EXIT[verdict]}
 
 
@@ -396,9 +434,14 @@ def to_markdown(report: dict) -> str:
              f"Swiss library {env['binding']['swiss_library']}",
              f"- swetest sha256 `{env['swetest']['sha256']}`; receipt "
              f"{json.dumps(env['swetest']['receipt'], sort_keys=True) if env['swetest']['receipt'] else 'none'}",
+             f"- swetest source: {env['swetest']['source'] or 'not approved'} "
+             f"(receipt = {env['swetest']['receipt_nature']})",
              f"- Ephemeris verified={env['ephemeris']['verified']} {env['ephemeris']['error_code'] or ''}".rstrip()]
     lines += [f"  - `{n}` `{h}`" for n, h in sorted(env["ephemeris"]["files"].items())]
+    lines += [f"- Input `{n}` sha256 `{r['sha256']}` ({r['bytes']} bytes)" for n, r in sorted(report["inputs"].items())]
     lines += ["", "## Run-level blocking reasons", ""] + ([f"- {r}" for r in report["run_reasons"]] or ["- none"])
+    lines += ["", "## Coverage", ""] + [f"- {k}: {v}" for k, v in report["coverage"].items()]
+    lines += [f"- COVERAGE ERROR: {e}" for e in report["coverage_errors"]]
     lines += ["", "## Cases", "", "| Case | Expect | Outcome | Checks (pass/total) | Max engine-vs-swetest diff (deg) | Notes |",
               "|---|---|---|---|---|---|"]
     for case in report["cases"]:
