@@ -291,7 +291,12 @@ class CliPrivacyTests(unittest.TestCase):
         exact = json.dumps({**BASE, "timezone": "Mars/Base"}).encode()
         exact = exact + b" " * (4096 - len(exact))
         over = exact + b" "
+        # Over the limit while also failing format, zone and both coordinates: size wins.
+        all_bad = json.dumps({"birth_datetime": "2000-01-01 17:30:00", "timezone": "Mars/" + "\u00e9" * 2200,
+                              "latitude": 95.0, "longitude": 200.0}, ensure_ascii=False).encode()
+        self.assertGreater(len(all_bad), 4096)
         cases = {"multibyte over 4 KB": (multibyte, "REQUEST_INVALID"),
+                 "over 4 KB with format, zone and coordinate faults": (all_bad, "REQUEST_INVALID"),
                  "4,096 bytes": (exact, "TIMEZONE_INVALID"),
                  "4,097 bytes": (over, "REQUEST_INVALID"),
                  "malformed UTF-8": (b'{"birth_datetime": "\xff\xfe"}', "REQUEST_INVALID")}
