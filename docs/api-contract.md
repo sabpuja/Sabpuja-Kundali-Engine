@@ -66,4 +66,15 @@ Lagna (SCI-01e, KUN-03 P3): `ascmc[0]` of `houses_ex(jd_ut, lat, lon, b"W", FLG_
 
 Swiss Ephemeris state (KUN-03 P9 and Delta T isolation): pyswisseph settings are process- or thread-wide, so every accepted request, while holding the engine's single Swiss lock and before any calculation, sets the verified ephemeris path, Lahiri sidereal mode and automatic Delta T (`set_delta_t_userdef(DELTAT_AUTOMATIC)`). A path, sidereal mode or user-defined Delta T left by an earlier caller therefore cannot change a chart. Automatic Delta T is Swiss Ephemeris's own model; it is restored, not changed. A refused request never reaches the lock or any of these calls.
 
+Swiss Ephemeris failures (KUN-03 Swiss error contract). Once a request has passed every check above and the ephemeris manifest gate, a `swisseph.Error` from Swiss itself is never passed on: it is replaced by a `ChartComputationError` (a `RuntimeError` carrying `.code`) with fixed text, raised `from None`, so neither the Swiss message (which can include server file paths) nor any request value appears. No partial chart is returned, the engine lock is released, and the next request starts from the full Swiss reset. Through the CLI each one is the usual single JSON error on stderr, empty stdout, exit 2.
+
+| Stage | Code | Fixed detail |
+|---|---|---|
+| `julday` (UTC instant to Julian day; before the lock) | `SWISS_TIME_CALCULATION_FAILED` | Swiss Ephemeris could not convert the birth time; no chart produced |
+| `set_ephe_path`, `set_sid_mode`, `set_delta_t_userdef` (per-request reset, in the lock) | `SWISS_STATE_INITIALIZATION_FAILED` | Swiss Ephemeris could not be initialized for this request; no chart produced |
+| `calc_ut`, any of the eight bodies | `SWISS_PLANET_CALCULATION_FAILED` | Swiss Ephemeris could not complete the planetary calculation; no chart produced |
+| `houses_ex(..., b"W")` | `ASCENDANT_UNCOMPUTABLE` (unchanged) | Swiss Ephemeris could not compute the ascendant for this location and time; no chart produced |
+
+These are server-side calculation failures, not input refusals: they are never reported as `REQUEST_INVALID` or another P5 code, and they are reachable only after every refusal, `TZDATA_*` and `EPHEMERIS_*` check, whose codes and order are unchanged. None is expected for accepted input; in the pinned binding only `calc_ut` and `houses_ex` were seen to raise `swisseph.Error`, and the reset calls are guarded defensively. The existing Moshier refusal ("Swiss ephemeris files unavailable: refused Moshier fallback") is unchanged. Only `swisseph.Error` is translated: any other exception is a programming defect, is not relabelled or swallowed, and ends the CLI with Python's own failure (exit 1, no stdout). This contract covers error handling only; it is not an astronomical certification.
+
 **Privacy**: CLI retains no state; stdout contains sensitive birth timestamp/coordinates and must be protected by the caller. Never send customer content to telemetry or GitHub.
