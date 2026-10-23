@@ -478,10 +478,11 @@ class SwissStateIsolationTests(unittest.TestCase):
         with mock.patch.object(swe, "set_delta_t_userdef", failing_reset), \
                 mock.patch.object(swe, "calc_ut", side_effect=AssertionError("computed after a failed reset")) as calc, \
                 mock.patch.object(swe, "houses_ex", side_effect=AssertionError("computed after a failed reset")):
-            # Propagates like any other Swiss failure inside the lock (no chart).
-            with self.assertRaises(swe.Error):
+            # KUN-03 Swiss error contract: a fixed, coded refusal (no chart).
+            with self.assertRaises(ChartComputationError) as ctx:
                 result = calculate(PRIMARY, ephe_path=DATA)
         self.assertIsNone(result)
+        self.assertEqual(ctx.exception.code, "SWISS_STATE_INITIALIZATION_FAILED")
         self.assertEqual(calls, [(True, (swe.DELTAT_AUTOMATIC,))])
         calc.assert_not_called()
         self.assertTrue(self._lock_is_free())
@@ -736,8 +737,9 @@ class SwissStateIsolationTests(unittest.TestCase):
             return real_calc(*args)
 
         with mock.patch.object(swe, "calc_ut", failing):
-            with self.assertRaises(swe.Error):
+            with self.assertRaises(ChartComputationError) as ctx:
                 calculate(PRIMARY, ephe_path=DATA)
+        self.assertEqual(ctx.exception.code, "SWISS_PLANET_CALCULATION_FAILED")
         self.assertTrue(self._lock_is_free())
         self.assertAllMatchBaseline()
 

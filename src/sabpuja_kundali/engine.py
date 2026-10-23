@@ -215,28 +215,49 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
         import swisseph as swe
     except ImportError as exc:
         raise RuntimeError("Install pinned local pyswisseph package") from exc
-    julian_day = swe.julday(
-        utc.year, utc.month, utc.day,
-        utc.hour + utc.minute / 60 + (utc.second + utc.microsecond / 1_000_000) / 3600
-    )
+    # Swiss failures become fixed, coded ChartComputationErrors: swe.Error is not a
+    # RuntimeError and its text can carry server paths, so it never reaches the caller.
+    # Only swe.Error is translated; any other exception is a defect and propagates.
+    try:
+        julian_day = swe.julday(
+            utc.year, utc.month, utc.day,
+            utc.hour + utc.minute / 60 + (utc.second + utc.microsecond / 1_000_000) / 3600
+        )
+    except swe.Error:
+        raise ChartComputationError(
+            "SWISS_TIME_CALCULATION_FAILED",
+            "Swiss Ephemeris could not convert the birth time; no chart produced"
+        ) from None
     bodies = {
         "sun": swe.SUN, "moon": swe.MOON, "mars": swe.MARS,
         "mercury": swe.MERCURY, "jupiter": swe.JUPITER, "venus": swe.VENUS,
         "saturn": swe.SATURN, "rahu_mean": swe.MEAN_NODE,
     }
     with _SWISS_LOCK:
-        swe.set_ephe_path(str(folder))
-        swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
-        # A caller's swe.set_delta_t_userdef survives set_ephe_path and swe.close
-        # (P9 finding), so return to Swiss's own automatic Delta T on every request.
-        # Only the override is cleared; the automatic model is unchanged.
-        swe.set_delta_t_userdef(swe.DELTAT_AUTOMATIC)
+        try:
+            swe.set_ephe_path(str(folder))
+            swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+            # A caller's swe.set_delta_t_userdef survives set_ephe_path and swe.close
+            # (P9 finding), so return to Swiss's own automatic Delta T on every request.
+            # Only the override is cleared; the automatic model is unchanged.
+            swe.set_delta_t_userdef(swe.DELTAT_AUTOMATIC)
+        except swe.Error:
+            raise ChartComputationError(
+                "SWISS_STATE_INITIALIZATION_FAILED",
+                "Swiss Ephemeris could not be initialized for this request; no chart produced"
+            ) from None
         requested_flags = swe.FLG_SWIEPH | swe.FLG_SIDEREAL
         # Categories (Rashi, D9, house, Nakshatra) are always derived from these
         # unrounded Swiss values; the 8-decimal output is display only.
         raw = {}
         for name, body in bodies.items():
-            pos, flags = swe.calc_ut(julian_day, body, requested_flags)
+            try:
+                pos, flags = swe.calc_ut(julian_day, body, requested_flags)
+            except swe.Error:
+                raise ChartComputationError(
+                    "SWISS_PLANET_CALCULATION_FAILED",
+                    "Swiss Ephemeris could not complete the planetary calculation; no chart produced"
+                ) from None
             if not (flags & swe.FLG_SWIEPH):
                 raise RuntimeError("Swiss ephemeris files unavailable: refused Moshier fallback")
             raw[name] = float(pos[0])
