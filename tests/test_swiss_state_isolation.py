@@ -46,8 +46,10 @@ REQUESTS = [
      "latitude": 64.1466, "longitude": -21.9426},
 ]
 PRIMARY = REQUESTS[0]
-# Refused inside the lock today (Placidus beyond the polar circle).
-POLAR = {**PRIMARY, "latitude": 70.0}
+# KUN-03 reconciliation: P2 (SCI-01g) refuses |latitude| > 66 with
+# LATITUDE_OUTSIDE_SUPPORTED_BAND before the ephemeris check, the lock and Swiss,
+# and P3's b"W" Lagna computes at any latitude, so a polar request no longer
+# reaches the lock. The in-lock refusal path is exercised by injection instead.
 
 
 _local = threading.local()
@@ -340,6 +342,9 @@ class SwissStateIsolationTests(unittest.TestCase):
         # later chart (Moon by about 400 arcsec for 0.01 day). The fix PR must
         # turn this into an equality assertion against the baseline. Not marked
         # expectedFailure because the documented release gate requires a bare OK.
+        # KUN-03 reconciliation: still reproduced on the P1+P2-P8 integration
+        # baseline (2d1300f). This test passing means the defect is PRESENT; it is an
+        # open release gate, and no production Delta T change is authorized.
         swe = self.swe
         swe.set_delta_t_userdef(0.01)
         try:
@@ -522,9 +527,61 @@ class SwissStateIsolationTests(unittest.TestCase):
         t.join(5)
         return acquired == [True]
 
+    def test_band_refusal_never_reaches_the_lock_or_swiss(self):
+        # P2: refused before the ephemeris check, the lock and any Swiss call.
+        swe = self.swe
+        entered = []
+
+        class RecordingLock:
+            def __enter__(self):
+                entered.append(True)
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+        def forbidden(*args, **kwargs):
+            raise AssertionError("Swiss was called for a band refusal")
+
+        with mock.patch.object(engine, "_SWISS_LOCK", RecordingLock()), \
+                mock.patch.object(engine, "verify_ephemeris_dir", side_effect=forbidden), \
+                mock.patch.object(swe, "calc_ut", forbidden), mock.patch.object(swe, "houses_ex", forbidden), \
+                mock.patch.object(swe, "set_ephe_path", forbidden), mock.patch.object(swe, "set_sid_mode", forbidden):
+            for latitude in (70.0, -70.0, 66.000001, 89.9):
+                with self.subTest(latitude=latitude):
+                    with self.assertRaises(engine.UnsupportedInputError) as ctx:
+                        calculate({**PRIMARY, "latitude": latitude}, ephe_path=DATA)
+                    self.assertEqual(ctx.exception.code, "LATITUDE_OUTSIDE_SUPPORTED_BAND")
+        self.assertEqual(entered, [])
+        self.assertTrue(self._lock_is_free())
+        self.assertAllMatchBaseline()
+
     def test_refusals_inside_lock_leave_no_state(self):
-        with self.assertRaises(ChartComputationError):
-            calculate(POLAR, ephe_path=DATA)
+        # A real in-lock refusal: Swiss fails inside houses_ex after a foreign state
+        # change, and the engine raises ASCENDANT_UNCOMPUTABLE from inside the lock.
+        swe = self.swe
+        real_calc, real_houses = swe.calc_ut, swe.houses_ex
+        inside, planet_calls, result = [], [], None
+
+        def counting_calc(*args):
+            planet_calls.append(engine._SWISS_LOCK._is_owned())
+            return real_calc(*args)
+
+        def failing_houses(*args):
+            inside.append((engine._SWISS_LOCK._is_owned(), args[3]))
+            swe.set_sid_mode(swe.SIDM_FAGAN_BRADLEY | swe.SIDBIT_PREC_ORIG, 0, 0)
+            swe.set_ephe_path(None)
+            raise swe.Error("synthetic houses failure")
+
+        with mock.patch.object(swe, "calc_ut", counting_calc), mock.patch.object(swe, "houses_ex", failing_houses):
+            with self.assertRaises(ChartComputationError) as ctx:
+                result = calculate(PRIMARY, ephe_path=DATA)
+        self.assertIs(swe.houses_ex, real_houses)
+        self.assertIsNone(result)  # no partial chart
+        self.assertEqual(ctx.exception.code, "ASCENDANT_UNCOMPUTABLE")
+        # The whole locked path ran: 8 planet calls, then the b"W" ascendant call, all under the lock.
+        self.assertEqual(planet_calls, [True] * 8)
+        self.assertEqual(inside, [(True, b"W")])
         self.assertTrue(self._lock_is_free())
         self.assertAllMatchBaseline()
 
