@@ -19,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
 from contextlib import contextmanager, nullcontext
 from pathlib import Path
@@ -430,11 +431,15 @@ class SwissStateIsolationTests(unittest.TestCase):
         with _recording():
             for t in noise + workers:
                 t.start()
+            # One shared deadline: a lock that is never released fails here in
+            # bounded time instead of stalling every join in turn.
+            deadline = time.monotonic() + 120
             for t in workers:
-                t.join(120)
+                t.join(max(0.0, deadline - time.monotonic()))
             stop.set()
             for t in noise:
                 t.join(10)
+        self.assertEqual([t for t in workers if t.is_alive()], [], "workers stuck on the Swiss lock")
         self.assertEqual(errors, [])
         self.assertEqual(len(results), 6 * 3)
         for key, (index, output, raw) in sorted(results.items()):
@@ -562,11 +567,15 @@ class SwissStateIsolationTests(unittest.TestCase):
         with _recording():
             for t in noise + workers:
                 t.start()
+            # One shared deadline: a lock that is never released fails here in
+            # bounded time instead of stalling every join in turn.
+            deadline = time.monotonic() + 120
             for t in workers:
-                t.join(120)
+                t.join(max(0.0, deadline - time.monotonic()))
             stop.set()
             for t in noise:
                 t.join(10)
+        self.assertEqual([t for t in workers if t.is_alive()], [], "workers stuck on the Swiss lock")
         self.assertEqual(errors, [])
         self.assertEqual(len(results), 8 * 6)
         for key, (index, output, raw) in sorted(results.items()):
