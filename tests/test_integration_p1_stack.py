@@ -108,7 +108,7 @@ class NoBypassTests(unittest.TestCase):
                 if any(token in line for token in ("os.environ", "getenv", "sys.argv")):
                     reads.append((path.name, line.strip()))
         self.assertEqual(reads, [
-            ("engine.py", 'folder = verify_ephemeris_dir(ephe_path or os.environ.get("SABPUJA_EPHE_PATH", ""))'),
+            ("engine.py", 'folder = verify_ephemeris_dir(ephe_path or os.environ.get("SABPUJA_EPHE_PATH", ""), ephemeris_manifest)'),
             ("ephemeris.py", 'if os.environ.get("SE_EPHE_PATH"):'),
         ])
 

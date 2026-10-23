@@ -12,7 +12,7 @@ from unittest import mock
 
 import swisseph
 
-from sabpuja_kundali import engine
+from sabpuja_kundali import engine, provenance
 from sabpuja_kundali.engine import ChartComputationError, UnsupportedInputError, calculate
 
 SYNTHETIC = {"birth_datetime": "2000-01-01T17:30:00+05:30", "timezone": "Asia/Kolkata",
@@ -65,10 +65,15 @@ class VehicleTests(unittest.TestCase):
         plain.assert_not_called()
 
     def test_output_schema_and_method_fields_unchanged(self):
-        # The ascendant vehicle is recorded in calculation metadata only from P7.
+        # From P7 (schema 0.2.0) the ascendant vehicle is recorded in calculation metadata; the
+        # 0.1.0 legacy projection and the method block are unchanged.
         with mock.patch.object(swisseph, "houses_ex", return_value=((0.0,) * 12, (100.0,) + (0.0,) * 7)):
             result = calculate(SYNTHETIC)
-        self.assertEqual(result["schema_version"], "0.1.0")
+        self.assertEqual(result["schema_version"], "0.2.0")
+        self.assertEqual(provenance.legacy_projection(result)["schema_version"], "0.1.0")
+        ascendant = result["calculation_metadata"]["conventions"]["ascendant"]
+        self.assertEqual((ascendant["swiss_function"], ascendant["swiss_house_system"], ascendant["value"]),
+                         ("houses_ex", "W", "ascmc[0]"))
         self.assertEqual(set(result["method"]), {"ayanamsa", "nodes", "houses", "ephemeris", "binding_version"})
         self.assertEqual(result["method"]["houses"], "whole_sign")
 

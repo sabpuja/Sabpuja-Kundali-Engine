@@ -1,4 +1,4 @@
-# Calculation request/output contract, foundation v0.1.0
+# Calculation request/output contract, schema v0.2.0
 
 **Status: local CLI interface implemented; HTTP API not implemented.**
 
@@ -28,7 +28,7 @@ Requirements:
 - No name, email, phone, address, account ID or other identifying attributes in the calculation request.
 - A birthplace autocomplete service is future work and must be offline/self-hosted.
 
-Success returns JSON `schema_version`, `validation_status`, `method`, `birth`, `lagna`, `moon_nakshatra` and `planets`. Planet values contain longitude, Rashi, D9 sign and whole-sign house. Output is not yet independently verified.
+Success returns JSON `schema_version` (`"0.2.0"`), `validation_status`, `method`, `birth`, `lagna`, `moon_nakshatra`, `planets` and `calculation_metadata` (KUN-03 P7, see below). Planet values contain longitude, Rashi, D9 sign and whole-sign house. Output is not yet independently verified.
 
 Longitude and category semantics:
 - Rashi (30°), Nakshatra (40/3°) and Pada/D9 (10/3°) segments are half-open, `[start, end)`. Every category, house, Moon Nakshatra and Ketu (exactly opposite Rahu) is derived from the unrounded Swiss Ephemeris value with exact arithmetic, never from the displayed number.
@@ -59,10 +59,10 @@ Timezone-data failures are server faults, not input refusals: when the pinned da
 
 Three coordinate failures are deliberately distinct:
 - **Invalid latitude/longitude** (`COORDINATE_INVALID`, `InputRefusalError`): the value is not a usable number, or the longitude is outside -180 to 180, for example `"COORDINATE_INVALID: latitude must be a number"`, `"COORDINATE_INVALID: latitude must be a finite number"` or `"COORDINATE_INVALID: longitude must be between -180 and 180 (inclusive)"`. The caller must correct the input.
-- **Outside the supported latitude band** (`UnsupportedInputError`, a `ValueError` subclass carrying `.code`; error text `LATITUDE_OUTSIDE_SUPPORTED_BAND: latitude must be between -66 and 66 (inclusive)`): the latitude is a finite number outside -66.0 to 66.0. It is refused for every date and longitude, before the ephemeris check and before any Swiss Ephemeris call, so such a request never reaches the ascendant calculation. The ascendant vehicle (`b"W"`, SCI-01e) would compute at any latitude, so this band alone decides which locations are accepted. This is the owner-approved SCI-01g initial support policy, not a permanent astronomical limit; any wider support would need a new owner decision. A disclosure of birth-time sensitivity above 60° (`HIGH_LATITUDE_TIME_SENSITIVITY`) is not emitted yet; it is assigned to future P7 calculation metadata.
+- **Outside the supported latitude band** (`UnsupportedInputError`, a `ValueError` subclass carrying `.code`; error text `LATITUDE_OUTSIDE_SUPPORTED_BAND: latitude must be between -66 and 66 (inclusive)`): the latitude is a finite number outside -66.0 to 66.0. It is refused for every date and longitude, before the ephemeris check and before any Swiss Ephemeris call, so such a request never reaches the ascendant calculation. The ascendant vehicle (`b"W"`, SCI-01e) would compute at any latitude, so this band alone decides which locations are accepted. This is the owner-approved SCI-01g initial support policy, not a permanent astronomical limit; any wider support would need a new owner decision. Above 60° (absolute) a successful chart carries the descriptive disclosure `HIGH_LATITUDE_TIME_SENSITIVITY` in its calculation metadata (KUN-03 P7); it never changes acceptance or the chart.
 - **Cannot compute** (`ChartComputationError`, error text `ASCENDANT_UNCOMPUTABLE: ...`): defensive only. It is raised if Swiss Ephemeris unexpectedly fails the ascendant call (`houses_ex` with `b"W"`) for an in-band request; this is not expected for valid input. No partial chart is returned and no other house method is substituted.
 
-Lagna (SCI-01e, KUN-03 P3): `ascmc[0]` of `houses_ex(jd_ut, lat, lon, b"W", FLG_SIDEREAL)`, the eastern rising point of the ecliptic minus the true Lahiri ayanamsa. Inside the ±66.0° band it was bit-identical to the previous `b"P"` value at every sampled point (KUN-02 E-A1, 167,612 points; P3 tests and comparison grid), and no accepted chart changed in those samples. This is sampled evidence, not a proof. The vehicle is not yet named in the output; it is recorded in P7 calculation metadata.
+Lagna (SCI-01e, KUN-03 P3): `ascmc[0]` of `houses_ex(jd_ut, lat, lon, b"W", FLG_SIDEREAL)`, the eastern rising point of the ecliptic minus the true Lahiri ayanamsa. Inside the ±66.0° band it was bit-identical to the previous `b"P"` value at every sampled point (KUN-02 E-A1, 167,612 points; P3 tests and comparison grid), and no accepted chart changed in those samples. This is sampled evidence, not a proof. The vehicle is named in the output under `calculation_metadata.conventions.ascendant` (KUN-03 P7).
 
 Swiss Ephemeris state (KUN-03 P9 and Delta T isolation): pyswisseph settings are process- or thread-wide, so every accepted request, while holding the engine's single Swiss lock and before any calculation, sets the verified ephemeris path, Lahiri sidereal mode and automatic Delta T (`set_delta_t_userdef(DELTAT_AUTOMATIC)`). A path, sidereal mode or user-defined Delta T left by an earlier caller therefore cannot change a chart. Automatic Delta T is Swiss Ephemeris's own model; it is restored, not changed. A refused request never reaches the lock or any of these calls.
 
@@ -76,5 +76,145 @@ Swiss Ephemeris failures (KUN-03 Swiss error contract). Once a request has passe
 | `houses_ex(..., b"W")` | `ASCENDANT_UNCOMPUTABLE` (unchanged) | Swiss Ephemeris could not compute the ascendant for this location and time; no chart produced |
 
 These are server-side calculation failures, not input refusals: they are never reported as `REQUEST_INVALID` or another P5 code, and they are reachable only after every refusal, `TZDATA_*` and `EPHEMERIS_*` check, whose codes and order are unchanged. None is expected for accepted input; in the pinned binding only `calc_ut` and `houses_ex` were seen to raise `swisseph.Error`, and the reset calls are guarded defensively. The existing Moshier refusal ("Swiss ephemeris files unavailable: refused Moshier fallback") is unchanged. Only `swisseph.Error` is translated: any other exception is a programming defect, is not relabelled or swallowed, and ends the CLI with Python's own failure (exit 1, no stdout). This contract covers error handling only; it is not an astronomical certification.
+
+## Calculation metadata (schema 0.2.0, KUN-03 P7)
+
+Every successful chart carries `calculation_metadata` (`metadata_schema` `"sabpuja-calculation-metadata/1"`), built by `src/sabpuja_kundali/provenance.py`. It is **descriptive**: it states the conventions, data and time-scale assumptions that produced the chart. It does not change any position, category, refusal or code, and it adopts no decision-register entry (SCI-01a, SCI-01h and the others stay as recorded there).
+
+**What it is built from.** Only the engine's own constants, the ephemeris manifest that the request was verified against, the pinned timezone loader that verified the zone, and the installed Swiss library and binding versions. The engine loads the ephemeris manifest once per request, verifies the directory against that object and describes the same object, so the metadata cannot name a manifest other than the one checked. Refusals and server faults (`InputRefusalError`, `TZDATA_*`, `EPHEMERIS_*`, `SWISS_*`, `ASCENDANT_UNCOMPUTABLE`) produce no metadata; their codes, text and order are unchanged.
+
+**Deterministic.** No clock, random value, host path, environment value or request text. Two requests in the same era, on the same side of 2050 and with the same disclosures get identical metadata. `TZ`, `PYTHONTZPATH` and the ephemeris directory name do not change it.
+
+### Fields
+
+| Field | Meaning |
+|---|---|
+| `metadata_schema` | Version of this block. A new key or meaning needs a new value. |
+| `conventions.zodiac`, `conventions.ayanamsa` | Sidereal; Lahiri (Chitrapaksha), Swiss `SIDM_LAHIRI` mode 1, IAE 1985 definition, true ayanamsha, Swiss default precession, no `SIDBIT_*` options; set by `set_sid_mode(SIDM_LAHIRI, 0, 0)`. |
+| `conventions.planetary_positions` | Geocentric apparent positions on the true ecliptic and equinox of date minus the true ayanamsha: `calc_ut` with `FLG_SWIEPH \| FLG_SIDEREAL` (value 65538) for the eight listed bodies. Moshier fallback is refused. |
+| `conventions.nodes` | Mean Rahu (`MEAN_NODE`); Ketu exactly opposite the unrounded Rahu. |
+| `conventions.houses` | D1 houses are whole sign: `((rashi(body) - rashi(lagna)) mod 12) + 1`. |
+| `conventions.ascendant` | `ascmc[0]` of `houses_ex(jd_ut, lat, lon, b"W", FLG_SIDEREAL)` (flags value 65536). The letter selects the Swiss call only; cusps are not used. |
+| `conventions.swiss_state` | The three Swiss settings reset on every request under the engine lock. |
+| `conventions.longitude_display`, `conventions.classification` | 8-decimal display in `[0, 360)`; categories from unrounded values on half-open segments. |
+| `swiss_ephemeris` | `library_version` (`swe.version`, equal to `method.binding_version`), `python_binding` `"pyswisseph"` and its installed distribution version (pinned in `pyproject.toml`). |
+| `ephemeris_data` | Source repository and commit, manifest version, `manifest_sha256` (SHA-256 of the packaged `ephemeris-manifest.json` as canonical JSON: sorted keys, separators `,` and `:`), the required files with size and SHA-256, coverage years. `verified_before_calculation` is always `true`, because a chart is produced only after that check. |
+| `timezone_data` | `source`, `package_version`, `iana_version` and `manifest_sha256` of the pinned TZif manifest, exactly as the verifying loader reports them; `host_timezone_database_used` is always `false`. |
+| `time_scale` | The pipeline, the UT1 assumption, Delta T source, era, leap-second list expiry and the 2050 sidereal-time model note (below). No per-request number (Julian day, Delta T, sidereal time) is emitted. |
+| `input_policy` | The checks this chart passed, read from the engine constants: local date window, historical clock policy (RG-HIST Option B v1, fail closed, refused local dates, exceptions: none), latitude band ±66° inclusive, offset rule and the fixed refusal order. |
+| `disclosures` | Zero or more `{code, description}` in fixed order (below). |
+| `validation` | `status` (equal to `validation_status`) and the claim boundary. |
+
+### Time scale and eras
+
+The pipeline is: local civil time with an explicit offset, validated against the pinned IANA zone, converted to civil UTC, then `swe.julday` (Gregorian) and Swiss UT-based calculation. **Civil UTC is treated as UT1.** This is an assumption: no measured UT1 − UTC and no Earth-orientation data are used. TT comes from Swiss's automatic Delta T (`DELTAT_AUTOMATIC`, reset per request; tabulated to 2028 and extrapolated after; no user override and no measured series).
+
+`time_scale.era` is judged on the **converted UTC instant**, not the local date (local `1972-01-01T05:00+05:30` is UTC 1971 and is labelled `UTC_BEFORE_LEAP_SECONDS`). Ranges are half-open, start inclusive:
+
+| Era | UTC range | Disclosure |
+|---|---|---|
+| `CIVIL_TIME_BEFORE_UTC` | before 1961-01-01 | Reachable only through the test-only historical clock override; production refuses these dates. |
+| `UTC_BEFORE_LEAP_SECONDS` | 1961-01-01 to 1972-01-01 | Accepted charts here are 1969-12-31 to 1971-12-31 UTC. UT1 − UTC not sourced: an approximation, not verified UT1. |
+| `LEAP_SECOND_UTC` | 1972-01-01 to 2027-06-28 | The IERS rule keeps \|UT1 − UTC\| < 0.9 s; that bound is implied under the Swiss Delta T model, not measured for this calculation. |
+| `AFTER_LEAP_SECOND_LIST_EXPIRY` | from 2027-06-28 | After the pinned IERS leap-second list expiry (tz 2026e `leap-seconds.list`): leap seconds and UT1 − UTC unknown, no 0.9 s bound promised (CGPM 2022 Resolution 4 raises it in or before 2035), Delta T extrapolated. Emits `FUTURE_CIVIL_TIME_PROJECTED`. |
+
+The expiry date is a pinned research value; it does not follow later IERS publications, and changing it is a reviewed code change.
+
+`time_scale.sidereal_time_model` records that Swiss 2.10.03 switches its default sidereal-time model at 2050-01-01 0h UT (recorded step −1.908″; Lagna about −1.7″ at New Delhi) and says which side of the switch the chart is on (`before_switch` or `on_or_after_switch`, by UT instant). It is version-specific model behaviour, not a precision guarantee.
+
+### Disclosures
+
+| Code | When | Effect |
+|---|---|---|
+| `FUTURE_CIVIL_TIME_PROJECTED` | UTC instant on or after 2027-06-28T00:00:00Z | Descriptive only. |
+| `HIGH_LATITUDE_TIME_SENSITIVITY` | \|latitude\| strictly above 60.0 (60.0 itself: none) | Descriptive only (SCI-01g); the ±66° band still decides acceptance. Ascendant sensitivity to birth-time uncertainty can be greater at high latitude for some dates and sidereal times, but not at all of them (for example at 0° E on 2024-06-15 it moves 0.0188°/s at 62° N vs 0.0045°/s at the equator at 00:00 UT, but 0.0025°/s vs 0.0038°/s at 06:00 UT), so the text makes no uniform claim. |
+
+### Example
+
+Synthetic request `{"birth_datetime":"2030-03-20T09:00:00+00:00","timezone":"UTC","latitude":62.0,"longitude":-18.0}` (chart fields abbreviated):
+
+```json
+{
+  "schema_version": "0.2.0",
+  "validation_status": "UNVERIFIED_GOLDEN_CHARTS",
+  "method": {"ayanamsa": "Lahiri", "nodes": "mean", "houses": "whole_sign", "ephemeris": "Swiss Ephemeris, local .se1", "binding_version": "2.10.03"},
+  "birth": {"utc": "2030-03-20T09:00:00Z", "timezone": "UTC", "latitude": 62.0, "longitude": -18.0},
+  "lagna": {"longitude_deg": 54.46189408, "rashi": "Vrishabha", "navamsa_rashi": "Simha"},
+  "moon_nakshatra": {"index": 12, "name": "Hasta", "pada": 2},
+  "planets": {"...": "unchanged from 0.1.0"},
+  "calculation_metadata": {
+    "metadata_schema": "sabpuja-calculation-metadata/1",
+    "conventions": {
+      "zodiac": "sidereal",
+      "ayanamsa": {"name": "Lahiri", "swiss_mode": "SIDM_LAHIRI", "swiss_mode_number": 1, "swiss_call": "set_sid_mode(SIDM_LAHIRI, 0, 0)", "kind": "true_ayanamsha", "definition": "Lahiri (Chitrapaksha), Swiss Ephemeris SE_SIDM_LAHIRI (mode 1), IAE 1985 definition, true ayanamsha, Swiss default precession; no SIDBIT options"},
+      "planetary_positions": {"center": "geocentric", "position": "apparent", "frame": "true ecliptic and equinox of date, minus the true ayanamsha", "swiss_function": "calc_ut", "swiss_flags": ["FLG_SWIEPH", "FLG_SIDEREAL"], "swiss_flags_value": 65538, "swiss_bodies": ["SUN", "MOON", "MARS", "MERCURY", "JUPITER", "VENUS", "SATURN", "MEAN_NODE"], "moshier_fallback": "refused"},
+      "nodes": {"rahu": "mean", "rahu_swiss_body": "MEAN_NODE", "ketu": "exactly opposite the unrounded mean Rahu; categories from the exact sum Rahu + 180"},
+      "houses": {"d1_model": "whole_sign", "rule": "house = ((rashi(body) - rashi(lagna)) mod 12) + 1"},
+      "ascendant": {"definition": "eastern rising point of the ecliptic, minus the true Lahiri ayanamsha", "swiss_function": "houses_ex", "swiss_house_system": "W", "swiss_flags": ["FLG_SIDEREAL"], "swiss_flags_value": 65536, "value": "ascmc[0]", "note": "The house-system argument selects the Swiss call only; the D1 house model is whole_sign. Cusps are not used."},
+      "swiss_state": {"reset_per_request_under_lock": ["set_ephe_path(verified directory)", "set_sid_mode(SIDM_LAHIRI, 0, 0)", "set_delta_t_userdef(DELTAT_AUTOMATIC)"]},
+      "longitude_display": {"range": "[0, 360)", "decimals": 8, "note": "360 is shown as 0"},
+      "classification": "Rashi, Navamsa, Nakshatra, Pada and houses use unrounded longitudes on half-open segments, never the 8-decimal display"
+    },
+    "swiss_ephemeris": {"library_version": "2.10.03", "python_binding": "pyswisseph", "python_binding_version": "2.10.3.2"},
+    "ephemeris_data": {
+      "source_repository": "https://github.com/aloistr/swisseph",
+      "source_commit": "c69c14adb7a0f94829586ffd92cd422aacb21e86",
+      "manifest_version": "1.0.0",
+      "manifest_sha256": "1aaca24868bb9cde8558f891038ae239d8dce64beb77b90f963bb185e99b2e34",
+      "manifest_sha256_method": "SHA-256 of the packaged ephemeris-manifest.json as canonical JSON (sorted keys, separators ',' and ':')",
+      "required_files": [
+        {"name": "sepl_18.se1", "size_bytes": 484061, "sha256": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"},
+        {"name": "semo_18.se1", "size_bytes": 1304771, "sha256": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7"}
+      ],
+      "verified_before_calculation": true,
+      "verification": "every required file matched its size and SHA-256 before any Swiss call",
+      "coverage_years": [1800, 2399]
+    },
+    "timezone_data": {"source": "PyPI tzdata", "package_version": "2026.5", "iana_version": "2026e", "manifest_sha256": "11e070e7a29c0c79a495d8bf9517215f0f1e6c8e7c92f3e75d8a485773953532", "host_timezone_database_used": false, "verification": "the zone file matched the pinned manifest SHA-256 before use"},
+    "time_scale": {
+      "pipeline": "local civil time + explicit offset -> validated against the pinned IANA zone -> civil UTC -> swe.julday (Gregorian) -> Swiss UT-based calculation; TT from the Swiss automatic Delta T",
+      "ut1_assumption": "civil UTC is treated as UT1 (an assumption, not a measured UT1 correction)",
+      "measured_ut1_minus_utc_used": false,
+      "earth_orientation_data_used": false,
+      "delta_t": {"source": "Swiss Ephemeris automatic Delta T (DELTAT_AUTOMATIC, reset per request)", "user_override_used": false, "measured_series_used": false, "note": "Swiss 2.10.03 tabulates Delta T to 2028 and extrapolates afterwards; future Delta T is a model projection"},
+      "era": "AFTER_LEAP_SECOND_LIST_EXPIRY",
+      "era_basis": "converted UTC instant",
+      "era_description": "After the pinned IERS leap-second list expiry: future leap seconds and UT1-UTC are not known. The converted UTC is treated as UT1 by projection; no |UT1-UTC| bound is promised (CGPM 2022 Resolution 4 raises the 0.9 s limit in or before 2035), and Swiss Delta T is extrapolated.",
+      "leap_second_list_expiry_utc": "2027-06-28T00:00:00Z",
+      "leap_second_list_source": "IERS leap-seconds.list as shipped in tz 2026e (pinned research value; later IERS publications are not reflected)",
+      "sidereal_time_model": {"switch_ut": "2050-01-01T00:00:00Z", "recorded_step_arcsec": -1.908, "chart_side": "before_switch", "note": "Swiss 2.10.03 switches its default sidereal-time model at 2050-01-01 0h UT (recorded step about -1.908 arcsec, Lagna about -1.7 arcsec at New Delhi). Version-specific model behaviour, not a precision guarantee."}
+    },
+    "input_policy": {
+      "local_date_window": {"first": "1900-01-01", "last": "2100-12-31", "basis": "local civil date as written, before conversion"},
+      "historical_clock": {"policy": "SCI-03 RG-HIST Option B, version 1", "mode": "fail_closed", "refused_local_dates": [{"zone": "*", "first_local_date": null, "last_local_date": "1969-12-31"}], "exceptions": []},
+      "latitude_band_deg": {"min": -66.0, "max": 66.0, "inclusive": true},
+      "time_offset": "explicit UTC offset required and must be an offset the pinned IANA zone gives for that wall time; nonexistent local times are refused; a repeated hour is resolved by the offset",
+      "refusal_order": "fixed P5 order (docs/api-contract.md)"
+    },
+    "disclosures": [
+      {"code": "FUTURE_CIVIL_TIME_PROJECTED", "description": "The birth instant is after the pinned IERS leap-second list expiry (2027-06-28): civil-time rules, leap seconds, UT1-UTC and Delta T are projections, not records."},
+      {"code": "HIGH_LATITUDE_TIME_SENSITIVITY", "description": "Absolute latitude above 60 deg: ascendant sensitivity to birth-time uncertainty can be greater for some dates and sidereal times, but is not uniformly greater. An accurate recorded birth time is important. Descriptive only; calculation and acceptance are unchanged."}
+    ],
+    "validation": {"status": "UNVERIFIED_GOLDEN_CHARTS", "claim_boundary": "Swiss-on-Swiss integration conformance only; not independent astronomical validation, mathematical verification or historical clock verification"}
+  }
+}
+```
+
+### Limitations and claim boundary
+
+- The metadata reports what the engine did and which pinned data it used. It is not evidence that the chart is astronomically correct, and it is not independent validation, mathematical verification or historical clock verification.
+- UT1 is not measured; Delta T after 2028 and UT1 − UTC after 2027-06-28 are model projections.
+- The ±66° band, the 1900–2100 window and the pre-1970 refusal are support policy, not astronomical limits. The high-latitude disclosure is descriptive only.
+- Per-zone TZif hashes are not listed; the manifest SHA-256 covers them.
+
+### Migration from 0.1.0
+
+- All 0.1.0 keys, values and their order are unchanged; `method` keeps its five keys. `schema_version` becomes `"0.2.0"` and `calculation_metadata` is appended last.
+- A 0.1.0 consumer that ignores unknown keys keeps working once it accepts `"0.2.0"`. A consumer that pins `"0.1.0"` must be updated.
+- `provenance.legacy_projection(chart)` drops `calculation_metadata` and restores `"0.1.0"`. For every request it equals the KUN-03 conformance engine output (PR #33, `bec4641`) byte for byte under canonical JSON; `tests/test_calculation_metadata.py` pins this for ten synthetic boundary requests.
+
+### Reproduction requirements
+
+To get the same output, including the metadata: `pyswisseph==2.10.3.2` (Swiss 2.10.03), `tzdata==2026.5` (IANA 2026e) with the packaged TZif manifest, and the two ephemeris files matching the packaged ephemeris manifest. A different binding, tzdata or ephemeris file either fails closed (`TZDATA_*`, `EPHEMERIS_*`) or is reported in the metadata.
 
 **Privacy**: CLI retains no state; stdout contains sensitive birth timestamp/coordinates and must be protected by the caller. Never send customer content to telemetry or GitHub.

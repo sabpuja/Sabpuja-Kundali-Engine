@@ -128,7 +128,7 @@ class ManifestGateTests(unittest.TestCase):
     def test_calculate_fails_before_swiss_is_called(self):
         self.put("sepl_18.se1")
         with mock.patch("sabpuja_kundali.engine.verify_ephemeris_dir",
-                        side_effect=lambda p: verify_ephemeris_dir(p, FAKE_MANIFEST)):
+                        side_effect=lambda p, manifest=None: verify_ephemeris_dir(p, FAKE_MANIFEST)):
             with mock.patch.dict(sys.modules, {"swisseph": None}):
                 # swisseph import would raise if reached; the gate must fire first.
                 with self.assertRaises(EphemerisDataError):
