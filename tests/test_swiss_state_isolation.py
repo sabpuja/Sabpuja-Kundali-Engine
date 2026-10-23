@@ -4,7 +4,8 @@ pyswisseph keeps process-wide state (ephemeris path, sidereal mode and its
 flag bits, Delta T settings, open file handles). These tests prove that one
 chart request cannot be influenced by state left behind by any earlier caller,
 thread or failed request, and that the tests themselves fail when the engine's
-state reset or lock is deliberately broken.
+state reset or lock is deliberately broken. KUN-03 Delta T isolation: a caller's
+user-defined Delta T is now cleared on every request and is covered the same way.
 
 Synthetic birth details only. Requires the pinned data in SABPUJA_TEST_EPHE_PATH
 (same rule as test_swiss_integration: unset skips, set-but-wrong errors). The
@@ -18,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
 from contextlib import contextmanager, nullcontext
 from pathlib import Path
@@ -164,9 +166,13 @@ def _mutant(name):
     elif name == "no_set_ephe_path":
         with mock.patch.object(swe, "set_ephe_path", lambda *a, **k: None):
             yield
+    elif name == "no_delta_t_reset":
+        with mock.patch.object(swe, "set_delta_t_userdef", lambda *a, **k: None):
+            yield
     elif name == "no_reset_at_all":
         with mock.patch.object(swe, "set_sid_mode", lambda *a, **k: None), \
-                mock.patch.object(swe, "set_ephe_path", lambda *a, **k: None):
+                mock.patch.object(swe, "set_ephe_path", lambda *a, **k: None), \
+                mock.patch.object(swe, "set_delta_t_userdef", lambda *a, **k: None):
             yield
     elif name == "no_lock":
         with mock.patch.object(engine, "_SWISS_LOCK", nullcontext()):
@@ -214,7 +220,7 @@ class SwissLockContractTests(unittest.TestCase):
         self.assertEqual(sorted(set(outside) - self.STATELESS), [],
                          "Swiss calls outside _SWISS_LOCK can read or race global state")
         # The reset calls exist and precede computation inside the lock.
-        self.assertEqual(inside[:2], ["set_ephe_path", "set_sid_mode"])
+        self.assertEqual(inside[:3], ["set_ephe_path", "set_sid_mode", "set_delta_t_userdef"])
         self.assertTrue({"calc_ut", "houses_ex"} <= set(inside))
 
 
@@ -255,11 +261,14 @@ class SwissStateIsolationTests(unittest.TestCase):
     def test_every_call_sets_verified_path_and_lahiri_before_computing(self):
         swe = self.swe
         events = []
-        real = {n: getattr(swe, n) for n in ("set_ephe_path", "set_sid_mode", "calc_ut", "houses_ex")}
+        real = {n: getattr(swe, n) for n in
+                ("set_ephe_path", "set_sid_mode", "set_delta_t_userdef", "calc_ut", "houses_ex")}
+        owned = []
 
         def spy(name):
             def call(*args):
                 events.append((name, args))
+                owned.append(engine._SWISS_LOCK._is_owned())
                 return real[name](*args)
             return call
 
@@ -272,14 +281,19 @@ class SwissStateIsolationTests(unittest.TestCase):
             for index, request in enumerate(REQUESTS):
                 with self.subTest(round=round_, request=index):
                     events.clear()
+                    owned.clear()
                     calculate(request, ephe_path=DATA)
                     names = [e[0] for e in events]
-                    self.assertEqual(names[:2], ["set_ephe_path", "set_sid_mode"])
+                    self.assertEqual(names[:3], ["set_ephe_path", "set_sid_mode", "set_delta_t_userdef"])
                     self.assertEqual(names.count("set_ephe_path"), 1)
                     self.assertEqual(names.count("set_sid_mode"), 1)
+                    self.assertEqual(names.count("set_delta_t_userdef"), 1)
                     self.assertEqual(events[0][1], (verified,))
                     self.assertEqual(events[1][1], (swe.SIDM_LAHIRI, 0, 0))
-                    for name, args in events[2:]:
+                    # The named constant, not a value that merely happens to equal it.
+                    self.assertEqual(events[2][1], (swe.DELTAT_AUTOMATIC,))
+                    self.assertEqual(owned, [True] * len(events), "a Swiss call ran without the lock")
+                    for name, args in events[3:]:
                         if name == "calc_ut":
                             self.assertEqual(args[2], swe.FLG_SWIEPH | swe.FLG_SIDEREAL)
                         elif name == "houses_ex":
@@ -328,32 +342,150 @@ class SwissStateIsolationTests(unittest.TestCase):
             "swe_close": swe.close,
             "foreign_ephe_path": lambda: swe.set_ephe_path(tempfile.gettempdir()),
             "moshier_call": lambda: swe.calc_ut(2451545.0, swe.MOON, swe.FLG_MOSEPH | swe.FLG_SIDEREAL),
+            "user_delta_t": lambda: swe.set_delta_t_userdef(0.01),
         }
+        self.addCleanup(swe.set_delta_t_userdef, swe.DELTAT_AUTOMATIC)
         for name, contaminate in cases.items():
             with self.subTest(contamination=name):
                 contaminate()
                 self.assertAllMatchBaseline(f"state left by {name} leaked into the chart")
 
-    def test_known_defect_engine_inherits_user_delta_t(self):
-        # KNOWN DEFECT, pinned so it cannot change unnoticed (fix awaiting owner
-        # authorization; see the P9 PR). swe.set_delta_t_userdef survives
-        # set_ephe_path and swe.close, and the engine never restores
-        # DELTAT_AUTOMATIC, so an earlier caller on the same thread shifts every
-        # later chart (Moon by about 400 arcsec for 0.01 day). The fix PR must
-        # turn this into an equality assertion against the baseline. Not marked
-        # expectedFailure because the documented release gate requires a bare OK.
-        # KUN-03 reconciliation: still reproduced on the P1+P2-P8 integration
-        # baseline (2d1300f). This test passing means the defect is PRESENT; it is an
-        # open release gate, and no production Delta T change is authorized.
-        swe = self.swe
-        swe.set_delta_t_userdef(0.01)
-        try:
+    # 3a. A caller's user-defined Delta T cannot leak (KUN-03 Delta T isolation)
+
+    # Includes 0.0, a valid user value (zero seconds) that is not automatic.
+    DELTA_T_OVERRIDES = (0.01, -0.01, 1e-6, 0.5, 0.0)
+
+    def _set_user_delta_t(self, value):
+        self.swe.set_delta_t_userdef(value)
+        self.addCleanup(self.swe.set_delta_t_userdef, self.swe.DELTAT_AUTOMATIC)
+
+    def test_user_delta_t_from_earlier_caller_does_not_leak(self):
+        # Formerly test_known_defect_engine_inherits_user_delta_t, which passed only
+        # while the defect existed. swe.set_delta_t_userdef survives set_ephe_path
+        # and swe.close; the engine now restores DELTAT_AUTOMATIC on every request,
+        # so the output and every raw Swiss value equal the fresh-process baseline.
+        self._set_user_delta_t(0.01)
+        self.assertMatchesBaseline(0, "a caller's user Delta T leaked into the chart")
+        self.assertAllMatchBaseline()
+        self.swe.set_delta_t_userdef(self.swe.DELTAT_AUTOMATIC)
+        self.assertAllMatchBaseline()
+
+    def test_user_delta_t_is_observable_without_the_reset(self):
+        # Guard against a vacuous pass: with the reset patched out, the same
+        # override moves the Moon by hundreds of arcseconds.
+        self._set_user_delta_t(0.01)
+        with _mutant("no_delta_t_reset"):
             output, raw = _capture(PRIMARY, DATA)
-        finally:
-            swe.set_delta_t_userdef(swe.DELTAT_AUTOMATIC)
         self.assertNotEqual(raw, self.baseline[0][1])
-        # Restoring automatic Delta T (the proposed fix) gives the baseline back.
-        self.assertMatchesBaseline()
+        base_moon = self.baseline[0][0]["planets"]["moon"]["longitude_deg"]
+        self.assertGreater(abs(output["planets"]["moon"]["longitude_deg"] - base_moon) * 3600, 300)
+
+    def test_any_user_delta_t_value_is_cleared_before_each_request(self):
+        for value in self.DELTA_T_OVERRIDES:
+            for index in range(len(REQUESTS)):
+                with self.subTest(delta_t=value, request=index):
+                    self._set_user_delta_t(value)
+                    self.assertMatchesBaseline(index)
+
+    def test_repeated_interleaved_requests_with_delta_t_overrides(self):
+        values = self.DELTA_T_OVERRIDES
+        for round_ in range(2):
+            for step, index in enumerate((0, 3, 1, 0, 4, 2, 0)):
+                with self.subTest(round=round_, step=step, request=index):
+                    if step % 2 == 0:
+                        self._set_user_delta_t(values[(round_ + step) % len(values)])
+                    self.assertMatchesBaseline(index)
+
+    def test_worker_threads_with_delta_t_overrides_match_baseline(self):
+        # Linux pyswisseph keeps Swiss state per thread, so each worker overrides
+        # its own thread just before its request. On process-global builds
+        # (macOS/Windows) the lock-holding hostile thread's override is the one
+        # that reaches the workers. The engine must clear both.
+        swe = self.swe
+        values = self.DELTA_T_OVERRIDES
+        results, errors = {}, []
+        stop = threading.Event()
+
+        def worker(wid):
+            try:
+                for rep in range(3):
+                    index = (wid + rep) % len(REQUESTS)
+                    swe.set_delta_t_userdef(values[(wid + rep) % len(values)])
+                    output, raw = _capture(REQUESTS[index], DATA, patch=False)
+                    results[(wid, rep)] = (index, json.loads(json.dumps(output, sort_keys=True)), raw)
+            except Exception as exc:  # surfaced below
+                errors.append(repr(exc))
+            finally:
+                swe.set_delta_t_userdef(swe.DELTAT_AUTOMATIC)
+
+        def hostile():
+            i = 0
+            while not stop.is_set():
+                with engine._SWISS_LOCK:
+                    swe.set_delta_t_userdef(values[i % len(values)])
+                i += 1
+
+        self.addCleanup(swe.set_delta_t_userdef, swe.DELTAT_AUTOMATIC)
+        noise = [threading.Thread(target=hostile, daemon=True)]
+        workers = [threading.Thread(target=worker, args=(w,), daemon=True) for w in range(6)]
+        with _recording():
+            for t in noise + workers:
+                t.start()
+            # One shared deadline: a lock that is never released fails here in
+            # bounded time instead of stalling every join in turn.
+            deadline = time.monotonic() + 120
+            for t in workers:
+                t.join(max(0.0, deadline - time.monotonic()))
+            stop.set()
+            for t in noise:
+                t.join(10)
+        self.assertEqual([t for t in workers if t.is_alive()], [], "workers stuck on the Swiss lock")
+        self.assertEqual(errors, [])
+        self.assertEqual(len(results), 6 * 3)
+        for key, (index, output, raw) in sorted(results.items()):
+            with self.subTest(worker=key[0], rep=key[1], request=index):
+                self.assertEqual(raw, self.baseline[index][1])
+                self.assertEqual(output, self.baseline[index][0])
+
+    def test_delta_t_override_after_an_in_lock_failure_does_not_leak(self):
+        swe = self.swe
+        self.addCleanup(swe.set_delta_t_userdef, swe.DELTAT_AUTOMATIC)
+        result = None
+
+        def failing_houses(*args):
+            # Foreign override inside the request, after the engine's own reset.
+            swe.set_delta_t_userdef(0.01)
+            raise swe.Error("synthetic houses failure")
+
+        with mock.patch.object(swe, "houses_ex", failing_houses):
+            with self.assertRaises(ChartComputationError):
+                result = calculate(PRIMARY, ephe_path=DATA)
+        self.assertIsNone(result)
+        self.assertTrue(self._lock_is_free())
+        # The override left by the failed request, then a later caller's: neither leaks.
+        self.assertAllMatchBaseline()
+        self._set_user_delta_t(0.5)
+        self.assertAllMatchBaseline()
+
+    def test_delta_t_reset_failure_returns_no_chart_and_releases_lock(self):
+        swe = self.swe
+        calls, result = [], None
+
+        def failing_reset(*args):
+            calls.append((engine._SWISS_LOCK._is_owned(), args))
+            raise swe.Error("synthetic Delta T reset failure")
+
+        with mock.patch.object(swe, "set_delta_t_userdef", failing_reset), \
+                mock.patch.object(swe, "calc_ut", side_effect=AssertionError("computed after a failed reset")) as calc, \
+                mock.patch.object(swe, "houses_ex", side_effect=AssertionError("computed after a failed reset")):
+            # Propagates like any other Swiss failure inside the lock (no chart).
+            with self.assertRaises(swe.Error):
+                result = calculate(PRIMARY, ephe_path=DATA)
+        self.assertIsNone(result)
+        self.assertEqual(calls, [(True, (swe.DELTAT_AUTOMATIC,))])
+        calc.assert_not_called()
+        self.assertTrue(self._lock_is_free())
+        self.assertAllMatchBaseline()
 
     # 4. Lock prevents request-level interference -----------------------------
 
@@ -399,7 +531,7 @@ class SwissStateIsolationTests(unittest.TestCase):
             results.append(_capture(PRIMARY, DATA, patch=False))
 
         with _recording():
-            t = threading.Thread(target=run)
+            t = threading.Thread(target=run, daemon=True)
             t.start()
             t.join(60)
         self.assertEqual(len(results), 1)
@@ -431,15 +563,19 @@ class SwissStateIsolationTests(unittest.TestCase):
                 i += 1
 
         noise = [threading.Thread(target=hostile, daemon=True) for _ in range(2)]
-        workers = [threading.Thread(target=worker, args=(w,)) for w in range(8)]
+        workers = [threading.Thread(target=worker, args=(w,), daemon=True) for w in range(8)]
         with _recording():
             for t in noise + workers:
                 t.start()
+            # One shared deadline: a lock that is never released fails here in
+            # bounded time instead of stalling every join in turn.
+            deadline = time.monotonic() + 120
             for t in workers:
-                t.join(120)
+                t.join(max(0.0, deadline - time.monotonic()))
             stop.set()
             for t in noise:
                 t.join(10)
+        self.assertEqual([t for t in workers if t.is_alive()], [], "workers stuck on the Swiss lock")
         self.assertEqual(errors, [])
         self.assertEqual(len(results), 8 * 6)
         for key, (index, output, raw) in sorted(results.items()):
@@ -522,7 +658,7 @@ class SwissStateIsolationTests(unittest.TestCase):
             if ok:
                 engine._SWISS_LOCK.release()
 
-        t = threading.Thread(target=probe)
+        t = threading.Thread(target=probe, daemon=True)
         t.start()
         t.join(5)
         return acquired == [True]
@@ -546,7 +682,8 @@ class SwissStateIsolationTests(unittest.TestCase):
         with mock.patch.object(engine, "_SWISS_LOCK", RecordingLock()), \
                 mock.patch.object(engine, "verify_ephemeris_dir", side_effect=forbidden), \
                 mock.patch.object(swe, "calc_ut", forbidden), mock.patch.object(swe, "houses_ex", forbidden), \
-                mock.patch.object(swe, "set_ephe_path", forbidden), mock.patch.object(swe, "set_sid_mode", forbidden):
+                mock.patch.object(swe, "set_ephe_path", forbidden), mock.patch.object(swe, "set_sid_mode", forbidden), \
+                mock.patch.object(swe, "set_delta_t_userdef", forbidden):
             for latitude in (70.0, -70.0, 66.000001, 89.9):
                 with self.subTest(latitude=latitude):
                     with self.assertRaises(engine.UnsupportedInputError) as ctx:
@@ -604,6 +741,38 @@ class SwissStateIsolationTests(unittest.TestCase):
         self.assertTrue(self._lock_is_free())
         self.assertAllMatchBaseline()
 
+    def test_refused_inputs_never_reach_the_delta_t_reset_or_swiss(self):
+        # P1-P8 refusals happen before the lock: no reset and no Swiss call at all.
+        swe = self.swe
+
+        def forbidden(*args, **kwargs):
+            raise AssertionError("Swiss was reached for a refused input")
+
+        bad = {
+            "LATITUDE_OUTSIDE_SUPPORTED_BAND": {**PRIMARY, "latitude": 70.0},
+            "COORDINATE_INVALID": {**PRIMARY, "longitude": 200.0},
+            "TIME_OFFSET_REQUIRED": {**PRIMARY, "birth_datetime": "2000-01-01T17:30:00"},
+            "TIMEZONE_INVALID": {**PRIMARY, "timezone": "Not/AZone"},
+            "TIME_OFFSET_MISMATCH": {**PRIMARY, "birth_datetime": "2000-01-01T17:30:00+05:00"},
+            "HISTORICAL_CLOCK_UNVERIFIED": {**PRIMARY, "birth_datetime": "1965-01-01T12:00:00+05:30"},
+            "DATE_OUTSIDE_SUPPORTED_RANGE": {**PRIMARY, "birth_datetime": "1850-01-01T12:00:00+05:53"},
+        }
+        names = ("set_ephe_path", "set_sid_mode", "set_delta_t_userdef", "calc_ut", "houses_ex")
+        patches = [mock.patch.object(swe, n, forbidden) for n in names]
+        for p in patches:
+            p.start()
+        try:
+            for code, request in bad.items():
+                with self.subTest(code=code):
+                    with self.assertRaises(ValueError) as ctx:
+                        calculate(request, ephe_path=DATA)
+                    self.assertEqual(ctx.exception.code, code)
+        finally:
+            for p in patches:
+                p.stop()
+        self.assertTrue(self._lock_is_free())
+        self.assertAllMatchBaseline()
+
     def test_invalid_requests_leave_no_state(self):
         bad = [
             {**PRIMARY, "latitude": 95.0},
@@ -621,7 +790,9 @@ class SwissStateIsolationTests(unittest.TestCase):
 
     def _isolation_holds(self, mutant, contamination):
         try:
-            if contamination:
+            if callable(contamination):
+                contamination()
+            elif contamination:
                 _contaminate_sidereal(*contamination)
             with _mutant(mutant):
                 for index in range(len(REQUESTS)):
@@ -633,6 +804,7 @@ class SwissStateIsolationTests(unittest.TestCase):
             # Leave the process clean for later tests.
             self.swe.set_ephe_path(DATA)
             self.swe.set_sid_mode(self.swe.SIDM_LAHIRI, 0, 0)
+            self.swe.set_delta_t_userdef(self.swe.DELTAT_AUTOMATIC)
 
     def test_detects_missing_sidereal_mode_reset(self):
         swe = self.swe
@@ -647,6 +819,12 @@ class SwissStateIsolationTests(unittest.TestCase):
         swe = self.swe
         self.assertFalse(self._isolation_holds(
             "no_set_ephe_path", (swe.SIDM_LAHIRI | swe.SIDBIT_PREC_ORIG, 0, 0)))
+
+    def test_detects_missing_delta_t_reset(self):
+        swe = self.swe
+        self.assertFalse(self._isolation_holds("no_delta_t_reset", lambda: swe.set_delta_t_userdef(0.01)))
+        # The sidereal and path resets alone do not clear it.
+        self.assertTrue(self._isolation_holds("no_delta_t_reset", None))
 
     def test_detects_missing_reset_entirely(self):
         swe = self.swe
@@ -670,7 +848,7 @@ class SwissStateIsolationTests(unittest.TestCase):
         # charts, so only the isolation tests (not ordinary tests) catch them.
         self.swe.set_ephe_path(DATA)
         self.swe.set_sid_mode(self.swe.SIDM_LAHIRI, 0, 0)
-        for mutant in ("no_set_sid_mode", "no_set_ephe_path", "no_reset_at_all", "no_lock"):
+        for mutant in ("no_set_sid_mode", "no_set_ephe_path", "no_delta_t_reset", "no_reset_at_all", "no_lock"):
             with self.subTest(mutant=mutant):
                 self.assertTrue(self._isolation_holds(mutant, None))
 

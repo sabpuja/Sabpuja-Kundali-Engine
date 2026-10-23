@@ -39,11 +39,11 @@ def fake_swisseph(longitudes, lagna):
     bodies = list(longitudes)
     for number, name in enumerate(bodies):
         setattr(swe, {"rahu_mean": "MEAN_NODE"}.get(name, name.upper()), number)
-    swe.FLG_SWIEPH, swe.FLG_SIDEREAL, swe.SIDM_LAHIRI = 2, 64 * 1024, 1
+    swe.FLG_SWIEPH, swe.FLG_SIDEREAL, swe.SIDM_LAHIRI, swe.DELTAT_AUTOMATIC = 2, 64 * 1024, 1, -1e-10
     swe.version = "test-double"
     swe.Error = type("Error", (Exception,), {})
     swe.julday = lambda *args: 2451545.0
-    swe.set_ephe_path = swe.set_sid_mode = lambda *args: None
+    swe.set_ephe_path = swe.set_sid_mode = swe.set_delta_t_userdef = lambda *args: None
     swe.calc_ut = lambda jd, body, flags: ((longitudes[bodies[body]], 0.0, 1.0, 0.0, 0.0, 0.0), flags)
     swe.houses_ex = lambda jd, lat, lon, hsys, flags: ((0.0,) * 12, (lagna,) + (0.0,) * 9)
     return swe
