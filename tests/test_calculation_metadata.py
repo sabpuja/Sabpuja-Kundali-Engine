@@ -261,6 +261,12 @@ class ChartMetadata(unittest.TestCase):
         meta = self.meta("2000-01-01T12:00:00+00:00")["ephemeris_data"]
         manifest = ephemeris.load_manifest()
         self.assertEqual(meta["manifest_sha256"], provenance.canonical_sha256(manifest))
+        # Recomputed here, independently of provenance.py, and pinned for the packaged manifest.
+        packaged = json.loads((SRC / "sabpuja_kundali" / "ephemeris-manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(packaged, manifest)
+        self.assertEqual(meta["manifest_sha256"], hashlib.sha256(
+            json.dumps(packaged, sort_keys=True, separators=(",", ":")).encode()).hexdigest())
+        self.assertEqual(meta["manifest_sha256"], "1aaca24868bb9cde8558f891038ae239d8dce64beb77b90f963bb185e99b2e34")
         self.assertEqual(meta["required_files"], [{"name": e["name"], "size_bytes": e["size_bytes"],
                                                    "sha256": e["sha256"]} for e in manifest["files"] if e["required"]])
         self.assertEqual((meta["source_commit"], meta["coverage_years"]),
