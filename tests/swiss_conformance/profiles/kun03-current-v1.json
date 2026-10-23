@@ -1,0 +1,108 @@
+{
+  "schema": "sabpuja-swiss-conformance-profile/1",
+  "profile_id": "KUN-03-current",
+  "profile_version": 1,
+  "status": "FROZEN for KUN-03 Scientific Conformance Reconciliation (changing any value needs a written reason, QA review and a new profile_version)",
+  "claim_boundary": "Swiss-on-Swiss integration conformance of the KUN-03 engine against the official swetest CLI for these cases, versions and options. NOT independent astronomical validation, NOT mathematical verification of the algorithms, and NOT historical clock verification. The historical-numerics supplement runs with a test-only gate override and is never production acceptance.",
+  "base": {
+    "framework": "PR #18 (KUN-01-SWISS-01) at 66692d7d7d5a0cbef5a6354bb6ecfbd3f2478b38",
+    "spec.json": "642a770d713c11bc42fc92fe441da02e4848522fc4978ae3049dddbea33d12a8",
+    "cases.json": "afd8864cd84c246011d9ed8510b3efa5ed5e6c68daa6381114a77adf0ef399c9"
+  },
+  "house_reference": {
+    "letter": "W",
+    "engine_call": "swe.houses_ex(jd, lat, lon, b\"W\", swe.FLG_SIDEREAL); Lagna is ascmc[0]",
+    "swetest_houses": ["-edir<EPHE>", "-bj<JD>", "-ut", "-sid1", "-i65536", "-p", "-fPl", "-ep", "-g,", "-house<LON>,<LAT>,W"],
+    "archival_letter": "P",
+    "source_milestone": "KUN-03 P3 (PR #25, SCI-01e)",
+    "reason": "The engine's Lagna vehicle is the Swiss whole-sign call. The archival profile used Placidus, whose Ascendant line is identical; the letter is therefore proven separately by the swetest house-system header, the whole-sign cusps and a recorded engine call, never by the Ascendant value."
+  },
+  "counts": {
+    "cases": 24,
+    "chart_cases": 16,
+    "refusal_cases": 8,
+    "checks_per_chart": 49,
+    "comparison_checks": 784,
+    "self_consistency_per_chart": 2,
+    "self_consistency_checks": 32,
+    "house_method_checks_per_chart": 4,
+    "house_method_checks": 64,
+    "refusal_checks_per_case": 2,
+    "refusal_checks": 16,
+    "placidus_reference_observations": 4,
+    "historical_supplement_cases": 2,
+    "historical_supplement_comparison_checks": 98,
+    "historical_supplement_self_consistency_checks": 4,
+    "historical_supplement_house_method_checks": 8,
+    "archival_cases": 24,
+    "archival_chart_cases": 18,
+    "archival_comparison_checks": 882,
+    "archival_self_consistency_checks": 36
+  },
+  "cases": [
+    {"id": "SC-01", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-02", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-03", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-04", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-05", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-06", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-07", "expect": "refuse", "expected_refusal": "TIME_NONEXISTENT_LOCAL", "change": {
+      "archival_expect": "refuse", "archival_expected_refusal": "INPUT_REFUSED",
+      "source_milestone": "KUN-03 P5 (PR #27, P5-D1/D2 typed refusal codes)",
+      "reason": "Same refusal; the generic archival class is now the typed code for a nonexistent local time in a DST gap."}},
+    {"id": "SC-08", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-09", "expect": "refuse", "expected_refusal": "HISTORICAL_CLOCK_UNVERIFIED", "change": {
+      "archival_expect": "chart", "archival_expected_refusal": null,
+      "source_milestone": "KUN-03 P8 (PR #28, SCI-03 RG-HIST Option B; owner record PR #20 comments 6336254894 and 6350086727)",
+      "reason": "Local civil date 1900-01-01 is before 1970-01-01, so the fail-closed historical clock gate refuses it. Its 49 numeric checks still run in the test-only historical-numerics supplement."}},
+    {"id": "SC-10", "expect": "refuse", "expected_refusal": "DATE_OUTSIDE_SUPPORTED_RANGE", "change": {
+      "archival_expect": "refuse", "archival_expected_refusal": "INPUT_REFUSED",
+      "source_milestone": "KUN-03 P4 (PR #26, local civil date window) and P5 (PR #27, typed codes)",
+      "reason": "Same refusal; local date 1899-12-31 is outside the 1900-01-01..2100-12-31 local-date window, now with its typed code."}},
+    {"id": "SC-11", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-12", "expect": "refuse", "expected_refusal": "DATE_OUTSIDE_SUPPORTED_RANGE", "change": {
+      "archival_expect": "refuse", "archival_expected_refusal": "INPUT_REFUSED",
+      "source_milestone": "KUN-03 P4 (PR #26, local civil date window) and P5 (PR #27, typed codes)",
+      "reason": "Same refusal; local date 2101-01-01 is outside the local-date window, now with its typed code."}},
+    {"id": "SC-13", "expect": "refuse", "expected_refusal": "HISTORICAL_CLOCK_UNVERIFIED", "change": {
+      "archival_expect": "refuse", "archival_expected_refusal": "INPUT_REFUSED",
+      "source_milestone": "KUN-03 P4 (PR #26, local-date window replaces the UTC-year check) and P8 (PR #28, historical clock gate)",
+      "reason": "Local date 1900-01-01 passes the local-date window even though UTC is 1899-12-31T23:00Z; the pinned Etc/GMT-3 offset +03:00 matches, so the first refusal in P5 order is the historical clock gate. The archival reason (UTC-year check) no longer applies."}},
+    {"id": "SC-14", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-15", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-16", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-17", "expect": "refuse", "expected_refusal": "LATITUDE_OUTSIDE_SUPPORTED_BAND", "change": {
+      "archival_expect": "refuse", "archival_expected_refusal": "ASCENDANT_UNCOMPUTABLE",
+      "source_milestone": "KUN-03 P2 (PR #24, SCI-01g fixed 66 deg band) and P3 (PR #25, whole-sign Lagna)",
+      "reason": "Latitude +70 is outside the fixed +-66 deg band and is refused before the ephemeris check and before any Swiss call. The archival Placidus failure is kept as a separate reference observation."}},
+    {"id": "SC-18", "expect": "refuse", "expected_refusal": "LATITUDE_OUTSIDE_SUPPORTED_BAND", "change": {
+      "archival_expect": "refuse", "archival_expected_refusal": "ASCENDANT_UNCOMPUTABLE",
+      "source_milestone": "KUN-03 P2 (PR #24, SCI-01g fixed 66 deg band) and P3 (PR #25, whole-sign Lagna)",
+      "reason": "Latitude -75 is outside the fixed +-66 deg band and is refused before the ephemeris check and before any Swiss call. The archival Placidus failure is kept as a separate reference observation."}},
+    {"id": "SC-19", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-20", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-21", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-22", "expect": "chart", "expected_refusal": null, "change": null},
+    {"id": "SC-23", "expect": "refuse", "expected_refusal": "HISTORICAL_CLOCK_UNVERIFIED", "change": {
+      "archival_expect": "chart", "archival_expected_refusal": null,
+      "source_milestone": "KUN-03 P8 (PR #28, SCI-03 RG-HIST Option B; owner record PR #20 comments 6336254894 and 6350086727)",
+      "reason": "Local civil date 1950-06-15 is before 1970-01-01, so the fail-closed historical clock gate refuses it. Its 49 numeric checks still run in the test-only historical-numerics supplement."}},
+    {"id": "SC-24", "expect": "chart", "expected_refusal": null, "change": null}
+  ],
+  "historical_numerics_supplement": {
+    "cases": ["SC-09", "SC-23"],
+    "override": "engine.HISTORICAL_CLOCK_GATE = () inside the runner process only, restored and re-checked afterwards (KUN-03 P8 G1 test-only override)",
+    "label": "TEST-ONLY gate override: Swiss numerics of the archival charts only; NOT production acceptance and NOT historical clock verification"
+  },
+  "placidus_reference_observations": {
+    "cases": ["SC-17", "SC-18"],
+    "observations": ["swetest -house<LON>,<LAT>,P reports 'House method Placidus failed' and binding houses_ex(b\"P\") raises", "swetest -house<LON>,<LAT>,W computes an Ascendant equal to the binding's whole-sign Ascendant"],
+    "reason": "Archival PR #18 evidence, reproduced as reference only; the current refusal is the latitude policy, not a Swiss failure."
+  },
+  "archival_run_expected_divergence": {
+    "SC-09": "engine refused (INPUT_REFUSED) a case expected to chart",
+    "SC-17": "expected refusal ASCENDANT_UNCOMPUTABLE, engine gave INPUT_REFUSED",
+    "SC-18": "expected refusal ASCENDANT_UNCOMPUTABLE, engine gave INPUT_REFUSED",
+    "SC-23": "engine refused (INPUT_REFUSED) a case expected to chart"
+  }
+}
