@@ -56,8 +56,17 @@ class Overlay(unittest.TestCase):
         self.assertEqual(profile.CHANGED_CASES, ("SC-07", "SC-09", "SC-10", "SC-12", "SC-13", "SC-17", "SC-18", "SC-23"))
 
     def test_frozen_inputs_untouched(self):
-        for name in ("spec.json", "cases.json"):
-            self.assertEqual(inputs.sha256_bytes((c.HERE / name).read_bytes()), inputs.INPUT_SHA256[name])
+        # Literal pins, independent of inputs.py: re-pinning the code alone cannot hide a fixture or tolerance change.
+        frozen = {"spec.json": "642a770d713c11bc42fc92fe441da02e4848522fc4978ae3049dddbea33d12a8",
+                  "cases.json": "afd8864cd84c246011d9ed8510b3efa5ed5e6c68daa6381114a77adf0ef399c9"}
+        for name, digest in frozen.items():
+            self.assertEqual(inputs.sha256_bytes((c.HERE / name).read_bytes()), digest)
+            self.assertEqual(inputs.INPUT_SHA256[name], digest)
+        self.assertEqual(inputs.TOLERANCES, {"binding_vs_swetest": 1e-09, "engine_vs_swetest": 1e-08,
+                                             "swetest_ut_jd_day": 1e-09, "independent_jd_day": 1e-09,
+                                             "ketu_identity_deg": 1e-08})
+        self.assertEqual({k: v["value"] for k, v in SPEC["tolerances_deg"].items()}, inputs.TOLERANCES)
+        self.assertEqual(inputs.CHECKS_PER_CHART, 49)
 
     def edited(self, edit):
         doc = json.loads(PROFILE_TEXT)
