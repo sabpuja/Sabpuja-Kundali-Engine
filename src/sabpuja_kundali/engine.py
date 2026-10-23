@@ -227,6 +227,10 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
     with _SWISS_LOCK:
         swe.set_ephe_path(str(folder))
         swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+        # A caller's swe.set_delta_t_userdef survives set_ephe_path and swe.close
+        # (P9 finding), so return to Swiss's own automatic Delta T on every request.
+        # Only the override is cleared; the automatic model is unchanged.
+        swe.set_delta_t_userdef(swe.DELTAT_AUTOMATIC)
         requested_flags = swe.FLG_SWIEPH | swe.FLG_SIDEREAL
         # Categories (Rashi, D9, house, Nakshatra) are always derived from these
         # unrounded Swiss values; the 8-decimal output is display only.
