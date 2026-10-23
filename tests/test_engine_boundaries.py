@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from sabpuja_kundali import engine
+from sabpuja_kundali import engine, provenance
 
 SYNTHETIC = {
     "birth_datetime": "2000-01-01T17:30:00+05:30",
@@ -98,8 +98,10 @@ class EngineBoundaryTests(unittest.TestCase):
         self.assertEqual(self.out["lagna"], {"longitude_deg": 330.0, "rashi": "Kumbha", "navamsa_rashi": "Mithuna"})
 
     def test_schema_keys_unchanged(self):
-        self.assertEqual(list(self.out), ["schema_version", "validation_status", "method", "birth",
-                                          "lagna", "moon_nakshatra", "planets"])
+        # P7 appends one metadata block; the 0.1.0 legacy projection keeps the original keys and order.
+        legacy = ["schema_version", "validation_status", "method", "birth", "lagna", "moon_nakshatra", "planets"]
+        self.assertEqual(list(self.out), legacy + ["calculation_metadata"])
+        self.assertEqual(list(provenance.legacy_projection(self.out)), legacy)
         self.assertEqual(list(self.planets), list(FIXTURE) + ["ketu_mean"])
         for value in self.planets.values():
             self.assertEqual(list(value), ["longitude_deg", "rashi", "navamsa_rashi", "whole_sign_house"])

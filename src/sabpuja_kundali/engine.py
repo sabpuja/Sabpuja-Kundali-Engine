@@ -12,9 +12,10 @@ import math
 import os
 import re
 
-from .ephemeris import verify_ephemeris_dir
+from . import provenance
+from .ephemeris import load_manifest as load_ephemeris_manifest, verify_ephemeris_dir
 from .rules import nakshatra, normalize, sign, navamsa_sign, whole_sign_house
-from .timezones import get_zone
+from .timezones import default_loader, get_zone
 
 _SWISS_LOCK = RLock()
 
@@ -131,6 +132,25 @@ def _historical_clock_unverified(civil: date, tz_name: str) -> bool:
     return covers(HISTORICAL_CLOCK_GATE, True) and not covers(HISTORICAL_CLOCK_EXCEPTIONS, False)
 
 
+def _input_policy() -> dict[str, object]:
+    """P7: the acceptance policies a successful chart passed, read from the constants above."""
+    rows = lambda table: [{"zone": zone, "first_local_date": provenance.date_text(first),
+                           "last_local_date": provenance.date_text(last)} for zone, first, last in table]
+    return {
+        "local_date_window": {"first": SUPPORTED_LOCAL_DATES[0].isoformat(),
+                              "last": SUPPORTED_LOCAL_DATES[1].isoformat(),
+                              "basis": "local civil date as written, before conversion"},
+        "historical_clock": {"policy": HISTORICAL_CLOCK_POLICY, "mode": "fail_closed",
+                             "refused_local_dates": rows(HISTORICAL_CLOCK_GATE),
+                             "exceptions": rows(HISTORICAL_CLOCK_EXCEPTIONS)},
+        "latitude_band_deg": {"min": -SUPPORTED_LATITUDE_DEG, "max": SUPPORTED_LATITUDE_DEG, "inclusive": True},
+        "time_offset": "explicit UTC offset required and must be an offset the pinned IANA zone gives for "
+                       "that wall time; nonexistent local times are refused; a repeated hour is resolved "
+                       "by the offset",
+        "refusal_order": "fixed P5 order (docs/api-contract.md)",
+    }
+
+
 def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
     """Validate the birth time in the fixed P5 order and return it in UTC.
 
@@ -209,8 +229,10 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
     _finite_number(request["latitude"], "latitude")
     lon = _coordinate(request["longitude"], "longitude", 180.0, inclusive=True)
     lat = _latitude(request["latitude"])
-    # Every required manifest file must match its pinned SHA-256 before Swiss runs.
-    folder = verify_ephemeris_dir(ephe_path or os.environ.get("SABPUJA_EPHE_PATH", ""))
+    # Every required manifest file must match its pinned SHA-256 before Swiss runs. The
+    # manifest is read once, so P7 metadata describes exactly the one that was verified.
+    ephemeris_manifest = load_ephemeris_manifest()
+    folder = verify_ephemeris_dir(ephe_path or os.environ.get("SABPUJA_EPHE_PATH", ""), ephemeris_manifest)
     try:
         import swisseph as swe
     except ImportError as exc:
@@ -289,8 +311,8 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
         for name, val in planets.items():
             val["whole_sign_house"] = whole_sign_house(sources[name], lagna)
         moon_nakshatra = nakshatra(raw["moon"])
-        return {
-            "schema_version": "0.1.0",
+        chart = {
+            "schema_version": provenance.SCHEMA_VERSION,
             "validation_status": "UNVERIFIED_GOLDEN_CHARTS",
             "method": {
                 "ayanamsa": "Lahiri", "nodes": "mean", "houses": "whole_sign",
@@ -305,3 +327,9 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
             "moon_nakshatra": moon_nakshatra,
             "planets": planets,
         }
+    # P7 (additive, schema 0.2.0): built outside the lock from constants and verified manifests only.
+    chart[provenance.METADATA_KEY] = provenance.calculation_metadata(
+        utc=utc, latitude=lat, swe=swe, ephemeris_manifest=ephemeris_manifest,
+        timezone_provenance=default_loader().provenance(), input_policy=_input_policy(),
+        validation_status=chart["validation_status"])
+    return chart
