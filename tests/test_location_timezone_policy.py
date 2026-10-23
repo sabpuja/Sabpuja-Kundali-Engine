@@ -147,6 +147,15 @@ class Classification(unittest.TestCase):
         self.assertEqual(engine_source.count("zone_policy.is_location_based("), 1)
         self.assertNotIn("argv", cli_source)
         self.assertNotIn("environ", cli_source)
+        # The only environment values the package reads are the two ephemeris paths.
+        import re
+        names, other = set(), []
+        for path in sorted((SRC / "sabpuja_kundali").glob("*.py")):
+            text = path.read_text(encoding="utf-8")
+            names |= set(re.findall(r"""environ\.get\(\s*["']([^"']+)["']""", text))
+            other += [path.name for word in ("getenv", "environ[", "sys.argv", "argparse") if word in text]
+        self.assertEqual(names, {"SABPUJA_EPHE_PATH", "SE_EPHE_PATH"})
+        self.assertEqual(other, [])
         # Environment variables that might look like switches change nothing.
         env = {"SABPUJA_D3": "0", "SABPUJA_ALLOW_UTC": "1", "SABPUJA_TIMEZONE_POLICY": "off", "TZ": "UTC"}
         proc = run_cli(json.dumps(BASE), env=env)
