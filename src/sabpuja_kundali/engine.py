@@ -8,13 +8,13 @@ from __future__ import annotations
 from datetime import date, datetime, timedelta, timezone
 from fractions import Fraction
 from threading import RLock
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import math
 import os
 import re
 
 from .ephemeris import verify_ephemeris_dir
 from .rules import nakshatra, normalize, sign, navamsa_sign, whole_sign_house
+from .timezones import get_zone
 
 _SWISS_LOCK = RLock()
 
@@ -161,8 +161,9 @@ def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
         offset = timedelta(hours=int(off_h), minutes=int(off_m), seconds=int(off_s or 0))
         offset = -offset if sign == "-" else offset
     try:
-        zone = ZoneInfo(tz_name)
-    except (ZoneInfoNotFoundError, TypeError, ValueError):
+        # Pinned tzdata only (P1); its ValueError is an unknown key, TZDATA_* errors pass through.
+        zone = get_zone(tz_name)
+    except ValueError:
         raise InputRefusalError("TIMEZONE_INVALID", "timezone must be a valid IANA timezone identifier") from None
     # SCI-03: the window applies to the local civil date as written, before
     # conversion, so it never depends on the offset (UTC may be 1899 or 2101).
