@@ -190,8 +190,9 @@ class SwissIntegrationTests(unittest.TestCase):
             SYNTHETIC,
             {"birth_datetime": "1985-07-14T04:12:00+05:30", "timezone": "Asia/Kolkata",
              "latitude": 19.076, "longitude": 72.8777},
-            {"birth_datetime": "2024-03-10T12:00:00+00:00", "timezone": "UTC", "latitude": 0, "longitude": 0},
-            {"birth_datetime": "1950-12-31T23:59:59+00:00", "timezone": "UTC", "latitude": 51, "longitude": -0.1},
+            # D3: geographic +00:00 zones at the instants the UTC key gave before.
+            {"birth_datetime": "2024-03-10T12:00:00+00:00", "timezone": "Africa/Abidjan", "latitude": 0, "longitude": 0},
+            {"birth_datetime": "1950-12-31T23:59:59+00:00", "timezone": "Europe/London", "latitude": 51, "longitude": -0.1},
             {"birth_datetime": "2099-12-31T00:00:00-05:00", "timezone": "America/New_York",
              "latitude": 40.7128, "longitude": -74.006},
         ]

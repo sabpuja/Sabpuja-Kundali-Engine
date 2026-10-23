@@ -18,7 +18,7 @@ import json
 
 SCHEMA_VERSION = "0.2.0"
 LEGACY_SCHEMA_VERSION = "0.1.0"
-METADATA_SCHEMA = "sabpuja-calculation-metadata/1"
+METADATA_SCHEMA = "sabpuja-calculation-metadata/2"
 METADATA_KEY = "calculation_metadata"
 
 # The engine's Swiss calls, by name. Tests check the recorded calls against these.

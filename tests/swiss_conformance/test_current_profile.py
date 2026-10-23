@@ -1,5 +1,10 @@
 """KUN-03 current profile: fail-closed overlay, refusal codes and precedence, whole-sign reference.
 
+KUN-03 D3: profile v1 describes the PR #33 timezone policy. Tests that run the
+engine against v1 expectations reproduce that policy with the D3 check bypassed
+(d3.d3_override, test-only, restoration verified); test_d3_profile pins how the
+unchanged v1 runner diverges from the D3 engine without any bypass.
+
 The overlay and engine-refusal tests need no Swiss data or swetest. Tests that
 compute charts need SABPUJA_TEST_EPHE_PATH (unset skips); the swetest class is
 skipped only when SABPUJA_TEST_SWETEST is unset and errors if it is set but the
@@ -16,7 +21,7 @@ from sabpuja_kundali import engine
 
 from . import conformance as c
 from . import current as cur
-from . import inputs, profile
+from . import d3, inputs, profile
 from .test_parser_and_gates import env_ok
 
 SWETEST = os.environ.get("SABPUJA_TEST_SWETEST")
@@ -160,7 +165,14 @@ class Overlay(unittest.TestCase):
         self.assertEqual(report["verdicts"]["current"], "SWISS-CONFORMANCE BLOCKED")
 
 
-class EngineRefusals(unittest.TestCase):
+class PR33Policy(unittest.TestCase):
+    """PR #33 policy reproduction: the D3 check is bypassed for each test and restored after it."""
+
+    def setUp(self):
+        self.enterContext(d3.d3_override())
+
+
+class EngineRefusals(PR33Policy):
     """Refusal codes, P5 precedence and pre-ephemeris refusal; no Swiss data needed."""
 
     def test_every_refusal_case_has_its_code_before_ephemeris(self):
@@ -328,7 +340,7 @@ class MissingReferences(unittest.TestCase):
 
 
 @unittest.skipIf(not EPHE, "SABPUJA_TEST_EPHE_PATH unset: chart-computing method tests skipped")
-class EngineWholeSignCall(unittest.TestCase):
+class EngineWholeSignCall(PR33Policy):
     def test_engine_calls_whole_sign_with_sidereal_flag_only(self):
         import swisseph as swe
         for cid in [k for k, v in profile.CURRENT_CASES.items() if v == "chart"]:
@@ -349,7 +361,7 @@ class EngineWholeSignCall(unittest.TestCase):
 
 
 @unittest.skipIf(SWETEST is None, "SABPUJA_TEST_SWETEST unset: swetest conformance not requested")
-class CurrentProfileWithSwetest(unittest.TestCase):
+class CurrentProfileWithSwetest(PR33Policy):
     @classmethod
     def setUpClass(cls):
         if not EPHE:

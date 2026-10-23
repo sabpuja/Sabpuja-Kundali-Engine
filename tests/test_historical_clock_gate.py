@@ -16,7 +16,7 @@ from datetime import date, datetime
 from pathlib import Path
 from unittest import mock
 
-from sabpuja_kundali import engine
+from sabpuja_kundali import engine, zone_policy
 from sabpuja_kundali.engine import InputRefusalError, UnsupportedInputError, calculate
 from sabpuja_kundali.ephemeris import EphemerisDataError
 
@@ -24,6 +24,7 @@ SRC = Path(__file__).resolve().parents[1] / "src"
 MISSING = "/nonexistent/sabpuja-ephemeris"
 CODE = "HISTORICAL_CLOCK_UNVERIFIED"
 DETAIL = "birth dates before 1970-01-01 need a verified historical clock record"
+D3 = "TIMEZONE_NOT_LOCATION_BASED"
 # The engine's own zone loader (stdlib zoneinfo here; the pinned get_zone once P1 is merged).
 _load = getattr(engine, "get_zone", None) or zoneinfo.ZoneInfo
 BASE = {"birth_datetime": "2000-01-01T17:30:00+05:30", "timezone": "Asia/Kolkata",
@@ -70,10 +71,16 @@ class GateEdgeTests(unittest.TestCase):
         cases = (
             ("1969-12-31T23:59:59.999999+05:30", "Asia/Kolkata", CODE),
             ("1970-01-01T00:00:00+05:30", "Asia/Kolkata", "ACCEPT"),
-            ("1969-12-31T23:59:59+00:00", "UTC", CODE),
-            ("1970-01-01T00:00:00Z", "UTC", "ACCEPT"),
-            ("1969-12-31T23:59:59-12:00", "Etc/GMT+12", CODE),       # UTC 1970-01-01T11:59:59
-            ("1970-01-01T00:00:00+14:00", "Etc/GMT-14", "ACCEPT"),     # UTC 1969-12-31T10:00
+            ("1969-12-31T23:59:59+00:00", "Africa/Abidjan", CODE),
+            ("1970-01-01T00:00:00Z", "Africa/Abidjan", "ACCEPT"),
+            ("1969-12-31T23:59:59-11:00", "Pacific/Pago_Pago", CODE),   # UTC 1970-01-01T10:59:59
+            ("1970-01-01T00:00:00+12:00", "Pacific/Auckland", "ACCEPT"),  # UTC 1969-12-31T12:00
+            # Before D3 these four rows used UTC, Etc/GMT+12 and Etc/GMT-14 (gate code, accept,
+            # gate code, accept). Those keys are now refused earlier, whatever the date.
+            ("1969-12-31T23:59:59+00:00", "UTC", D3),
+            ("1970-01-01T00:00:00Z", "UTC", D3),
+            ("1969-12-31T23:59:59-12:00", "Etc/GMT+12", D3),
+            ("1970-01-01T00:00:00+14:00", "Etc/GMT-14", D3),
             ("1969-12-31T23:59:59-05:00", "America/New_York", CODE),
             ("1970-01-01T00:00:00-05:00", "America/New_York", "ACCEPT"),
             ("1969-12-31T23:59:59+10:00", "Australia/Sydney", CODE),
@@ -95,18 +102,23 @@ class GateEdgeTests(unittest.TestCase):
                 self.assertEqual(_code(birth_datetime=_birth(f"{year}-06-15T12:00:00", "Asia/Kolkata")), "ACCEPT")
 
     def test_every_recognised_zone_on_both_sides_of_1970(self):
-        # G2: every key the engine's loader recognises, including UTC, GMT, Etc/* and old link names.
-        checked = 0
+        # G2: every key the engine's loader recognises, including old link names. Since D3 the
+        # keys that name no place (UTC, GMT, Etc/*, their aliases, Factory) are refused before
+        # the gate on both sides of 1970; every other key is gated exactly as before.
+        checked = not_location = 0
         for key in sorted(zoneinfo.available_timezones()):
             try:
                 _load(key)
             except ValueError:
                 continue  # not a key the engine accepts (e.g. "localtime" under the pinned loader)
             with self.subTest(timezone=key):
+                located = zone_policy.is_location_based(key)
                 for wall, code in (("1969-12-31T12:00:00", CODE), ("1970-01-02T12:00:00", "ACCEPT")):
-                    self.assertEqual(_code(birth_datetime=_birth(wall, key), timezone=key), code)
+                    self.assertEqual(_code(birth_datetime=_birth(wall, key), timezone=key), code if located else D3)
                 checked += 1
-        self.assertGreater(checked, 300)
+                not_location += not located
+        self.assertGreater(checked - not_location, 300)
+        self.assertEqual(not_location, 45)
 
 
 class OrderTests(unittest.TestCase):

@@ -16,12 +16,13 @@ from pathlib import Path
 
 import swisseph
 
-from sabpuja_kundali import engine
+from sabpuja_kundali import engine, zone_policy
 from sabpuja_kundali.engine import UnsupportedInputError, calculate
 from sabpuja_kundali.ephemeris import EphemerisDataError
 
 SRC = Path(__file__).resolve().parent.parent / "src"
 CODE = "DATE_OUTSIDE_SUPPORTED_RANGE"
+D3 = "TIMEZONE_NOT_LOCATION_BASED"
 MISSING = "/does-not-exist/sabpuja"
 
 
@@ -75,6 +76,37 @@ EDGE_REFUSED = [
     ("0001-01-01T00:00:00+14:00", "Pacific/Kiritimati"),  # used to raise OverflowError
     ("9999-12-31T23:59:59-12:00", "Etc/GMT+12"),          # used to raise OverflowError
 ]
+# KUN-03 D3: the Etc/* and UTC rows above are kept as the P4 evidence and are now
+# refused with TIMEZONE_NOT_LOCATION_BASED, which precedes the window check. The
+# window is exercised on geographic zones below. No geographic zone reaches UTC+14
+# in 1900 or UTC-12 in 2100, so the reachable extremes are now UTC+12:19:12
+# (Pacific/Tongatapu local mean time, 1900) and UTC-11:00 (Pacific/Pago_Pago, 2100).
+GEO_EDGE_ACCEPTED = [
+    ("1900-01-01T00:00:00+12:19:12", "Pacific/Tongatapu"),  # UTC 1899-12-31T11:40:48
+    ("2100-12-31T23:59:59-11:00", "Pacific/Pago_Pago"),     # UTC 2101-01-01T10:59:59
+    ("1900-01-01T00:00:00+11:55:44", "Pacific/Fiji"),       # UTC 1899-12-31T12:04:16
+    ("1900-01-01T00:00:00-11:46:38", "America/Adak"),
+    ("2100-12-31T23:59:59+14:00", "Pacific/Kiritimati"),
+    ("1900-01-01T00:00:00+00:00", "Europe/London"),
+    ("2100-12-31T23:59:59+00:00", "Africa/Abidjan"),
+    ("2100-12-31T23:59:59+05:30", "Asia/Kolkata"),
+    ("2100-12-31T23:59:59-08:00", "America/Los_Angeles"),
+    ("2100-12-31T23:59:59.999999+00:00", "Africa/Abidjan"),
+]
+GEO_EDGE_REFUSED = [
+    ("1899-12-31T23:59:59-11:46:38", "America/Adak"),       # UTC 1900-01-01T11:46:37
+    ("2101-01-01T00:00:00+14:00", "Pacific/Kiritimati"),    # UTC 2100-12-31T10:00
+    ("2101-01-01T00:00:00+05:30", "Asia/Kolkata"),          # UTC 2100-12-31T18:30
+    ("1899-12-31T23:59:59+12:19:12", "Pacific/Tongatapu"),
+    ("2101-01-01T00:00:00-11:00", "Pacific/Pago_Pago"),
+    ("1899-12-31T23:59:59+00:00", "Europe/London"),
+    ("2101-01-01T00:00:00+00:00", "Africa/Abidjan"),
+    ("1899-12-31T23:59:59.999999+00:00", "Europe/London"),
+    ("1800-06-15T12:00:00+00:00", "Europe/London"),
+    ("2400-01-01T00:00:00+00:00", "Africa/Abidjan"),
+    ("0001-01-01T00:00:00+14:00", "Pacific/Kiritimati"),
+    ("9999-12-31T23:59:59-11:00", "Pacific/Pago_Pago"),
+]
 
 
 def _request(birth, tz, lat=28.6139, lon=77.2090):
@@ -102,46 +134,74 @@ class LocalDateWindowTests(unittest.TestCase):
             calculate(_request(birth, tz), ephe_path=MISSING)
         self.assertEqual(ctx.exception.code, "HISTORICAL_CLOCK_UNVERIFIED")
 
+    def assert_not_location(self, birth, tz):
+        # KUN-03 D3: refused before the window, whatever the date.
+        with self.assertRaises(ValueError) as ctx:
+            calculate(_request(birth, tz), ephe_path=MISSING)
+        self.assertNotIsInstance(ctx.exception, UnsupportedInputError)
+        self.assertEqual(ctx.exception.code, D3)
+
     def assert_inside_window(self, birth, tz):
+        if not zone_policy.is_location_based(tz):
+            return self.assert_not_location(birth, tz)
         (self.assert_gated if birth < "1970" else self.assert_accepted)(birth, tz)
 
     def test_window_edges_accepted_by_local_date(self):
         # P8 (G3, versioned): the local 1900-01-01 edges were accepted before P8;
         # they still pass the window and now reach HISTORICAL_CLOCK_UNVERIFIED.
-        for birth, tz in EDGE_ACCEPTED:
+        for birth, tz in EDGE_ACCEPTED + GEO_EDGE_ACCEPTED:
             with self.subTest(birth=birth, timezone=tz):
                 self.assert_inside_window(birth, tz)
 
     def test_outside_window_refused_by_local_date(self):
-        for birth, tz in EDGE_REFUSED:
+        for birth, tz in EDGE_REFUSED + GEO_EDGE_REFUSED:
             with self.subTest(birth=birth, timezone=tz):
-                self.assert_refused(birth, tz)
+                if zone_policy.is_location_based(tz):
+                    self.assert_refused(birth, tz)
+                else:
+                    self.assert_not_location(birth, tz)
+        self.assertEqual(sum(not zone_policy.is_location_based(tz) for _, tz in EDGE_ACCEPTED + EDGE_REFUSED), 16)
 
     def test_local_and_utc_years_differ(self):
         # The cases that flip relative to the old UTC-year rule.
-        for birth, tz in EDGE_ACCEPTED[:3]:
+        for birth, tz in GEO_EDGE_ACCEPTED[:3]:
             with self.subTest(birth=birth):
                 self.assert_inside_window(birth, tz)
                 # P8 (G1): the conversion itself, with the gate table empty in this block only.
                 with mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ()):
                     self.assertIn(engine._parse_birth(birth, tz).year, (1899, 2101))
-        for birth, tz in EDGE_REFUSED[:3]:
+        for birth, tz in GEO_EDGE_REFUSED[:3]:
             with self.subTest(birth=birth):
-                self.assertIn(datetime.fromisoformat(birth).astimezone(_zone("UTC")).year, (1900, 2100))
+                self.assertIn(datetime.fromisoformat(birth).astimezone(_zone("Africa/Abidjan")).year, (1900, 2100))
                 self.assert_refused(birth, tz)
 
     def test_exact_utc_extremes(self):
         # Documented in docs/api-contract.md: the earliest and latest accepted instants.
         # P8 (G1/G3): the lower extreme now reaches the historical-clock gate; its
         # instant is still checked with the gate table empty in this block only.
-        self.assert_gated("1900-01-01T00:00:00+14:00", "Etc/GMT-14")
+        # KUN-03 D3: the extremes are on geographic zones (see GEO_EDGE_ACCEPTED).
+        self.assert_gated("1900-01-01T00:00:00+12:19:12", "Pacific/Tongatapu")
         with mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ()):
+            self.assertEqual(engine._parse_birth("1900-01-01T00:00:00+12:19:12", "Pacific/Tongatapu").isoformat(),
+                             "1899-12-31T11:40:48+00:00")
+        self.assertEqual(engine._parse_birth("2100-12-31T23:59:59.999999-11:00", "Pacific/Pago_Pago").isoformat(),
+                         "2101-01-01T10:59:59.999999+00:00")
+        self.assert_refused("2101-01-01T00:00:00.000000-11:00", "Pacific/Pago_Pago")
+        self.assert_refused("1899-12-31T23:59:59.999999+12:19:12", "Pacific/Tongatapu")
+        # The earliest instant charted with the gate in place: local 1970-01-01 at UTC+13.
+        self.assertEqual(engine._parse_birth("1970-01-01T00:00:00+13:00", "Pacific/Tongatapu").isoformat(),
+                         "1969-12-31T11:00:00+00:00")
+        # The P4 extremes on Etc/GMT-14 and Etc/GMT+12 are now refused by D3; the parser
+        # still converts them identically with the D3 check bypassed inside this block only.
+        self.assert_not_location("1900-01-01T00:00:00+14:00", "Etc/GMT-14")
+        self.assert_not_location("2100-12-31T23:59:59.999999-12:00", "Etc/GMT+12")
+        with mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ()), \
+                mock.patch.object(zone_policy, "is_location_based", lambda name: True):
             self.assertEqual(engine._parse_birth("1900-01-01T00:00:00+14:00", "Etc/GMT-14").isoformat(),
                              "1899-12-31T10:00:00+00:00")
-        self.assertEqual(engine._parse_birth("2100-12-31T23:59:59.999999-12:00", "Etc/GMT+12").isoformat(),
-                         "2101-01-01T11:59:59.999999+00:00")
-        self.assert_refused("2101-01-01T00:00:00.000000-12:00", "Etc/GMT+12")
-        self.assert_refused("1899-12-31T23:59:59.999999+14:00", "Etc/GMT-14")
+            self.assertEqual(engine._parse_birth("2100-12-31T23:59:59.999999-12:00", "Etc/GMT+12").isoformat(),
+                             "2101-01-01T11:59:59.999999+00:00")
+        self.assertFalse(zone_policy.is_location_based("Etc/GMT+12"))  # bypass restored
 
     def test_historical_zone_edges_use_the_zone_offset(self):
         # Local mean / historical offsets at the start of the window, taken from the engine's zone data.
@@ -158,15 +218,19 @@ class LocalDateWindowTests(unittest.TestCase):
             with self.subTest(birth=birth):
                 self.assert_accepted(birth, "Asia/Kolkata")
         # 1900 and 2100 are not leap years: an invalid date is a format error, not a range refusal.
+        # Both the UTC key (whose D3 check comes after DATE_INVALID) and a geographic zone.
         for birth in ("1900-02-29T12:00:00+00:00", "2100-02-29T12:00:00+00:00"):
-            with self.subTest(birth=birth), self.assertRaises(ValueError) as ctx:
-                calculate(_request(birth, "UTC"), ephe_path=MISSING)
-            self.assertNotIsInstance(ctx.exception, UnsupportedInputError)
+            for tz in ("UTC", "Africa/Abidjan"):
+                with self.subTest(birth=birth, timezone=tz), self.assertRaises(ValueError) as ctx:
+                    calculate(_request(birth, tz), ephe_path=MISSING)
+                self.assertNotIsInstance(ctx.exception, UnsupportedInputError)
+                self.assertEqual(ctx.exception.code, "DATE_INVALID")
 
     def test_check_order_around_the_window(self):
         # Missing offset and invalid timezone are reported before the window.
         for birth, tz, message in (("1800-01-01T00:00:00", "UTC", "explicit UTC offset"),
-                                   ("1800-01-01T00:00:00+00:00", "Not/AZone", "valid IANA timezone")):
+                                   ("1800-01-01T00:00:00+00:00", "Not/AZone", "valid IANA timezone"),
+                                   ("1800-01-01T00:00:00+00:00", "UTC", "geographic IANA timezone")):
             with self.subTest(birth=birth, timezone=tz):
                 with self.assertRaises(ValueError) as ctx:
                     calculate(_request(birth, tz), ephe_path=MISSING)
@@ -217,9 +281,10 @@ DATA = os.environ.get("SABPUJA_TEST_EPHE_PATH")
 @mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ())  # P8 (G1): calculation check only; restored after each test
 class RealDataWindowTests(unittest.TestCase):
     def test_charts_at_the_utc_extremes_of_the_window(self):
-        # The earliest and latest accepted instants (UTC 1899-12-31T10:00 and 2101-01-01T11:59:59)
-        # are inside the pinned ephemeris data and equal direct Swiss values.
-        for birth, tz in EDGE_ACCEPTED[:2]:
+        # The earliest and latest accepted instants (UTC 1899-12-31T11:40:48 and 2101-01-01T10:59:59
+        # since KUN-03 D3) are inside the pinned ephemeris data and equal direct Swiss values.
+        # P4's Etc/GMT-14 and Etc/GMT+12 extremes are refused by D3 (see test_exact_utc_extremes).
+        for birth, tz in GEO_EDGE_ACCEPTED[:2]:
             with self.subTest(birth=birth):
                 result = calculate(_request(birth, tz, lat=0.0, lon=0.0), ephe_path=DATA)
                 utc = engine._parse_birth(birth, tz)

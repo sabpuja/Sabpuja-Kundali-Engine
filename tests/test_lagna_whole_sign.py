@@ -21,6 +21,13 @@ EDGES = (66.0, -66.0, math.nextafter(66.0, 0.0), math.nextafter(-66.0, 0.0), 65.
 # Every 3 deg across the band, plus the edges and Indian birthplaces.
 LATITUDES = tuple(float(x) for x in range(-63, 64, 3)) + EDGES + (8.5241, 19.076, 22.5726, 28.6139, 34.0837)
 LONGITUDES = (-180.0, 0.0, 77.209, 151.2093)
+# KUN-03 D3 refuses UTC as a birthplace zone: these +00:00 wall times use a geographic
+# zone whose IANA offset is +00:00 on that local date (London before 1912, when Abidjan
+# still kept LMT; Abidjan from 1912), so every UTC instant is unchanged.
+def zero_offset_zone(birth):
+    return "Europe/London" if int(birth[:4]) < 1912 else "Africa/Abidjan"
+
+
 BIRTHS = ("1900-01-01T00:00:00+00:00", "1900-06-21T12:00:00+00:00", "1947-08-15T00:00:00+00:00",
           "1975-03-20T06:00:00+00:00", "2000-01-01T12:00:00+00:00", "2026-09-23T18:30:00+00:00",
           "2049-12-31T23:59:59+00:00", "2050-01-01T00:00:00+00:00", "2075-12-21T03:15:00+00:00",
@@ -90,7 +97,7 @@ class RealDataLagnaTests(unittest.TestCase):
         for birth in BIRTHS:
             for lat in LATITUDES:
                 for lon in LONGITUDES:
-                    request = {"birth_datetime": birth, "timezone": "UTC", "latitude": lat, "longitude": lon}
+                    request = {"birth_datetime": birth, "timezone": zero_offset_zone(birth), "latitude": lat, "longitude": lon}
                     with self.subTest(request=request):
                         whole_sign = calculate(request, ephe_path=DATA)
                         with mock.patch.object(swisseph, "houses_ex", _force_vehicle(b"P")):
@@ -103,7 +110,7 @@ class RealDataLagnaTests(unittest.TestCase):
     def test_raw_ascendant_bit_identical_at_band_edges(self):
         swe = swisseph
         for birth in BIRTHS:
-            utc = engine._parse_birth(birth, "UTC")
+            utc = engine._parse_birth(birth, zero_offset_zone(birth))
             jd = swe.julday(utc.year, utc.month, utc.day, utc.hour + utc.minute / 60 + utc.second / 3600)
             for lat in EDGES:
                 with self.subTest(birth=birth, latitude=lat), engine._SWISS_LOCK:
@@ -125,7 +132,7 @@ class RealDataLagnaTests(unittest.TestCase):
         for lat in (math.nextafter(66.0, math.inf), 66.55, 70.0, -75.0, 89.0):
             with self.subTest(latitude=lat), mock.patch.object(swisseph, "houses_ex") as houses:
                 with self.assertRaises(UnsupportedInputError) as ctx:
-                    calculate({"birth_datetime": "2026-06-21T12:00:00+00:00", "timezone": "UTC",
+                    calculate({"birth_datetime": "2026-06-21T12:00:00+00:00", "timezone": "Africa/Abidjan",
                                "latitude": lat, "longitude": 25.0}, ephe_path=DATA)
                 self.assertEqual(ctx.exception.code, "LATITUDE_OUTSIDE_SUPPORTED_BAND")
                 houses.assert_not_called()

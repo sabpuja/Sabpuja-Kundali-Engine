@@ -12,7 +12,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from sabpuja_kundali import engine, timezones
+from sabpuja_kundali import engine, timezones, zone_policy
 from sabpuja_kundali.engine import InputRefusalError, calculate
 from sabpuja_kundali.ephemeris import EphemerisDataError
 from sabpuja_kundali.timezones import TimezoneDataError
@@ -71,13 +71,19 @@ class LoaderJoinTests(unittest.TestCase):
         self.assertEqual(_outcome(birth_datetime="1905-06-15T12:00:00+05:30"), "TIME_OFFSET_MISMATCH")
         self.assertEqual(_outcome(birth_datetime="1905-06-15T12:00:00+05:21:10"), "HISTORICAL_CLOCK_UNVERIFIED")
         self.assertEqual(_outcome(birth_datetime="1899-12-31T23:59:59+05:21:10"), "DATE_OUTSIDE_SUPPORTED_RANGE")
-        for key, offset in (("Asia/Kolkata", "+05:30"), ("Etc/GMT-14", "+14:00"), ("Etc/GMT+12", "-12:00"),
-                            ("UTC", "Z"), ("Africa/Monrovia", "-00:44:30")):
+        # Geographic keys at the extremes of 1970 offsets (D3 refuses UTC and Etc/*, which these
+        # rows used before; they are kept below with their D3 refusal).
+        for key, offset in (("Asia/Kolkata", "+05:30"), ("Pacific/Auckland", "+12:00"), ("Pacific/Pago_Pago", "-11:00"),
+                            ("Africa/Abidjan", "Z"), ("Africa/Monrovia", "-00:44:30")):
             with self.subTest(key=key):
                 self.assertEqual(_outcome(birth_datetime="1969-12-31T23:59:59" + offset, timezone=key),
                                  "HISTORICAL_CLOCK_UNVERIFIED")
                 # Monrovia keeps its -00:44:30 clock until 1972, so its 1970 example is valid too.
                 self.assertEqual(_outcome(birth_datetime="1970-01-01T00:00:00" + offset, timezone=key), "ACCEPT")
+        for key, offset in (("Etc/GMT-14", "+14:00"), ("Etc/GMT+12", "-12:00"), ("UTC", "Z")):
+            for wall in ("1969-12-31T23:59:59", "1970-01-01T00:00:00"):
+                with self.subTest(key=key, wall=wall):
+                    self.assertEqual(_outcome(birth_datetime=wall + offset, timezone=key), "TIMEZONE_NOT_LOCATION_BASED")
 
     def test_every_manifest_key_is_gated_on_the_local_date(self):
         loader = timezones.default_loader()
@@ -85,7 +91,10 @@ class LoaderJoinTests(unittest.TestCase):
         self.assertGreater(len(keys), 500)
         for key in keys:
             zone = engine.get_zone(key)
+            # D3: a key that names no place is refused before the gate, on both sides of 1970.
+            located = zone_policy.is_location_based(key)
             for wall, want in (("1969-12-31T12:00:00", "HISTORICAL_CLOCK_UNVERIFIED"), ("1970-01-02T12:00:00", "ACCEPT")):
+                want = want if located else "TIMEZONE_NOT_LOCATION_BASED"
                 from datetime import datetime
                 total = int(datetime.fromisoformat(wall).replace(tzinfo=zone).utcoffset().total_seconds())
                 sign, total = ("-" if total < 0 else "+"), abs(total)
@@ -101,7 +110,10 @@ class NoBypassTests(unittest.TestCase):
         self.assertEqual(engine.HISTORICAL_CLOCK_GATE, (("*", __import__("datetime").date.min,
                                                          __import__("datetime").date(1969, 12, 31)),))
         self.assertEqual(engine.HISTORICAL_CLOCK_EXCEPTIONS, ())
-        self.assertEqual(engine.RESERVED_CODES, ("TIMEZONE_NOT_LOCATION_BASED",))
+        self.assertEqual(engine.RESERVED_CODES, ())  # D3 now raises TIMEZONE_NOT_LOCATION_BASED
+        self.assertEqual(zone_policy.ZONE_POLICY, "KUN-03 D3 location-based birthplace timezone, version 1")
+        self.assertIsInstance(zone_policy.NON_LOCATION_IDENTIFIERS, tuple)
+        self.assertIsInstance(zone_policy.NON_LOCATION_PREFIXES, tuple)
         reads = []
         for path in sorted((SRC / "sabpuja_kundali").glob("*.py")):
             for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):

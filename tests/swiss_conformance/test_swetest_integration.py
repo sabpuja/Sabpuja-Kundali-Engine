@@ -4,6 +4,11 @@ Skipped only when SABPUJA_TEST_SWETEST is unset. Once it is set, the
 binary, its build receipt (SABPUJA_TEST_SWETEST_RECEIPT) and the pinned data
 (SABPUJA_TEST_EPHE_PATH) must all be valid or the class errors instead of
 skipping. Swiss-on-Swiss conformance only, not astronomical validation.
+
+KUN-03 D3: these tests exercise the archival comparison machinery on frozen
+UTC requests, so they reproduce the PR #33 timezone policy with the D3 check
+bypassed for each test (d3.d3_override, test-only, restoration verified).
+test_d3_profile pins the archival divergence from the D3 engine without it.
 """
 from unittest import mock
 import os
@@ -11,7 +16,7 @@ import tempfile
 import unittest
 
 from . import conformance as c
-from . import profile
+from . import d3, profile
 from . import swetest_cli as cli
 
 SWETEST = os.environ.get("SABPUJA_TEST_SWETEST")
@@ -32,6 +37,9 @@ class SwetestConformance(unittest.TestCase):
         problems = [r for r in c.run_reasons(env, SPEC) if r not in ("DIRTY_TREE", "GIT_UNAVAILABLE")]
         if problems:
             raise RuntimeError(f"swetest environment not valid: {problems}")
+
+    def setUp(self):
+        self.enterContext(d3.d3_override())
 
     def run_case(self, case_id):
         return c.run_case(CASES[case_id], SWETEST, EPHE, SPEC)

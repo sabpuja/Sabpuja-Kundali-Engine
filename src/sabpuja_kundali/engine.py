@@ -12,7 +12,7 @@ import math
 import os
 import re
 
-from . import provenance
+from . import provenance, zone_policy
 from .ephemeris import load_manifest as load_ephemeris_manifest, verify_ephemeris_dir
 from .rules import nakshatra, normalize, sign, navamsa_sign, whole_sign_house
 from .timezones import default_loader, get_zone
@@ -57,9 +57,9 @@ SUPPORTED_LATITUDE_DEG = 66.0
 # after historical-time QA and an owner decision.
 SUPPORTED_LOCAL_DATES = (date(1900, 1, 1), date(2100, 12, 31))
 
-# Reserved, not raised yet: TIMEZONE_NOT_LOCATION_BASED (P5-D3, a separate
-# pre-release package).
-RESERVED_CODES = ("TIMEZONE_NOT_LOCATION_BASED",)
+# Reserved codes not raised yet: none. TIMEZONE_NOT_LOCATION_BASED (P5-D3) is
+# raised since KUN-03 D3 (zone_policy.py).
+RESERVED_CODES = ()
 
 # SCI-03 RG-HIST Option B (owner pre-merge record, PR #20 comment 6336254894;
 # P8 choices G1-G5, comment 6350086727): no historical clock is verified, so
@@ -144,6 +144,11 @@ def _input_policy() -> dict[str, object]:
                              "refused_local_dates": rows(HISTORICAL_CLOCK_GATE),
                              "exceptions": rows(HISTORICAL_CLOCK_EXCEPTIONS)},
         "latitude_band_deg": {"min": -SUPPORTED_LATITUDE_DEG, "max": SUPPORTED_LATITUDE_DEG, "inclusive": True},
+        "timezone_identifier": {"policy": zone_policy.ZONE_POLICY, "mode": "fail_closed",
+                                "rule": "geographic IANA timezone identifier required (exact match)",
+                                "refused_identifiers": list(zone_policy.NON_LOCATION_IDENTIFIERS),
+                                "refused_prefixes": list(zone_policy.NON_LOCATION_PREFIXES),
+                                "zone_matches_coordinates_verified": False},
         "time_offset": "explicit UTC offset required and must be an offset the pinned IANA zone gives for "
                        "that wall time; nonexistent local times are refused; a repeated hour is resolved "
                        "by the offset",
@@ -155,7 +160,7 @@ def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
     """Validate the birth time in the fixed P5 order and return it in UTC.
 
     TIME_FORMAT_INVALID -> TIME_OFFSET_REQUIRED -> TIME_LEAP_SECOND_UNSUPPORTED
-    -> DATE_INVALID -> TIMEZONE_INVALID -> DATE_OUTSIDE_SUPPORTED_RANGE
+    -> DATE_INVALID -> TIMEZONE_INVALID -> TIMEZONE_NOT_LOCATION_BASED -> DATE_OUTSIDE_SUPPORTED_RANGE
     -> TIME_NONEXISTENT_LOCAL -> TIME_OFFSET_MISMATCH -> HISTORICAL_CLOCK_UNVERIFIED.
     Nothing is coerced.
     """
@@ -185,6 +190,11 @@ def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
         zone = get_zone(tz_name)
     except ValueError:
         raise InputRefusalError("TIMEZONE_INVALID", "timezone must be a valid IANA timezone identifier") from None
+    # D3 (P5 step 7): a recognised, verified key that names no place (UTC, GMT,
+    # Etc/*, their aliases, Factory) is refused before every later check.
+    if not zone_policy.is_location_based(tz_name):
+        raise InputRefusalError("TIMEZONE_NOT_LOCATION_BASED",
+                                "birthplace timezone must be a geographic IANA timezone identifier")
     # SCI-03: the window applies to the local civil date as written, before
     # conversion, so it never depends on the offset (UTC may be 1899 or 2101).
     if not SUPPORTED_LOCAL_DATES[0] <= civil <= SUPPORTED_LOCAL_DATES[1]:

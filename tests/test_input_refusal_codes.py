@@ -4,6 +4,7 @@ Synthetic inputs only. Every input refusal is an InputRefusalError (a ValueError
 with a stable code; the earliest failing check decides the code. Accepted
 conforming inputs keep exactly the UTC instant the previous parser gave.
 """
+import contextlib
 import json
 import os
 import random
@@ -14,7 +15,7 @@ from unittest import mock
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from sabpuja_kundali import engine
+from sabpuja_kundali import engine, zone_policy
 from sabpuja_kundali.engine import InputRefusalError, UnsupportedInputError, calculate
 from sabpuja_kundali.ephemeris import EphemerisDataError
 
@@ -22,10 +23,12 @@ SRC = Path(__file__).resolve().parents[1] / "src"
 MISSING = "/nonexistent/sabpuja-ephemeris"
 BASE = {"birth_datetime": "2000-01-01T17:30:00+05:30", "timezone": "Asia/Kolkata",
         "latitude": 28.6139, "longitude": 77.2090}
-# Fixed order (docs/api-contract.md). Reserved codes are not raised in P5.
+# Fixed order (docs/api-contract.md). TIMEZONE_NOT_LOCATION_BASED, reserved in P5, is raised
+# since KUN-03 D3.
 ORDER = ("REQUEST_INVALID", "TIME_FORMAT_INVALID", "TIME_OFFSET_REQUIRED", "TIME_LEAP_SECOND_UNSUPPORTED",
-         "DATE_INVALID", "TIMEZONE_INVALID", "DATE_OUTSIDE_SUPPORTED_RANGE", "TIME_NONEXISTENT_LOCAL",
+         "DATE_INVALID", "TIMEZONE_INVALID", "TIMEZONE_NOT_LOCATION_BASED", "DATE_OUTSIDE_SUPPORTED_RANGE", "TIME_NONEXISTENT_LOCAL",
          "TIME_OFFSET_MISMATCH", "COORDINATE_INVALID", "LATITUDE_OUTSIDE_SUPPORTED_BAND")
+_IS_LOCATION_BASED = zone_policy.is_location_based
 ENVELOPE = {"TIME_LEAP_SECOND_UNSUPPORTED", "DATE_OUTSIDE_SUPPORTED_RANGE", "LATITUDE_OUTSIDE_SUPPORTED_BAND"}
 
 
@@ -74,8 +77,15 @@ class StrictFormatTests(unittest.TestCase):
         with mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ()):  # G1: the conversion itself
             self.assertEqual(engine._parse_birth("1900-01-01T00:00:00+05:21:10", "Asia/Kolkata").isoformat(),
                              "1899-12-31T18:38:50+00:00")
-        self.assertEqual(engine._parse_birth("2000-01-01T12:00:00Z", "UTC").isoformat(), "2000-01-01T12:00:00+00:00")
-        self.assertEqual(engine._parse_birth("2000-01-01T12:00:00-00:00", "UTC").isoformat(), "2000-01-01T12:00:00+00:00")
+        # Z and -00:00 forms, on a geographic +00:00 zone (D3 refuses the UTC key these rows used).
+        self.assertEqual(engine._parse_birth("2000-01-01T12:00:00Z", "Africa/Abidjan").isoformat(),
+                         "2000-01-01T12:00:00+00:00")
+        self.assertEqual(engine._parse_birth("2000-01-01T12:00:00-00:00", "Africa/Abidjan").isoformat(),
+                         "2000-01-01T12:00:00+00:00")
+        for text in ("2000-01-01T12:00:00Z", "2000-01-01T12:00:00-00:00"):
+            with self.subTest(text=text, timezone="UTC"), self.assertRaises(InputRefusalError) as ctx:
+                engine._parse_birth(text, "UTC")
+            self.assertEqual(ctx.exception.code, "TIMEZONE_NOT_LOCATION_BASED")
 
     def test_forms_outside_the_profile_refused(self):
         refused = (
@@ -116,6 +126,7 @@ class StrictFormatTests(unittest.TestCase):
         for text, code in cases.items():
             with self.subTest(text=text):
                 self.assertEqual(_code(birth_datetime=text), code)
+        # Syntax codes precede D3, so the UTC key still reports the leap second.
         self.assertEqual(_code(birth_datetime="2016-12-31T23:59:60+00:00", timezone="UTC"),
                          "TIME_LEAP_SECOND_UNSUPPORTED")
 
@@ -155,12 +166,15 @@ class GapAndMismatchTests(unittest.TestCase):
             with self.subTest(timezone=key):
                 self.assertEqual(engine._parse_birth(second, key) - engine._parse_birth(first, key), timedelta(hours=1))
 
-    def test_reserved_codes_are_not_raised(self):
-        # D3: TIMEZONE_NOT_LOCATION_BASED is reserved only. P8 (versioned) now raises
-        # HISTORICAL_CLOCK_UNVERIFIED for the two pre-1970 rows, which P5 accepted.
-        self.assertEqual(set(engine.RESERVED_CODES), {"TIMEZONE_NOT_LOCATION_BASED"})
-        for text, key, code in (("2000-01-01T17:00:00+05:00", "Etc/GMT-5", "ACCEPT"),
-                                ("2000-01-01T12:00:00+00:00", "UTC", "ACCEPT"),
+    def test_formerly_reserved_code_is_raised_by_d3(self):
+        # TIMEZONE_NOT_LOCATION_BASED was reserved until KUN-03 D3; the two non-location
+        # rows P5 accepted are now refused, and their geographic equivalents accept. P8
+        # (versioned) raises HISTORICAL_CLOCK_UNVERIFIED for the two pre-1970 rows.
+        self.assertEqual(engine.RESERVED_CODES, ())
+        for text, key, code in (("2000-01-01T17:00:00+05:00", "Etc/GMT-5", "TIMEZONE_NOT_LOCATION_BASED"),
+                                ("2000-01-01T12:00:00+00:00", "UTC", "TIMEZONE_NOT_LOCATION_BASED"),
+                                ("2000-01-01T17:00:00+05:00", "Asia/Karachi", "ACCEPT"),
+                                ("2000-01-01T12:00:00+00:00", "Africa/Abidjan", "ACCEPT"),
                                 ("1950-06-15T12:00:00+05:30", "Asia/Kolkata", "HISTORICAL_CLOCK_UNVERIFIED"),
                                 ("1900-06-15T12:00:00+05:21:10", "Asia/Kolkata", "HISTORICAL_CLOCK_UNVERIFIED")):
             with self.subTest(text=text, timezone=key):
@@ -178,6 +192,8 @@ class OrderTests(unittest.TestCase):
             ({"birth_datetime": "1899-02-29T23:59:60+05:30", "timezone": "Mars/Base"}, "TIME_LEAP_SECOND_UNSUPPORTED"),
             ({"birth_datetime": "1899-02-29T12:00:00+05:30", "timezone": "Mars/Base"}, "DATE_INVALID"),
             ({"birth_datetime": "1899-12-31T12:00:00+05:30", "timezone": "Mars/Base", **bad}, "TIMEZONE_INVALID"),
+            ({"birth_datetime": "2101-03-13T02:30:00+09:00", "timezone": "Etc/GMT-14", **bad},
+             "TIMEZONE_NOT_LOCATION_BASED"),
             ({"birth_datetime": "2101-03-13T02:30:00+09:00", "timezone": "America/New_York", **bad},
              "DATE_OUTSIDE_SUPPORTED_RANGE"),
             ({"birth_datetime": "2021-03-14T02:30:00+09:00", "timezone": "America/New_York", **bad},
@@ -212,6 +228,7 @@ class OrderTests(unittest.TestCase):
                    "TIME_LEAP_SECOND_UNSUPPORTED": {"birth_datetime": "2017-01-01T05:29:60+05:30"},
                    "DATE_OUTSIDE_SUPPORTED_RANGE": {"birth_datetime": "1899-12-31T12:00:00+05:21:10"},
                    "TIME_OFFSET_MISMATCH": {"birth_datetime": "2000-01-01T17:30:00+04:00"},
+                   "TIMEZONE_NOT_LOCATION_BASED": {"timezone": "Etc/GMT-5"},
                    "COORDINATE_INVALID": {"longitude": 181},
                    "LATITUDE_OUTSIDE_SUPPORTED_BAND": {"latitude": 66.5}}
         for code, fields in samples.items():
@@ -236,14 +253,24 @@ class UnchangedResultTests(unittest.TestCase):
                 "2021-03-28", "2021-10-03", "2021-11-07", "2021-04-04", "2021-10-31", "2100-12-31")
         offsets = ("+05:30", "+05:21:10", "+06:30", "-05:00", "-04:00", "+00:00", "+01:00", "+10:00",
                    "+11:00", "+13:00", "+14:00", "-10:00", "-11:00", "-12:00", "+05:45", "-03:30", "-02:30", "Z")
-        compared = accepted = 0
+        compared = accepted = d3_refused = 0
         for _ in range(6000):
             text = (f"{rng.choice(days)}T{rng.randrange(24):02d}:{rng.choice((0, 5, 30, 59)):02d}:"
                     f"{rng.randrange(60):02d}{rng.choice(('', '.5', '.123456'))}{rng.choice(offsets)}")
             key = rng.choice(zones)
             before = _previous_parse(text, key)
+            # D3: Etc/GMT+12 and UTC are now refused first; the parser comparison for them
+            # continues with the D3 check bypassed inside this test only.
+            bypass = contextlib.nullcontext()
+            if not zone_policy.is_location_based(key):
+                with self.assertRaises(InputRefusalError) as ctx:
+                    engine._parse_birth(text, key)
+                self.assertEqual(ctx.exception.code, "TIMEZONE_NOT_LOCATION_BASED")
+                d3_refused += 1
+                bypass = mock.patch.object(zone_policy, "is_location_based", lambda name: True)
             try:
-                after = engine._parse_birth(text, key)
+                with bypass:
+                    after = engine._parse_birth(text, key)
             except InputRefusalError as exc:
                 self.assertIsNone(before, (text, key))
                 self.assertIn(exc.code, {"DATE_OUTSIDE_SUPPORTED_RANGE", "TIME_NONEXISTENT_LOCAL", "TIME_OFFSET_MISMATCH"})
@@ -254,10 +281,13 @@ class UnchangedResultTests(unittest.TestCase):
             compared += 1
         self.assertEqual(compared, 6000)
         self.assertGreater(accepted, 300)
+        self.assertGreater(d3_refused, 1000)
+        self.assertTrue(zone_policy.is_location_based is _IS_LOCATION_BASED)  # bypass restored
 
 
 class CliPrivacyTests(unittest.TestCase):
-    SECRETS = ("1899", "2000-01-01", "2017", "17:30", "05:29", "Asia/Kolkata", "Mars", "28.6139", "77.209", "181")
+    SECRETS = ("1899", "2000-01-01", "2017", "17:30", "05:29", "Asia/Kolkata", "Mars", "28.6139", "77.209", "181",
+               "Etc/GMT-5")
 
     def run_cli(self, text):
         env = {**os.environ, "PYTHONPATH": str(SRC), "SABPUJA_EPHE_PATH": MISSING}
@@ -272,6 +302,8 @@ class CliPrivacyTests(unittest.TestCase):
             "TIME_LEAP_SECOND_UNSUPPORTED": json.dumps({**BASE, "birth_datetime": "2017-01-01T05:29:60+05:30"}),
             "DATE_INVALID": json.dumps({**BASE, "birth_datetime": "2017-02-29T17:30:00+05:30"}),
             "TIMEZONE_INVALID": json.dumps({**BASE, "timezone": "Mars/Base"}),
+            "TIMEZONE_NOT_LOCATION_BASED": json.dumps({**BASE, "timezone": "Etc/GMT-5",
+                                                       "birth_datetime": "2000-01-01T17:30:00+05:00"}),
             "DATE_OUTSIDE_SUPPORTED_RANGE": json.dumps({**BASE, "birth_datetime": "1899-12-31T17:30:00+05:21:10"}),
             "TIME_NONEXISTENT_LOCAL": json.dumps({**BASE, "birth_datetime": "1941-10-01T00:30:00+05:30"}),
             "TIME_OFFSET_MISMATCH": json.dumps({**BASE, "birth_datetime": "2000-01-01T17:30:00+04:00"}),

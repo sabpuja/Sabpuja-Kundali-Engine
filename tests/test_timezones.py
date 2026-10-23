@@ -45,7 +45,8 @@ SYNTHETIC = {"birth_datetime": "2000-01-01T17:30:00+05:30", "timezone": "Asia/Ko
 CODE_LABELS = {"TIME_FORMAT_INVALID": "PARSE", "TIME_LEAP_SECOND_UNSUPPORTED": "PARSE", "DATE_INVALID": "PARSE",
                "TIME_OFFSET_REQUIRED": "NAIVE", "TIMEZONE_INVALID": "TZ_INVALID",
                "DATE_OUTSIDE_SUPPORTED_RANGE": "RANGE", "TIME_NONEXISTENT_LOCAL": "OFFSET_MISMATCH",
-               "TIME_OFFSET_MISMATCH": "OFFSET_MISMATCH", "HISTORICAL_CLOCK_UNVERIFIED": "HIST"}
+               "TIME_OFFSET_MISMATCH": "OFFSET_MISMATCH", "HISTORICAL_CLOCK_UNVERIFIED": "HIST",
+               "TIMEZONE_NOT_LOCATION_BASED": "NOT_LOCATION"}
 VERSIONED = {  # case: (expected label, expected UTC, decision)
     "T49": ("RANGE", None, "SCI-03 local-date window (P4)"),
     "T50": ("ACCEPT", "2101-01-01T01:00:00Z", "SCI-03 local-date window (P4)"),
@@ -58,6 +59,9 @@ VERSIONED = {  # case: (expected label, expected UTC, decision)
 VERSIONED.update({case: ("HIST", None, "SCI-03 RG-HIST Option B (P8)") for case in (
     "T02", "T04", "T06", "T10", "T12", "T13", "T14", "T15", "T16", "T18", "T21", "T23", "T24", "T46", "T47",
     "T61", "T62")})
+# KUN-03 D3: the fixture's proposed TIMEZONE_NOT_LOCATION_BASED for Etc/* and UTC. The
+# fixture keeps the KUN-02 ACCEPT and its instant; geographic equivalents accept below.
+VERSIONED.update({case: ("NOT_LOCATION", None, "KUN-03 D3 location-based timezone") for case in ("T56", "T57")})
 
 
 def outcome(birth_datetime, tz_name):
@@ -162,6 +166,15 @@ class Kun02TimeCaseTests(unittest.TestCase):
                 self.assertEqual(label, expect)
                 if label == "ACCEPT":
                     self.assertEqual(utc, expect_utc)
+
+    def test_d3_cases_keep_their_kun02_instant_on_geographic_zones(self):
+        # T56 (Etc/GMT-5) and T57 (UTC) are refused by D3; the same wall times on
+        # geographic zones with the same offset in 2000 give the KUN-02 instant.
+        for case_id, key in (("T56", "Asia/Karachi"), ("T57", "Africa/Abidjan")):
+            case = next(c for c in CASES["cases"] if c["id"] == case_id)
+            with self.subTest(case=case_id):
+                self.assertEqual(outcome(case["birth_datetime"], case["timezone"]), ("NOT_LOCATION", None))
+                self.assertEqual(outcome(case["birth_datetime"], key), ("ACCEPT", case["expect_utc"]))
 
     def test_platform_dependent_case_is_refused_on_every_platform(self):
         # T-PD1: a lower-case key loads on case-insensitive file systems with stdlib
@@ -442,8 +455,9 @@ class CompatibilityTests(unittest.TestCase):
     Against Ubuntu's 2026e system build: 101 keys absent there are accepted (old
     names), and 110 keys give different offsets, all before 1970 except the
     non-location rule zones WET (to 1996-03-30) and EET (to 1980-04-05), which
-    tzdata 2024b+ links to Europe/Lisbon and Europe/Athens. P5 is proposed to
-    refuse non-location keys; until then P1 accepts every manifest key.
+    tzdata 2024b+ links to Europe/Lisbon and Europe/Athens. KUN-03 D3 refuses UTC,
+    GMT, Etc/* and their aliases; WET, EET and the other abbreviation-style names
+    stay accepted pending a separate owner decision (zone_policy.OWNER_REVIEW_PENDING).
     """
 
     def test_non_location_rule_zones_after_1970_follow_the_pinned_links(self):
