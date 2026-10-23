@@ -21,7 +21,7 @@ sabpuja.com Shopify UI (sabpuja/theme, NOT YET IMPLEMENTED)
 - Houses: whole-sign houses based on sidereal ascendant (not quadrant houses).
 - Planets: Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn; lunar nodes separately.
 - Navamsa: D9 sign mapping; full D9 chart/ascendant presentation later.
-- Start with a 1900-01-01 to 2100-12-31 envelope by local civil birth date (SCI-03); expand only after historical timezone and reference test coverage.
+- Start with a 1900-01-01 to 2100-12-31 envelope by local civil birth date (SCI-03); local dates before 1970-01-01 are refused until a historical clock is verified (RG-HIST Option B, P8). Expand only after historical timezone and reference test coverage.
 - Sidereal ascendant calculated via Swiss `houses_ex` with `W` (whole-sign) geometry, `ascmc[0]` (SCI-01e; bit-identical to `P` at every sampled in-band point); this must pass reference validation before release.
 - No Dasha, Dosha, Yoga, matching, prediction or product-remedy assertions until separately specified and validated.
 

@@ -179,6 +179,7 @@ class SwissIntegrationTests(unittest.TestCase):
                 for secret in ("2000-01-01", "Asia/Kolkata", str(lat), "77.209"):
                     self.assertNotIn(secret, proc.stderr)
 
+    @mock.patch("sabpuja_kundali.engine.HISTORICAL_CLOCK_GATE", ())  # P8 (G1): calculation check on 1900-1969 dates; restored after the test
     def test_categories_match_exact_oracle_on_raw_swiss_values(self):
         # Every category must come from the unrounded Swiss longitude, and the
         # displayed value must be its 8-decimal rounding inside [0, 360).

@@ -10,6 +10,7 @@ import random
 import subprocess
 import sys
 import unittest
+from unittest import mock
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -61,11 +62,18 @@ class StrictFormatTests(unittest.TestCase):
             "2000-01-01T17:30:00.5+05:30": "2000-01-01T12:00:00.500000+00:00",
             "2000-01-01T17:30:00.123456+05:30": "2000-01-01T12:00:00.123456+00:00",
             "2000-01-01T17:30:00.000001+05:30": "2000-01-01T12:00:00.000001+00:00",
-            "1900-01-01T00:00:00+05:21:10": "1899-12-31T18:38:50+00:00",
         }
         for text, utc in cases.items():
             with self.subTest(text=text):
                 self.assertEqual(engine._parse_birth(text, "Asia/Kolkata").isoformat(), utc)
+        # Offset seconds: accepted after 1970 (Monrovia kept -00:44:30 until 1972). P8
+        # (versioned): the earlier 1900 Kolkata LMT example reaches the gate instead.
+        self.assertEqual(engine._parse_birth("1971-06-01T12:00:00-00:44:30", "Africa/Monrovia").isoformat(),
+                         "1971-06-01T12:44:30+00:00")
+        self.assertEqual(_code(birth_datetime="1900-01-01T00:00:00+05:21:10"), "HISTORICAL_CLOCK_UNVERIFIED")
+        with mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ()):  # G1: the conversion itself
+            self.assertEqual(engine._parse_birth("1900-01-01T00:00:00+05:21:10", "Asia/Kolkata").isoformat(),
+                             "1899-12-31T18:38:50+00:00")
         self.assertEqual(engine._parse_birth("2000-01-01T12:00:00Z", "UTC").isoformat(), "2000-01-01T12:00:00+00:00")
         self.assertEqual(engine._parse_birth("2000-01-01T12:00:00-00:00", "UTC").isoformat(), "2000-01-01T12:00:00+00:00")
 
@@ -148,12 +156,15 @@ class GapAndMismatchTests(unittest.TestCase):
                 self.assertEqual(engine._parse_birth(second, key) - engine._parse_birth(first, key), timedelta(hours=1))
 
     def test_reserved_codes_are_not_raised(self):
-        # D3: TIMEZONE_NOT_LOCATION_BASED is reserved only; P8 owns HISTORICAL_CLOCK_UNVERIFIED.
-        self.assertEqual(set(engine.RESERVED_CODES), {"TIMEZONE_NOT_LOCATION_BASED", "HISTORICAL_CLOCK_UNVERIFIED"})
-        for text, key in (("2000-01-01T17:00:00+05:00", "Etc/GMT-5"), ("2000-01-01T12:00:00+00:00", "UTC"),
-                          ("1950-06-15T12:00:00+05:30", "Asia/Kolkata"), ("1900-06-15T12:00:00+05:21:10", "Asia/Kolkata")):
+        # D3: TIMEZONE_NOT_LOCATION_BASED is reserved only. P8 (versioned) now raises
+        # HISTORICAL_CLOCK_UNVERIFIED for the two pre-1970 rows, which P5 accepted.
+        self.assertEqual(set(engine.RESERVED_CODES), {"TIMEZONE_NOT_LOCATION_BASED"})
+        for text, key, code in (("2000-01-01T17:00:00+05:00", "Etc/GMT-5", "ACCEPT"),
+                                ("2000-01-01T12:00:00+00:00", "UTC", "ACCEPT"),
+                                ("1950-06-15T12:00:00+05:30", "Asia/Kolkata", "HISTORICAL_CLOCK_UNVERIFIED"),
+                                ("1900-06-15T12:00:00+05:21:10", "Asia/Kolkata", "HISTORICAL_CLOCK_UNVERIFIED")):
             with self.subTest(text=text, timezone=key):
-                self.assertEqual(_code(birth_datetime=text, timezone=key), "ACCEPT")
+                self.assertEqual(_code(birth_datetime=text, timezone=key), code)
 
 
 class OrderTests(unittest.TestCase):
@@ -213,6 +224,9 @@ class OrderTests(unittest.TestCase):
 
 
 class UnchangedResultTests(unittest.TestCase):
+    # P8 (G1): compares the parser with P4's on 1900-2100 strings, so the gate table
+    # is empty inside this test only; test_historical_clock_gate covers the gate.
+    @mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ())
     def test_conforming_inputs_keep_the_previous_outcome_and_instant(self):
         # 6,000 seeded conforming strings across gaps, folds and window edges.
         rng = random.Random(20261022)
