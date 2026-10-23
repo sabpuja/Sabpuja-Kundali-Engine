@@ -172,6 +172,20 @@ class Eras(unittest.TestCase):
         self.assertEqual(codes(after, 0.0), ["FUTURE_CIVIL_TIME_PROJECTED"])
         self.assertEqual(codes(after, 61.0), ["FUTURE_CIVIL_TIME_PROJECTED", "HIGH_LATITUDE_TIME_SENSITIVITY"])
 
+    def test_high_latitude_text_makes_no_uniform_claim(self):
+        # Lagna speed at high latitude depends on date and sidereal time (see the Swiss regression
+        # below), so the disclosure must not say it is always faster or always worse.
+        text = provenance._disclosures(self.at("2026-03-20T09:00:00+00:00"), 61.0)[0]["description"]
+        self.assertEqual(text, "Absolute latitude above 60 deg: the Lagna's sensitivity to birth-time error can be "
+                               "much greater for some dates and sidereal times, but is not uniformly greater. An "
+                               "accurate recorded birth time is important. Descriptive only; calculation and "
+                               "acceptance are unchanged.")
+        lowered = text.lower()
+        for claim in ("moves faster", "larger effect", "always", "every chart", "uniformly greater."):
+            self.assertNotIn(claim, lowered.replace("not uniformly greater", ""), claim)
+        self.assertIn("can be", lowered)
+        self.assertIn("not uniformly greater", lowered)
+
     def test_legacy_projection_rejects_non_p7_output(self):
         for chart in ({"schema_version": "0.1.0"}, {"schema_version": "0.2.0"}):
             with self.assertRaises(ValueError):
@@ -387,6 +401,23 @@ class ChartMetadata(unittest.TestCase):
         with self.assertRaises(InputRefusalError) as ctx:
             self.chart("2026-03-20T09:00:00+00:00", lat=math.nextafter(66.0, 90.0))
         self.assertEqual(ctx.exception.code, "LATITUDE_OUTSIDE_SUPPORTED_BAND")
+
+    def test_high_latitude_lagna_rate_is_not_uniformly_greater(self):
+        # Deterministic Swiss regression behind the disclosure wording: Lagna motion over one UT second
+        # at 0 deg E on 2024-06-15, 62 N against the equator. Faster at 00:00 UT, slower at 06:00 UT.
+        def rate(start, lat):
+            first = self.chart(f"2024-06-15T{start}:00+00:00", lat=lat, lon=0.0)["lagna"]["longitude_deg"]
+            second = self.chart(f"2024-06-15T{start}:01+00:00", lat=lat, lon=0.0)["lagna"]["longitude_deg"]
+            return (second - first) % 360.0
+        rates = {(t, lat): rate(t, lat) for t in ("00:00", "06:00") for lat in (0.0, 62.0)}
+        self.assertAlmostEqual(rates["00:00", 0.0], 0.00454375, delta=2e-8)
+        self.assertAlmostEqual(rates["00:00", 62.0], 0.01878318, delta=2e-8)
+        self.assertAlmostEqual(rates["06:00", 0.0], 0.00383991, delta=2e-8)
+        self.assertAlmostEqual(rates["06:00", 62.0], 0.00247911, delta=2e-8)
+        self.assertGreater(rates["00:00", 62.0], rates["00:00", 0.0])
+        self.assertLess(rates["06:00", 62.0], rates["06:00", 0.0])
+        self.assertEqual([d["code"] for d in self.meta("2024-06-15T06:00:00+00:00", lat=62.0, lon=0.0)["disclosures"]],
+                         ["HIGH_LATITUDE_TIME_SENSITIVITY"])
 
     def test_input_policy_reads_engine_constants(self):
         policy = self.meta("2000-01-01T12:00:00+00:00")["input_policy"]

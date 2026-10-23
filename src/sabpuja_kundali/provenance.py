@@ -115,9 +115,10 @@ def _disclosures(utc: datetime, latitude: float) -> list[dict]:
                                    "projections, not records."})
     if abs(latitude) > HIGH_LATITUDE_DISCLOSURE_DEG:
         out.append({"code": "HIGH_LATITUDE_TIME_SENSITIVITY",
-                    "description": "Absolute latitude above 60 deg: the Lagna moves faster per second of birth time, "
-                                   "so birth-time error has a larger effect. Descriptive only; the chart is "
-                                   "computed the same way."})
+                    "description": "Absolute latitude above 60 deg: the Lagna's sensitivity to birth-time error can be "
+                                   "much greater for some dates and sidereal times, but is not uniformly "
+                                   "greater. An accurate recorded birth time is important. Descriptive only; "
+                                   "calculation and acceptance are unchanged."})
     return out
 
 
