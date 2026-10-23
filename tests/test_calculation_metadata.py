@@ -176,12 +176,12 @@ class Eras(unittest.TestCase):
         # Lagna speed at high latitude depends on date and sidereal time (see the Swiss regression
         # below), so the disclosure must not say it is always faster or always worse.
         text = provenance._disclosures(self.at("2026-03-20T09:00:00+00:00"), 61.0)[0]["description"]
-        self.assertEqual(text, "Absolute latitude above 60 deg: the Lagna's sensitivity to birth-time error can be "
-                               "much greater for some dates and sidereal times, but is not uniformly greater. An "
-                               "accurate recorded birth time is important. Descriptive only; calculation and "
-                               "acceptance are unchanged.")
+        self.assertEqual(text, "Absolute latitude above 60 deg: ascendant sensitivity to birth-time uncertainty can be "
+                               "greater for some dates and sidereal times, but is not uniformly greater. An accurate "
+                               "recorded birth time is important. Descriptive only; calculation and acceptance are "
+                               "unchanged.")
         lowered = text.lower()
-        for claim in ("moves faster", "larger effect", "always", "every chart", "uniformly greater."):
+        for claim in ("moves faster", "larger effect", "always", "every chart", "much greater", "uniformly greater."):
             self.assertNotIn(claim, lowered.replace("not uniformly greater", ""), claim)
         self.assertIn("can be", lowered)
         self.assertIn("not uniformly greater", lowered)
@@ -392,15 +392,17 @@ class ChartMetadata(unittest.TestCase):
         self.assertIn("not a precision guarantee", after["note"])
 
     def test_high_latitude_disclosure_is_descriptive_only(self):
-        for lat, expected in ((60.0, []), (-60.0, []), (math.nextafter(60.0, 90.0), ["HIGH_LATITUDE_TIME_SENSITIVITY"]),
-                              (66.0, ["HIGH_LATITUDE_TIME_SENSITIVITY"]), (-66.0, ["HIGH_LATITUDE_TIME_SENSITIVITY"])):
+        high = ["HIGH_LATITUDE_TIME_SENSITIVITY"]
+        for lat, expected in ((0.0, []), (60.0, []), (-60.0, []), (math.nextafter(60.0, 90.0), high),
+                              (math.nextafter(-60.0, -90.0), high), (66.0, high), (-66.0, high)):
             with self.subTest(lat=lat):
                 chart = self.chart("2026-03-20T09:00:00+00:00", lat=lat, lon=-18.0)
                 self.assertEqual([d["code"] for d in chart["calculation_metadata"]["disclosures"]], expected)
         # Disclosure never changes acceptance: the band edge is still the refusal edge.
-        with self.assertRaises(InputRefusalError) as ctx:
-            self.chart("2026-03-20T09:00:00+00:00", lat=math.nextafter(66.0, 90.0))
-        self.assertEqual(ctx.exception.code, "LATITUDE_OUTSIDE_SUPPORTED_BAND")
+        for lat in (math.nextafter(66.0, 90.0), math.nextafter(-66.0, -90.0), 70.0, -89.0):
+            with self.subTest(lat=lat), self.assertRaises(InputRefusalError) as ctx:
+                self.chart("2026-03-20T09:00:00+00:00", lat=lat)
+            self.assertEqual(ctx.exception.code, "LATITUDE_OUTSIDE_SUPPORTED_BAND")
 
     def test_high_latitude_lagna_rate_is_not_uniformly_greater(self):
         # Deterministic Swiss regression behind the disclosure wording: Lagna motion over one UT second

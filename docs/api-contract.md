@@ -127,7 +127,7 @@ The expiry date is a pinned research value; it does not follow later IERS public
 | Code | When | Effect |
 |---|---|---|
 | `FUTURE_CIVIL_TIME_PROJECTED` | UTC instant on or after 2027-06-28T00:00:00Z | Descriptive only. |
-| `HIGH_LATITUDE_TIME_SENSITIVITY` | \|latitude\| strictly above 60.0 (60.0 itself: none) | Descriptive only (SCI-01g); the ±66° band still decides acceptance. The Lagna's sensitivity to birth-time error can be much greater at high latitude for some dates and sidereal times, but not at all of them (for example at 0° E on 2024-06-15 it moves 0.0188°/s at 62° N vs 0.0045°/s at the equator at 00:00 UT, but 0.0025°/s vs 0.0038°/s at 06:00 UT), so the text makes no uniform claim. |
+| `HIGH_LATITUDE_TIME_SENSITIVITY` | \|latitude\| strictly above 60.0 (60.0 itself: none) | Descriptive only (SCI-01g); the ±66° band still decides acceptance. Ascendant sensitivity to birth-time uncertainty can be greater at high latitude for some dates and sidereal times, but not at all of them (for example at 0° E on 2024-06-15 it moves 0.0188°/s at 62° N vs 0.0045°/s at the equator at 00:00 UT, but 0.0025°/s vs 0.0038°/s at 06:00 UT), so the text makes no uniform claim. |
 
 ### Example
 
@@ -193,7 +193,7 @@ Synthetic request `{"birth_datetime":"2030-03-20T09:00:00+00:00","timezone":"UTC
     },
     "disclosures": [
       {"code": "FUTURE_CIVIL_TIME_PROJECTED", "description": "The birth instant is after the pinned IERS leap-second list expiry (2027-06-28): civil-time rules, leap seconds, UT1-UTC and Delta T are projections, not records."},
-      {"code": "HIGH_LATITUDE_TIME_SENSITIVITY", "description": "Absolute latitude above 60 deg: the Lagna's sensitivity to birth-time error can be much greater for some dates and sidereal times, but is not uniformly greater. An accurate recorded birth time is important. Descriptive only; calculation and acceptance are unchanged."}
+      {"code": "HIGH_LATITUDE_TIME_SENSITIVITY", "description": "Absolute latitude above 60 deg: ascendant sensitivity to birth-time uncertainty can be greater for some dates and sidereal times, but is not uniformly greater. An accurate recorded birth time is important. Descriptive only; calculation and acceptance are unchanged."}
     ],
     "validation": {"status": "UNVERIFIED_GOLDEN_CHARTS", "claim_boundary": "Swiss-on-Swiss integration conformance only; not independent astronomical validation, mathematical verification or historical clock verification"}
   }
