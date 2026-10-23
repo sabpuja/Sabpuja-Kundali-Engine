@@ -9,7 +9,7 @@ description = "Self-hosted, AGPL-licensed Vedic Kundali calculation foundation f
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "AGPL-3.0-only" }
-dependencies = ["pyswisseph==2.10.3.2"]
+dependencies = ["pyswisseph==2.10.3.2", "tzdata==2026.5"]
 
 [project.scripts]
 sabpuja-kundali = "sabpuja_kundali.cli:main"
@@ -18,4 +18,4 @@ sabpuja-kundali = "sabpuja_kundali.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-sabpuja_kundali = ["ephemeris-manifest.json"]
+sabpuja_kundali = ["ephemeris-manifest.json", "tzif-manifest.json"]

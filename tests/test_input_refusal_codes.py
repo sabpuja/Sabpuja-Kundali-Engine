@@ -13,7 +13,6 @@ import unittest
 from unittest import mock
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 from sabpuja_kundali import engine
 from sabpuja_kundali.engine import InputRefusalError, UnsupportedInputError, calculate
@@ -45,7 +44,8 @@ def _previous_parse(text, key):
     local = datetime.fromisoformat(text)
     if local.tzinfo is None:
         return None
-    zone = ZoneInfo(key)
+    # Integration (P1): the same pinned zone source as the engine, so only the parsers are compared.
+    zone = engine.get_zone(key)
     if not engine.SUPPORTED_LOCAL_DATES[0] <= local.date() <= engine.SUPPORTED_LOCAL_DATES[1]:
         return None
     actual = local.astimezone(zone)
