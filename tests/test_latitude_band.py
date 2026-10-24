@@ -27,6 +27,13 @@ MISSING = "/does-not-exist/sabpuja"
 CODE = "LATITUDE_OUTSIDE_SUPPORTED_BAND"
 ABOVE = math.nextafter(66.0, math.inf)
 BELOW = math.nextafter(-66.0, -math.inf)
+# KUN-03 D3 refuses UTC as a birthplace zone: +00:00 wall times use a geographic zone
+# whose IANA offset is +00:00 on that local date (London before 1912, when Abidjan still
+# kept LMT; Abidjan from 1912), so every UTC instant is unchanged.
+def zero_offset_zone(birth):
+    return "Europe/London" if int(birth[:4]) < 1912 else "Africa/Abidjan"
+
+
 INSIDE_EDGES = (66, -66, 66.0, -66.0, math.nextafter(66.0, 0.0), math.nextafter(-66.0, 0.0))
 POLAR = (ABOVE, BELOW, 66.000001, -66.000001, 66.5, 66.55, 66.58, -66.58, 70, -70, 75.0, -75.0,
          80, -80, 88.9, -88.9, 89, -89, 90, -90, 91.5, 1e20, -1e20, 10**20)
@@ -38,13 +45,13 @@ IN_BAND = [
     {"birth_datetime": "1999-12-31T23:59:00+05:30", "timezone": "Asia/Kolkata", "latitude": 22.5726, "longitude": 88.3639},
     {"birth_datetime": "2024-02-29T04:45:00+05:30", "timezone": "Asia/Kolkata", "latitude": 8.5241, "longitude": 76.9366},
     {"birth_datetime": "2010-06-21T12:00:00+05:30", "timezone": "Asia/Kolkata", "latitude": 34.0837, "longitude": 74.7973},
-    {"birth_datetime": "2024-03-10T12:00:00+00:00", "timezone": "UTC", "latitude": 0, "longitude": 0},
+    {"birth_datetime": "2024-03-10T12:00:00+00:00", "timezone": "Africa/Abidjan", "latitude": 0, "longitude": 0},
     {"birth_datetime": "2000-01-01T23:00:00+11:00", "timezone": "Australia/Sydney", "latitude": -33.8688, "longitude": 151.2093},
-    {"birth_datetime": "2026-06-21T12:00:00+00:00", "timezone": "UTC", "latitude": 66.0, "longitude": 25.0},
-    {"birth_datetime": "2026-12-21T00:00:00+00:00", "timezone": "UTC", "latitude": -66.0, "longitude": 0.0},
-    {"birth_datetime": "2026-03-20T09:00:00+00:00", "timezone": "UTC", "latitude": 66, "longitude": -18.0},
-    {"birth_datetime": "1975-01-01T00:00:00+00:00", "timezone": "UTC", "latitude": -66, "longitude": 180},
-    {"birth_datetime": "2001-07-01T00:00:00+00:00", "timezone": "UTC", "latitude": 65.9999, "longitude": -180},
+    {"birth_datetime": "2026-06-21T12:00:00+00:00", "timezone": "Africa/Abidjan", "latitude": 66.0, "longitude": 25.0},
+    {"birth_datetime": "2026-12-21T00:00:00+00:00", "timezone": "Africa/Abidjan", "latitude": -66.0, "longitude": 0.0},
+    {"birth_datetime": "2026-03-20T09:00:00+00:00", "timezone": "Africa/Abidjan", "latitude": 66, "longitude": -18.0},
+    {"birth_datetime": "1975-01-01T00:00:00+00:00", "timezone": "Africa/Abidjan", "latitude": -66, "longitude": 180},
+    {"birth_datetime": "2001-07-01T00:00:00+00:00", "timezone": "Africa/Abidjan", "latitude": 65.9999, "longitude": -180},
 ]
 
 
@@ -79,7 +86,7 @@ class BandValidationTests(unittest.TestCase):
             for birth in dates:
                 for lon in (-180, -74.006, 0, 77.209, 180):
                     with self.subTest(latitude=lat, birth=birth, longitude=lon):
-                        request = {"birth_datetime": birth, "timezone": "UTC", "latitude": lat, "longitude": lon}
+                        request = {"birth_datetime": birth, "timezone": zero_offset_zone(birth), "latitude": lat, "longitude": lon}
                         with self.assertRaises(UnsupportedInputError) as ctx:
                             calculate(request, ephe_path=MISSING)
                         self.assertEqual(ctx.exception.code, CODE)
@@ -192,7 +199,8 @@ class RealDataBandTests(unittest.TestCase):
             for month in (3, 6, 12):
                 for lat in (66.0, -66.0):
                     with self.subTest(year=year, month=month, latitude=lat):
-                        request = {"birth_datetime": f"{year}-{month:02d}-21T06:00:00+00:00", "timezone": "UTC",
+                        request = {"birth_datetime": f"{year}-{month:02d}-21T06:00:00+00:00",
+                                   "timezone": zero_offset_zone(str(year)),
                                    "latitude": lat, "longitude": 25.0}
                         self.assertIn("lagna", calculate(request, ephe_path=DATA))
 
@@ -201,7 +209,7 @@ class RealDataBandTests(unittest.TestCase):
         # 66.55 was accepted on 2100-12-31 and refused on 1900-01-01 before P2 (KUN-02 E-ENV-LAT).
         for birth in ("1900-01-01T12:00:00+00:00", "2100-12-31T12:00:00+00:00"):
             with self.subTest(birth=birth), self.assertRaises(UnsupportedInputError) as ctx:
-                calculate({"birth_datetime": birth, "timezone": "UTC", "latitude": 66.55, "longitude": 25.0},
+                calculate({"birth_datetime": birth, "timezone": zero_offset_zone(birth), "latitude": 66.55, "longitude": 25.0},
                           ephe_path=DATA)
             self.assertEqual(ctx.exception.code, CODE)
 

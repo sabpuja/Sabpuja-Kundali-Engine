@@ -14,10 +14,10 @@ Input from stdin (JSON object, max 4KB):
 
 Requirements:
 - `birth_datetime` is the exact birth-local time in one strict profile (KUN-03 P5, D2): `YYYY-MM-DDTHH:MM[:SS[.f]]` (1–6 fraction digits, ASCII digits, upper-case `T`) followed by `Z` or `±HH:MM[:SS]` (offset seconds allowed for historical IANA offsets such as `+05:21:10`). Represented microseconds are kept; nothing is rounded, truncated or coerced. Space separators, lower-case `t`/`z`, ISO basic or week/ordinal dates, `,` decimals, more than 6 fraction digits and other offset spellings are refused. `-00:00` is read as a zero offset.
-- `timezone` is the IANA timezone identifier; conversion must match the offset, including DST/historical rules.
+- `timezone` is the IANA timezone identifier of the birthplace; conversion must match the offset, including DST/historical rules. It must name a place: `UTC`, `GMT`, every `Etc/*` key, their aliases, `Factory` and the US-rules zones `CST6CDT`, `EST5EDT`, `MST7MDT` and `PST8PDT` are refused with `TIMEZONE_NOT_LOCATION_BASED` (KUN-03 D3, zone policy version 2, see "Birthplace timezone policy" below).
 - Timezone rules come only from the pinned PyPI `tzdata==2026.5` (IANA 2026e), each TZif file verified against `src/sabpuja_kundali/tzif-manifest.json`; the host's system zoneinfo, `PYTHONTZPATH` and `TZ` are never used. A key not in the manifest is invalid input. Missing, mismatched or wrong-version timezone data fails closed with a `TZDATA_*` code (no host fallback).
-- Supported birth dates (SCI-03 initial window): the **local civil date** as written in `birth_datetime` must be 1900-01-01 to 2100-12-31 inclusive. It is checked before conversion (after the timezone is recognised and before the offset is matched), so the UTC instant may be as early as 1899-12-31T10:00:00Z (local 1900-01-01T00:00:00 at UTC+14) or as late as 2101-01-01T11:59:59.999999Z (local 2100-12-31T23:59:59.999999 at UTC−12; microsecond precision is accepted). A date outside is refused with `DATE_OUTSIDE_SUPPORTED_RANGE` (`UnsupportedInputError`, a `ValueError` subclass carrying `.code`). Within the window, the historical-clock gate below then refuses every local date before 1970-01-01, so the earliest instant actually charted today is 1969-12-31T10:00:00Z (local 1970-01-01T00:00:00 at UTC+14).
-- Historical clocks (SCI-03 RG-HIST Option B, KUN-03 P8): no birthplace clock before 1970 is verified, so a birth whose **local civil date** is before 1970-01-01 is refused with `HISTORICAL_CLOCK_UNVERIFIED` (`UnsupportedInputError`) in **every** recognised zone, including `UTC`, `GMT` and `Etc/*`. It is judged on the date as written, never the UTC date, after all other time checks and before the coordinates. The detail text is fixed and repeats nothing from the request. The rule is the versioned table `HISTORICAL_CLOCK_GATE` in `engine.py` ("SCI-03 RG-HIST Option B, version 1"; owner records on PR #20, comments 6336254894 and 6350086727):
+- Supported birth dates (SCI-03 initial window): the **local civil date** as written in `birth_datetime` must be 1900-01-01 to 2100-12-31 inclusive. It is checked before conversion (after the timezone is recognised and before the offset is matched), so the UTC instant may be as early as 1899-12-31T11:40:48Z (local 1900-01-01T00:00:00 at UTC+12:19:12, `Pacific/Tongatapu` local mean time) or as late as 2101-01-01T10:59:59.999999Z (local 2100-12-31T23:59:59.999999 at UTC−11, for example `Pacific/Pago_Pago`; microsecond precision is accepted). Before KUN-03 D3 the extremes were 1899-12-31T10:00:00Z and 2101-01-01T11:59:59.999999Z, reachable only through `Etc/GMT-14` and `Etc/GMT+12`, which D3 refuses; the window rule itself is unchanged. A date outside is refused with `DATE_OUTSIDE_SUPPORTED_RANGE` (`UnsupportedInputError`, a `ValueError` subclass carrying `.code`). Within the window, the historical-clock gate below then refuses every local date before 1970-01-01, so the earliest instant actually charted today is 1969-12-31T11:00:00Z (local 1970-01-01T00:00:00 at UTC+13, `Pacific/Tongatapu` or `Asia/Anadyr`; 1969-12-31T10:00:00Z through `Etc/GMT-14` before D3).
+- Historical clocks (SCI-03 RG-HIST Option B, KUN-03 P8): no birthplace clock before 1970 is verified, so a birth whose **local civil date** is before 1970-01-01 is refused with `HISTORICAL_CLOCK_UNVERIFIED` (`UnsupportedInputError`) in **every** recognised zone (`UTC`, `GMT` and `Etc/*` are refused earlier by D3). It is judged on the date as written, never the UTC date, after all other time checks and before the coordinates. The detail text is fixed and repeats nothing from the request. The rule is the versioned table `HISTORICAL_CLOCK_GATE` in `engine.py` ("SCI-03 RG-HIST Option B, version 1"; owner records on PR #20, comments 6336254894 and 6350086727):
 
   | Zone | Refused local dates | Policy |
   |---|---|---|
@@ -47,7 +47,7 @@ Input refusal codes (KUN-03 P5, D1/D4). Every input refusal raises `InputRefusal
 | 4 | `TIME_LEAP_SECOND_UNSUPPORTED` | seconds field `60` | `UnsupportedInputError` |
 | 5 | `DATE_INVALID` | the calendar date does not exist (for example 1900-02-29, 2100-02-29, month 13, year 0000) | `InputRefusalError` |
 | 6 | `TIMEZONE_INVALID` | not a key in the pinned TZif manifest (P1) | `InputRefusalError` |
-| 7 | `TIMEZONE_NOT_LOCATION_BASED` | **reserved, not raised** (D3: `UTC`, `GMT`, `Etc/*` stay accepted until a separate pre-release package) | — |
+| 7 | `TIMEZONE_NOT_LOCATION_BASED` | a recognised, verified key that names no place: `UTC`, `UCT`, `Universal`, `Zulu`, `GMT`, `GMT+0`, `GMT-0`, `GMT0`, `Greenwich`, `Factory`, `CST6CDT`, `EST5EDT`, `MST7MDT`, `PST8PDT` or any `Etc/*` key (KUN-03 D3, zone policy version 2) | `InputRefusalError` |
 | 8 | `DATE_OUTSIDE_SUPPORTED_RANGE` | local civil date outside 1900-01-01 to 2100-12-31 (SCI-03, P4) | `UnsupportedInputError` |
 | 9 | `TIME_NONEXISTENT_LOCAL` | the wall time does not exist in the zone (DST or historical gap), whatever the offset | `InputRefusalError` |
 | 10 | `TIME_OFFSET_MISMATCH` | the wall time exists but the offset is not one IANA gives for it (one offset normally, two in a fold) | `InputRefusalError` |
@@ -55,7 +55,7 @@ Input refusal codes (KUN-03 P5, D1/D4). Every input refusal raises `InputRefusal
 | 12 | `COORDINATE_INVALID` | latitude or longitude not a JSON number (booleans and strings included), not finite, or longitude outside -180 to 180 | `InputRefusalError` |
 | 13 | `LATITUDE_OUTSIDE_SUPPORTED_BAND` | finite latitude outside -66.0 to 66.0 (SCI-01g, P2) | `UnsupportedInputError` |
 
-Timezone-data failures are server faults, not input refusals: when the pinned data is missing, of the wrong version or fails its SHA-256 check, loading the zone at step 6 raises a `TZDATA_*` `RuntimeError` (`TimezoneDataError`, carrying `.code`) instead of `TIMEZONE_INVALID`. Steps 7–13 and Swiss are then never reached, and nothing falls back to the host zoneinfo. A fold (repeated hour) is not refused: the given offset selects the instant. Gaps and offsets are judged from IANA data only; no offset is ever inferred. `EPHEMERIS_*`, `ASCENDANT_UNCOMPUTABLE` and other `RuntimeError`s come after these checks and are unchanged.
+Timezone-data failures are server faults, not input refusals: when the pinned data is missing, of the wrong version or fails its SHA-256 check, loading the zone at step 6 raises a `TZDATA_*` `RuntimeError` (`TimezoneDataError`, carrying `.code`) instead of `TIMEZONE_INVALID`, also for a key D3 would refuse. Steps 7–13 and Swiss are then never reached, and nothing falls back to the host zoneinfo. A fold (repeated hour) is not refused: the given offset selects the instant. Gaps and offsets are judged from IANA data only; no offset is ever inferred. `EPHEMERIS_*`, `ASCENDANT_UNCOMPUTABLE` and other `RuntimeError`s come after these checks and are unchanged.
 
 Three coordinate failures are deliberately distinct:
 - **Invalid latitude/longitude** (`COORDINATE_INVALID`, `InputRefusalError`): the value is not a usable number, or the longitude is outside -180 to 180, for example `"COORDINATE_INVALID: latitude must be a number"`, `"COORDINATE_INVALID: latitude must be a finite number"` or `"COORDINATE_INVALID: longitude must be between -180 and 180 (inclusive)"`. The caller must correct the input.
@@ -77,9 +77,52 @@ Swiss Ephemeris failures (KUN-03 Swiss error contract). Once a request has passe
 
 These are server-side calculation failures, not input refusals: they are never reported as `REQUEST_INVALID` or another P5 code, and they are reachable only after every refusal, `TZDATA_*` and `EPHEMERIS_*` check, whose codes and order are unchanged. None is expected for accepted input; in the pinned binding only `calc_ut` and `houses_ex` were seen to raise `swisseph.Error`, and the reset calls are guarded defensively. The existing Moshier refusal ("Swiss ephemeris files unavailable: refused Moshier fallback") is unchanged. Only `swisseph.Error` is translated: any other exception is a programming defect, is not relabelled or swallowed, and ends the CLI with Python's own failure (exit 1, no stdout). This contract covers error handling only; it is not an astronomical certification.
 
+## Birthplace timezone policy (KUN-03 D3)
+
+**Rule.** `timezone` must be a geographic IANA identifier: a key that names a place, whose rules record that place's civil clock. A recognised, verified key that names no place is refused with `TIMEZONE_NOT_LOCATION_BASED` (`InputRefusalError`, a `ValueError` carrying `.code`; not `UnsupportedInputError`), fixed text `TIMEZONE_NOT_LOCATION_BASED: birthplace timezone must be a geographic IANA timezone identifier`. Through the CLI it is the single line `{"error": "TIMEZONE_NOT_LOCATION_BASED: birthplace timezone must be a geographic IANA timezone identifier"}` on stderr, empty stdout, exit 2, no traceback; the key and every other request value are never repeated. It is never reported as `TIMEZONE_INVALID`, which stays the code for a key outside the pinned manifest. The policy is the versioned table in `src/sabpuja_kundali/zone_policy.py`, now "KUN-03 D3 location-based birthplace timezone, version 2" (D3 authorized on PR #20, comment 6373261419; version 2 is the owner's Option B, PR #20 comment 6377855934). There is no runtime, CLI or environment switch, and no UTC fallback, offset substitution or zone inference.
+
+**Order.** Step 7 of the fixed order: after the syntax checks (1–5), `TIMEZONE_INVALID` (6) and any `TZDATA_*` fault while loading the zone, and before the window (8), gap (9), offset (10), historical clock (11) and coordinate (12–13) checks. A D3 refusal reaches neither the ephemeris check nor any Swiss call. A request that would also fail a later check (for example `UTC` with a 1950 date, an offset mismatch or latitude 70) gets `TIMEZONE_NOT_LOCATION_BASED`; the same fields on a geographic zone still get the later code.
+
+**Refused identifiers (49 of the 598 manifest keys; 45 in version 1).** Classified by exact, case-sensitive name from the IANA tz 2026e source files that define them (tz git tag `2026e`, commit `039ef27cc5f062a2055cb67435d6d71adbefd27d`), never by offset or TZif bytes:
+
+| Identifier | In manifest | IANA meaning / source | Class | Action | Compatibility impact |
+|---|---|---|---|---|---|
+| `Etc/UTC`, `Etc/GMT` | yes | `etcetera`: Zone definitions of UTC and GMT, "ships at sea and other miscellany" | non-geographic | refuse | requests using them, accepted before, now refused |
+| `Etc/GMT+1` … `Etc/GMT+12`, `Etc/GMT-1` … `Etc/GMT-14` (26) | yes | `etcetera`: fixed offsets with POSIX-inverted signs (`Etc/GMT-5` is UTC+05:00) | non-geographic | refuse | as above |
+| `Etc/GMT+0`, `Etc/GMT-0`, `Etc/GMT0`, `Etc/Greenwich` | yes | `backward`: links to `Etc/GMT` | non-geographic | refuse | as above |
+| `Etc/UCT`, `Etc/Universal`, `Etc/Zulu` | yes | `backward`: links to `Etc/UTC` | non-geographic | refuse | as above |
+| `UTC`, `UCT`, `Universal`, `Zulu` | yes | `backward`: links to `Etc/UTC` | non-geographic | refuse | as above; `UTC` was the most common key in earlier fixtures |
+| `GMT` | yes | `etcetera`: link to `Etc/GMT` | non-geographic | refuse | as above |
+| `GMT+0`, `GMT-0`, `GMT0`, `Greenwich` | yes | `backward`: links to `Etc/GMT` | non-geographic | refuse | as above |
+| `Factory` | yes | `factory`: `Zone Factory 0 - -00`, "the actual time zone is unknown" | non-geographic | refuse (audited inclusion beyond UTC/GMT/Etc) | as above |
+| `CST6CDT`, `EST5EDT`, `MST7MDT`, `PST8PDT` | yes | `backward`: `Zone CST6CDT -6:00 USback C%sT` (and `EST5EDT`, `MST7MDT`, `PST8PDT` likewise), a fixed standard offset with ahistorical US rules; `theory.html` lists them with the `Etc` names as legacy names "incompatible with the first guideline of location names" | non-geographic (US rules, no place) | refuse **since version 2** (owner Option B) | accepted by version 1; refused from version 2 |
+
+**What stays accepted (549 keys; 553 in version 1).** Every other manifest key, including zones with a zero offset (`Africa/Abidjan`, `Atlantic/Reykjavik`, `Europe/London` in winter), legacy and backward-compatible spellings (`Asia/Calcutta`, `Iceland`, `GB`, `US/Eastern`, `Japan` and the other `backward` links to geographic zones), zones with local mean time history (`Asia/Kolkata`), zones whose TZif bytes equal another zone's, and zones with no current DST. tz 2026e `theory.html` names the `etcetera` names and the `backward` names `Etc/GMT0`, `Etc/GMT-0`, `Etc/GMT+0`, `GMT0`, `GMT-0`, `GMT+0` as legacy names "incompatible with the first guideline of location names"; `zone1970.tab` lists the geographic locations.
+
+**Reviewed by the owner and kept accepted (version 2).** These seven names are abbreviation-style rather than location names, but tz 2026e defines each as a link to one geographic zone, so the owner's Option B keeps them accepted:
+
+| Identifier | IANA source (2026e) | Note |
+|---|---|---|
+| `CET`, `MET` | `backward`: links to `Europe/Brussels` | `theory.html`: "old-fashioned names" from the older naming scheme, like `US/Eastern`; the rules are one place's |
+| `EET` | `backward`: link to `Europe/Athens` | |
+| `WET` | `backward`: link to `Europe/Lisbon` | |
+| `EST` | `backward`: link to `America/Panama` | fixed −05:00 today |
+| `MST` | `backward`: link to `America/Phoenix` | fixed −07:00 today |
+| `HST` | `backward`: link to `Pacific/Honolulu` | fixed −10:00 today |
+
+**Version 1 to version 2.** Version 1 (45 refused, 553 accepted; ChatGPT engineering QA PASS at `8b6507b`) left eleven abbreviation-style names accepted pending an owner decision. Version 2 refuses exactly the four US-rules zones and keeps the seven above; nothing else changes (same exact, case-sensitive match, same `Etc/` prefix, same step 7, same code and text). Callers that sent `CST6CDT`, `EST5EDT`, `MST7MDT` or `PST8PDT` now get `TIMEZONE_NOT_LOCATION_BASED` and should send the birthplace's geographic zone (for example `America/Chicago`, `America/New_York`, `America/Denver`, `America/Los_Angeles`); no other request changes outcome. Any further identifier needs a new owner decision.
+
+**Zone and coordinates are not cross-validated.** D3 judges the identifier only. `Asia/Kolkata` with New York coordinates is still accepted (KUN-02 T63), a `+00:00` geographic zone can be used for any coordinates, and no zone is ever looked up or inferred from latitude and longitude. A birthplace gazetteer or coordinate-to-zone lookup (DATA-01) is future work and is not authorized by D3.
+
+**Calculation metadata (P7).** Successful charts now carry `input_policy.timezone_identifier` (`policy`, `mode` `"fail_closed"`, `rule`, `refused_identifiers`, `refused_prefixes`, `zone_matches_coordinates_verified` `false`), read from `zone_policy.py`. Because this is a new key, `metadata_schema` is `"sabpuja-calculation-metadata/2"`; `schema_version` stays `"0.2.0"` and no other chart or metadata value changes. Version 2 changes only the values of `policy` (now "…version 2") and `refused_identifiers` (four more names); the shape, and so `metadata_schema` `/2`, is unchanged. `provenance.legacy_projection` drops the whole metadata block, so 0.1.0 output of an accepted request is unchanged.
+
+**Fixture reconciliation.** Frozen fixtures are not edited. KUN-02 T56 (`Etc/GMT-5`) and T57 (`UTC`) were versioned to the proposed `TIMEZONE_NOT_LOCATION_BASED`; their instants are checked on `Asia/Karachi` and `Africa/Abidjan`. Of the ten P7 legacy golden requests, seven use `UTC`: their PR #33 golden (`be619e62…`) is still reproduced with a test-only D3 bypass, and the same instants and coordinates on geographic zones have their own PR #33 golden (`8c790777…`). The Swiss conformance cases keep `spec.json`, `cases.json` and profile v1 byte-identical. The active D3 profile is `tests/swiss_conformance/profiles/kun03-d3-v2.json` (SHA-256 `a9aa1a4b…e5e7`, zone policy version 2, run with `python -m tests.swiss_conformance.run_d3`); the D3 profile v1 `kun03-d3-v1.json` (SHA-256 `942a0eac…b980`, zone policy version 1) is kept byte-identical as the archived record, and v2 must equal it in every case, count, continuation and divergence field (no frozen request uses the four US-rules names), with the v1-to-v2 policy delta in its `lineage` block. The runner also reproduces the archived v1 policy in a test-only, versioned context (engine outcomes only). The profiles record all 24 cases with their v1 and D3 outcomes (7 charts, 17 refusals: nine former UTC charts and six former refusals now stop at D3). All 784 v1 comparison checks still run: 343 on the seven D3 charts, 147 on geographic equivalents of SC-01, SC-04 and SC-24 in production (each proven equal to its original request), and 294 on SC-11, SC-14, SC-15, SC-16, SC-19 and SC-20 with a test-only D3 bypass (no geographic equivalent: local 2101 in Tokyo, or open ocean). The unchanged v1 and archival PR #18 runners must diverge from the D3 engine exactly as recorded in the profile.
+
+**Limits.** The table is tied to the pinned tz 2026e manifest; a tzdata update is a reviewed change that must re-audit new names (`Etc/*` is refused by prefix, a new root-level non-location name needs a code change). Classification is by name and does not certify that a geographic zone's historical rules are right for a birthplace (see the historical clock gate), and it is not geolocation.
+
 ## Calculation metadata (schema 0.2.0, KUN-03 P7)
 
-Every successful chart carries `calculation_metadata` (`metadata_schema` `"sabpuja-calculation-metadata/1"`), built by `src/sabpuja_kundali/provenance.py`. It is **descriptive**: it states the conventions, data and time-scale assumptions that produced the chart. It does not change any position, category, refusal or code, and it adopts no decision-register entry (SCI-01a, SCI-01h and the others stay as recorded there).
+Every successful chart carries `calculation_metadata` (`metadata_schema` `"sabpuja-calculation-metadata/2"` since KUN-03 D3; `/1` before it, without `input_policy.timezone_identifier`), built by `src/sabpuja_kundali/provenance.py`. It is **descriptive**: it states the conventions, data and time-scale assumptions that produced the chart. It does not change any position, category, refusal or code, and it adopts no decision-register entry (SCI-01a, SCI-01h and the others stay as recorded there).
 
 **What it is built from.** Only the engine's own constants, the ephemeris manifest that the request was verified against, the pinned timezone loader that verified the zone, and the installed Swiss library and binding versions. The engine loads the ephemeris manifest once per request, verifies the directory against that object and describes the same object, so the metadata cannot name a manifest other than the one checked. Refusals and server faults (`InputRefusalError`, `TZDATA_*`, `EPHEMERIS_*`, `SWISS_*`, `ASCENDANT_UNCOMPUTABLE`) produce no metadata; their codes, text and order are unchanged.
 
@@ -101,7 +144,7 @@ Every successful chart carries `calculation_metadata` (`metadata_schema` `"sabpu
 | `ephemeris_data` | Source repository and commit, manifest version, `manifest_sha256` (SHA-256 of the packaged `ephemeris-manifest.json` as canonical JSON: sorted keys, separators `,` and `:`), the required files with size and SHA-256, coverage years. `verified_before_calculation` is always `true`, because a chart is produced only after that check. |
 | `timezone_data` | `source`, `package_version`, `iana_version` and `manifest_sha256` of the pinned TZif manifest, exactly as the verifying loader reports them; `host_timezone_database_used` is always `false`. |
 | `time_scale` | The pipeline, the UT1 assumption, Delta T source, era, leap-second list expiry and the 2050 sidereal-time model note (below). No per-request number (Julian day, Delta T, sidereal time) is emitted. |
-| `input_policy` | The checks this chart passed, read from the engine constants: local date window, historical clock policy (RG-HIST Option B v1, fail closed, refused local dates, exceptions: none), latitude band ±66° inclusive, offset rule and the fixed refusal order. |
+| `input_policy` | The checks this chart passed, read from the engine constants: local date window, historical clock policy (RG-HIST Option B v1, fail closed, refused local dates, exceptions: none), latitude band ±66° inclusive, timezone identifier policy (D3 zone policy version 2: refused identifiers and prefixes; zone and coordinates not cross-validated), offset rule and the fixed refusal order. |
 | `disclosures` | Zero or more `{code, description}` in fixed order (below). |
 | `validation` | `status` (equal to `validation_status`) and the claim boundary. |
 
@@ -131,19 +174,19 @@ The expiry date is a pinned research value; it does not follow later IERS public
 
 ### Example
 
-Synthetic request `{"birth_datetime":"2030-03-20T09:00:00+00:00","timezone":"UTC","latitude":62.0,"longitude":-18.0}` (chart fields abbreviated):
+Synthetic request `{"birth_datetime":"2030-03-20T09:00:00+00:00","timezone":"Atlantic/Reykjavik","latitude":62.0,"longitude":-18.0}` (chart fields abbreviated):
 
 ```json
 {
   "schema_version": "0.2.0",
   "validation_status": "UNVERIFIED_GOLDEN_CHARTS",
   "method": {"ayanamsa": "Lahiri", "nodes": "mean", "houses": "whole_sign", "ephemeris": "Swiss Ephemeris, local .se1", "binding_version": "2.10.03"},
-  "birth": {"utc": "2030-03-20T09:00:00Z", "timezone": "UTC", "latitude": 62.0, "longitude": -18.0},
+  "birth": {"utc": "2030-03-20T09:00:00Z", "timezone": "Atlantic/Reykjavik", "latitude": 62.0, "longitude": -18.0},
   "lagna": {"longitude_deg": 54.46189408, "rashi": "Vrishabha", "navamsa_rashi": "Simha"},
   "moon_nakshatra": {"index": 12, "name": "Hasta", "pada": 2},
   "planets": {"...": "unchanged from 0.1.0"},
   "calculation_metadata": {
-    "metadata_schema": "sabpuja-calculation-metadata/1",
+    "metadata_schema": "sabpuja-calculation-metadata/2",
     "conventions": {
       "zodiac": "sidereal",
       "ayanamsa": {"name": "Lahiri", "swiss_mode": "SIDM_LAHIRI", "swiss_mode_number": 1, "swiss_call": "set_sid_mode(SIDM_LAHIRI, 0, 0)", "kind": "true_ayanamsha", "definition": "Lahiri (Chitrapaksha), Swiss Ephemeris SE_SIDM_LAHIRI (mode 1), IAE 1985 definition, true ayanamsha, Swiss default precession; no SIDBIT options"},
@@ -188,6 +231,7 @@ Synthetic request `{"birth_datetime":"2030-03-20T09:00:00+00:00","timezone":"UTC
       "local_date_window": {"first": "1900-01-01", "last": "2100-12-31", "basis": "local civil date as written, before conversion"},
       "historical_clock": {"policy": "SCI-03 RG-HIST Option B, version 1", "mode": "fail_closed", "refused_local_dates": [{"zone": "*", "first_local_date": null, "last_local_date": "1969-12-31"}], "exceptions": []},
       "latitude_band_deg": {"min": -66.0, "max": 66.0, "inclusive": true},
+      "timezone_identifier": {"policy": "KUN-03 D3 location-based birthplace timezone, version 2", "mode": "fail_closed", "rule": "geographic IANA timezone identifier required (exact match)", "refused_identifiers": ["UTC", "UCT", "Universal", "Zulu", "GMT", "GMT+0", "GMT-0", "GMT0", "Greenwich", "Factory", "CST6CDT", "EST5EDT", "MST7MDT", "PST8PDT"], "refused_prefixes": ["Etc/"], "zone_matches_coordinates_verified": false},
       "time_offset": "explicit UTC offset required and must be an offset the pinned IANA zone gives for that wall time; nonexistent local times are refused; a repeated hour is resolved by the offset",
       "refusal_order": "fixed P5 order (docs/api-contract.md)"
     },
@@ -204,14 +248,14 @@ Synthetic request `{"birth_datetime":"2030-03-20T09:00:00+00:00","timezone":"UTC
 
 - The metadata reports what the engine did and which pinned data it used. It is not evidence that the chart is astronomically correct, and it is not independent validation, mathematical verification or historical clock verification.
 - UT1 is not measured; Delta T after 2028 and UT1 − UTC after 2027-06-28 are model projections.
-- The ±66° band, the 1900–2100 window and the pre-1970 refusal are support policy, not astronomical limits. The high-latitude disclosure is descriptive only.
+- The ±66° band, the 1900–2100 window, the pre-1970 refusal and the D3 timezone policy are support policy, not astronomical limits; D3 is not geolocation. The high-latitude disclosure is descriptive only.
 - Per-zone TZif hashes are not listed; the manifest SHA-256 covers them.
 
 ### Migration from 0.1.0
 
 - All 0.1.0 keys, values and their order are unchanged; `method` keeps its five keys. `schema_version` becomes `"0.2.0"` and `calculation_metadata` is appended last.
 - A 0.1.0 consumer that ignores unknown keys keeps working once it accepts `"0.2.0"`. A consumer that pins `"0.1.0"` must be updated.
-- `provenance.legacy_projection(chart)` drops `calculation_metadata` and restores `"0.1.0"`. For every request it equals the KUN-03 conformance engine output (PR #33, `bec4641`) byte for byte under canonical JSON; `tests/test_calculation_metadata.py` pins this for ten synthetic boundary requests.
+- `provenance.legacy_projection(chart)` drops `calculation_metadata` and restores `"0.1.0"`. For every accepted request it equals the KUN-03 conformance engine output (PR #33, `bec4641`) byte for byte under canonical JSON; `tests/test_calculation_metadata.py` pins this for ten synthetic boundary requests (seven of them on `UTC`, reproduced with a test-only D3 bypass, and again on geographic zones; see D3 above).
 
 ### Reproduction requirements
 

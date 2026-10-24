@@ -96,3 +96,46 @@ This writes JSON, CSV and Markdown reports. The exit codes are:
 
 The archival runner (`python -m tests.swiss_conformance.run`) stays as it was.
 On the KUN-03 engine it exits 1, with the recorded divergence.
+
+## KUN-03 D3: location-based timezone profile
+
+D3 refuses `UTC`, `GMT`, every `Etc/*` key and their aliases with
+`TIMEZONE_NOT_LOCATION_BASED` (`docs/api-contract.md`, "Birthplace timezone
+policy"); zone policy version 2 (owner Option B, PR #20 comment 6377855934) also
+refuses `CST6CDT`, `EST5EDT`, `MST7MDT` and `PST8PDT`. The files above, profile v1
+included, stay byte-identical; profile v1 now describes the PR #33 timezone
+policy. The active D3 profile `profiles/kun03-d3-v2.json` (SHA-256
+`a9aa1a4b85714bfb7167acba93a1ce70f107add44d51face655f07053961e5e7`, module
+`d3.py`) records every case with its v1 and D3 outcome. The D3 profile v1
+`profiles/kun03-d3-v1.json` (SHA-256
+`942a0eac0a18b45f26de91b238d0b5b3868713076a4a50e457598b1fa999b980`, zone policy
+version 1, QA PASS at `8b6507b`) is archived unchanged: no frozen request uses the
+four US-rules names, so v2 must equal v1 in every case, count, continuation and
+divergence field, and its `lineage` block records the policy delta (four names
+added, seven abbreviation-style names kept, no case affected). Each run also
+reproduces the archived version 1 policy in a test-only, versioned context
+(engine outcomes of the 24 requests, no Swiss comparison) and checks that
+version 2 is restored afterwards. The counts are the same under both versions:
+
+- 7 charts (343 comparison checks) and 17 refusals. Nine former UTC charts
+  (SC-01, 04, 11, 14, 15, 16, 19, 20, 24) and six former refusals (SC-09, 10, 12,
+  13, 17, 18) now stop at D3.
+- Numeric continuation keeps all 784 v1 comparison checks. SC-01, SC-04 and
+  SC-24 run in production as geographic equivalents (same UTC instant and
+  coordinates, verified offset), each proven equal to its original request. SC-11,
+  SC-14, SC-15, SC-16, SC-19 and SC-20 run their original requests with a
+  test-only D3 bypass, because no geographic zone gives the same instant inside
+  the window or the point is open ocean.
+- The historical supplement keeps SC-09 (gate and D3 bypassed) and SC-23 (gate
+  bypassed), test-only.
+- The unchanged v1 runner and the archival PR #18 runner must diverge from the
+  D3 engine exactly as the profile records (15 cases plus the SC-09 supplement
+  for v1; 13 cases for the archival run).
+
+```
+python -m tests.swiss_conformance.run_d3 --swetest <swetest> --receipt <receipt.json> --ephe <ephe> --report-dir reports/
+```
+
+Exit 0 PASS, 1 FAIL, 2 BLOCKED. `run_current` on the D3 engine exits 1 with
+that v1 divergence; its unit tests reproduce the PR #33 policy with the
+test-only D3 bypass.

@@ -27,7 +27,7 @@ import unittest
 import swisseph as swe
 import tzdata
 
-from sabpuja_kundali import engine, ephemeris, provenance, timezones
+from sabpuja_kundali import engine, ephemeris, provenance, timezones, zone_policy
 from sabpuja_kundali.engine import InputRefusalError, calculate
 from sabpuja_kundali.ephemeris import EphemerisDataError
 from sabpuja_kundali.timezones import TimezoneDataError
@@ -36,6 +36,9 @@ DATA = os.environ.get("SABPUJA_TEST_EPHE_PATH")
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 UTC = timezone.utc
+# KUN-03 D3 refuses the UTC key; +00:00 charts here use a geographic zone whose clock
+# has been +00:00 since 1912 (zone and coordinates are not cross-validated).
+ZERO = "Africa/Abidjan"
 
 # Synthetic boundary requests and the SHA-256 of their 0.1.0 outputs computed with the
 # PR #33 engine at bec4641 (canonical JSON: sorted keys, compact separators, UTF-8).
@@ -52,6 +55,14 @@ LEGACY_REQUESTS = [
     ("2100-12-31T23:59:59.999999+14:00", "Pacific/Kiritimati", 1.87, -157.4),
 ]
 LEGACY_SHA256 = "be619e62d14aed164619609481ce2ab67e32f0e19937c091f52a0d2a7aac25c3"
+# KUN-03 D3: seven LEGACY_REQUESTS use the UTC key and are now refused. The golden above
+# is still reproduced with the D3 check bypassed inside the test only; the same instants
+# and coordinates on geographic +00:00 zones have their own PR #33 golden (bec4641).
+LEGACY_GEO_ZONES = {28.6139: ZERO, -33.8688: ZERO, 51.4779: "Europe/London", 60.0: ZERO, -60.5: ZERO,
+                    66.0: "Atlantic/Reykjavik", -66.0: ZERO}
+LEGACY_GEO_REQUESTS = [(b, LEGACY_GEO_ZONES[lat] if tz == "UTC" else tz, lat, lon)
+                       for b, tz, lat, lon in LEGACY_REQUESTS]
+LEGACY_GEO_SHA256 = "8c7907773c7175d15c227461e3a85cd9d22ce7c14301da6919f7d94c8fe7e924"
 LEGACY_KEYS = ["schema_version", "validation_status", "method", "birth", "lagna", "moon_nakshatra", "planets"]
 
 # Every metadata key and its JSON type; lists of objects give the item shape.
@@ -93,6 +104,8 @@ SHAPE = {
                                                       "last_local_date": (str, type(None))}],
                              "exceptions": list},
         "latitude_band_deg": {"min": float, "max": float, "inclusive": bool},
+        "timezone_identifier": {"policy": str, "mode": str, "rule": str, "refused_identifiers": [str],
+                                "refused_prefixes": [str], "zone_matches_coordinates_verified": bool},
         "time_offset": str,
         "refusal_order": str,
     },
@@ -101,7 +114,7 @@ SHAPE = {
 }
 
 
-def request(birth, tz="UTC", lat=28.6139, lon=77.209):
+def request(birth, tz=ZERO, lat=28.6139, lon=77.209):
     return {"birth_datetime": birth, "timezone": tz, "latitude": lat, "longitude": lon}
 
 
@@ -204,18 +217,32 @@ class ChartMetadata(unittest.TestCase):
         chart = self.chart("2000-01-01T12:00:00+00:00")
         self.assertEqual(chart["schema_version"], "0.2.0")
         self.assertEqual(list(chart), LEGACY_KEYS + ["calculation_metadata"])
-        self.assertEqual(chart["calculation_metadata"]["metadata_schema"], "sabpuja-calculation-metadata/1")
+        self.assertEqual(chart["calculation_metadata"]["metadata_schema"], "sabpuja-calculation-metadata/2")  # /2 since D3
         check_shape(self, chart["calculation_metadata"], SHAPE)
         json.dumps(chart, allow_nan=False)
 
     def test_legacy_projection_matches_pr33_byte_for_byte(self):
-        legacy = [provenance.legacy_projection(calculate(request(*r), ephe_path=DATA)) for r in LEGACY_REQUESTS]
-        for chart in legacy:
+        # PR #33 policy reproduction: the D3 check is bypassed inside this block only.
+        with mock.patch.object(zone_policy, "is_location_based", lambda name: True):
+            legacy = [provenance.legacy_projection(calculate(request(*r), ephe_path=DATA)) for r in LEGACY_REQUESTS]
+        self.assertFalse(zone_policy.is_location_based("UTC"))  # bypass restored
+        geo = [provenance.legacy_projection(calculate(request(*r), ephe_path=DATA)) for r in LEGACY_GEO_REQUESTS]
+        for chart in legacy + geo:
             self.assertEqual(list(chart), LEGACY_KEYS)
             self.assertEqual(chart["method"], {"ayanamsa": "Lahiri", "nodes": "mean", "houses": "whole_sign",
                                                "ephemeris": "Swiss Ephemeris, local .se1",
                                                "binding_version": swe.version})
         self.assertEqual(hashlib.sha256(canonical(legacy).encode()).hexdigest(), LEGACY_SHA256)
+        self.assertEqual(hashlib.sha256(canonical(geo).encode()).hexdigest(), LEGACY_GEO_SHA256)
+        # Same instants and coordinates: the charts differ only in the echoed timezone key.
+        for before, after, req in zip(legacy, geo, LEGACY_GEO_REQUESTS):
+            self.assertEqual({**before, "birth": {**before["birth"], "timezone": req[1]}}, after)
+        # In production the seven UTC requests are refused before any calculation.
+        for r in LEGACY_REQUESTS:
+            if r[1] == "UTC":
+                with self.subTest(request=r), self.assertRaises(InputRefusalError) as ctx:
+                    calculate(request(*r), ephe_path=DATA)
+                self.assertEqual(ctx.exception.code, "TIMEZONE_NOT_LOCATION_BASED")
 
     def recorded(self, req):
         """Run the engine with every Swiss call recorded."""
@@ -357,13 +384,13 @@ class ChartMetadata(unittest.TestCase):
 
     def test_time_scale_labels_at_era_boundaries(self):
         cases = [("1970-01-01T00:00:00+05:30", "Asia/Kolkata", "UTC_BEFORE_LEAP_SECONDS"),  # UTC 1969-12-31
-                 ("1971-12-31T23:59:59+00:00", "UTC", "UTC_BEFORE_LEAP_SECONDS"),
+                 ("1971-12-31T23:59:59+00:00", ZERO, "UTC_BEFORE_LEAP_SECONDS"),
                  ("1972-01-01T05:00:00+05:30", "Asia/Kolkata", "UTC_BEFORE_LEAP_SECONDS"),  # UTC 1971-12-31
-                 ("1972-01-01T00:00:00+00:00", "UTC", "LEAP_SECOND_UTC"),
-                 ("2027-06-27T23:59:59.999999+00:00", "UTC", "LEAP_SECOND_UTC"),
+                 ("1972-01-01T00:00:00+00:00", ZERO, "LEAP_SECOND_UTC"),
+                 ("2027-06-27T23:59:59.999999+00:00", ZERO, "LEAP_SECOND_UTC"),
                  ("2027-06-28T03:00:00+05:30", "Asia/Kolkata", "LEAP_SECOND_UTC"),  # UTC 2027-06-27
-                 ("2027-06-28T00:00:00+00:00", "UTC", "AFTER_LEAP_SECOND_LIST_EXPIRY"),
-                 ("2100-12-31T23:59:59+00:00", "UTC", "AFTER_LEAP_SECOND_LIST_EXPIRY")]
+                 ("2027-06-28T00:00:00+00:00", ZERO, "AFTER_LEAP_SECOND_LIST_EXPIRY"),
+                 ("2100-12-31T23:59:59+00:00", ZERO, "AFTER_LEAP_SECOND_LIST_EXPIRY")]
         for birth, tz, era in cases:
             with self.subTest(birth=birth):
                 ts = self.meta(birth, tz)["time_scale"]
@@ -375,7 +402,7 @@ class ChartMetadata(unittest.TestCase):
                 self.assertEqual(ts["leap_second_list_expiry_utc"], "2027-06-28T00:00:00Z")
 
     def test_future_disclosure_around_2027_06_28(self):
-        codes = lambda birth, tz="UTC": [d["code"] for d in self.meta(birth, tz)["disclosures"]]
+        codes = lambda birth, tz=ZERO: [d["code"] for d in self.meta(birth, tz)["disclosures"]]
         self.assertEqual(codes("2027-06-27T23:59:59+00:00"), [])
         self.assertEqual(codes("2027-06-28T03:00:00+05:30", "Asia/Kolkata"), [])
         self.assertEqual(codes("2027-06-28T00:00:00+00:00"), ["FUTURE_CIVIL_TIME_PROJECTED"])
@@ -383,7 +410,7 @@ class ChartMetadata(unittest.TestCase):
         self.assertNotIn("bound", self.meta("2030-01-01T00:00:00+00:00")["disclosures"][0]["description"])
 
     def test_sidereal_model_note_around_2050(self):
-        side = lambda birth, tz="UTC": self.meta(birth, tz)["time_scale"]["sidereal_time_model"]
+        side = lambda birth, tz=ZERO: self.meta(birth, tz)["time_scale"]["sidereal_time_model"]
         self.assertEqual(side("2049-12-31T23:59:59.999999+00:00")["chart_side"], "before_switch")
         self.assertEqual(side("2050-01-01T05:00:00+05:30", "Asia/Kolkata")["chart_side"], "before_switch")
         after = side("2050-01-01T00:00:00+00:00")
@@ -430,11 +457,24 @@ class ChartMetadata(unittest.TestCase):
                          [{"zone": "*", "first_local_date": None, "last_local_date": "1969-12-31"}])
         self.assertEqual(policy["historical_clock"]["exceptions"], [])
         self.assertEqual(policy["latitude_band_deg"], {"min": -66.0, "max": 66.0, "inclusive": True})
+        # KUN-03 D3 (metadata_schema /2): the timezone identifier policy the chart passed. Zone policy
+        # version 2 changes the values (four more refused names), not the shape.
+        self.assertEqual(policy["timezone_identifier"], {
+            "policy": zone_policy.ZONE_POLICY, "mode": "fail_closed",
+            "rule": "geographic IANA timezone identifier required (exact match)",
+            "refused_identifiers": ["UTC", "UCT", "Universal", "Zulu", "GMT", "GMT+0", "GMT-0", "GMT0",
+                                    "Greenwich", "Factory", "CST6CDT", "EST5EDT", "MST7MDT", "PST8PDT"],
+            "refused_prefixes": ["Etc/"], "zone_matches_coordinates_verified": False})
+        self.assertEqual(policy["timezone_identifier"]["policy"],
+                         "KUN-03 D3 location-based birthplace timezone, version 2")
+        with mock.patch.object(zone_policy, "NON_LOCATION_IDENTIFIERS", ("UTC",)):  # read live, not copied
+            self.assertEqual(self.meta("2000-01-01T12:00:00+00:00")["input_policy"]["timezone_identifier"]
+                             ["refused_identifiers"], ["UTC"])
 
     def test_no_historical_clock_bypass(self):
         for birth in ("1969-12-31T23:59:59+00:00", "1950-06-15T10:00:00-03:00"):
             with self.subTest(birth=birth), self.assertRaises(InputRefusalError) as ctx:
-                self.chart(birth, "UTC" if birth.endswith("+00:00") else "America/Argentina/Buenos_Aires")
+                self.chart(birth, ZERO if birth.endswith("+00:00") else "America/Argentina/Buenos_Aires")
             self.assertEqual(ctx.exception.code, "HISTORICAL_CLOCK_UNVERIFIED")
         # Test-only override: the metadata reports the empty gate truthfully and the pre-UTC era.
         with mock.patch.object(engine, "HISTORICAL_CLOCK_GATE", ()):
