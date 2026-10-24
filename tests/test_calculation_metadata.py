@@ -629,6 +629,33 @@ class ChartMetadata(unittest.TestCase):
             "m.input_policy.latitude_band_deg.max", "m.input_policy.latitude_band_deg.min",
             "m.time_scale.sidereal_time_model.recorded_step_arcsec"])
 
+    def test_only_era_fields_change_across_the_2027_reporting_dates(self):
+        # P7 Option 2: on both sides of 2027-05-20, 2027-05-21 and 2027-06-28 (UTC) the metadata
+        # differs only in time_scale.era and era_description, plus the list-expiry disclosure
+        # from 2027-06-28 that existed before P7. metadata_schema is /3 everywhere.
+        def flat(value, path=""):
+            if isinstance(value, dict):
+                return {k: v for key, item in value.items() for k, v in flat(item, f"{path}.{key}").items()}
+            return {path: value}
+        instants = ["2027-05-19T23:59:59.999999+00:00", "2027-05-20T00:00:00+00:00",
+                    "2027-05-20T23:59:59.999999+00:00", "2027-05-21T00:00:00+00:00",
+                    "2027-06-27T23:59:59.999999+00:00", "2027-06-28T00:00:00+00:00"]
+        metas = [flat(self.meta(text)) for text in instants]
+        allowed = {".time_scale.era", ".time_scale.era_description", ".disclosures"}
+        for before, after, text in zip(metas, metas[1:], instants[1:]):
+            with self.subTest(at=text):
+                self.assertEqual(set(before), set(after))
+                self.assertEqual({k: type(v) for k, v in before.items()}, {k: type(v) for k, v in after.items()})
+                changed = {k for k in before if before[k] != after[k]}
+                self.assertLessEqual(changed, allowed)
+                if text != "2027-06-28T00:00:00+00:00":
+                    self.assertNotIn(".disclosures", changed)
+        self.assertEqual({m[".metadata_schema"] for m in metas}, {"sabpuja-calculation-metadata/3"})
+        self.assertEqual([m[".time_scale.era"] for m in metas],
+                         ["LEAP_SECOND_UTC", "CONTINUOUS_UTC_TRANSITION_DATE", "CONTINUOUS_UTC_TRANSITION_DATE",
+                          "CONTINUOUS_UTC_AFTER_TRANSITION_DATE", "CONTINUOUS_UTC_AFTER_TRANSITION_DATE",
+                          "AFTER_LEAP_SECOND_LIST_EXPIRY"])
+
     def test_metadata_is_the_same_across_requests_of_one_era(self):
         a = self.meta("2000-01-01T12:00:00+00:00", lat=10.0, lon=20.0)
         b = self.meta("2010-07-01T03:00:00+05:30", "Asia/Kolkata", -30.0, -100.0)
