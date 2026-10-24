@@ -151,7 +151,13 @@ class Eras(unittest.TestCase):
                  ("1961-01-01T00:00:00+00:00", "UTC_BEFORE_LEAP_SECONDS"),
                  ("1971-12-31T23:59:59.999999+00:00", "UTC_BEFORE_LEAP_SECONDS"),
                  ("1972-01-01T00:00:00+00:00", "LEAP_SECOND_UTC"),
-                 ("2027-06-27T23:59:59.999999+00:00", "LEAP_SECOND_UTC"),
+                 ("2027-05-19T00:00:00+00:00", "LEAP_SECOND_UTC"),
+                 ("2027-05-19T23:59:59.999999+00:00", "LEAP_SECOND_UTC"),
+                 ("2027-05-20T00:00:00+00:00", "CONTINUOUS_UTC_TRANSITION_DATE"),
+                 ("2027-05-20T12:00:00+00:00", "CONTINUOUS_UTC_TRANSITION_DATE"),
+                 ("2027-05-20T23:59:59.999999+00:00", "CONTINUOUS_UTC_TRANSITION_DATE"),
+                 ("2027-05-21T00:00:00+00:00", "CONTINUOUS_UTC_AFTER_TRANSITION_DATE"),
+                 ("2027-06-27T23:59:59.999999+00:00", "CONTINUOUS_UTC_AFTER_TRANSITION_DATE"),
                  ("2027-06-28T00:00:00+00:00", "AFTER_LEAP_SECOND_LIST_EXPIRY"),
                  ("2100-12-31T23:59:59+00:00", "AFTER_LEAP_SECOND_LIST_EXPIRY")]
         for text, code in cases:
@@ -161,19 +167,82 @@ class Eras(unittest.TestCase):
     def test_era_follows_utc_not_local_date(self):
         # Local 1972-01-01 in IST is still 1971 in UTC; local 2027-06-28 03:00 IST is 06-27 in UTC.
         self.assertEqual(provenance.era(self.at("1972-01-01T05:00:00+05:30")), "UTC_BEFORE_LEAP_SECONDS")
-        self.assertEqual(provenance.era(self.at("2027-06-28T03:00:00+05:30")), "LEAP_SECOND_UTC")
+        self.assertEqual(provenance.era(self.at("2027-06-28T03:00:00+05:30")), "CONTINUOUS_UTC_AFTER_TRANSITION_DATE")
         self.assertEqual(provenance.era(self.at("2027-06-27T20:00:00-04:00")), "AFTER_LEAP_SECOND_LIST_EXPIRY")
+        # The transition reporting day is the UTC date: IST 05:30 on 20 and 21 May is UTC midnight.
+        self.assertEqual(provenance.era(self.at("2027-05-20T05:29:59.999999+05:30")), "LEAP_SECOND_UTC")
+        self.assertEqual(provenance.era(self.at("2027-05-20T05:30:00+05:30")), "CONTINUOUS_UTC_TRANSITION_DATE")
+        self.assertEqual(provenance.era(self.at("2027-05-21T05:29:59.999999+05:30")),
+                         "CONTINUOUS_UTC_TRANSITION_DATE")
+        self.assertEqual(provenance.era(self.at("2027-05-21T05:30:00+05:30")), "CONTINUOUS_UTC_AFTER_TRANSITION_DATE")
+        self.assertEqual(provenance.era(self.at("2027-05-19T20:00:00-04:00")), "CONTINUOUS_UTC_TRANSITION_DATE")
+
+    def test_same_instant_in_utc_and_ist_has_one_era(self):
+        for utc_text, ist_text in [("2027-05-19T23:59:59.999999+00:00", "2027-05-20T05:29:59.999999+05:30"),
+                                   ("2027-05-20T00:00:00+00:00", "2027-05-20T05:30:00+05:30"),
+                                   ("2027-05-20T23:59:59.999999+00:00", "2027-05-21T05:29:59.999999+05:30"),
+                                   ("2027-05-21T00:00:00+00:00", "2027-05-21T05:30:00+05:30"),
+                                   ("2027-06-27T23:59:59.999999+00:00", "2027-06-28T05:29:59.999999+05:30"),
+                                   ("2027-06-28T00:00:00+00:00", "2027-06-28T05:30:00+05:30")]:
+            with self.subTest(utc=utc_text):
+                self.assertEqual(self.at(utc_text), self.at(ist_text))
+                self.assertEqual(provenance.era(self.at(utc_text)), provenance.era(self.at(ist_text)))
 
     def test_pinned_constants(self):
         self.assertEqual(provenance.LEAP_SECOND_LIST_EXPIRY, datetime(2027, 6, 28, tzinfo=UTC))
         self.assertEqual(provenance.LEAP_SECOND_UTC_START, datetime(1972, 1, 1, tzinfo=UTC))
+        self.assertEqual(provenance.CONTINUOUS_UTC_TRANSITION_DATE, datetime(2027, 5, 20, tzinfo=UTC))
+        self.assertEqual(provenance.CONTINUOUS_UTC_AFTER_TRANSITION_DATE, datetime(2027, 5, 21, tzinfo=UTC))
         self.assertEqual(provenance.SIDEREAL_MODEL_SWITCH, datetime(2050, 1, 1, tzinfo=UTC))
         self.assertEqual(provenance.SIDEREAL_MODEL_STEP_ARCSEC, -1.908)
         self.assertEqual([code for code, *_ in provenance.ERAS],
                          ["CIVIL_TIME_BEFORE_UTC", "UTC_BEFORE_LEAP_SECONDS", "LEAP_SECOND_UTC",
+                          "CONTINUOUS_UTC_TRANSITION_DATE", "CONTINUOUS_UTC_AFTER_TRANSITION_DATE",
                           "AFTER_LEAP_SECOND_LIST_EXPIRY"])
         for code, start, end, text in provenance.ERAS:
             self.assertNotIn("verified", text.replace("not a verified", ""), code)
+        # Contiguous, half-open, covering every instant.
+        bounds = [(start, end) for _, start, end, _ in provenance.ERAS]
+        self.assertEqual((bounds[0][0], bounds[-1][1]), (None, None))
+        for (_, end), (start, _) in zip(bounds, bounds[1:]):
+            self.assertEqual(end, start)
+
+    def test_continuous_utc_disclosure_text(self):
+        # SCI-01h after BIPM CGPM 2026 Resolution 5 (owner Option 2, date-granular).
+        text = {code: t for code, _, _, t in provenance.ERAS}
+        for code, body in text.items():
+            for stale in ("2035", "2022", "Resolution 4"):
+                self.assertNotIn(stale, body, code)
+        for code in ("LEAP_SECOND_UTC", "CONTINUOUS_UTC_TRANSITION_DATE", "CONTINUOUS_UTC_AFTER_TRANSITION_DATE",
+                     "AFTER_LEAP_SECOND_LIST_EXPIRY"):
+            self.assertIn("CGPM 2026 Resolution 5", text[code], code)
+            self.assertIn("treated as UT1", text[code], code)
+        # The 0.9 s rule belongs to the leap-second regime; the transition date makes no claim either way.
+        self.assertIn("In this regime the IERS rule keeps |UT1-UTC| below 0.9 s", text["LEAP_SECOND_UTC"])
+        self.assertIn("2027-05-19", text["LEAP_SECOND_UTC"])
+        for code in ("CONTINUOUS_UTC_AFTER_TRANSITION_DATE", "AFTER_LEAP_SECOND_LIST_EXPIRY"):
+            self.assertNotIn("0.9", text[code], code)
+        day = text["CONTINUOUS_UTC_TRANSITION_DATE"]
+        self.assertIn("official effective hour and its time scale are not stated", day)
+        self.assertIn("no claim is made that the 0.9 s leap-second rule has ended or still applies", day)
+        self.assertIn("reporting convention, not the official effective instant", day)
+        for invented in ("00:00", "0h", "midnight", "3 600"):
+            self.assertNotIn(invented, day)
+        # 3 600 s is a permitted ceiling, never a measured offset or an engine error.
+        for code in ("CONTINUOUS_UTC_AFTER_TRANSITION_DATE", "AFTER_LEAP_SECOND_LIST_EXPIRY"):
+            self.assertIn("3 600 s", text[code], code)
+            self.assertIn("policy ceiling, not a measured", text[code], code)
+        self.assertIn("not a measured UT1-UTC or an engine error", text["CONTINUOUS_UTC_AFTER_TRANSITION_DATE"])
+        self.assertIn("2027-06-28", text["CONTINUOUS_UTC_AFTER_TRANSITION_DATE"])
+        self.assertIn("pinned IERS leap-second list expiry (2027-06-28)", text["AFTER_LEAP_SECOND_LIST_EXPIRY"])
+        self.assertIn("Swiss Delta T is extrapolated", text["AFTER_LEAP_SECOND_LIST_EXPIRY"])
+
+    def test_future_disclosure_keeps_list_expiry_not_transition_date(self):
+        codes = lambda text: [d["code"] for d in provenance._disclosures(self.at(text), 0.0)]
+        for text in ("2027-05-19T23:59:59.999999+00:00", "2027-05-20T00:00:00+00:00", "2027-05-21T00:00:00+00:00",
+                     "2027-06-27T23:59:59.999999+00:00", "2027-06-28T05:29:59.999999+05:30"):
+            self.assertEqual(codes(text), [], text)
+        self.assertEqual(codes("2027-06-28T00:00:00+00:00"), ["FUTURE_CIVIL_TIME_PROJECTED"])
 
     def test_disclosures(self):
         before, after = self.at("2027-06-27T23:59:59+00:00"), self.at("2027-06-28T00:00:00+00:00")
@@ -387,14 +456,23 @@ class ChartMetadata(unittest.TestCase):
                  ("1971-12-31T23:59:59+00:00", ZERO, "UTC_BEFORE_LEAP_SECONDS"),
                  ("1972-01-01T05:00:00+05:30", "Asia/Kolkata", "UTC_BEFORE_LEAP_SECONDS"),  # UTC 1971-12-31
                  ("1972-01-01T00:00:00+00:00", ZERO, "LEAP_SECOND_UTC"),
-                 ("2027-06-27T23:59:59.999999+00:00", ZERO, "LEAP_SECOND_UTC"),
-                 ("2027-06-28T03:00:00+05:30", "Asia/Kolkata", "LEAP_SECOND_UTC"),  # UTC 2027-06-27
+                 ("2027-05-19T23:59:59.999999+00:00", ZERO, "LEAP_SECOND_UTC"),
+                 ("2027-05-20T05:29:59+05:30", "Asia/Kolkata", "LEAP_SECOND_UTC"),  # UTC 2027-05-19
+                 ("2027-05-20T00:00:00+00:00", ZERO, "CONTINUOUS_UTC_TRANSITION_DATE"),
+                 ("2027-05-20T05:30:00+05:30", "Asia/Kolkata", "CONTINUOUS_UTC_TRANSITION_DATE"),  # UTC 05-20 0h
+                 ("2027-05-20T23:59:59.999999+00:00", ZERO, "CONTINUOUS_UTC_TRANSITION_DATE"),
+                 ("2027-05-21T05:29:59+05:30", "Asia/Kolkata", "CONTINUOUS_UTC_TRANSITION_DATE"),  # UTC 05-20
+                 ("2027-05-21T00:00:00+00:00", ZERO, "CONTINUOUS_UTC_AFTER_TRANSITION_DATE"),
+                 ("2027-05-21T05:30:00+05:30", "Asia/Kolkata", "CONTINUOUS_UTC_AFTER_TRANSITION_DATE"),
+                 ("2027-06-27T23:59:59.999999+00:00", ZERO, "CONTINUOUS_UTC_AFTER_TRANSITION_DATE"),
+                 ("2027-06-28T03:00:00+05:30", "Asia/Kolkata", "CONTINUOUS_UTC_AFTER_TRANSITION_DATE"),  # UTC 06-27
                  ("2027-06-28T00:00:00+00:00", ZERO, "AFTER_LEAP_SECOND_LIST_EXPIRY"),
                  ("2100-12-31T23:59:59+00:00", ZERO, "AFTER_LEAP_SECOND_LIST_EXPIRY")]
         for birth, tz, era in cases:
             with self.subTest(birth=birth):
                 ts = self.meta(birth, tz)["time_scale"]
                 self.assertEqual((ts["era"], ts["era_basis"]), (era, "converted UTC instant"))
+                self.assertEqual(ts["era_description"], {c: t for c, _, _, t in provenance.ERAS}[era])
                 self.assertIs(ts["measured_ut1_minus_utc_used"], False)
                 self.assertIs(ts["earth_orientation_data_used"], False)
                 self.assertIn("treated as UT1", ts["ut1_assumption"])

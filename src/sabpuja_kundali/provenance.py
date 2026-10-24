@@ -31,6 +31,12 @@ HIGH_LATITUDE_DISCLOSURE_DEG = 60.0  # SCI-01g: disclosure above 60 deg, no refu
 # SCI-01h time-scale eras, by the converted UTC instant (half-open, start inclusive).
 UTC_START = datetime(1961, 1, 1, tzinfo=timezone.utc)
 LEAP_SECOND_UTC_START = datetime(1972, 1, 1, tzinfo=timezone.utc)
+# BIPM 28th CGPM (2026) Resolution 5: "continuous UTC will become effective on 20 May 2027".
+# The reviewed primary sources give the date only, not the hour or its time scale. Eras group
+# by UTC calendar date as a reporting convention (owner Option 2, PR #20 comment 6381685709);
+# these midnights are not the official effective instant.
+CONTINUOUS_UTC_TRANSITION_DATE = datetime(2027, 5, 20, tzinfo=timezone.utc)
+CONTINUOUS_UTC_AFTER_TRANSITION_DATE = datetime(2027, 5, 21, tzinfo=timezone.utc)
 # IERS leap-seconds.list via tz 2026e (SHA-256 db5a895f...3433): "File expires on 28 June 2027".
 # Pinned research value; it does not follow later IERS publications.
 LEAP_SECOND_LIST_EXPIRY = datetime(2027, 6, 28, tzinfo=timezone.utc)
@@ -46,14 +52,27 @@ ERAS = (
      "1961-1971 UTC with frequency offsets and steps, before leap-second UTC began (for accepted charts, "
      "1969-12-31 to 1971-12-31 UTC). The converted UTC is treated as UT1; UT1-UTC for this era is not "
      "sourced, so the time scale is an approximation, not a verified UT1 measurement."),
-    ("LEAP_SECOND_UTC", LEAP_SECOND_UTC_START, LEAP_SECOND_LIST_EXPIRY,
-     "Leap-second UTC, up to the pinned IERS leap-second list expiry (2027-06-28). The converted UTC is "
-     "treated as UT1. The IERS rule keeps |UT1-UTC| below 0.9 s; that bound is implied under the Swiss "
-     "Delta T model, not a measured UT1-UTC for this calculation."),
+    ("LEAP_SECOND_UTC", LEAP_SECOND_UTC_START, CONTINUOUS_UTC_TRANSITION_DATE,
+     "Leap-second UTC, for UTC dates up to 2027-05-19 (BIPM CGPM 2026 Resolution 5 makes continuous UTC "
+     "effective on 20 May 2027). The converted UTC is treated as UT1. In this regime the IERS rule keeps "
+     "|UT1-UTC| below 0.9 s; that bound is implied under the Swiss Delta T model, not a measured UT1-UTC "
+     "for this calculation."),
+    ("CONTINUOUS_UTC_TRANSITION_DATE", CONTINUOUS_UTC_TRANSITION_DATE, CONTINUOUS_UTC_AFTER_TRANSITION_DATE,
+     "UTC date 2027-05-20, the date on which BIPM CGPM 2026 Resolution 5 makes continuous UTC effective. "
+     "The official effective hour and its time scale are not stated in the reviewed primary sources, so no "
+     "claim is made that the 0.9 s leap-second rule has ended or still applies at any particular time on "
+     "this date. Grouping by UTC date is a reporting convention, not the official effective instant. The "
+     "converted UTC is treated as UT1; no measured UT1-UTC is used."),
+    ("CONTINUOUS_UTC_AFTER_TRANSITION_DATE", CONTINUOUS_UTC_AFTER_TRANSITION_DATE, LEAP_SECOND_LIST_EXPIRY,
+     "UTC dates from 2027-05-21 up to the pinned IERS leap-second list expiry (2027-06-28): continuous UTC "
+     "under BIPM CGPM 2026 Resolution 5, with no leap seconds. Resolution 5 permits |UT1-UTC| up to 3 600 s; "
+     "that is a policy ceiling, not a measured UT1-UTC or an engine error. The converted UTC is treated as "
+     "UT1; no measured UT1-UTC is used."),
     ("AFTER_LEAP_SECOND_LIST_EXPIRY", LEAP_SECOND_LIST_EXPIRY, None,
-     "After the pinned IERS leap-second list expiry: future leap seconds and UT1-UTC are not known. The "
-     "converted UTC is treated as UT1 by projection; no |UT1-UTC| bound is promised (CGPM 2022 "
-     "Resolution 4 raises the 0.9 s limit in or before 2035), and Swiss Delta T is extrapolated."),
+     "After the pinned IERS leap-second list expiry (2027-06-28): continuous UTC under BIPM CGPM 2026 "
+     "Resolution 5, whose 3 600 s maximum for |UT1-UTC| is a policy ceiling, not a measured value. Civil-time "
+     "rules and UT1-UTC are not known; the converted UTC is treated as UT1 by projection, and Swiss Delta T "
+     "is extrapolated."),
 )
 
 
