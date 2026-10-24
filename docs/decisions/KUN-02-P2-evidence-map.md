@@ -1,6 +1,6 @@
 # KUN-02 Phase 2: evidence and reference map
 
-**Status:** supporting document for the PROPOSED decisions in [KUN-02-P2-decision-package.md](KUN-02-P2-decision-package.md). It records where each piece of evidence lives, who reviewed it, and what it does **not** show.
+**Status:** supporting document for the PROPOSED decisions in [KUN-02-P2-decision-package.md](KUN-02-P2-decision-package.md). It records where each piece of evidence lives, who reviewed it, and what it does **not** show. **Update 2026-10-24:** the owner has since selected every proposed entry pre-merge (canonical status PENDING; see the [owner pre-merge selection ledger](../DECISIONS.md#owner-pre-merge-selection-ledger)). Owner selections do not change what this evidence shows: none of it is independent astronomical validation.
 
 All evidence below was produced on unmerged draft branches. The links are permalinks to exact commits, so they stay valid whatever happens to the branches.
 
@@ -57,7 +57,8 @@ Abbreviations: K02 paths are relative to the PR #19 commit, `https://github.com/
 | Swiss Ephemeris source and docs (`swehouse.c`, `swedate.c`, `swephlib.c`, `sweph.h`, `doc/swisseph.htm`) | `aloistr/swisseph@c69c14a` | Yes (hashes in PR #19 evidence `00-environment-and-hashes.txt`) | SCI-01a, d, e, g, h |
 | IANA tz `asia`, `backzone`, `theory.html`, `leap-seconds.list` | tz 2026e (`eggert/tz` tag) | Yes (`asia` `02b69728…0e92e`, `leap-seconds.list` `db5a895f…3433`) | SCI-03, SCI-01h |
 | IERS Conventions 2010, eq. 5.32 | Technical Note 36 | Formula implemented in the K02 probe | SCI-01h |
-| 27th CGPM (2022) Resolution 4 | https://www.bipm.org/en/cgpm-2022/resolution-4 | No: the proxy here blocks bipm.org; confirmed by [ChatGPT QA](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/19#pullrequestreview-5610345034) | SCI-01h |
+| 27th CGPM (2022) Resolution 4 | https://www.bipm.org/en/cgpm-2022/resolution-4 | Originally no (proxy blocked bipm.org; confirmed by [ChatGPT QA](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/19#pullrequestreview-5610345034)); read on 2026-10-24. **Superseded** by 2026 Resolution 5 | SCI-01h (history) |
+| 28th CGPM (2026) Resolution 5 | https://www.bipm.org/en/cgpm-2026/resolution-5 | Read on 2026-10-24, not hashed: continuous UTC effective 20 May 2027; maximum \|UT1 − UTC\| 3 600 s. The page shows no adoption date and the text reviewed gives no effective hour | SCI-01h |
 | Indian Astronomical Ephemeris (1989, 2019) | Values as quoted in Swiss `doc/swisseph.htm` | No (secondary source) | SCI-01a |
 | Python `zoneinfo` (TZPATH search order, cache behaviour) | Python 3.13 standard library | Behaviour observed in K02 (system TZPATH read before the PyPI package) | SCI-03, P1 |
 | Product requirements | `main:docs/PRD.md` KUN-F03 to KUN-F07; `main:docs/ACCEPTANCE-MATRIX.md` QA-005 to QA-013 | In this repository | all |
@@ -73,8 +74,8 @@ Checked: SC18 and K02 against each other and against K01-PROBES, for contradicti
 | CR-3 | Refusal code: K01 `LATITUDE_OUTSIDE_VALIDATED_BAND`, K02 `LATITUDE_OUTSIDE_SUPPORTED_BAND` | Naming conflict only | Propose `LATITUDE_OUTSIDE_SUPPORTED_BAND` ("supported", because the band is a product envelope, not validation) |
 | CR-4 | K01 SCI-01h says UT1 − UTC "is kept within ±0.9 s (IERS, NIST)" and cites Swiss's model value +0.41 s | Supported only as the IERS rule while it stands and as a Swiss-model value; not a measurement; does not hold indefinitely (CGPM 2022 Res. 4) | SCI-01h wording uses "implied under the Swiss ΔT model" and the BIPM limit change |
 | CR-5 | K01 SCI-03 mentions "Bombay Time (about +04:51)" | No source for this offset is in the reviewed evidence, and IANA does not model it | Not used. Any such offset comes only through DATA-01 with a citation |
-| CR-6 | SC18 compares the Lagna with `swetest -house…,P`; SCI-01e moves to `W` | Documented blind spot (SC18 final QA) | P3 must extend the conformance suite to `W` |
-| CR-7 | SC18 enforces refusals for "years 1899/2101", "UTC-1899 via offset" (current UTC-year rule) and "polar Placidus" (`ASCENDANT_UNCOMPUTABLE`); SCI-03 and SCI-01g change those rules and codes | Expected change, not a contradiction | P4 (dates) and P2/P3 (polar) must update those SC18 refusal cases, with QA, in their own PRs |
+| CR-6 | SC18 compares the Lagna with `swetest -house…,P`; SCI-01e moves to `W` | Documented blind spot (SC18 final QA) | P3 must extend the conformance suite to `W`. *Status 2026-10-24:* addressed by the versioned KUN-03 conformance profile in draft PR #33 (contained in Gate 1 `c3cb040`), which compares against a `W` reference; still Swiss-on-Swiss |
+| CR-7 | SC18 enforces refusals for "years 1899/2101", "UTC-1899 via offset" (current UTC-year rule) and "polar Placidus" (`ASCENDANT_UNCOMPUTABLE`); SCI-03 and SCI-01g change those rules and codes | Expected change, not a contradiction | P4 (dates) and P2/P3 (polar) must update those SC18 refusal cases, with QA, in their own PRs. *Status 2026-10-24:* done through the versioned overlay in draft PR #33 (typed refusal codes; archival PR #18 run kept unchanged) |
 | CR-8 | K02 P/W identity (167,612) and K01 (21,168): same conclusion on disjoint samples | Consistent | none |
 | CR-9 | ΔT 2000: K01 63.83 s, K02 63.97 s | Different dates in 2000 (January vs 1 July) | none |
 
