@@ -456,8 +456,9 @@ class CompatibilityTests(unittest.TestCase):
     names), and 110 keys give different offsets, all before 1970 except the
     non-location rule zones WET (to 1996-03-30) and EET (to 1980-04-05), which
     tzdata 2024b+ links to Europe/Lisbon and Europe/Athens. KUN-03 D3 refuses UTC,
-    GMT, Etc/* and their aliases; WET, EET and the other abbreviation-style names
-    stay accepted pending a separate owner decision (zone_policy.OWNER_REVIEW_PENDING).
+    GMT, Etc/* and their aliases, and (zone policy version 2) CST6CDT, EST5EDT,
+    MST7MDT and PST8PDT; WET, EET and the other five abbreviation-style names stay
+    accepted by owner decision (zone_policy.REVIEWED_ACCEPTED).
     """
 
     def test_non_location_rule_zones_after_1970_follow_the_pinned_links(self):

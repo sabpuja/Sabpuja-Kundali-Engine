@@ -111,7 +111,7 @@ class NoBypassTests(unittest.TestCase):
                                                          __import__("datetime").date(1969, 12, 31)),))
         self.assertEqual(engine.HISTORICAL_CLOCK_EXCEPTIONS, ())
         self.assertEqual(engine.RESERVED_CODES, ())  # D3 now raises TIMEZONE_NOT_LOCATION_BASED
-        self.assertEqual(zone_policy.ZONE_POLICY, "KUN-03 D3 location-based birthplace timezone, version 1")
+        self.assertEqual(zone_policy.ZONE_POLICY, "KUN-03 D3 location-based birthplace timezone, version 2")
         self.assertIsInstance(zone_policy.NON_LOCATION_IDENTIFIERS, tuple)
         self.assertIsInstance(zone_policy.NON_LOCATION_PREFIXES, tuple)
         reads = []

@@ -1,9 +1,10 @@
 """CLI: python -m tests.swiss_conformance.run_d3 --swetest PATH --receipt RECEIPT.json --ephe DIR --report-dir reports/
 
-Runs the KUN-03 D3 profile (production, no override), the numeric continuation
-(geographic equivalents in production; test-only D3 override supplement), the
-test-only historical supplement, and the unchanged v1 and archival PR #18
-runners, whose divergence from the D3 engine must be exactly the recorded one.
+Runs the KUN-03 D3 profile v2 (zone policy version 2, production, no override),
+the numeric continuation (geographic equivalents in production; test-only D3
+override supplement), the test-only historical supplement, the unchanged v1 and
+archival PR #18 runners, whose divergence from the D3 engine must be exactly the
+recorded one, and the archived D3 policy v1 in a test-only versioned context.
 Exit 0 SWISS-CONFORMANCE PASS, 1 FAIL, 2 BLOCKED.
 """
 from __future__ import annotations

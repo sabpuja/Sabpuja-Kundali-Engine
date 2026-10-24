@@ -1,0 +1,498 @@
+{
+  "schema": "sabpuja-swiss-conformance-d3-profile/2",
+  "profile_id": "KUN-03-D3",
+  "profile_version": 2,
+  "status": "FROZEN for KUN-03 D3 location-based timezone validation, zone policy version 2 (changing any value needs a written reason, QA review and a new profile_version)",
+  "claim_boundary": "Swiss-on-Swiss integration conformance of the KUN-03 engine under the D3 timezone policy against the official swetest CLI for these cases, versions and options. NOT independent astronomical validation, NOT mathematical verification of the algorithms, NOT historical clock verification and NOT geolocation (the zone is never checked against the coordinates). The D3 override and historical-numerics supplements run with test-only overrides and are never production acceptance.",
+  "zone_policy": "KUN-03 D3 location-based birthplace timezone, version 2",
+  "lineage": {
+    "previous_d3_profile": {
+      "id": "KUN-03-D3",
+      "version": 1,
+      "sha256": "942a0eac0a18b45f26de91b238d0b5b3868713076a4a50e457598b1fa999b980",
+      "zone_policy": "KUN-03 D3 location-based birthplace timezone, version 1",
+      "path": "tests/swiss_conformance/profiles/kun03-d3-v1.json"
+    },
+    "policy_change": {
+      "from": "KUN-03 D3 location-based birthplace timezone, version 1",
+      "to": "KUN-03 D3 location-based birthplace timezone, version 2",
+      "added_refused_identifiers": [
+        "CST6CDT",
+        "EST5EDT",
+        "MST7MDT",
+        "PST8PDT"
+      ],
+      "kept_accepted_identifiers": [
+        "CET",
+        "MET",
+        "EET",
+        "WET",
+        "EST",
+        "MST",
+        "HST"
+      ],
+      "authorization": "owner Option B, PR #20 comment 6377855934",
+      "affected_cases": []
+    },
+    "unchanged_from_previous": [
+      "claim_boundary",
+      "counts",
+      "cases",
+      "numeric_continuation",
+      "historical_numerics_supplement",
+      "placidus_reference_observations",
+      "expected_divergence"
+    ]
+  },
+  "base": {
+    "framework": "PR #33 current-profile runner and PR #18 (KUN-01-SWISS-01) archival runner, both unchanged",
+    "spec.json": "642a770d713c11bc42fc92fe441da02e4848522fc4978ae3049dddbea33d12a8",
+    "cases.json": "afd8864cd84c246011d9ed8510b3efa5ed5e6c68daa6381114a77adf0ef399c9",
+    "previous_profile": {
+      "id": "KUN-03-current",
+      "version": 1,
+      "sha256": "06d24730205213b680223aaa4077b9efc44335a4eb1638f98deb622bbc17e698"
+    }
+  },
+  "counts": {
+    "cases": 24,
+    "chart_cases": 7,
+    "refusal_cases": 17,
+    "checks_per_chart": 49,
+    "comparison_checks": 343,
+    "self_consistency_checks": 14,
+    "house_method_checks": 28,
+    "refusal_checks": 34,
+    "placidus_reference_observations": 4,
+    "geographic_equivalent_cases": 3,
+    "geographic_equivalent_comparison_checks": 147,
+    "geographic_equivalent_self_consistency_checks": 6,
+    "geographic_equivalent_house_method_checks": 12,
+    "geographic_equivalence_checks": 3,
+    "d3_override_supplement_cases": 6,
+    "d3_override_supplement_comparison_checks": 294,
+    "d3_override_supplement_self_consistency_checks": 12,
+    "d3_override_supplement_house_method_checks": 24,
+    "historical_supplement_cases": 2,
+    "historical_supplement_comparison_checks": 98,
+    "historical_supplement_self_consistency_checks": 4,
+    "historical_supplement_house_method_checks": 8,
+    "v1_comparison_checks": 784,
+    "v1_comparison_checks_accounted": 784,
+    "v1_historical_supplement_comparison_checks_accounted": 98
+  },
+  "cases": [
+    {
+      "id": "SC-01",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace; D3 refuses it before every later check. Numerics continue on Asia/Kolkata at the same instant (+05:30).",
+        "numeric_continuation": "geographic_equivalent"
+      }
+    },
+    {
+      "id": "SC-02",
+      "expect": "chart",
+      "expected_refusal": null,
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": null
+    },
+    {
+      "id": "SC-03",
+      "expect": "chart",
+      "expected_refusal": null,
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": null
+    },
+    {
+      "id": "SC-04",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace. Numerics continue on Australia/Sydney at the same instant (AEDT +11:00 on 2000-02-29).",
+        "numeric_continuation": "geographic_equivalent"
+      }
+    },
+    {
+      "id": "SC-05",
+      "expect": "chart",
+      "expected_refusal": null,
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": null
+    },
+    {
+      "id": "SC-06",
+      "expect": "chart",
+      "expected_refusal": null,
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": null
+    },
+    {
+      "id": "SC-07",
+      "expect": "refuse",
+      "expected_refusal": "TIME_NONEXISTENT_LOCAL",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "refuse",
+        "expected_refusal": "TIME_NONEXISTENT_LOCAL"
+      },
+      "change": null
+    },
+    {
+      "id": "SC-08",
+      "expect": "chart",
+      "expected_refusal": null,
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": null
+    },
+    {
+      "id": "SC-09",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "refuse",
+        "expected_refusal": "HISTORICAL_CLOCK_UNVERIFIED"
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace; D3 precedes the historical clock gate. Numerics continue in the test-only historical supplement with both the gate and D3 bypassed.",
+        "numeric_continuation": "historical_supplement"
+      }
+    },
+    {
+      "id": "SC-10",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "refuse",
+        "expected_refusal": "DATE_OUTSIDE_SUPPORTED_RANGE"
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace; D3 precedes DATE_OUTSIDE_SUPPORTED_RANGE. Was a refusal; no numerics.",
+        "numeric_continuation": null
+      }
+    },
+    {
+      "id": "SC-11",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace. No geographic equivalent: the same instant is local 2101-01-01 in Tokyo (outside the window). Numerics continue in the test-only D3 override supplement.",
+        "numeric_continuation": "d3_override_supplement"
+      }
+    },
+    {
+      "id": "SC-12",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "refuse",
+        "expected_refusal": "DATE_OUTSIDE_SUPPORTED_RANGE"
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace; D3 precedes DATE_OUTSIDE_SUPPORTED_RANGE. Was a refusal; no numerics.",
+        "numeric_continuation": null
+      }
+    },
+    {
+      "id": "SC-13",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "refuse",
+        "expected_refusal": "HISTORICAL_CLOCK_UNVERIFIED"
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "Etc/GMT-3 is a fixed offset, not a place; D3 precedes the historical clock gate. Was a refusal; no numerics.",
+        "numeric_continuation": null
+      }
+    },
+    {
+      "id": "SC-14",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace and 0 N 0 E is open ocean. Numerics continue in the test-only D3 override supplement.",
+        "numeric_continuation": "d3_override_supplement"
+      }
+    },
+    {
+      "id": "SC-15",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace and 0 N 0 E is open ocean. Numerics continue in the test-only D3 override supplement.",
+        "numeric_continuation": "d3_override_supplement"
+      }
+    },
+    {
+      "id": "SC-16",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace and 0 N 0 E is open ocean. Numerics continue in the test-only D3 override supplement.",
+        "numeric_continuation": "d3_override_supplement"
+      }
+    },
+    {
+      "id": "SC-17",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "refuse",
+        "expected_refusal": "LATITUDE_OUTSIDE_SUPPORTED_BAND"
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace; D3 precedes LATITUDE_OUTSIDE_SUPPORTED_BAND. Was a refusal; Placidus reference observations still run.",
+        "numeric_continuation": null
+      }
+    },
+    {
+      "id": "SC-18",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "refuse",
+        "expected_refusal": "LATITUDE_OUTSIDE_SUPPORTED_BAND"
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace; D3 precedes LATITUDE_OUTSIDE_SUPPORTED_BAND. Was a refusal; Placidus reference observations still run.",
+        "numeric_continuation": null
+      }
+    },
+    {
+      "id": "SC-19",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace and 0 N 180 E is open ocean at the antimeridian. Numerics continue in the test-only D3 override supplement.",
+        "numeric_continuation": "d3_override_supplement"
+      }
+    },
+    {
+      "id": "SC-20",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace and 0.5 S 180 W is open ocean at the antimeridian. Numerics continue in the test-only D3 override supplement.",
+        "numeric_continuation": "d3_override_supplement"
+      }
+    },
+    {
+      "id": "SC-21",
+      "expect": "chart",
+      "expected_refusal": null,
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": null
+    },
+    {
+      "id": "SC-22",
+      "expect": "chart",
+      "expected_refusal": null,
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": null
+    },
+    {
+      "id": "SC-23",
+      "expect": "refuse",
+      "expected_refusal": "HISTORICAL_CLOCK_UNVERIFIED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "refuse",
+        "expected_refusal": "HISTORICAL_CLOCK_UNVERIFIED"
+      },
+      "change": null
+    },
+    {
+      "id": "SC-24",
+      "expect": "refuse",
+      "expected_refusal": "TIMEZONE_NOT_LOCATION_BASED",
+      "previous": {
+        "profile": "KUN-03-current v1",
+        "expect": "chart",
+        "expected_refusal": null
+      },
+      "change": {
+        "source_milestone": "KUN-03 D3 (location-based birthplace timezone)",
+        "reason": "UTC names no birthplace. Numerics continue on Atlantic/Reykjavik at the same instant (+00:00; 66 N 18 W is in Iceland's waters).",
+        "numeric_continuation": "geographic_equivalent"
+      }
+    }
+  ],
+  "numeric_continuation": {
+    "geographic_equivalents": {
+      "cases": {
+        "SC-01": {
+          "birth_datetime": "2000-01-01T17:30:00+05:30",
+          "timezone": "Asia/Kolkata"
+        },
+        "SC-04": {
+          "birth_datetime": "2000-02-29T11:00:00+11:00",
+          "timezone": "Australia/Sydney"
+        },
+        "SC-24": {
+          "birth_datetime": "2026-03-20T09:00:00+00:00",
+          "timezone": "Atlantic/Reykjavik"
+        }
+      },
+      "basis": "production run, no override: the frozen UTC instant and coordinates with a geographic zone whose pinned offset at that instant is the one written; each chart must equal the original request's chart with D3 bypassed, except the echoed timezone key"
+    },
+    "d3_override_supplement": {
+      "cases": [
+        "SC-11",
+        "SC-14",
+        "SC-15",
+        "SC-16",
+        "SC-19",
+        "SC-20"
+      ],
+      "label": "TEST-ONLY D3 override: zone_policy.is_location_based returns True inside the runner process only, restored and re-checked afterwards; original requests, Swiss numerics only; NOT production acceptance"
+    }
+  },
+  "historical_numerics_supplement": {
+    "cases": {
+      "SC-09": [
+        "historical_clock",
+        "d3"
+      ],
+      "SC-23": [
+        "historical_clock"
+      ]
+    },
+    "label": "TEST-ONLY overrides (historical clock gate; for SC-09 also D3): Swiss numerics of the archival charts only; NOT production acceptance and NOT historical clock verification"
+  },
+  "placidus_reference_observations": {
+    "cases": [
+      "SC-17",
+      "SC-18"
+    ],
+    "reason": "Archival PR #18 evidence, reproduced as reference only (as in v1); the D3 refusal comes first and is not a Swiss failure."
+  },
+  "expected_divergence": {
+    "v1_current_profile": {
+      "cases": {
+        "SC-01": "engine refused (TIMEZONE_NOT_LOCATION_BASED) a case expected to chart",
+        "SC-04": "engine refused (TIMEZONE_NOT_LOCATION_BASED) a case expected to chart",
+        "SC-11": "engine refused (TIMEZONE_NOT_LOCATION_BASED) a case expected to chart",
+        "SC-14": "engine refused (TIMEZONE_NOT_LOCATION_BASED) a case expected to chart",
+        "SC-15": "engine refused (TIMEZONE_NOT_LOCATION_BASED) a case expected to chart",
+        "SC-16": "engine refused (TIMEZONE_NOT_LOCATION_BASED) a case expected to chart",
+        "SC-19": "engine refused (TIMEZONE_NOT_LOCATION_BASED) a case expected to chart",
+        "SC-20": "engine refused (TIMEZONE_NOT_LOCATION_BASED) a case expected to chart",
+        "SC-24": "engine refused (TIMEZONE_NOT_LOCATION_BASED) a case expected to chart",
+        "SC-09": "engine_refusal_code: TIMEZONE_NOT_LOCATION_BASED",
+        "SC-10": "engine_refusal_code: TIMEZONE_NOT_LOCATION_BASED",
+        "SC-12": "engine_refusal_code: TIMEZONE_NOT_LOCATION_BASED",
+        "SC-13": "engine_refusal_code: TIMEZONE_NOT_LOCATION_BASED",
+        "SC-17": "engine_refusal_code: TIMEZONE_NOT_LOCATION_BASED",
+        "SC-18": "engine_refusal_code: TIMEZONE_NOT_LOCATION_BASED"
+      },
+      "historical_supplement": {
+        "SC-09": "engine refused (TIMEZONE_NOT_LOCATION_BASED) a case expected to chart"
+      }
+    },
+    "archival_pr18": {
+      "SC-01": "engine refused (INPUT_REFUSED) a case expected to chart",
+      "SC-04": "engine refused (INPUT_REFUSED) a case expected to chart",
+      "SC-09": "engine refused (INPUT_REFUSED) a case expected to chart",
+      "SC-11": "engine refused (INPUT_REFUSED) a case expected to chart",
+      "SC-14": "engine refused (INPUT_REFUSED) a case expected to chart",
+      "SC-15": "engine refused (INPUT_REFUSED) a case expected to chart",
+      "SC-16": "engine refused (INPUT_REFUSED) a case expected to chart",
+      "SC-17": "expected refusal ASCENDANT_UNCOMPUTABLE, engine gave INPUT_REFUSED",
+      "SC-18": "expected refusal ASCENDANT_UNCOMPUTABLE, engine gave INPUT_REFUSED",
+      "SC-19": "engine refused (INPUT_REFUSED) a case expected to chart",
+      "SC-20": "engine refused (INPUT_REFUSED) a case expected to chart",
+      "SC-23": "engine refused (INPUT_REFUSED) a case expected to chart",
+      "SC-24": "engine refused (INPUT_REFUSED) a case expected to chart"
+    }
+  }
+}

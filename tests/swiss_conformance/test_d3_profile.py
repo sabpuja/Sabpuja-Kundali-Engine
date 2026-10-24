@@ -1,5 +1,9 @@
 """KUN-03 D3 conformance profile: fail-closed D3 overlay, D3 refusals, numeric continuation, divergence.
 
+The active profile is D3 profile v2 (zone policy version 2); the archived D3
+profile v1 stays byte-identical and is reproduced only in a test-only,
+versioned compatibility context.
+
 The profile, refusal and override tests need no Swiss data or swetest. Tests
 that compute charts need SABPUJA_TEST_EPHE_PATH (unset skips); the swetest class
 is skipped only when SABPUJA_TEST_SWETEST is unset and errors if it is set but
@@ -59,14 +63,36 @@ class Profile(unittest.TestCase):
         self.assertEqual(sorted([*d3.GEOGRAPHIC_EQUIVALENTS, *d3.D3_OVERRIDE_SUPPLEMENT]),
                          [cid for cid in d3.NEWLY_REFUSED])
         self.assertEqual(doc["zone_policy"], zone_policy.ZONE_POLICY)
+        self.assertEqual((doc["profile_version"], doc["zone_policy"]),
+                         (2, "KUN-03 D3 location-based birthplace timezone, version 2"))
+
+    def test_v2_lineage_is_the_owner_delta_and_keeps_every_v1_expectation(self):
+        v1, record, errors = d3.load_v1_profile()
+        self.assertEqual((errors, record["sha256"]), ([], d3.V1_PROFILE_SHA256))
+        self.assertEqual((v1["profile_version"], v1["zone_policy"]),
+                         (1, "KUN-03 D3 location-based birthplace timezone, version 1"))
+        doc = json.loads(PROFILE_TEXT)
+        for key in d3.UNCHANGED_FROM_V1:
+            self.assertEqual(doc[key], v1[key], key)
+        self.assertEqual(set(doc) - set(v1), {"lineage"})
+        change = doc["lineage"]["policy_change"]
+        self.assertEqual(change["added_refused_identifiers"],
+                         sorted(set(zone_policy.NON_LOCATION_IDENTIFIERS) - set(d3.V1_NON_LOCATION_IDENTIFIERS)))
+        self.assertEqual(change["added_refused_identifiers"], ["CST6CDT", "EST5EDT", "MST7MDT", "PST8PDT"])
+        self.assertEqual(change["kept_accepted_identifiers"], list(zone_policy.REVIEWED_ACCEPTED))
+        self.assertEqual(change["affected_cases"], [])  # no frozen request uses the four names
+        self.assertFalse({r["timezone"] for r in d3._REQUESTS.values()} & set(change["added_refused_identifiers"]))
+        self.assertEqual(doc["lineage"]["previous_d3_profile"]["sha256"], d3.V1_PROFILE_SHA256)
 
     def test_frozen_inputs_and_v1_profile_untouched(self):
         frozen = {"spec.json": "642a770d713c11bc42fc92fe441da02e4848522fc4978ae3049dddbea33d12a8",
                   "cases.json": "afd8864cd84c246011d9ed8510b3efa5ed5e6c68daa6381114a77adf0ef399c9",
-                  "profiles/kun03-current-v1.json": "06d24730205213b680223aaa4077b9efc44335a4eb1638f98deb622bbc17e698"}
+                  "profiles/kun03-current-v1.json": "06d24730205213b680223aaa4077b9efc44335a4eb1638f98deb622bbc17e698",
+                  "profiles/kun03-d3-v1.json": "942a0eac0a18b45f26de91b238d0b5b3868713076a4a50e457598b1fa999b980"}
         for name, digest in frozen.items():
             self.assertEqual(inputs.sha256_bytes((c.HERE / name).read_bytes()), digest)
         self.assertEqual(profile.PROFILE_SHA256, frozen["profiles/kun03-current-v1.json"])
+        self.assertEqual(d3.V1_PROFILE_SHA256, frozen["profiles/kun03-d3-v1.json"])
         self.assertEqual(profile.load_profile()[2], [])
         self.assertEqual(inputs.TOLERANCES, {"binding_vs_swetest": 1e-09, "engine_vs_swetest": 1e-08,
                                              "swetest_ut_jd_day": 1e-09, "independent_jd_day": 1e-09,
@@ -104,7 +130,7 @@ class Profile(unittest.TestCase):
 
     def test_any_byte_change_blocks(self):
         path = Path(self.tmp.name) / "p.json"
-        path.write_text(PROFILE_TEXT.replace("\"profile_version\": 1", "\"profile_version\": 1 "), encoding="utf-8")
+        path.write_text(PROFILE_TEXT.replace("\"profile_version\": 2", "\"profile_version\": 2 "), encoding="utf-8")
         self.blocked(path, "D3_PROFILE_SHA256_MISMATCH")
         self.blocked(Path(self.tmp.name) / "absent.json", "D3_PROFILE_MISSING")
 
@@ -149,9 +175,26 @@ class Profile(unittest.TestCase):
             "v1 profile hash forged": (lambda d: d["base"]["previous_profile"].update(sha256="0" * 64),
                                        "D3_PROFILE_BASE_HASH"),
             "zone policy renamed": (lambda d: d.update(zone_policy="KUN-03 D3, version 2"), "D3_PROFILE_ZONE_POLICY"),
+            "zone policy left at version 1": (lambda d: d.update(
+                zone_policy="KUN-03 D3 location-based birthplace timezone, version 1"), "D3_PROFILE_ZONE_POLICY"),
+            "lineage widened": (lambda d: d["lineage"]["policy_change"]["added_refused_identifiers"].append("CET"),
+                                "D3_PROFILE_LINEAGE"),
+            "lineage narrowed": (lambda d: d["lineage"]["policy_change"]["added_refused_identifiers"].pop(),
+                                 "D3_PROFILE_LINEAGE"),
+            "kept alias dropped": (lambda d: d["lineage"]["policy_change"]["kept_accepted_identifiers"].remove("HST"),
+                                   "D3_PROFILE_LINEAGE"),
+            "affected case claimed": (lambda d: d["lineage"]["policy_change"]["affected_cases"].append("SC-05"),
+                                      "D3_PROFILE_LINEAGE"),
+            "previous D3 profile hash forged": (lambda d: d["lineage"]["previous_d3_profile"].update(sha256="0" * 64),
+                                                "D3_PROFILE_LINEAGE"),
+            "lineage removed": (lambda d: d.pop("lineage"), "D3_PROFILE_KEYS"),
             "geolocation claimed": (lambda d: d.update(claim_boundary=d["claim_boundary"].replace(
                 "NOT geolocation", "geolocation")), "D3_PROFILE_CLAIM_BOUNDARY"),
-            "version bumped": (lambda d: d.update(profile_version=2), "D3_PROFILE_VERSION"),
+            "version bumped": (lambda d: d.update(profile_version=3), "D3_PROFILE_VERSION"),
+            "version reverted": (lambda d: d.update(profile_version=1), "D3_PROFILE_VERSION"),
+            "schema reverted": (lambda d: d.update(schema="sabpuja-swiss-conformance-d3-profile/1"), "D3_PROFILE_SCHEMA"),
+            "expectation drifts from archived v1": (lambda d: d["placidus_reference_observations"].update(reason="x"),
+                                                    "D3_PROFILE_LINEAGE_DRIFT: placidus_reference_observations"),
             "extra key": (lambda d: d.update(bypass=True), "D3_PROFILE_KEYS"),
         }
         for label, (edit, wanted) in edits.items():
@@ -180,6 +223,37 @@ class Profile(unittest.TestCase):
             self.blocked(d3.PROFILE_PATH, "CASES_SHA256_MISMATCH", "D3_PROFILE_BASE_HASH")
         with mock.patch.object(profile, "PROFILE_SHA256", "0" * 64):
             self.blocked(d3.PROFILE_PATH, "PROFILE_SHA256_MISMATCH", "D3_PROFILE_BASE_HASH")
+
+    def test_archived_d3_v1_profile_edit_blocks_the_d3_runner(self):
+        v1_text = d3.V1_PROFILE_PATH.read_text(encoding="utf-8")
+        path = Path(self.tmp.name) / "d3-v1.json"
+        path.write_text(v1_text.replace("\"profile_version\": 1", "\"profile_version\": 1 "), encoding="utf-8")
+        with mock.patch.object(d3, "V1_PROFILE_PATH", path):
+            self.blocked(d3.PROFILE_PATH, "D3_V1_PROFILE_SHA256_MISMATCH")
+        with mock.patch.object(d3, "V1_PROFILE_PATH", Path(self.tmp.name) / "absent.json"):
+            self.blocked(d3.PROFILE_PATH, "D3_V1_PROFILE_MISSING")
+        # Re-pinned after an edit: still blocked, by version or by lineage drift.
+        for edit, wanted in ((lambda d: d.update(zone_policy="x"), "D3_V1_PROFILE_VERSION"),
+                             (lambda d: d["counts"].update(comparison_checks=294), "D3_PROFILE_LINEAGE_DRIFT: counts")):
+            doc = json.loads(v1_text)
+            edit(doc)
+            path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
+            with self.subTest(wanted=wanted), mock.patch.object(d3, "V1_PROFILE_PATH", path), \
+                    mock.patch.object(d3, "V1_PROFILE_SHA256", inputs.sha256_bytes(path.read_bytes())):
+                self.blocked(d3.PROFILE_PATH, wanted)
+
+    def test_production_policy_must_match_the_recorded_lineage(self):
+        real = zone_policy.is_location_based
+        for name in ("CST6CDT", "PST8PDT"):
+            with self.subTest(reaccepted=name), \
+                    mock.patch.object(zone_policy, "NON_LOCATION_IDENTIFIERS",
+                                      tuple(n for n in zone_policy.NON_LOCATION_IDENTIFIERS if n != name)):
+                self.assertIn("D3_PROFILE_LINEAGE", d3.load_profile()[2])
+        with mock.patch.object(zone_policy, "is_location_based", lambda name: real(name) and name != "WET"):
+            self.assertIn("D3_PROFILE_LINEAGE", d3.load_profile()[2])
+        with mock.patch.object(zone_policy, "ZONE_POLICY", d3.V1_ZONE_POLICY):
+            self.assertIn("D3_PROFILE_ZONE_POLICY", d3.load_profile()[2])
+        self.assertEqual(d3.load_profile()[2], [])
 
 
 class Refusals(unittest.TestCase):
@@ -214,6 +288,17 @@ class Refusals(unittest.TestCase):
             with self.subTest(fields=fields):
                 request = dict(CASES["SC-01"]["request"], **fields)
                 self.assertEqual(cur.call_engine(request, "/nonexistent-ephemeris")[:2], ("refused", code))
+
+    def test_v1_policy_context_is_scoped_versioned_and_restored(self):
+        current = (zone_policy.ZONE_POLICY, zone_policy.NON_LOCATION_IDENTIFIERS)
+        with d3.v1_policy_context():
+            self.assertEqual(zone_policy.ZONE_POLICY, d3.V1_ZONE_POLICY)
+            self.assertTrue(all(zone_policy.is_location_based(n) for n in ("CST6CDT", "EST5EDT", "MST7MDT", "PST8PDT")))
+            self.assertFalse(zone_policy.is_location_based("UTC"))
+            request = {**CASES["SC-05"]["request"], "timezone": "EST5EDT"}
+            self.assertEqual(cur.call_engine(request, "/nonexistent-ephemeris")[:2], ("blocked", "EPHEMERIS_PATH_MISSING"))
+        self.assertEqual((zone_policy.ZONE_POLICY, zone_policy.NON_LOCATION_IDENTIFIERS), current)
+        self.assertEqual(cur.call_engine(request, "/nonexistent-ephemeris")[:2], ("refused", D3))
 
     def test_d3_override_is_scoped_and_restored(self):
         original = zone_policy.is_location_based
@@ -359,8 +444,14 @@ class D3ProfileWithSwetest(unittest.TestCase):
     def test_full_run(self):
         report = d3.run_all(SWETEST, EPHE, RECEIPT, env=self.env)
         self.assertEqual(report["verdicts"], dict.fromkeys(("d3", "numeric_continuation", "historical_supplement",
-                                                            "v1_divergence", "archival_divergence"),
+                                                            "v1_divergence", "archival_divergence",
+                                                            "archived_d3_v1_policy"),
                                                            "SWISS-CONFORMANCE PASS"))
+        archived = report["archived_d3_v1_policy"]
+        self.assertEqual((archived["cases_checked"], archived["charts"], archived["accepted_inside"], archived["restored"]),
+                         (24, 7, ["CST6CDT", "EST5EDT", "MST7MDT", "PST8PDT"], True))
+        self.assertEqual(report["profile"]["previous_d3_profile_sha256"], d3.V1_PROFILE_SHA256)
+        self.assertEqual(report["inputs"]["profile_d3_v1"]["sha256"], d3.V1_PROFILE_SHA256)
         self.assertEqual(report["coverage_errors"], [])
         self.assertEqual(report["v1_divergence"]["observed"], d3.V1_DIVERGENCE)
         self.assertEqual(report["archival"]["verdict"], "SWISS-CONFORMANCE FAIL")
@@ -368,7 +459,8 @@ class D3ProfileWithSwetest(unittest.TestCase):
             "d3_override_supplement"] + report["historical_supplement"]], [True] * 11)
 
     def test_accepting_utc_in_production_fails(self):
-        with mock.patch.object(zone_policy, "NON_LOCATION_IDENTIFIERS", ()):
+        with mock.patch.object(zone_policy, "NON_LOCATION_IDENTIFIERS",
+                               tuple(n for n in zone_policy.NON_LOCATION_IDENTIFIERS if n != "UTC")):
             report = d3.run_all(SWETEST, EPHE, RECEIPT, env=self.env)
         self.assertEqual(report["verdicts"]["d3"], "SWISS-CONFORMANCE FAIL")
         self.assertEqual(report["verdicts"]["v1_divergence"], "SWISS-CONFORMANCE FAIL")

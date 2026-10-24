@@ -1,11 +1,13 @@
 """KUN-03 D3: a birthplace timezone must be a geographic IANA identifier.
 
-Synthetic inputs only. UTC, GMT, every Etc/* key, their root-level aliases and
-Factory are refused with TIMEZONE_NOT_LOCATION_BASED, judged by exact name
-against the tz 2026e source classification (zone_policy.py). Nothing is refused
-for its offset or its TZif bytes. The check runs after the zone is recognised and
-verified (TIMEZONE_INVALID and TZDATA_* first) and before every later check, and
-a refusal reaches neither the ephemeris check nor Swiss.
+Synthetic inputs only. UTC, GMT, every Etc/* key, their root-level aliases,
+Factory and (zone policy version 2) the four US-rules zones CST6CDT, EST5EDT,
+MST7MDT and PST8PDT are refused with TIMEZONE_NOT_LOCATION_BASED, judged by exact
+name against the tz 2026e source classification (zone_policy.py). The seven
+other abbreviation-style names (CET, MET, EET, WET, EST, MST, HST) stay accepted.
+Nothing is refused for its offset or its TZif bytes. The check runs after the
+zone is recognised and verified (TIMEZONE_INVALID and TZDATA_* first) and before
+every later check, and a refusal reaches neither the ephemeris check nor Swiss.
 """
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -35,11 +37,14 @@ DETAIL = "birthplace timezone must be a geographic IANA timezone identifier"
 MESSAGE = f"{CODE}: {DETAIL}"
 CLI_ERROR = json.dumps({"error": MESSAGE})
 KEYS = sorted(timezones.load_manifest()["zones"])
-ROOT_ALIASES = ["Factory", "GMT", "GMT+0", "GMT-0", "GMT0", "Greenwich", "UCT", "UTC", "Universal", "Zulu"]
+V1_ROOT = ["Factory", "GMT", "GMT+0", "GMT-0", "GMT0", "Greenwich", "UCT", "UTC", "Universal", "Zulu"]
+US_RULES = ["CST6CDT", "EST5EDT", "MST7MDT", "PST8PDT"]  # refused since zone policy version 2 (owner Option B)
+ROOT_ALIASES = sorted(V1_ROOT + US_RULES)
 ETC = [k for k in KEYS if k.startswith("Etc/")]
 REFUSED = sorted(ETC + ROOT_ALIASES)
-# Must stay accepted: the assignment's list, zero-offset zones, legacy spellings and the
-# abbreviation-style names left for a separate owner decision.
+# Reviewed by the owner and kept accepted in version 2: backward links to geographic zones.
+KEPT = ["CET", "EET", "EST", "HST", "MET", "MST", "WET"]
+# Must stay accepted: the assignment's list, zero-offset zones and legacy spellings.
 GEOGRAPHIC = ["Asia/Kolkata", "Asia/Kathmandu", "Asia/Tokyo", "America/New_York", "America/Los_Angeles",
               "America/Argentina/Buenos_Aires", "Europe/London", "Australia/Sydney", "Pacific/Auckland",
               "Africa/Abidjan", "Atlantic/Reykjavik"]
@@ -69,25 +74,50 @@ def outcome(**fields):
     raise AssertionError("neither refused nor stopped at the ephemeris gate")
 
 
-def run_cli(text, env=None, code=None):
+def run_cli(text, env=None, code=None, args=()):
     env = {**os.environ, "PYTHONPATH": str(SRC), "SABPUJA_EPHE_PATH": MISSING, **(env or {})}
-    argv = [sys.executable, "-c", code] if code else [sys.executable, "-m", "sabpuja_kundali.cli"]
+    argv = [sys.executable, "-c", code] if code else [sys.executable, "-m", "sabpuja_kundali.cli", *args]
     data = text.encode() if isinstance(text, str) else text
     return subprocess.run(argv, input=data, capture_output=True, env=env, timeout=60)
 
 
 class Classification(unittest.TestCase):
-    def test_refused_set_is_exactly_etc_utc_gmt_aliases_and_factory(self):
+    def test_refused_set_is_exactly_etc_utc_gmt_aliases_factory_and_us_rules(self):
+        self.assertEqual(zone_policy.ZONE_POLICY, "KUN-03 D3 location-based birthplace timezone, version 2")
         self.assertEqual(len(KEYS), 598)
         self.assertEqual(len(ETC), 35)
         self.assertEqual(sorted(zone_policy.NON_LOCATION_IDENTIFIERS), ROOT_ALIASES)
         self.assertEqual(zone_policy.NON_LOCATION_PREFIXES, ("Etc/",))
         self.assertTrue(set(ROOT_ALIASES) <= set(KEYS))
         self.assertEqual(sorted(k for k in KEYS if not zone_policy.is_location_based(k)), REFUSED)
-        self.assertEqual(len(REFUSED), 45)
+        self.assertEqual((len(REFUSED), len(KEYS) - len(REFUSED)), (49, 549))
+
+    def test_version_2_adds_exactly_the_four_us_rules_zones(self):
+        # Version 1 refused 45 names; the owner's Option B adds these four and nothing else.
+        self.assertEqual([n for n in zone_policy.NON_LOCATION_IDENTIFIERS if n not in US_RULES], [
+            "UTC", "UCT", "Universal", "Zulu", "GMT", "GMT+0", "GMT-0", "GMT0", "Greenwich", "Factory"])
+        self.assertEqual(sorted(set(REFUSED) - set(ETC) - set(V1_ROOT)), US_RULES)
+        for key in US_RULES:
+            with self.subTest(key=key):
+                self.assertIn(key, KEYS)  # recognised and verified through the pinned P1 loader first
+                timezones.default_loader().get(key)
+                self.assertFalse(zone_policy.is_location_based(key))
+                for wall in ("2001-01-15T12:00:00", "2001-07-15T12:00:00"):  # valid local time and offset
+                    self.assertEqual(outcome(birth_datetime=birth(key, wall), timezone=key), CODE)
+
+    def test_seven_reviewed_aliases_stay_accepted(self):
+        self.assertEqual(sorted(zone_policy.REVIEWED_ACCEPTED), KEPT)
+        self.assertFalse(set(KEPT) & set(zone_policy.NON_LOCATION_IDENTIFIERS))
+        for key in KEPT:
+            for wall in ("2001-01-15T12:00:00", "2001-07-15T12:00:00"):
+                with self.subTest(key=key, wall=wall):
+                    self.assertIn(key, KEYS)
+                    self.assertTrue(zone_policy.is_location_based(key))
+                    # The pinned loader's offset for this wall time, so the request continues past D3.
+                    self.assertEqual(outcome(birth_datetime=birth(key, wall), timezone=key), "ACCEPT")
 
     def test_geographic_zones_stay_accepted(self):
-        for key in GEOGRAPHIC + LEGACY + list(zone_policy.OWNER_REVIEW_PENDING):
+        for key in GEOGRAPHIC + LEGACY + KEPT:
             with self.subTest(key=key):
                 self.assertIn(key, KEYS)
                 self.assertTrue(zone_policy.is_location_based(key))
@@ -157,9 +187,13 @@ class Classification(unittest.TestCase):
         self.assertEqual(names, {"SABPUJA_EPHE_PATH", "SE_EPHE_PATH"})
         self.assertEqual(other, [])
         # Environment variables that might look like switches change nothing.
-        env = {"SABPUJA_D3": "0", "SABPUJA_ALLOW_UTC": "1", "SABPUJA_TIMEZONE_POLICY": "off", "TZ": "UTC"}
-        proc = run_cli(json.dumps(BASE), env=env)
-        self.assertEqual((proc.returncode, proc.stdout, proc.stderr.decode().strip()), (2, b"", CLI_ERROR))
+        env = {"SABPUJA_D3": "0", "SABPUJA_ALLOW_UTC": "1", "SABPUJA_TIMEZONE_POLICY": "off", "TZ": "UTC",
+               "SABPUJA_ZONE_POLICY": "version 1", "SABPUJA_ALLOW_US_RULES": "1"}
+        for key in ["UTC"] + US_RULES:
+            with self.subTest(key=key):
+                proc = run_cli(json.dumps({**BASE, "timezone": key, "birth_datetime": birth(key)}), env=env,
+                               args=("--zone-policy", "1", "--allow", key))
+                self.assertEqual((proc.returncode, proc.stdout, proc.stderr.decode().strip()), (2, b"", CLI_ERROR))
 
 
 class ErrorContract(unittest.TestCase):
@@ -212,6 +246,13 @@ class Order(unittest.TestCase):
                  ("2000-01-01T12:00:00+00:00", "GMT", 28.6, 200.0, "COORDINATE_INVALID"),
                  ("2000-01-01T12:00:00+00:00", "Zulu", float("nan"), 200.0, "COORDINATE_INVALID"),
                  ("2000-01-01T12:00:00+00:00", "Factory", 70.0, 0.0, "LATITUDE_OUTSIDE_SUPPORTED_BAND"))
+        cases += tuple(row for key in US_RULES for row in (
+            ("2101-01-01T00:00:00" + offset_text(key, "2101-01-01T00:00:00"), key, 28.6, 77.2,
+             "DATE_OUTSIDE_SUPPORTED_RANGE"),
+            ("2001-07-15T12:00:00+05:30", key, 28.6, 77.2, "TIME_OFFSET_MISMATCH"),
+            (birth(key, "1950-06-15T12:00:00"), key, 28.6, 77.2, "HISTORICAL_CLOCK_UNVERIFIED"),
+            (birth(key, "2001-07-15T12:00:00"), key, 28.6, 200.0, "COORDINATE_INVALID"),
+            (birth(key, "2001-07-15T12:00:00"), key, 70.0, 0.0, "LATITUDE_OUTSIDE_SUPPORTED_BAND")))
         for text, key, lat, lon, hidden in cases:
             with self.subTest(key=key, hidden=hidden):
                 self.assertEqual(outcome(birth_datetime=text, timezone=key, latitude=lat, longitude=lon), CODE)
@@ -282,6 +323,14 @@ class Cli(unittest.TestCase):
             with self.subTest(key=key):
                 self.assert_d3({**BASE, "timezone": key})
 
+    def test_05_us_rules_zones_version_2(self):
+        for key in US_RULES:
+            for wall in ("2001-01-15T12:00:00", "2001-07-15T12:00:00"):
+                with self.subTest(key=key, wall=wall):
+                    proc = self.assert_d3({**BASE, "timezone": key, "birth_datetime": birth(key, wall)})
+                    for secret in (key.encode(), b"2001-", b"28.6139", b"77.209", str(SRC).encode()):
+                        self.assertNotIn(secret, proc.stderr)
+
     def test_06_unknown_key(self):
         self.assertEqual(self.code({**BASE, "timezone": "Mars/Olympus"}), (2, "TIMEZONE_INVALID"))
         self.assertEqual(self.code({**BASE, "timezone": "utc"}), (2, "TIMEZONE_INVALID"))
@@ -319,7 +368,7 @@ class Cli(unittest.TestCase):
         self.assert_d3({**BASE, "birth_datetime": "2000-01-01T17:30:00+05:30"})
 
     def test_11_geographic_zone_with_valid_offset(self):
-        for key in ("Africa/Abidjan", "Asia/Kolkata", "Atlantic/Reykjavik"):
+        for key in ("Africa/Abidjan", "Asia/Kolkata", "Atlantic/Reykjavik") + tuple(KEPT):
             with self.subTest(key=key):
                 # Reaches the ephemeris check, which fails closed on the missing folder.
                 self.assertEqual(self.code({**BASE, "timezone": key, "birth_datetime": birth(key)}),

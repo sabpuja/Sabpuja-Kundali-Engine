@@ -191,7 +191,8 @@ def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
     except ValueError:
         raise InputRefusalError("TIMEZONE_INVALID", "timezone must be a valid IANA timezone identifier") from None
     # D3 (P5 step 7): a recognised, verified key that names no place (UTC, GMT,
-    # Etc/*, their aliases, Factory) is refused before every later check.
+    # Etc/*, their aliases, Factory, the US-rules zones) is refused before every
+    # later check.
     if not zone_policy.is_location_based(tz_name):
         raise InputRefusalError("TIMEZONE_NOT_LOCATION_BASED",
                                 "birthplace timezone must be a geographic IANA timezone identifier")

@@ -2,9 +2,13 @@
 
 D3 refuses UTC, GMT, Etc/* and their aliases (TIMEZONE_NOT_LOCATION_BASED), so
 nine requests the KUN-03 current profile v1 charted are now refused and six
-refusals now stop at D3 first. This module keeps spec.json, cases.json and
-profiles/kun03-current-v1.json byte-identical and runs, each with its own verdict
-and combined fail-closed:
+refusals now stop at D3 first. Zone policy version 2 also refuses the four
+US-rules zones (CST6CDT, EST5EDT, MST7MDT, PST8PDT); no frozen request uses
+them, so the active D3 profile v2 (profiles/kun03-d3-v2.json) keeps every case,
+count and expectation of the archived D3 profile v1 (profiles/kun03-d3-v1.json,
+byte-identical, its lineage fields compared). This module keeps spec.json,
+cases.json, profiles/kun03-current-v1.json and profiles/kun03-d3-v1.json
+byte-identical and runs, each with its own verdict and combined fail-closed:
 
 * d3: the 24 requests with the D3 profile's expectations (7 charts, 17 refusals),
   whole-sign swetest and binding references, 49 checks per chart;
@@ -17,7 +21,10 @@ and combined fail-closed:
 * historical supplement: SC-09 (historical gate and D3 bypassed) and SC-23
   (historical gate bypassed), test-only as in v1;
 * divergence: the v1 current-profile runner and the archival PR #18 runner,
-  unchanged, against the D3 engine; each must fail exactly where recorded.
+  unchanged, against the D3 engine; each must fail exactly where recorded;
+* archived D3 policy v1: the 24 engine outcomes (no Swiss comparison) inside a
+  TEST-ONLY context that restores the version 1 table, which must match the
+  archived D3 profile v1, and the four version 2 names refused again afterwards.
 
 Swiss-on-Swiss conformance only; see the profile's claim boundary.
 """
@@ -31,22 +38,45 @@ import csv
 import io
 import json
 
+from sabpuja_kundali import zone_policy
+
 from . import conformance as c
 from . import current as cur
 from . import inputs, profile
 
 PASS, FAIL, BLOCKED = c.PASS, c.FAIL, c.BLOCKED
 HERE = Path(__file__).resolve().parent
-PROFILE_PATH = HERE / "profiles" / "kun03-d3-v1.json"
-PROFILE_SCHEMA = "sabpuja-swiss-conformance-d3-profile/1"
+PROFILE_PATH = HERE / "profiles" / "kun03-d3-v2.json"
+PROFILE_SCHEMA = "sabpuja-swiss-conformance-d3-profile/2"
 PROFILE_ID = "KUN-03-D3"
-PROFILE_VERSION = 1
+PROFILE_VERSION = 2
 # Byte-exact SHA-256 of the D3 profile; changing it needs a code change, QA review and a new profile_version.
-PROFILE_SHA256 = "942a0eac0a18b45f26de91b238d0b5b3868713076a4a50e457598b1fa999b980"
-REPORT_SCHEMA = "sabpuja-swiss-conformance-d3-report/1"
+PROFILE_SHA256 = "a9aa1a4b85714bfb7167acba93a1ce70f107add44d51face655f07053961e5e7"
+REPORT_SCHEMA = "sabpuja-swiss-conformance-d3-report/2"
 D3 = "TIMEZONE_NOT_LOCATION_BASED"
-ZONE_POLICY = "KUN-03 D3 location-based birthplace timezone, version 1"
+ZONE_POLICY = "KUN-03 D3 location-based birthplace timezone, version 2"
 SOURCE_MILESTONE = "KUN-03 D3 (location-based birthplace timezone)"
+
+# Archived D3 profile v1 (zone policy version 1, ChatGPT engineering QA PASS at
+# 8b6507b4f277936ff6e792f3e83c1336946610e5): never edited, never run as the production profile.
+V1_PROFILE_PATH = HERE / "profiles" / "kun03-d3-v1.json"
+V1_PROFILE_SCHEMA = "sabpuja-swiss-conformance-d3-profile/1"
+V1_PROFILE_SHA256 = "942a0eac0a18b45f26de91b238d0b5b3868713076a4a50e457598b1fa999b980"
+V1_ZONE_POLICY = "KUN-03 D3 location-based birthplace timezone, version 1"
+V1_NON_LOCATION_IDENTIFIERS = ("UTC", "UCT", "Universal", "Zulu", "GMT", "GMT+0", "GMT-0", "GMT0", "Greenwich",
+                               "Factory")
+# Owner Option B (PR #20 comment 6377855934): the only change from zone policy version 1 to 2.
+POLICY_CHANGE = {
+    "from": V1_ZONE_POLICY,
+    "to": ZONE_POLICY,
+    "added_refused_identifiers": ["CST6CDT", "EST5EDT", "MST7MDT", "PST8PDT"],
+    "kept_accepted_identifiers": ["CET", "MET", "EET", "WET", "EST", "MST", "HST"],
+    "authorization": "owner Option B, PR #20 comment 6377855934",
+    "affected_cases": [],
+}
+# Profile fields that must equal the archived v1 profile's, value for value.
+UNCHANGED_FROM_V1 = ("claim_boundary", "counts", "cases", "numeric_continuation", "historical_numerics_supplement",
+                     "placidus_reference_observations", "expected_divergence")
 
 D3_CASES = {
     "SC-01": D3, "SC-02": "chart", "SC-03": "chart", "SC-04": D3, "SC-05": "chart", "SC-06": "chart",
@@ -128,9 +158,15 @@ EXPECTED_TOTALS = {"chart_cases": 7, "refusal_cases": 17, "comparison_checks": 3
                    "d3_override_supplement_comparison_checks": 294, "v1_comparison_checks": 784,
                    "v1_comparison_checks_accounted": 784, "v1_historical_supplement_comparison_checks_accounted": 98}
 
-_KEYS = {"schema", "profile_id", "profile_version", "status", "claim_boundary", "zone_policy", "base", "counts",
-         "cases", "numeric_continuation", "historical_numerics_supplement", "placidus_reference_observations",
-         "expected_divergence"}
+_KEYS = {"schema", "profile_id", "profile_version", "status", "claim_boundary", "zone_policy", "lineage", "base",
+         "counts", "cases", "numeric_continuation", "historical_numerics_supplement",
+         "placidus_reference_observations", "expected_divergence"}
+LINEAGE = {
+    "previous_d3_profile": {"id": PROFILE_ID, "version": 1, "sha256": V1_PROFILE_SHA256, "zone_policy": V1_ZONE_POLICY,
+                            "path": "tests/swiss_conformance/profiles/kun03-d3-v1.json"},
+    "policy_change": POLICY_CHANGE,
+    "unchanged_from_previous": list(UNCHANGED_FROM_V1),
+}
 
 
 # ---------------------------------------------------------------- overrides (test-only)
@@ -144,6 +180,17 @@ def d3_override():
         yield
     if zone_policy.is_location_based is not original:
         raise RuntimeError("D3 check was not restored")
+
+
+@contextmanager
+def v1_policy_context():
+    """Test-only, versioned compatibility context: zone policy version 1 in this block only; restoration verified."""
+    current = (zone_policy.ZONE_POLICY, zone_policy.NON_LOCATION_IDENTIFIERS)
+    with mock.patch.object(zone_policy, "ZONE_POLICY", V1_ZONE_POLICY), \
+         mock.patch.object(zone_policy, "NON_LOCATION_IDENTIFIERS", V1_NON_LOCATION_IDENTIFIERS):
+        yield
+    if (zone_policy.ZONE_POLICY, zone_policy.NON_LOCATION_IDENTIFIERS) != current:
+        raise RuntimeError("zone policy version 2 was not restored")
 
 
 @contextmanager
@@ -186,8 +233,9 @@ def validate_profile(doc) -> list[str]:
                                                          "NOT historical clock verification", "NOT geolocation",
                                                          "never production acceptance")):
         errors.append("D3_PROFILE_CLAIM_BOUNDARY")
-    if doc.get("zone_policy") != ZONE_POLICY:
+    if doc.get("zone_policy") != ZONE_POLICY or zone_policy.ZONE_POLICY != ZONE_POLICY:
         errors.append("D3_PROFILE_ZONE_POLICY")
+    errors += _validate_lineage(doc.get("lineage"))
     base = doc.get("base")
     if not isinstance(base, dict) or set(base) != {"framework", "spec.json", "cases.json", "previous_profile"} \
             or not _text(base.get("framework")) \
@@ -212,6 +260,16 @@ def validate_profile(doc) -> list[str]:
     if doc.get("expected_divergence") != {"v1_current_profile": V1_DIVERGENCE, "archival_pr18": ARCHIVAL_DIVERGENCE}:
         errors.append("D3_PROFILE_DIVERGENCE")
     return errors
+
+
+def _validate_lineage(doc) -> list[str]:
+    """The v1-to-v2 delta is exactly the owner's four names, and production refuses and keeps them as recorded."""
+    added, kept = POLICY_CHANGE["added_refused_identifiers"], POLICY_CHANGE["kept_accepted_identifiers"]
+    if doc != LINEAGE or any(zone_policy.is_location_based(n) for n in added) \
+            or not all(zone_policy.is_location_based(n) for n in kept) \
+            or [cid for cid in D3_CASES if _REQUESTS[cid]["timezone"] in added] != POLICY_CHANGE["affected_cases"]:
+        return ["D3_PROFILE_LINEAGE"]
+    return []
 
 
 def _validate_cases(cases) -> list[str]:
@@ -265,20 +323,39 @@ def _validate_continuation(doc) -> list[str]:
     return errors
 
 
-def load_profile(path: Path = PROFILE_PATH) -> tuple[dict | None, dict, list[str]]:
-    """Return (profile, input record, errors). The profile is None unless it is fully valid."""
+def _read(path: Path, frozen: str, prefix: str) -> tuple[dict | None, dict, list[str]]:
     try:
         data = inputs.read_bytes(path)
     except inputs.InputError as exc:
-        return None, {"sha256": None, "bytes": None, "frozen_sha256": PROFILE_SHA256}, [f"D3_PROFILE_{exc.code}"]
+        return None, {"sha256": None, "bytes": None, "frozen_sha256": frozen}, [f"{prefix}_{exc.code}"]
     digest = inputs.sha256_bytes(data)
-    record = {"sha256": digest, "bytes": len(data), "frozen_sha256": PROFILE_SHA256}
-    errors = [] if digest == PROFILE_SHA256 else ["D3_PROFILE_SHA256_MISMATCH"]
+    record = {"sha256": digest, "bytes": len(data), "frozen_sha256": frozen}
+    errors = [] if digest == frozen else [f"{prefix}_SHA256_MISMATCH"]
     try:
-        doc = inputs.parse_strict(data)
+        return inputs.parse_strict(data), record, errors
     except inputs.InputError as exc:
-        return None, record, errors + [f"D3_PROFILE_{exc.code}"]
+        return None, record, errors + [f"{prefix}_{exc.code}"]
+
+
+def load_v1_profile(path: Path | None = None) -> tuple[dict | None, dict, list[str]]:
+    """The archived D3 profile v1: byte-identical to its pin and still a v1 document."""
+    doc, record, errors = _read(path or V1_PROFILE_PATH, V1_PROFILE_SHA256, "D3_V1_PROFILE")
+    if doc is not None and (not isinstance(doc, dict) or doc.get("schema") != V1_PROFILE_SCHEMA
+                            or doc.get("profile_version") != 1 or doc.get("zone_policy") != V1_ZONE_POLICY):
+        errors.append("D3_V1_PROFILE_VERSION")
+    return (None if errors else doc), record, errors
+
+
+def load_profile(path: Path = PROFILE_PATH, v1_path: Path | None = None) -> tuple[dict | None, dict, list[str]]:
+    """Return (profile, input record, errors). The profile is None unless it and the archived v1 are valid."""
+    doc, record, errors = _read(path, PROFILE_SHA256, "D3_PROFILE")
+    if doc is None:
+        return None, record, errors
     errors += validate_profile(doc)
+    v1, _, v1_errors = load_v1_profile(v1_path)
+    errors += v1_errors
+    if v1 is not None and isinstance(doc, dict):
+        errors += [f"D3_PROFILE_LINEAGE_DRIFT: {k}" for k in UNCHANGED_FROM_V1 if doc.get(k) != v1.get(k)]
     return (None if errors else doc), record, errors
 
 
@@ -343,6 +420,32 @@ def v1_divergence(cases: list[dict], swetest: str, ephe: str, spec: dict) -> dic
     return {"outcome": PASS if not findings else FAIL, "observed": observed, "findings": findings,
             "passed_cases": [r["case"] for r in rows if r["outcome"] == PASS],
             "passed_supplement": [r["case"] for r in supplement if r["outcome"] == PASS]}
+
+
+def archived_v1_policy(cases: list[dict], ephe: str, v1_doc: dict) -> dict:
+    """TEST-ONLY: under zone policy version 1 the engine outcomes must match the archived D3 profile v1."""
+    expected = {e["id"]: (e["expect"], e["expected_refusal"]) for e in v1_doc["cases"]}
+    added = POLICY_CHANGE["added_refused_identifiers"]
+    observed, findings = {}, []
+    with v1_policy_context():
+        for case in cases:
+            status, payload, _ = cur.call_engine(case["request"], ephe)
+            observed[case["id"]] = ("chart", None) if status == "chart" else ("refuse", payload)
+            if status == "chart":
+                stated = payload["calculation_metadata"]["input_policy"]["timezone_identifier"]
+                if (stated["policy"], stated["refused_identifiers"]) != (V1_ZONE_POLICY, list(V1_NON_LOCATION_IDENTIFIERS)):
+                    findings.append(f"{case['id']}: metadata does not state zone policy version 1")
+        accepted_inside = [n for n in added if zone_policy.is_location_based(n)]
+    findings += [f"{cid}: {observed.get(cid)} under version 1, archived v1 profile expects {want}"
+                 for cid, want in expected.items() if observed.get(cid) != want]
+    if accepted_inside != added:
+        findings.append("version 1 context does not accept the four version 2 names")
+    restored = zone_policy.ZONE_POLICY == ZONE_POLICY and not any(zone_policy.is_location_based(n) for n in added)
+    if not restored:
+        findings.append("zone policy version 2 not restored")
+    return {"outcome": FAIL if findings else PASS, "findings": findings, "cases_checked": len(observed),
+            "charts": sum(v[0] == "chart" for v in observed.values()), "accepted_inside": accepted_inside,
+            "restored": restored}
 
 
 def archival_divergence(archival: dict, current: list[dict]) -> dict:
@@ -465,11 +568,13 @@ def run_all(swetest: str | None, ephe: str | None, receipt: str | None, *, env: 
     spec, cases, input_record, reasons = inputs.load_inputs(c.HERE / "spec.json", c.HERE / "cases.json")
     _, v1_record, v1_errors = profile.load_profile()
     prof, profile_record, profile_errors = load_profile(profile_path)
+    d3_v1, d3_v1_record, _ = load_v1_profile()  # its errors are already in profile_errors
     input_record["profile_v1"], input_record["profile_d3"] = v1_record, profile_record
+    input_record["profile_d3_v1"] = d3_v1_record
     env = env if env is not None else c.capture_environment(swetest, receipt, ephe)
     reasons = reasons + v1_errors + profile_errors + c.run_reasons(env, {"required_versions": inputs.REQUIRED_VERSIONS})
     results, geographic, supplement, historical = [], [], [], []
-    v1 = archival = archival_check = None
+    v1 = archival = archival_check = archived_v1 = None
     if not reasons:
         by_id = {case["id"]: case for case in cases}
         results = [run_d3_case(case, swetest, ephe, spec) for case in cases]
@@ -480,8 +585,10 @@ def run_all(swetest: str | None, ephe: str | None, receipt: str | None, *, env: 
         v1 = v1_divergence(cases, swetest, ephe, spec)
         archival = c.run_all(swetest, ephe, receipt, env=env, clock=clock)
         archival_check = archival_divergence(archival, results)
+        archived_v1 = archived_v1_policy(cases, ephe, d3_v1)
     counts, coverage_errors = coverage(results, geographic, supplement, historical)
-    parts = ("d3", "numeric_continuation", "historical_supplement", "v1_divergence", "archival_divergence")
+    parts = ("d3", "numeric_continuation", "historical_supplement", "v1_divergence", "archival_divergence",
+             "archived_d3_v1_policy")
     if reasons:
         coverage_errors = []
         verdicts = dict.fromkeys(parts, BLOCKED)
@@ -489,14 +596,17 @@ def run_all(swetest: str | None, ephe: str | None, receipt: str | None, *, env: 
         verdicts = {"d3": c.overall([r["outcome"] for r in results]),
                     "numeric_continuation": c.overall([r["outcome"] for r in geographic + supplement]),
                     "historical_supplement": c.overall([r["outcome"] for r in historical]),
-                    "v1_divergence": v1["outcome"], "archival_divergence": archival_check["outcome"]}
+                    "v1_divergence": v1["outcome"], "archival_divergence": archival_check["outcome"],
+                    "archived_d3_v1_policy": archived_v1["outcome"]}
         if coverage_errors:
             verdicts = {k: (BLOCKED if v == PASS else v) for k, v in verdicts.items()}
     verdict = c.overall(list(verdicts.values()))
     return {"report_schema": REPORT_SCHEMA,
             "claim_boundary": prof["claim_boundary"] if prof else inputs.CLAIM_MARKER,
             "profile": {"id": PROFILE_ID, "version": PROFILE_VERSION, "zone_policy": ZONE_POLICY,
-                        "house_letter": profile.HOUSE_LETTER, "sha256": profile_record["sha256"]},
+                        "house_letter": profile.HOUSE_LETTER, "sha256": profile_record["sha256"],
+                        "previous_d3_profile_sha256": d3_v1_record["sha256"]},
+            "lineage": prof["lineage"] if prof else None,
             "started_utc": started, "finished_utc": clock().strftime("%Y-%m-%dT%H:%M:%SZ"),
             "environment": env, "inputs": input_record, "run_reasons": reasons,
             "coverage": counts, "coverage_errors": coverage_errors,
@@ -507,6 +617,7 @@ def run_all(swetest: str | None, ephe: str | None, receipt: str | None, *, env: 
             "historical_supplement": historical,
             "historical_supplement_label": prof["historical_numerics_supplement"]["label"] if prof else None,
             "v1_divergence": v1, "archival": archival, "archival_divergence": archival_check,
+            "archived_d3_v1_policy": archived_v1,
             "verdicts": {k: c.VERDICT[v] for k, v in verdicts.items()},
             "verdict": c.VERDICT[verdict], "exit_code": c.EXIT[verdict]}
 
@@ -571,6 +682,15 @@ def to_markdown(report: dict) -> str:
     lines += ["", "## Run-level blocking reasons", ""] + ([f"- {r}" for r in report["run_reasons"]] or ["- none"])
     lines += ["", "## Coverage", ""] + [f"- {k}: {v}" for k, v in report["coverage"].items()]
     lines += [f"- COVERAGE ERROR: {e}" for e in report["coverage_errors"]]
+    lineage = report["lineage"]
+    if lineage:
+        change, prev = lineage["policy_change"], lineage["previous_d3_profile"]
+        lines += ["", "## D3 policy lineage", "",
+                  f"- Archived D3 profile v{prev['version']} `{prev['path']}` sha256 `{prev['sha256']}` ({prev['zone_policy']})",
+                  f"- {change['from']} -> {change['to']} ({change['authorization']})",
+                  f"- added refused identifiers: {', '.join(change['added_refused_identifiers'])}; kept accepted: "
+                  f"{', '.join(change['kept_accepted_identifiers'])}; frozen cases affected: {change['affected_cases'] or 'none'}",
+                  f"- fields equal to the archived v1 profile: {', '.join(lineage['unchanged_from_previous'])}"]
     lines += ["", "## Case-by-case delta (v1 to D3)", ""] + delta_rows(report)
     lines += ["", "## D3-supported charts and D3 refusals (production, no override)", ""] + cur._case_rows(report["cases"])
     lines += ["", "## Numeric continuation: geographic equivalents (production, no override)", ""]
@@ -593,6 +713,14 @@ def to_markdown(report: dict) -> str:
         lines += [f"- supplement {cid}: {reason}" for cid, reason in v1["observed"]["historical_supplement"].items()]
         lines += [f"- still passing: {', '.join(v1['passed_cases'])}; supplement: {', '.join(v1['passed_supplement'])}"]
         lines += [f"- FINDING: {f}" for f in v1["findings"]]
+    archived = report["archived_d3_v1_policy"]
+    if archived:
+        lines += ["", f"## Archived D3 policy v1 (TEST-ONLY versioned compatibility context, engine outcomes only, "
+                      f"no Swiss comparison; NOT production acceptance): {archived['outcome']}", "",
+                  f"- {archived['cases_checked']} cases, {archived['charts']} charts, as the archived D3 profile v1 records; "
+                  f"accepted inside the context: {', '.join(archived['accepted_inside'])}; version 2 restored = "
+                  f"{archived['restored']}"]
+        lines += [f"- FINDING: {f}" for f in archived["findings"]]
     archival, check = report["archival"], report["archival_divergence"]
     if archival:
         lines += ["", f"## Archival PR #18 profile, unchanged runner: {archival['verdict']}; divergence {check['outcome']}",

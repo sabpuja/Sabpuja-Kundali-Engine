@@ -457,15 +457,16 @@ class ChartMetadata(unittest.TestCase):
                          [{"zone": "*", "first_local_date": None, "last_local_date": "1969-12-31"}])
         self.assertEqual(policy["historical_clock"]["exceptions"], [])
         self.assertEqual(policy["latitude_band_deg"], {"min": -66.0, "max": 66.0, "inclusive": True})
-        # KUN-03 D3 (metadata_schema /2): the timezone identifier policy the chart passed.
+        # KUN-03 D3 (metadata_schema /2): the timezone identifier policy the chart passed. Zone policy
+        # version 2 changes the values (four more refused names), not the shape.
         self.assertEqual(policy["timezone_identifier"], {
             "policy": zone_policy.ZONE_POLICY, "mode": "fail_closed",
             "rule": "geographic IANA timezone identifier required (exact match)",
             "refused_identifiers": ["UTC", "UCT", "Universal", "Zulu", "GMT", "GMT+0", "GMT-0", "GMT0",
-                                    "Greenwich", "Factory"],
+                                    "Greenwich", "Factory", "CST6CDT", "EST5EDT", "MST7MDT", "PST8PDT"],
             "refused_prefixes": ["Etc/"], "zone_matches_coordinates_verified": False})
         self.assertEqual(policy["timezone_identifier"]["policy"],
-                         "KUN-03 D3 location-based birthplace timezone, version 1")
+                         "KUN-03 D3 location-based birthplace timezone, version 2")
         with mock.patch.object(zone_policy, "NON_LOCATION_IDENTIFIERS", ("UTC",)):  # read live, not copied
             self.assertEqual(self.meta("2000-01-01T12:00:00+00:00")["input_policy"]["timezone_identifier"]
                              ["refused_identifiers"], ["UTC"])

@@ -103,8 +103,9 @@ class GateEdgeTests(unittest.TestCase):
 
     def test_every_recognised_zone_on_both_sides_of_1970(self):
         # G2: every key the engine's loader recognises, including old link names. Since D3 the
-        # keys that name no place (UTC, GMT, Etc/*, their aliases, Factory) are refused before
-        # the gate on both sides of 1970; every other key is gated exactly as before.
+        # keys that name no place (UTC, GMT, Etc/*, their aliases, Factory and, since zone policy
+        # version 2, the four US-rules zones) are refused before the gate on both sides of 1970;
+        # every other key is gated exactly as before.
         checked = not_location = 0
         for key in sorted(zoneinfo.available_timezones()):
             try:
@@ -118,7 +119,7 @@ class GateEdgeTests(unittest.TestCase):
                 checked += 1
                 not_location += not located
         self.assertGreater(checked - not_location, 300)
-        self.assertEqual(not_location, 45)
+        self.assertEqual(not_location, 49)
 
 
 class OrderTests(unittest.TestCase):
