@@ -307,7 +307,7 @@ class ChartMetadata(unittest.TestCase):
         chart = self.chart("2000-01-01T12:00:00+00:00")
         self.assertEqual(chart["schema_version"], "0.2.0")
         self.assertEqual(list(chart), LEGACY_KEYS + ["calculation_metadata"])
-        self.assertEqual(chart["calculation_metadata"]["metadata_schema"], "sabpuja-calculation-metadata/2")  # /2 since D3
+        self.assertEqual(chart["calculation_metadata"]["metadata_schema"], "sabpuja-calculation-metadata/3")  # /3 since P7 Option 2 eras; /2 since D3
         check_shape(self, chart["calculation_metadata"], SHAPE)
         json.dumps(chart, allow_nan=False)
 
