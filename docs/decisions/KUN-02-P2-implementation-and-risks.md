@@ -1,11 +1,18 @@
 # KUN-02 Phase 2: approval actions, implementation sequence, compatibility and release risks
 
-**Status:** PLAN ONLY as written on 2026-10-22, when nothing here was authorized and no production package (P1–P9) was started. **Update 2026-10-24:** the owner has since (a) selected every proposed decision pre-merge, with canonical status PENDING (see the [owner pre-merge selection ledger](../DECISIONS.md#owner-pre-merge-selection-ledger)), and (b) authorized draft development, not merge, of P1–P5, P7–P9 and the D3 timezone policy, each in its own draft PR. P6 (D9 house fields and all-body Nakshatra) is deferred and not authorized. A separately authorized P7 time-scale metadata correction is required before integration into `main` (decision package, SCI-01h). Nothing has been merged, and production remains NO-GO.
+**Status:** PLAN ONLY as written on 2026-10-22, when nothing here was authorized and no production package (P1–P9) was started. *Update 2026-10-24 (pre-merge, historical):* the owner (a) selected every proposed decision pre-merge, with canonical status then PENDING, and (b) authorized draft development, not merge, of P1–P5, P7–P9 and the D3 timezone policy, each in its own draft PR. At that point a separately authorized P7 correction was still required, and nothing had been merged.
+
+**Current status (Gate 2G reconciliation, 2026-10-24):**
+- **Decisions:** fourteen owner selections are **OWNER APPROVED / CANONICAL - 2026-10-24**. They were adopted when the decision register (PR #20) was merged into `main` at `5b71408`, with [receipt 6383419093](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/20#issuecomment-6383419093); see the [ledger](../DECISIONS.md#owner-pre-merge-selection-ledger).
+- **`main`:** only documentation has been merged into `main` (PR #20, and the register status sync PR #37). `main` contains no engine code.
+- **Engine:** the KUN-03 engine drafts were integrated into the isolated `integration/kun03-gate1` branch (Gate 1 `c3cb040`, from draft PR #35, which stays open). P7 was completed there at `cacd482` (PR #36; `metadata_schema` /3, chart schema 0.2.0). **Gate 1 is not merged into `main`**; that needs separate owner approval and QA.
+- **P6** (D9 house fields and all-body Nakshatra) is deferred and not authorized.
+- **Production:** no deployment is authorized, and production remains NO-GO.
 **Decisions:** [KUN-02-P2-decision-package.md](KUN-02-P2-decision-package.md) · **Evidence:** [KUN-02-P2-evidence-map.md](KUN-02-P2-evidence-map.md)
 
-## 1. Pending approval actions
+## 1. Approval actions (historical list; current status below the table)
 
-All of the following are open. They are listed in the order that unblocks implementation.
+*Historical (2026-10-22):* all of the following were open. They are listed in the order that unblocks implementation. The current status of each is given in the paragraph after the table.
 
 | # | Action | Who | Unblocks |
 |---|---|---|---|
@@ -16,9 +23,19 @@ All of the following are open. They are listed in the order that unblocks implem
 | A-5 | Merge order of the existing drafts (#1 foundation, then #18, #19 and the KUN-01 documentation stack #11, #14, #17), so that production packages have a reviewed base | Sabpuja, with ChatGPT QA | P-packages |
 | A-6 | Authorize DATA-01 historical-clock research as its own package | Sabpuja | verified exceptions to RG-HIST |
 | A-7 | Each P-package: separate authorization to start, ChatGPT QA of its draft PR, and separate merge authorization | Sabpuja / ChatGPT | each package |
-| A-8 | Owner decision on **REL-01**, the release evidence policy (*selected pre-merge 2026-10-22; canonical adoption pending*). This PR already carries the reconciling edits to `PRD.md`, `ACCEPTANCE-MATRIX.md` and `DEVELOPMENT-ROADMAP.md` (decision package, REL-01). Approve them, or have them removed from this PR before merge | Sabpuja, with ChatGPT QA | the accuracy-gate wording; public accurate-chart claims |
+| A-8 | Owner decision on **REL-01**, the release evidence policy (*selected pre-merge 2026-10-22; canonical 2026-10-24*). PR #20 carried the reconciling edits, now on `main`, to `PRD.md`, `ACCEPTANCE-MATRIX.md` and `DEVELOPMENT-ROADMAP.md` (decision package, REL-01). Approve them, or have them removed from PR #20 before merge (*historical: REL-01 was approved*) | Sabpuja, with ChatGPT QA | the accuracy-gate wording; public accurate-chart claims |
 
-**Status of A-2, A-4 and A-8 (2026-10-24):** owner pre-merge selections are recorded for every item (ledger in `DECISIONS.md`): SCI-01e with SCI-01g (W plus ±66.0°); SCI-02 schema 0.2.0 baseline with Moon-only Nakshatra/Pada, all-body Nakshatra and D9 house fields deferred; SCI-03 RG-HIST Option B; non-location zones refused under D3 version 2; REL-01. A-3 step 2 (post-merge adoption receipts) and A-5, A-6 and the per-package merge authorizations in A-7 remain open.
+*Historical (2026-10-24, pre-merge):* owner pre-merge selections were recorded for every item in A-2, A-4 and A-8 (ledger in `DECISIONS.md`), and A-3 step 2, A-5, A-6 and the per-package merge authorizations in A-7 were open.
+
+**Status of A-1 to A-8 (2026-10-24, after adoption):**
+- **A-1 done:** ChatGPT QA of the decision PR (PR #20) passed at `a22ffdb` ([review 5637225500](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/20#pullrequestreview-5637225500)).
+- **A-2 done:** each covered SCI selection was made and canonically adopted on 2026-10-24 (ledger rows 2–14).
+- **A-3 done for the fourteen ledger records:** step 1 (the owner records) and step 2 (merge `5b71408`, [receipt 6383419093](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/20#issuecomment-6383419093)).
+- **A-4 done for the covered choices:** SCI-01e with SCI-01g (W plus ±66.0°); SCI-02 schema 0.2.0 baseline with Moon-only Nakshatra/Pada; SCI-03 RG-HIST Option B; non-location zones refused under D3 version 2. All of these are canonical. The deferred product work (P6 D9 house fields and all-body/Lagna Nakshatra/Pada) stays deferred.
+- **A-5 open:** the merge order of the existing drafts (#1, #18, #19, #11, #14, #17) is not decided; all remain open drafts, and PR #1 stays under its hold.
+- **A-6 open:** DATA-01 historical-clock research is not authorized, and no verified exception exists.
+- **A-7 open per package:** draft development was authorized for specific packages, and the engine is integrated only on isolated Gate 1. Each package still needs individual review and separate owner merge authorization; authorization to develop a draft is not authorization to merge.
+- **A-8 done:** REL-01 is canonical (ledger row 1), and its `PRD.md`, `ACCEPTANCE-MATRIX.md` and `DEVELOPMENT-ROADMAP.md` edits are on `main`. The PR #1 hold and C7 are unchanged.
 
 ## 2. Implementation sequence and dependencies
 
@@ -72,7 +89,7 @@ Other compatibility notes:
 
 ## 4. Release gates and risks requiring separate verification
 
-These are outside what KUN-01 and KUN-02 evidence shows, and none is closed by this PR. They are of three kinds:
+These are outside what KUN-01 and KUN-02 evidence shows. None was closed by the decision PR (PR #20) or by the canonical adoption, and none is closed by the Gate 2G status reconciliation. They are of three kinds:
 - **Mandatory release gates** block any public release.
 - **Mandatory periodic reviews** must be repeated on a schedule or a trigger.
 - **Optional assurance** supports a separate, stronger claim and is not a release gate.
@@ -81,12 +98,12 @@ These are outside what KUN-01 and KUN-02 evidence shows, and none is closed by t
 |---|---|---|---|---|
 | R-1a | Chart correctness within the Swiss-first MVP | **Mandatory release gate** | Covered so far only by draft-PR evidence. That evidence is pinned Swiss CLI conformance (PR #18, 882/882) and independent mathematical D1/D9, segment and house checks (PR #18 rule oracle; PR #19 A8–A10). Known boundary and refusal cases are part of it. None of these PRs is merged | Keep both suites passing on every package; boundary and refusal fixtures for P2–P5 and P8; product claims limited to what the evidence shows (Swiss-based calculation with stated conventions, not independently verified astronomy) |
 | R-1b | Independent astronomy (JPL/INPOP) | **Optional assurance**, per the owner-approved Swiss-first change ([issue #15](https://github.com/sabpuja/Sabpuja-Kundali-Engine/issues/15), [PR #17](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/17)) | No independent planetary reference has been run; no golden-chart tolerance is frozen (KUN-01 PG-1 to PG-5 open) | Only for a separate independent-accuracy claim or a discrepancy escalation |
-| R-1c | **Source-of-truth reconciliation** for R-1a and R-1b | **Mandatory, pending owner approval of REL-01** | `main`'s `PRD.md` (product truth, KUN-F16, the "Astronomy accuracy" gate), `ACCEPTANCE-MATRIX.md` (QA-009, QA-010, QA-012, G-ENGINE) and roadmap still require independent golden charts; issue #15 made JPL/INPOP optional. This PR proposes the aligning edits (REL-01) | Owner approval of REL-01 (selected pre-merge 2026-10-22) and the separately authorized merge with adoption receipt. **Until then the `main` requirements stand, the public-release gate is not relaxed and the PR #1 independent-reference hold is unchanged** |
-| R-2 | Historical birth clocks | **Mandatory release gate** | IANA is not historical-clock evidence before 1970. RG-HIST (A) was proposed as a temporary floor; the owner has since selected (B) pre-merge, which the KUN-03 engine drafts implement. Under (A) and (C), Asia/Kolkata 1956–1969 and other pre-1970 zones are accepted without DATA-01 evidence; only (B) removes the pre-1970 residual, at the cost of refusing 1900–1969 everywhere until DATA-01 verifies a place and date | Owner decision on RG-HIST scope: Option B selected pre-merge 2026-10-22 (canonical PENDING); DATA-01 package before any exception |
-| R-3 | UT1 − UTC from 2027 | Mandatory metadata (P7) and **periodic review** | 28th CGPM (2026) Resolution 5: continuous UTC effective 2027-05-20 (exact hour not stated in the text reviewed), permitted maximum \|UT1 − UTC\| 3 600 s (a policy ceiling, not a measured offset). The pinned IERS list expires separately on 2027-06-28. ΔT is extrapolated after 2028. The P7 metadata at Gate 1 `c3cb040` still states the 0.9 s rule to 2027-06-28 and cites the superseded 2022 "2035" wording | **Separately authorized P7 metadata correction** with 19/20 May and 28 June 2027 boundary tests, unchanged chart values and independent QA, before integration into `main`; re-review SCI-01h on any CGPM/CIPM/IERS change and every Swiss or tzdata update |
+| R-1c | **Source-of-truth reconciliation** for R-1a and R-1b | **Mandatory**; REL-01 canonical 2026-10-24 | *Historical:* `main`'s `PRD.md` (product truth, KUN-F16, the "Astronomy accuracy" gate), `ACCEPTANCE-MATRIX.md` (QA-009, QA-010, QA-012, G-ENGINE) and roadmap required independent golden charts, while issue #15 made JPL/INPOP optional; PR #20 proposed the aligning edits (REL-01). **Current:** the approved documentation alignment entered `main` through PR #20 (merge `5b71408`) | Done for the documentation alignment (owner selection 2026-10-22; merge and [receipt 6383419093](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/20#issuecomment-6383419093), 2026-10-24). **The separate [PR #1 independent-reference hold](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/1#issuecomment-6323581875) remains active, and C7 is unresolved** |
+| R-2 | Historical birth clocks | **Mandatory release gate** | IANA is not historical-clock evidence before 1970. RG-HIST (A) was proposed as a temporary floor; the owner then selected (B) pre-merge (canonical 2026-10-24), which the KUN-03 engine drafts implement. Under (A) and (C), Asia/Kolkata 1956–1969 and other pre-1970 zones are accepted without DATA-01 evidence; only (B) removes the pre-1970 residual, at the cost of refusing 1900–1969 everywhere until DATA-01 verifies a place and date | RG-HIST scope decided: Option B, canonical 2026-10-24 (ledger row 2). Every unverified pre-1970 local civil birth is refused, and no DATA-01 exception is currently approved. The 1900–2100 supported date envelope does not imply accepted pre-1970 historical-clock coverage. DATA-01 package before any exception |
+| R-3 | UT1 − UTC from 2027 | Mandatory metadata (P7) and **periodic review** | 28th CGPM (2026) Resolution 5: continuous UTC effective 2027-05-20 (exact hour not stated in the text reviewed), permitted maximum \|UT1 − UTC\| 3 600 s (a policy ceiling, not a measured offset). The pinned IERS list expires separately on 2027-06-28. ΔT is extrapolated after 2028. *Historical:* the P7 metadata at Gate 1 `c3cb040` stated the 0.9 s rule to 2027-06-28 and cited the superseded 2022 "2035" wording. **Current:** P7 is complete on isolated Gate 1 `cacd482`, with date-granular eras under owner Option 2 and metadata /3. Its source and contract checks were independently reviewed ([6382789595](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/36#issuecomment-6382789595)). It is not integrated into `main`. The official effective hour on 2027-05-20 is unknown, and the UTC-date era boundaries are a reporting convention | *Historical requirement* (a separately authorized P7 metadata correction with 19/20 May and 28 June 2027 boundary tests, unchanged chart values and independent QA, before integration into `main`) met on Gate 1 by PR #36, with the boundaries reported by UTC date under Option 2. Still needed: owner-approved integration into `main` with QA; re-review of SCI-01h if an official effective hour is published, on any CGPM/CIPM/IERS change and on every Swiss or tzdata update |
 | R-4 | Swiss 2.10.03 version-specific behaviour | **Mandatory release gate** (P9) and periodic review | −1.908″ sidereal-time step at 2050; Swiss state leaks between `set_sid_mode` calls | P9 tests; re-run the KUN-02 runner on any Swiss upgrade |
 | R-5 | tzdata drift between hosts | **Mandatory release gate** (P1) | Same IANA version, different builds, different pre-1956 offsets | P1 two-host reproducibility test; pinned TZif manifest |
-| R-6 | Place-to-zone consistency | **Mandatory release gate** | The engine accepts any IANA zone with any coordinates (for example Asia/Kolkata with New York coordinates) and accepts `Etc/*` keys | DATA-01 gazetteer and `LOCATION_TIMEZONE_INCONSISTENT`; owner choice on non-location zones |
+| R-6 | Place-to-zone consistency | **Mandatory release gate** | *Historical (foundation `d8193c6`):* the engine accepted any IANA zone with any coordinates (for example Asia/Kolkata with New York coordinates) and accepted `Etc/*` keys. **Current (Gate 1):** D3 version 2 (canonical, ledger row 8) refuses `UTC`, `GMT`, `Etc/*`, `Factory` and the `CST6CDT`, `EST5EDT`, `MST7MDT` and `PST8PDT` keys (49 refused, 549 accepted). DATA-01 geographic place-to-zone verification is still incomplete: any accepted zone is taken with any in-range coordinates | DATA-01 gazetteer and `LOCATION_TIMEZONE_INCONSISTENT` (the owner choice on non-location zones is made: D3 version 2) |
 | R-7 | Birth-time sensitivity | **Mandatory release gate** (product claims) | A one-minute error changes the Lagna Navamsa in about 8% of sampled charts; above 60° the Lagna moves more than 1° per minute | Product disclosure copy and editorial review |
 | R-8 | Unknown birth time | **Mandatory release gate** | Not handled by these decisions (UX-01 pending) | UX-01 decision and QA-002 |
 | R-9 | Licensing | **Mandatory release gate** | Swiss Ephemeris AGPL and data-rights perimeter (LEG-01 pending) | QA-026 legal review |
@@ -94,11 +111,13 @@ These are outside what KUN-01 and KUN-02 evidence shows, and none is closed by t
 
 Security, privacy (QA-018, QA-024, QA-025), accessibility, Hindi review and the owner's release sign-off remain mandatory gates under `docs/ACCEPTANCE-MATRIX.md` and are unaffected by this package.
 
-## 5. What this PR does not change
+## 5. What the original decision PR (PR #20) did not change (historical)
 
-- `docs/PRD.md`, `docs/ACCEPTANCE-MATRIX.md` and `docs/DEVELOPMENT-ROADMAP.md`: only the accuracy-evidence wording listed under REL-01 is edited, and it takes effect only through the owner-approved merge. No other requirement, gate or test ID is changed.
+*This section describes PR #20 as reviewed at `a22ffdb` and merged on 2026-10-24. The later Gate 2G status reconciliation changes only this file and the decision package, and no requirement, code or numerical behaviour.*
 
-- Production calculation code: none. `main` contains no engine code, and no engine branch is modified by this PR.
+- `docs/PRD.md`, `docs/ACCEPTANCE-MATRIX.md` and `docs/DEVELOPMENT-ROADMAP.md`: only the accuracy-evidence wording listed under REL-01 was edited, and it took effect through the owner-approved merge on 2026-10-24. No other requirement, gate or test ID was changed.
+
+- Production calculation code: none. `main` contains no engine code, and no engine branch was modified by PR #20.
 - Existing draft PRs #1, #11, #14, #17, #18 and #19: not amended, rebased or merged.
 - Swiss Ephemeris files and versions: unchanged.
 - SCI-01b and SCI-01c: unchanged text and status.
