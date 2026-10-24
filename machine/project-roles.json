@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "updated": "2026-10-21",
+  "project": "Sabpuja Kundali Engine",
+  "governance_status": "proposed-in-draft-pr",
+  "canonical_repo": "sabpuja/Sabpuja-Kundali-Engine",
+  "roles": {
+    "product_owner": {
+      "actor": "Sabpuja human owner",
+      "accountability": [
+        "product vision",
+        "priorities",
+        "scope and budget decisions",
+        "approval of merge, staging and release"
+      ]
+    },
+    "project_manager_qa": {
+      "actor": "ChatGPT",
+      "accountability": [
+        "work packages",
+        "architecture and risk review",
+        "all material PR/code reviews",
+        "independent verification",
+        "defect triage",
+        "release recommendation"
+      ],
+      "continuous_monitoring": false
+    },
+    "lead_developer": {
+      "actor": "Claude or Claude Code",
+      "accountability": [
+        "implementation",
+        "local/approved VPS tests",
+        "defect repair",
+        "PR evidence"
+      ],
+      "connected_or_authorized": false
+    }
+  },
+  "gates": [
+    "owner-approved scope",
+    "developer draft PR",
+    "test evidence",
+    "PM independent QA",
+    "owner merge approval",
+    "separate deployment approval"
+  ],
+  "first_task": "docs/claude-builder-brief-001.md",
+  "qa_template": "docs/qa-review-template.md",
+  "rules": {
+    "no_self_merge": true,
+    "no_direct_main_push": true,
+    "no_auto_deploy": true,
+    "no_github_actions": true,
+    "no_external_astrology_api": true,
+    "no_real_birth_data_in_git": true,
+    "shopify_staging_only": true,
+    "production_launch_approved": false
+  },
+  "other_repos": {
+    "requirements": "sabpuja/core",
+    "routing": "sabpuja/Progress-Memory",
+    "storefront": "sabpuja/theme",
+    "design": "sabpuja/design-system"
+  },
+  "current_state": "foundation PR #1 unmerged; unit and golden reference tests not yet verified"
+}
