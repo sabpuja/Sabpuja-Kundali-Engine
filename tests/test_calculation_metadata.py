@@ -237,6 +237,27 @@ class Eras(unittest.TestCase):
         self.assertIn("pinned IERS leap-second list expiry (2027-06-28)", text["AFTER_LEAP_SECOND_LIST_EXPIRY"])
         self.assertIn("Swiss Delta T is extrapolated", text["AFTER_LEAP_SECOND_LIST_EXPIRY"])
 
+    def test_api_contract_documents_the_implemented_eras(self):
+        # docs/api-contract.md "Time scale and eras" must list exactly these codes and UTC ranges,
+        # and its sample era_description must be the implemented text.
+        doc = (ROOT / "docs" / "api-contract.md").read_text(encoding="utf-8")
+        section = doc.split("### Time scale and eras", 1)[1].split("\n### ", 1)[0]
+        rows = [line.split(" | ")[:2] for line in section.splitlines() if line.startswith("| `")]
+        day = lambda moment: moment.date().isoformat()
+        expected = []
+        for code, start, end, _ in provenance.ERAS:
+            span = (f"before {day(end)}" if start is None else
+                    f"from {day(start)}" if end is None else f"{day(start)} to {day(end)}")
+            expected.append([f"| `{code}`", span])
+        self.assertEqual(rows, expected)
+        texts = {code: text for code, _, _, text in provenance.ERAS}
+        sample = doc.split('"era": "', 1)[1]
+        code = sample.split('"', 1)[0]
+        described = json.loads(sample.split('"era_description": ', 1)[1].split(",\n", 1)[0])
+        self.assertEqual(described, texts[code])
+        self.assertIn("reporting convention, **not** the official effective instant", section)
+        self.assertNotIn("2035", doc)
+
     def test_future_disclosure_keeps_list_expiry_not_transition_date(self):
         codes = lambda text: [d["code"] for d in provenance._disclosures(self.at(text), 0.0)]
         for text in ("2027-05-19T23:59:59.999999+00:00", "2027-05-20T00:00:00+00:00", "2027-05-21T00:00:00+00:00",
