@@ -63,7 +63,17 @@ The following notice is preserved verbatim from upstream:
 ## Python binding
 The initial local adapter depends on `pyswisseph==2.10.3.2`. Before release, inventory its license, transitive packages and embedded Swiss Ephemeris version, preserve its notices and record package hashes in an approved lock/manifest.
 
-## Geographic/timezone data (not yet bundled)
-Planned offline GeoNames database requires dataset-specific attribution and review. Use an appropriately licensed, audited IANA tzdb source. No runtime remote geolocation service is authorized.
+## IANA time zone data: `tzdata` Python package
+The engine depends on `tzdata==2026.5` (IANA Time Zone Database 2026e), installed from PyPI. It is not copied into this repository; `src/sabpuja_kundali/tzif-manifest.json` records only the SHA-256 of each TZif file it loads.
+
+- Package license: Apache License 2.0 (wheel metadata `License: Apache-2.0`; license files `LICENSE` and `licenses/LICENSE_APACHE`).
+- Package copyright notice: "Copyright (c) 2020, Paul Ganssle (Google)" and "Copyright (c) 2026, Stan Ulbrych".
+- The IANA tz source files compiled into the package state that they are in the public domain.
+- Any distribution that includes the package must keep its license files.
+
+This notice list is not a completed license review: LEG-01 and a qualified legal review of network (AGPL) use remain pending.
+
+## Geographic data (not yet bundled)
+Planned offline GeoNames database requires dataset-specific attribution and review. No runtime remote geolocation service is authorized.
 
 Do not copy upstream binaries, planetary files or other datasets into this repository before their licensing, integrity, size and source revisions have been reviewed.

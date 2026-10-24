@@ -11,7 +11,7 @@ Decision date: 2026-10-21. Owner: Sabpuja product owner.
 ChatGPT owns coordination and QA, not the production server. Execution by Claude requires separate authenticated repository and machine access configured by the owner/operator. Claude has not been connected or authorized by this document.
 
 ## Single source of truth
-- Product and cross-repo decisions: `sabpuja/core`.
+- Kundali product requirements and scientific decisions: this repository (`docs/DECISIONS.md`; DEC-004). Cross-repo and organization-wide decisions: `sabpuja/core`.
 - Engine code, methodology, reference fixtures, validated releases: **this repository**.
 - Shopify frontend: `sabpuja/theme`. Design rules: `sabpuja/design-system`.
 - Current state/router: `sabpuja/Progress-Memory`.

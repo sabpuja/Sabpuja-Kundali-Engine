@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-21",
+  "updated": "2026-10-24",
   "project": "Sabpuja Kundali Engine",
   "governance_status": "proposed-in-draft-pr",
   "canonical_repo": "sabpuja/Sabpuja-Kundali-Engine",
@@ -34,7 +34,7 @@
         "defect repair",
         "PR evidence"
       ],
-      "connected_or_authorized": false
+      "access_status": "repository access used only within milestones the owner authorizes; evidence: Claude-authored commits on draft PR branches (e.g. 5a0ac2f on PR #35) and the authorization records on PR #20"
     }
   },
   "gates": [
@@ -58,10 +58,11 @@
     "production_launch_approved": false
   },
   "other_repos": {
-    "requirements": "sabpuja/core",
+    "requirements": "sabpuja/Sabpuja-Kundali-Engine (docs/, DEC-004)",
     "routing": "sabpuja/Progress-Memory",
     "storefront": "sabpuja/theme",
-    "design": "sabpuja/design-system"
+    "design": "sabpuja/design-system",
+    "organization_policy": "sabpuja/core"
   },
-  "current_state": "foundation PR #1 unmerged; unit and golden reference tests not yet verified"
+  "current_state": "foundation PR #1 unmerged (PM/QA hold); KUN-03 draft stack PRs #23-#35 engineering-QA-passed and joined with main on integration/kun03-gate1 for QA only; decision rows except SCI-01b/c PENDING; independent golden reference tests not yet performed"
 }
