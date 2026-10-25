@@ -94,11 +94,13 @@ def canonical_sha256(document: dict) -> str:
 
 @lru_cache(maxsize=1)
 def binding_distribution_version() -> str | None:
-    """Installed pyswisseph distribution version; None if the binding has no distribution metadata."""
+    """Installed pyswisseph distribution version; None if its distribution metadata is
+    missing or has no usable Version field (the engine refuses both)."""
     try:
-        return metadata.version("pyswisseph")
-    except metadata.PackageNotFoundError:
+        version = metadata.version("pyswisseph")
+    except (metadata.PackageNotFoundError, KeyError):
         return None
+    return version if isinstance(version, str) and version else None
 
 
 def _flags(swe, names: tuple[str, ...]) -> int:

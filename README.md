@@ -40,6 +40,7 @@ The engine's history is draft PR #1 (foundation) followed by the KUN-03 draft st
 - A private, stdin-driven JSON CLI, requiring an **explicit UTC-offset birth datetime, IANA timezone, latitude and longitude**.
 - Fail-closed checks for missing ephemeris files and accidental Moshier fallback.
 - KUN-03 input and time hardening: pinned `tzdata` 2026.5 with a TZif SHA-256 manifest, the -66.0 to +66.0 latitude band, Lagna via Swiss whole-sign houses, the 1900-2100 local civil date window, ordered refusal codes, a fail-closed pre-1970 historical-clock gate, location-based timezone identifiers, per-request Swiss state and Delta T reset, private Swiss error codes and calculation provenance metadata. See [docs/api-contract.md](docs/api-contract.md).
+- Gate 3C engine hardening (PKG-2, draft): typed `SWISS_*` runtime faults (missing binding, Moshier fallback), exact run-time Swiss library and binding version pins, a CLI boundary that reports only typed engine errors, and a fail-closed start-up preflight for a future service. See [docs/engine-readiness.md](docs/engine-readiness.md).
 
 ## Not implemented
 Public HTTP service, offline city selector, verified historical clocks before 1970, PDF, dashas, Yogas/Doshas, personalized interpretations, customer profiles, Shopify integration and staging/live rollout. The numerics have **not yet passed independent golden-chart verification**.

@@ -147,9 +147,9 @@ class PinnedZoneLoader:
     def verify_all(self) -> int:
         """Load and verify every manifest zone.
 
-        Intended start-up gate: a future service must call this before accepting
-        requests and refuse to start on failure. No service exists yet, so nothing
-        calls it today.
+        Start-up gate: `readiness.preflight()` calls it on a fresh loader; a future
+        service must run that preflight before accepting requests and refuse to
+        start on failure.
         """
         for key in self._files:
             self.get(key)
