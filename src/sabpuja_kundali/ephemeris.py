@@ -23,8 +23,15 @@ class EphemerisDataError(RuntimeError):
 
 
 def load_manifest() -> dict:
-    text = resources.files(__package__).joinpath(_MANIFEST_NAME).read_text(encoding="utf-8")
-    return json.loads(text)
+    """Read the packaged manifest; a read or parse failure is a structured refusal."""
+    try:
+        text = resources.files(__package__).joinpath(_MANIFEST_NAME).read_text(encoding="utf-8")
+        manifest = json.loads(text)
+    except (OSError, ValueError):
+        raise EphemerisDataError("EPHEMERIS_MANIFEST_INVALID", "ephemeris manifest cannot be read") from None
+    if not isinstance(manifest, dict) or not isinstance(manifest.get("files"), list):
+        raise EphemerisDataError("EPHEMERIS_MANIFEST_INVALID", "ephemeris manifest has an unexpected structure")
+    return manifest
 
 
 def _sha256(path: Path) -> str:

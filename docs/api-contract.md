@@ -37,6 +37,8 @@ Longitude and category semantics:
 
 Errors: CLI writes JSON `{"error":"CODE: detail"}` to stderr, writes nothing to stdout, prints no traceback and exits 2. Error text never repeats the birth time, timezone or coordinates. No HTTP response codes are promised yet. Network service contracts must be separately reviewed and versioned.
 
+Only the typed engine errors are reported this way: `InputRefusalError` (and `UnsupportedInputError`), `ChartComputationError`, `EphemerisDataError` and `TimezoneDataError`, listed together as `engine.EXPECTED_ERRORS`. Each carries `.code` and fixed text. Any other exception, including an untyped `ValueError` or `RuntimeError`, is a programming defect: it is not relabelled as a refusal and ends the CLI with Python's own failure (exit 1, no stdout). Before Gate 3C the CLI also printed an untyped `ValueError` or `RuntimeError` as an exit-2 `{"error"}`; no accepted or refused request reached that path (Gate 3C invariance corpus).
+
 Input refusal codes (KUN-03 P5, D1/D4). Every input refusal raises `InputRefusalError` (a `ValueError` carrying `.code`; `UnsupportedInputError` is its subclass for valid input outside the supported envelope). Checks run in this fixed order and the first failing check decides the code, so one input always gets the same code; every birth-time check comes before any coordinate check:
 
 | Order | Code | Refused when | Class |
@@ -75,7 +77,21 @@ Swiss Ephemeris failures (KUN-03 Swiss error contract). Once a request has passe
 | `calc_ut`, any of the eight bodies | `SWISS_PLANET_CALCULATION_FAILED` | Swiss Ephemeris could not complete the planetary calculation; no chart produced |
 | `houses_ex(..., b"W")` | `ASCENDANT_UNCOMPUTABLE` (unchanged) | Swiss Ephemeris could not compute the ascendant for this location and time; no chart produced |
 
-These are server-side calculation failures, not input refusals: they are never reported as `REQUEST_INVALID` or another P5 code, and they are reachable only after every refusal, `TZDATA_*` and `EPHEMERIS_*` check, whose codes and order are unchanged. None is expected for accepted input; in the pinned binding only `calc_ut` and `houses_ex` were seen to raise `swisseph.Error`, and the reset calls are guarded defensively. The existing Moshier refusal ("Swiss ephemeris files unavailable: refused Moshier fallback") is unchanged. Only `swisseph.Error` is translated: any other exception is a programming defect, is not relabelled or swallowed, and ends the CLI with Python's own failure (exit 1, no stdout). This contract covers error handling only; it is not an astronomical certification.
+These are server-side calculation failures, not input refusals: they are never reported as `REQUEST_INVALID` or another P5 code, and they are reachable only after every refusal, `TZDATA_*` and `EPHEMERIS_*` check, whose codes and order are unchanged. None is expected for accepted input; in the pinned binding only `calc_ut` and `houses_ex` were seen to raise `swisseph.Error`, and the reset calls are guarded defensively. Only `swisseph.Error` is translated: any other exception is a programming defect, is not relabelled or swallowed, and ends the CLI with Python's own failure (exit 1, no stdout). This contract covers error handling only; it is not an astronomical certification.
+
+Swiss runtime faults (Gate 3C, PKG-2). Two refusals that were uncoded `RuntimeError`s before Gate 3C, and the run-time version pins, are `ChartComputationError`s with fixed text (no version string, path, Swiss text or request value):
+
+| Stage | Code | Fixed detail |
+|---|---|---|
+| `import swisseph` (after the ephemeris gate) | `SWISS_BINDING_MISSING` | the pinned Swiss Ephemeris Python binding is not installed; no chart produced |
+| `swe.version` is not exactly `2.10.03` (missing, malformed, older or newer) | `SWISS_LIBRARY_VERSION_MISMATCH` | the Swiss Ephemeris library is not the pinned version; no chart produced |
+| no `pyswisseph` distribution metadata, or no usable `Version` field | `SWISS_BINDING_METADATA_MISSING` | the Swiss Ephemeris binding version cannot be verified; no chart produced |
+| `pyswisseph` distribution version is not exactly `2.10.3.2` | `SWISS_BINDING_VERSION_MISMATCH` | the Swiss Ephemeris binding is not the pinned version; no chart produced |
+| `calc_ut` returned without `FLG_SWIEPH` for any body (Moshier or other fallback) | `SWISS_EPHEMERIS_FALLBACK_REFUSED` | Swiss Ephemeris did not use the verified local files; refused Moshier fallback; no chart produced |
+
+The binding and version checks (`engine.swiss_runtime()`) run on every request after every input refusal and the `EPHEMERIS_*` gate, in the order above, and before `julday`: a version failure makes no Swiss call and takes no lock. The pins are exact string matches with no range, environment switch or bypass, and nothing is installed or downloaded. Unavailable metadata is a refusal, never evidence of compatibility. The binding's distribution version is read once per process (`provenance.binding_distribution_version`, cached), the library version on every request. The fallback refusal stops at the first body whose result lacks `FLG_SWIEPH`: no later body, no ascendant, no substitute value and no partial chart. Its text keeps the phrase "refused Moshier fallback"; before Gate 3C it was `RuntimeError("Swiss ephemeris files unavailable: refused Moshier fallback")`. A missing binding was `RuntimeError("Install pinned local pyswisseph package")` and a version mismatch was not refused (only reported in the metadata). The packaged ephemeris manifest, if unreadable or not a JSON object with a `files` list, is refused with the existing `EPHEMERIS_MANIFEST_INVALID` (it was a JSON decoder message or a traceback).
+
+Start-up preflight (Gate 3C, `readiness.py`). A future service must call `readiness.require_ready()` (or `readiness.preflight()`) before it opens a listener or accepts a request; see [engine-readiness.md](engine-readiness.md).
 
 ## Birthplace timezone policy (KUN-03 D3)
 
@@ -265,6 +281,6 @@ Synthetic request `{"birth_datetime":"2030-03-20T09:00:00+00:00","timezone":"Atl
 
 ### Reproduction requirements
 
-To get the same output, including the metadata: `pyswisseph==2.10.3.2` (Swiss 2.10.03), `tzdata==2026.5` (IANA 2026e) with the packaged TZif manifest, and the two ephemeris files matching the packaged ephemeris manifest. A different binding, tzdata or ephemeris file either fails closed (`TZDATA_*`, `EPHEMERIS_*`) or is reported in the metadata.
+To get the same output, including the metadata: `pyswisseph==2.10.3.2` (Swiss 2.10.03), `tzdata==2026.5` (IANA 2026e) with the packaged TZif manifest, and the two ephemeris files matching the packaged ephemeris manifest. A different binding, library, tzdata or ephemeris file fails closed (`SWISS_*` since Gate 3C, `TZDATA_*`, `EPHEMERIS_*`).
 
 **Privacy**: CLI retains no state; stdout contains sensitive birth timestamp/coordinates and must be protected by the caller. Never send customer content to telemetry or GitHub.

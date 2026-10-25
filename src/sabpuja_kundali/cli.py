@@ -1,7 +1,7 @@
 """Offline JSON stdin -> stdout CLI. Never log birth details."""
 import json
 import sys
-from .engine import InputRefusalError, calculate
+from .engine import EXPECTED_ERRORS, InputRefusalError, calculate
 
 def main() -> int:
     try:
@@ -15,12 +15,14 @@ def main() -> int:
             raise InputRefusalError("REQUEST_INVALID", "input must be UTF-8 text") from None
         try:
             request = json.loads(raw)
-        except ValueError:
-            # Covers JSONDecodeError; its position text is replaced so nothing of the input is echoed.
+        except (ValueError, RecursionError):
+            # Covers JSONDecodeError and over-deep nesting; the decoder's text is replaced so
+            # nothing of the input is echoed.
             raise InputRefusalError("REQUEST_INVALID", "input must be one JSON object") from None
         result = calculate(request)
-    except (ValueError, RuntimeError) as exc:
-        # Avoid printing raw input or stack traces containing personal data.
+    except EXPECTED_ERRORS as exc:
+        # Typed refusals and faults only, with their fixed text: no raw input, no stack trace.
+        # Any other exception is a defect and is not relabelled (Python's own exit 1).
         print(json.dumps({"error": str(exc)}), file=sys.stderr)
         return 2
     print(json.dumps(result, ensure_ascii=False, indent=2))

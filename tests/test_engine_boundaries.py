@@ -40,7 +40,8 @@ def fake_swisseph(longitudes, lagna):
     for number, name in enumerate(bodies):
         setattr(swe, {"rahu_mean": "MEAN_NODE"}.get(name, name.upper()), number)
     swe.FLG_SWIEPH, swe.FLG_SIDEREAL, swe.SIDM_LAHIRI, swe.DELTAT_AUTOMATIC = 2, 64 * 1024, 1, -1e-10
-    swe.version = "test-double"
+    # Gate 3C: the engine refuses any other library version before computing.
+    swe.version = engine.REQUIRED_SWISS_LIBRARY_VERSION
     swe.Error = type("Error", (Exception,), {})
     swe.julday = lambda *args: 2451545.0
     swe.set_ephe_path = swe.set_sid_mode = swe.set_delta_t_userdef = lambda *args: None
@@ -51,7 +52,9 @@ def fake_swisseph(longitudes, lagna):
 
 def run(longitudes=FIXTURE, lagna=LAGNA):
     with mock.patch.dict(sys.modules, {"swisseph": fake_swisseph(longitudes, lagna)}), \
-         mock.patch.object(engine, "verify_ephemeris_dir", return_value=Path("/unused")):
+         mock.patch.object(engine, "verify_ephemeris_dir", return_value=Path("/unused")), \
+         mock.patch.object(provenance, "binding_distribution_version",
+                           return_value=engine.REQUIRED_BINDING_VERSION):
         return engine.calculate(dict(SYNTHETIC))
 
 
