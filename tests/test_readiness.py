@@ -152,7 +152,11 @@ class ReadinessTests(Isolated):
         self.assertNotReady(preflight(DATA), "ephemeris_data", "EPHEMERIS_PATH_OVERRIDE")
 
     def test_corrupted_packaged_ephemeris_manifest(self):
-        with mock.patch("sabpuja_kundali.ephemeris.json.loads", side_effect=ValueError("bad")):
+        from sabpuja_kundali import ephemeris
+        resource = mock.Mock()
+        resource.read_text.return_value = "{not json"
+        with mock.patch.object(ephemeris.resources, "files") as files:
+            files.return_value.joinpath.return_value = resource
             self.assertNotReady(preflight(DATA), "ephemeris_data", "EPHEMERIS_MANIFEST_INVALID")
 
     def test_wrong_or_missing_binding(self):
