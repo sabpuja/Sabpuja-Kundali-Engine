@@ -243,6 +243,42 @@ class ClassificationRule(unittest.TestCase):
             self.assertIn(f'"{code}"', source)
 
 
+class JsonDecoderBoundary(unittest.TestCase):
+    """G3D-JSON-01: a decoder RecursionError is a 400 request fault; elsewhere it stays a 500 defect."""
+
+    INVALID = {"error": {"code": "REQUEST_INVALID", "message": "the request must be one UTF-8 JSON object",
+                         "category": "input"}}
+
+    def test_decoder_recursion_error_is_a_private_400(self):
+        raw = json.dumps(dict(GOOD, birth_time="10:30 secret /home/user")).encode()
+        err = io.StringIO()
+        with mock.patch.object(server.json, "loads", side_effect=RecursionError("maximum recursion depth secret")), \
+                mock.patch.object(server, "calculate") as calculate, redirect_stderr(err):
+            status, body = server.handle_chart(raw, PLACES, EPHE or "")
+        self.assertEqual((status, body), (400, self.INVALID))
+        self.assertEqual(err.getvalue(), "")  # no INTERNAL_ERROR event
+        calculate.assert_not_called()
+        for leak in ("secret", "/home", "10:30", "recursion", "Traceback"):
+            self.assertNotIn(leak, json.dumps(body))
+
+    def test_deeply_nested_input_is_never_a_500(self):
+        # Real input at the 4 KB limit. Python 3.13 parses depth 2,048, so this is a 400 for its
+        # shape; a runtime whose decoder raises RecursionError here gives the same 400.
+        for raw in (b"[" * 2048 + b"]" * 2048, b'{"a":' * 682 + b"1" + b"}" * 682):
+            with self.subTest(size=len(raw)):
+                self.assertLessEqual(len(raw), server.MAX_BODY_BYTES)
+                status, body = server.handle_chart(raw, PLACES, EPHE or "")
+                self.assertEqual((status, body["error"]["code"], body["error"]["category"]),
+                                 (400, "REQUEST_INVALID", "input"))
+
+    def test_recursion_error_outside_the_decoder_stays_a_500(self):
+        err = io.StringIO()
+        with mock.patch.object(server, "compute", side_effect=RecursionError("secret")), redirect_stderr(err):
+            status, body = server.handle_chart(json.dumps(GOOD).encode(), PLACES, EPHE or "")
+        self.assertEqual((status, body["error"]["code"]), (500, "INTERNAL_ERROR"))
+        self.assertEqual(json.loads(err.getvalue()), {"event": "INTERNAL_ERROR", "type": "RecursionError"})
+
+
 @requires_data
 class RequestFaults(unittest.TestCase):
     """Real engine faults through handle_chart: status, envelope, no chart, no contamination."""

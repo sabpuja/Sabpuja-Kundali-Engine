@@ -236,7 +236,9 @@ def handle_chart(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[i
     try:
         try:
             body = json.loads(raw.decode("utf-8"), object_pairs_hook=_no_duplicates)
-        except (UnicodeDecodeError, ValueError):
+        except (UnicodeDecodeError, ValueError, RecursionError):
+            # RecursionError: input nested too deeply for the decoder, a request-format fault
+            # (as in the CLI). Caught here only; one from compute() stays a 500 defect.
             raise FormError(400, "REQUEST_INVALID", "the request must be one UTF-8 JSON object") from None
         return 200, compute(body, places, ephe_path)
     except Exception as exc:
