@@ -120,7 +120,9 @@ class NoBypassTests(unittest.TestCase):
                 if any(token in line for token in ("os.environ", "getenv", "sys.argv")):
                     reads.append((path.name, line.strip()))
         self.assertEqual(reads, [
-            ("engine.py", 'folder = verify_ephemeris_dir(ephe_path or os.environ.get("SABPUJA_EPHE_PATH", ""), ephemeris_manifest)'),
+            # Gate 3C: the one SABPUJA_EPHE_PATH read moved into engine.ephemeris_path(), shared
+            # by calculate() and the readiness preflight; no new variable is read.
+            ("engine.py", 'return ephe_path or os.environ.get("SABPUJA_EPHE_PATH", "")'),
             ("ephemeris.py", 'if os.environ.get("SE_EPHE_PATH"):'),
         ])
 

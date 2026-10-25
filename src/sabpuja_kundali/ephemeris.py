@@ -10,8 +10,10 @@ from pathlib import Path
 import hashlib
 import json
 import os
+import re
 
 _MANIFEST_NAME = "ephemeris-manifest.json"
+_SHA256_HEX = re.compile(r"[0-9a-f]{64}")
 
 
 class EphemerisDataError(RuntimeError):
@@ -22,9 +24,60 @@ class EphemerisDataError(RuntimeError):
         self.code = code
 
 
+def _malformed() -> EphemerisDataError:
+    # Fixed text: never echoes a manifest value, which could be a path or arbitrary data.
+    return EphemerisDataError("EPHEMERIS_MANIFEST_INVALID", "ephemeris manifest has an unexpected structure")
+
+
+def _is_int(value) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _required_entries(manifest: dict) -> list[dict]:
+    """Return the required file entries after checking every field the gate reads.
+
+    Each `files` entry must be an object with a boolean `required`. A required entry
+    needs a plain file `name` (no directory part), a non-negative integer `size_bytes`
+    and a lowercase hex `sha256`. Anything else is EPHEMERIS_MANIFEST_INVALID.
+    """
+    files = manifest.get("files") if isinstance(manifest, dict) else None
+    if not isinstance(files, list):
+        raise _malformed()
+    required = []
+    for entry in files:
+        if not isinstance(entry, dict) or not isinstance(entry.get("required"), bool):
+            raise _malformed()
+        if not entry["required"]:
+            continue
+        name, size, sha = entry.get("name"), entry.get("size_bytes"), entry.get("sha256")
+        if (not isinstance(name, str) or name in ("", ".", "..") or "/" in name or "\\" in name
+                or "\0" in name or not _is_int(size) or size < 0
+                or not isinstance(sha, str) or not _SHA256_HEX.fullmatch(sha)):
+            raise _malformed()
+        required.append(entry)
+    return required
+
+
 def load_manifest() -> dict:
-    text = resources.files(__package__).joinpath(_MANIFEST_NAME).read_text(encoding="utf-8")
-    return json.loads(text)
+    """Read the packaged manifest; a read, parse or shape failure is a structured refusal.
+
+    Besides the file entries, checks the fields that calculation metadata reads, so a
+    malformed manifest is refused before any Swiss call rather than after it.
+    """
+    try:
+        text = resources.files(__package__).joinpath(_MANIFEST_NAME).read_text(encoding="utf-8")
+        manifest = json.loads(text)
+    except (OSError, ValueError):
+        raise EphemerisDataError("EPHEMERIS_MANIFEST_INVALID", "ephemeris manifest cannot be read") from None
+    _required_entries(manifest)
+    source, coverage = manifest.get("source"), manifest.get("coverage")
+    if (not isinstance(manifest.get("manifest_version"), str)
+            or not isinstance(source, dict) or not isinstance(source.get("repository"), str)
+            or not isinstance(source.get("commit"), str)
+            or not isinstance(coverage, dict) or not _is_int(coverage.get("start_year"))
+            or not _is_int(coverage.get("end_year"))):
+        raise _malformed()
+    return manifest
 
 
 def _sha256(path: Path) -> str:
@@ -56,7 +109,7 @@ def verify_ephemeris_dir(ephe_path: str | None, manifest: dict | None = None) ->
             "EPHEMERIS_PATH_MISSING",
             "Missing local Swiss Ephemeris directory; see data/ephemeris/README.md")
     manifest = manifest if manifest is not None else load_manifest()
-    required = [entry for entry in manifest["files"] if entry.get("required") is True]
+    required = _required_entries(manifest)
     if not required:
         raise EphemerisDataError("EPHEMERIS_MANIFEST_INVALID", "manifest lists no required files")
     for entry in required:
