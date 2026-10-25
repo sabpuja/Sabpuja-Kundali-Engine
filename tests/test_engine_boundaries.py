@@ -101,13 +101,19 @@ class EngineBoundaryTests(unittest.TestCase):
         self.assertEqual(self.out["lagna"], {"longitude_deg": 330.0, "rashi": "Kumbha", "navamsa_rashi": "Mithuna"})
 
     def test_schema_keys_unchanged(self):
-        # P7 appends one metadata block; the 0.1.0 legacy projection keeps the original keys and order.
+        # P7 appends one metadata block and Gate 3E (proposed 0.3.0) the d9 block; the 0.2.0 baseline
+        # and 0.1.0 legacy projections keep the original keys and order.
         legacy = ["schema_version", "validation_status", "method", "birth", "lagna", "moon_nakshatra", "planets"]
-        self.assertEqual(list(self.out), legacy + ["calculation_metadata"])
+        self.assertEqual(list(self.out), legacy + ["calculation_metadata", "d9"])
+        baseline = provenance.baseline_projection(self.out)
+        self.assertEqual(list(baseline), legacy + ["calculation_metadata"])
         self.assertEqual(list(provenance.legacy_projection(self.out)), legacy)
         self.assertEqual(list(self.planets), list(FIXTURE) + ["ketu_mean"])
-        for value in self.planets.values():
-            self.assertEqual(list(value), ["longitude_deg", "rashi", "navamsa_rashi", "whole_sign_house"])
+        for name, value in self.planets.items():
+            self.assertEqual(list(value), ["longitude_deg", "rashi", "navamsa_rashi", "whole_sign_house",
+                                           "navamsa_whole_sign_house"])
+            self.assertEqual(list(baseline["planets"][name]),
+                             ["longitude_deg", "rashi", "navamsa_rashi", "whole_sign_house"])
         json.dumps(self.out, allow_nan=False)
 
     def test_ketu_wraps_through_360(self):

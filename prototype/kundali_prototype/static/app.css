@@ -215,15 +215,17 @@ code { font-family: var(--sp-font-mono); font-size: 0.92em; overflow-wrap: anywh
 .result-head h2 { margin: 0; }
 
 .bento { display: grid; gap: var(--sp-grid-gap); grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); }
-.chart-card, .table-card, .method-card { grid-column: 1 / -1; }
+.chart-card, .chart-card--d9, .table-card, .method-card { grid-column: 1 / -1; }
 /* Chart and table cards give their content more of the width on narrow screens. */
-.chart-card, .table-card { padding-inline: clamp(.625rem, .3rem + 1.4vw, 1.75rem); }
+.chart-card, .chart-card--d9, .table-card { padding-inline: clamp(.625rem, .3rem + 1.4vw, 1.75rem); }
 @container result (min-width: 60rem) {
   .bento { grid-template-columns: repeat(12, minmax(0, 1fr)); }
   .confirm-card, .key-card { grid-column: 1 / span 5; }
   .chart-card { grid-column: 6 / span 7; grid-row: 1 / span 2; }
   .table-card--d1 { grid-column: 1 / span 7; }
   .table-card--d9 { grid-column: 8 / span 5; }
+  /* Gate 3E: the D9 chart takes its own row under the tables, so the D1 arrangement is unchanged. */
+  .chart-card--d9 { grid-column: 1 / -1; grid-row: 4; }
   .method-card { grid-column: 1 / -1; }
 }
 
@@ -239,7 +241,9 @@ code { font-family: var(--sp-font-mono); font-size: 0.92em; overflow-wrap: anywh
 
 /* North Indian D1 chart: geometry and labels come from chart.js; only paint is styled here. */
 .chart-wrap { width: 100%; max-width: 35rem; margin: var(--sp-space-3) auto 0; }
-.d1-chart { display: block; width: 100%; height: auto; }
+.d1-chart, .d9-chart { display: block; width: 100%; height: auto; }
+.chart-nav { display: flex; flex-wrap: wrap; gap: var(--sp-space-2) var(--sp-space-4); margin: 0 0 var(--sp-space-4); font-size: var(--sp-text-small); }
+.chart-nav a { color: var(--sp-color-saffron-800); font-weight: 600; text-decoration: underline; text-underline-offset: 0.2em; }
 .house-shape { fill: var(--sp-color-white); stroke: var(--sp-color-border-strong); stroke-width: 2; }
 .house--lagna .house-shape { fill: var(--sp-color-gold-tint); }
 .chart-frame { fill: none; stroke: var(--sp-color-brown); stroke-width: 4; }

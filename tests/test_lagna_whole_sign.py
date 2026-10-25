@@ -76,7 +76,8 @@ class VehicleTests(unittest.TestCase):
         # 0.1.0 legacy projection and the method block are unchanged.
         with mock.patch.object(swisseph, "houses_ex", return_value=((0.0,) * 12, (100.0,) + (0.0,) * 7)):
             result = calculate(SYNTHETIC)
-        self.assertEqual(result["schema_version"], "0.2.0")
+        self.assertEqual(result["schema_version"], "0.3.0")  # Gate 3E proposed candidate; baseline_projection gives 0.2.0
+        self.assertEqual(provenance.baseline_projection(result)["schema_version"], "0.2.0")
         self.assertEqual(provenance.legacy_projection(result)["schema_version"], "0.1.0")
         ascendant = result["calculation_metadata"]["conventions"]["ascendant"]
         self.assertEqual((ascendant["swiss_function"], ascendant["swiss_house_system"], ascendant["value"]),

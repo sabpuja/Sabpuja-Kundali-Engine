@@ -7,7 +7,8 @@ front end and a `127.0.0.1`-only HTTP wrapper around the hardened engine in
 English only and stores nothing.
 
 It is not the DATA-01 gazetteer, not the KUN-F11 public API, not PDF, Hindi or
-Shopify work, and it does not implement P6 (D9 houses).
+Shopify work. Gate 3E adds the D9 whole-sign houses (proposed chart schema
+`0.3.0`, pending owner approval) and a North Indian D9 chart.
 
 ## What it does
 
@@ -24,8 +25,12 @@ Shopify work, and it does not implement P6 (D9 houses).
   - a skipped hour: the engine refuses it (`TIME_NONEXISTENT_LOCAL`).
   The engine then re-validates the offset itself and applies all of its own
   checks (window, historical clock Option B, D3, latitude band, Swiss data).
-- Result: a North Indian D1 chart, a D1 table, a D9 sign table with the D9
-  Lagna, the confirmed input, and a method and provenance panel.
+- Result: a North Indian D1 chart, a D1 table, a North Indian D9 Navamsa chart,
+  a D9 table (D9 Rashi and D9 house of the D9 Lagna and each graha), the
+  confirmed input, and a method and provenance panel. The D9 chart and table
+  read the engine's `d9` block and `planets.*.navamsa_whole_sign_house`; the
+  browser computes no house and refuses to draw (no result shown) if those
+  fields disagree with each other or with the D9 signs.
 - Refusals are shown with their code and a plain explanation; no chart is shown.
 
 ## Setup
@@ -75,7 +80,7 @@ all of these hold:
   (the engine's pins in `engine.py`; the wrapper keeps no copy);
 - `timezone_data`: tzdata is 2026.5 and all 598 pinned zone files verify;
 - `canary_calculation` and `output_contract`: one synthetic chart computes with
-  schema `0.2.0`, metadata `/3` and the pinned versions;
+  schema `0.3.0` (proposed, Gate 3E) with a whole-sign `d9` block, metadata `/3` and the pinned versions;
 - `place_fixture`: the place fixture loads, and each zone is pinned and geographic.
 
 A refusal is one JSON line on stderr with a stable code and the failing check,

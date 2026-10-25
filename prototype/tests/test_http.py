@@ -232,7 +232,7 @@ class ControlledErrors(Base):
     def test_valid_request(self):
         resp, data = self.request("POST", "/api/chart", GOOD, {"Origin": f"http://127.0.0.1:{self.port}"})
         self.assertEqual(resp.status, 200)
-        self.assertEqual(json.loads(data)["chart"]["schema_version"], "0.2.0")
+        self.assertEqual(json.loads(data)["chart"]["schema_version"], "0.3.0")  # Gate 3E proposed candidate (owner approval pending)
 
     @requires_data
     def test_concurrent_requests_match_serial(self):

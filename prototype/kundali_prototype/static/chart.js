@@ -1,9 +1,10 @@
-/* North Indian D1 chart drawn from the engine's structured result.
+/* North Indian D1 and D9 charts drawn from the engine's structured result.
  *
- * Nothing here computes a position: each graha goes into the house the engine
- * reported (whole_sign_house) and each house shows the sign that follows the
- * engine's Lagna rashi. buildD1Model also checks that every graha's reported
- * rashi equals its house's sign and refuses to draw if they disagree.
+ * Nothing here computes a position or a house: each graha goes into the house
+ * the engine reported (whole_sign_house for D1, navamsa_whole_sign_house for
+ * D9). buildD1Model checks that every graha's reported rashi equals its house's
+ * sign; buildD9Model checks the engine's d9 block against the per-graha D9
+ * fields and the D9 Lagna. Both refuse to draw if the engine disagrees with itself.
  */
 (function (root) {
   "use strict";
@@ -74,6 +75,47 @@
     return { lagnaSign: SIGNS[lagnaIdx], houses: houses };
   }
 
+  function isHouse(n) { return typeof n === "number" && Math.floor(n) === n && n >= 1 && n <= 12; }
+
+  /* House-by-house model of the D9 chart, from the engine JSON only (schema 0.3.0 d9 block).
+   * Every D9 field must agree: d9.lagna_rashi with lagna.navamsa_rashi, the twelve house
+   * signs with the D9 Lagna order, and each house's grahas with planets.*.navamsa_rashi and
+   * planets.*.navamsa_whole_sign_house. Any disagreement throws; nothing is drawn. */
+  function buildD9Model(chart) {
+    var d9 = chart.d9;
+    if (!d9 || d9.house_system !== "whole_sign" || !Array.isArray(d9.houses) || d9.houses.length !== 12) {
+      throw new Error("engine result lacks a whole-sign D9 house block");
+    }
+    if (d9.lagna_rashi !== chart.lagna.navamsa_rashi) { throw new Error("engine D9 Lagna fields disagree"); }
+    var lagnaIdx = signIndex(d9.lagna_rashi);
+    var houses = [], listed = {};
+    d9.houses.forEach(function (h, i) {
+      var idx = (lagnaIdx + i) % 12;
+      if (h.house !== i + 1 || h.rashi !== SIGNS[idx] || !Array.isArray(h.grahas)) {
+        throw new Error("engine D9 house " + (i + 1) + " is out of order or has the wrong rashi");
+      }
+      h.grahas.forEach(function (key) {
+        if (listed[key] !== undefined) { throw new Error("engine D9 houses list " + key + " twice"); }
+        listed[key] = i + 1;
+      });
+      houses.push({ house: i + 1, signIndex: idx, signNumber: idx + 1, sign: SIGNS[idx],
+                    signEnglish: SIGN_ENGLISH[idx], grahas: [], isLagna: i === 0 });
+    });
+    if (Object.keys(listed).length !== GRAHAS.length) { throw new Error("engine D9 houses do not list every graha once"); }
+    GRAHAS.forEach(function (g) {
+      var p = chart.planets[g.key];
+      if (!p) { throw new Error("engine result lacks " + g.key); }
+      var house = p.navamsa_whole_sign_house;
+      if (!isHouse(house)) { throw new Error("engine D9 house out of range"); }
+      if (listed[g.key] !== house) { throw new Error("engine D9 house block and D9 house field disagree for " + g.key); }
+      if (houses[house - 1].sign !== p.navamsa_rashi) {
+        throw new Error("engine D9 rashi and D9 whole-sign house disagree for " + g.key);
+      }
+      houses[house - 1].grahas.push({ key: g.key, abbr: g.abbr, name: g.name });
+    });
+    return { lagnaSign: SIGNS[lagnaIdx], houses: houses };
+  }
+
   /* Largest font (9..18 px) and grid that fit n labels inside the box. */
   function layoutLabels(labels, box) {
     var w = box[2] - box[0], h = box[3] - box[1], n = labels.length;
@@ -105,7 +147,9 @@
     return node;
   }
 
-  function renderNorthIndian(svg, model) {
+  /* opts.id prefixes the title and desc ids; opts.title names the chart. D1 by default. */
+  function renderNorthIndian(svg, model, opts) {
+    opts = opts || { id: "d1", title: "North Indian D1 chart, Lagna " };
     var doc = svg.ownerDocument;
     while (svg.firstChild) { svg.removeChild(svg.firstChild); }
     svg.setAttribute("viewBox", "-4 -4 " + (SIZE + 8) + " " + (SIZE + 8));
@@ -113,8 +157,8 @@
       return "House " + h.house + ", " + h.sign + ": " +
         (h.grahas.length ? h.grahas.map(function (g) { return g.name; }).join(", ") : "empty");
     }).join(". ");
-    svg.appendChild(el(doc, "title", { id: "d1-title" }, "North Indian D1 chart, Lagna " + model.lagnaSign));
-    svg.appendChild(el(doc, "desc", { id: "d1-desc" }, summary + "."));
+    svg.appendChild(el(doc, "title", { id: opts.id + "-title" }, opts.title + model.lagnaSign));
+    svg.appendChild(el(doc, "desc", { id: opts.id + "-desc" }, summary + "."));
     model.houses.forEach(function (h) {
       var geo = HOUSES[h.house];
       var g = el(doc, "g", { "class": "house" + (h.isLagna ? " house--lagna" : ""), "data-house": String(h.house),
@@ -136,7 +180,7 @@
   }
 
   var api = { SIGNS: SIGNS, SIGN_ENGLISH: SIGN_ENGLISH, GRAHAS: GRAHAS, HOUSES: HOUSES,
-              buildD1Model: buildD1Model, layoutLabels: layoutLabels, renderNorthIndian: renderNorthIndian };
+              buildD1Model: buildD1Model, buildD9Model: buildD9Model, layoutLabels: layoutLabels, renderNorthIndian: renderNorthIndian };
   root.SabpujaChart = api;
   if (typeof module !== "undefined" && module.exports) { module.exports = api; }
 })(typeof self !== "undefined" ? self : this);
