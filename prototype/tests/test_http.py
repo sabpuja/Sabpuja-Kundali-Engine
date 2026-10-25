@@ -1,8 +1,11 @@
 """HTTP layer: routes, headers, request limits, host and origin checks, controlled errors."""
+import hashlib
 import http.client
 import json
+import re
 import threading
 import unittest
+from html.parser import HTMLParser
 from unittest import mock
 
 from kundali_prototype import server
@@ -11,6 +14,23 @@ from kundali_prototype.places import load_places
 from support import EPHE, requires_data
 
 GOOD = {"place_id": "in-mumbai", "birth_date": "1990-05-15", "birth_time": "10:30"}
+
+
+class _Tags(HTMLParser):
+    """Collects URLs the page loads by itself and the external links a user can click."""
+
+    def __init__(self):
+        super().__init__()
+        self.loads, self.links = [], []
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag in ("script", "img", "source", "iframe") and "src" in attrs:
+            self.loads.append((tag, attrs["src"]))
+        elif tag == "link":
+            self.loads.append((tag, attrs.get("href", "")))
+        elif tag == "a" and not attrs.get("href", "#").startswith("#"):
+            self.links.append(attrs)
 
 
 class Base(unittest.TestCase):
@@ -44,7 +64,8 @@ class Base(unittest.TestCase):
 class Routes(Base):
     def test_index_and_static_with_security_headers(self):
         for path, ctype in (("/", "text/html"), ("/static/app.js", "text/javascript"),
-                            ("/static/chart.js", "text/javascript"), ("/static/app.css", "text/css")):
+                            ("/static/chart.js", "text/javascript"), ("/static/app.css", "text/css"),
+                            ("/static/fonts.css", "text/css")):
             with self.subTest(path):
                 resp, data = self.request("GET", path)
                 self.assertEqual(resp.status, 200)
@@ -57,8 +78,54 @@ class Routes(Base):
 
     def test_page_loads_nothing_external(self):
         _, html = self.request("GET", "/")
-        for marker in (b"http://", b"https://", b"//cdn", b"googletagmanager", b"analytics"):
-            self.assertNotIn(marker, html.replace(b"http://www.w3.org/2000/svg", b""))
+        page = _Tags()
+        page.feed(html.decode("utf-8"))
+        # Everything the browser loads by itself (scripts, styles, images) is local.
+        self.assertTrue(page.loads)
+        for tag, url in page.loads:
+            with self.subTest(tag=tag, url=url):
+                self.assertTrue(url.startswith("/static/"))
+        # The only external URL is the user-clicked link to sabpuja.com, opened without opener or referrer.
+        self.assertEqual(len(page.links), 2)
+        for attrs in page.links:
+            self.assertEqual(attrs["href"], "https://sabpuja.com")
+            self.assertEqual(attrs["target"], "_blank")
+            self.assertEqual(set(attrs["rel"].split()), {"noopener", "noreferrer"})
+        rest = html.replace(b'href="https://sabpuja.com"', b"").replace(b">https://sabpuja.com<", b"><")
+        for marker in (b"http://", b"https://", b"//cdn", b"googletagmanager", b"analytics", b"fonts.g"):
+            self.assertNotIn(marker, rest)
+        for css in ("/static/app.css", "/static/fonts.css"):
+            _, body = self.request("GET", css)
+            self.assertNotIn(b"@import", body)
+            self.assertNotIn(b"http", body)
+            for url in re.findall(rb"url\(([^)]*)\)", body):
+                self.assertTrue(url.startswith(b"/static/fonts/"), url)
+
+    def test_brand_and_font_assets(self):
+        # Approved masters from sabpuja/design-system assets/logo/brand-assets.json (2026-10-07 rebrand).
+        logos = {"/static/brand/sabpuja-logo-horizontal-color.svg":
+                 "2f9acce59b19cac8e1abed203686cb791b82fa97678005189416ccf7e10f7b14",
+                 "/static/brand/sabpuja-emblem-color.svg":
+                 "c52269c8b475f60c0b1a5d5342bc18380b8dffaf88f960f43e7361db6656a2b8"}
+        for path, digest in logos.items():
+            with self.subTest(path):
+                resp, data = self.request("GET", path)
+                self.assertEqual(resp.status, 200)
+                self.assertEqual(resp.getheader("Content-Type"), "image/svg+xml")
+                self.assertEqual(hashlib.sha256(data).hexdigest(), digest)
+                self.assertNotIn(b"<script", data)
+                self.assertNotIn(b"href", data)
+        _, css = self.request("GET", "/static/fonts.css")
+        fonts = re.findall(rb"url\((/static/fonts/[a-z0-9-]+\.woff2)\)", css)
+        self.assertEqual(len(fonts), 12)
+        for path in fonts:
+            with self.subTest(path.decode()):
+                resp, data = self.request("GET", path.decode())
+                self.assertEqual(resp.status, 200)
+                self.assertEqual(resp.getheader("Content-Type"), "font/woff2")
+                self.assertEqual(data[:4], b"wOF2")
+        resp, _ = self.request("GET", "/")
+        self.assertIn("font-src 'self';", resp.getheader("Content-Security-Policy"))
 
     def test_places(self):
         resp, data = self.request("GET", "/api/places")

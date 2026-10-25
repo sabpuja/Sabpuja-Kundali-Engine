@@ -13,6 +13,7 @@ const { spawn } = require("child_process");
 const fs = require("fs");
 const net = require("net");
 const path = require("path");
+const crypto = require("crypto");
 
 const ROOT = path.resolve(__dirname, "..", "..", "..");
 const outIdx = process.argv.indexOf("--out");
@@ -59,7 +60,7 @@ async function fillAndSubmit(page, placeId, date, time) {
 }
 
 /* Compare the rendered chart and tables with the engine JSON the page received. */
-async function verifyRender(page, view, label, chart) {
+async function verifyRender(page, view, label, chart, opts = {}) {
   const dom = await page.evaluate(() => {
     const houses = [...document.querySelectorAll("#d1-chart g.house")].map((g) => ({
       house: Number(g.dataset.house), sign: g.dataset.sign,
@@ -98,6 +99,8 @@ async function verifyRender(page, view, label, chart) {
     return { houses, outside, overlaps, d1: rows("#d1-table"), d9: rows("#d9-table"), facts,
              overflow: document.documentElement.scrollWidth - window.innerWidth,
              tableOverflow: [...document.querySelectorAll(".table-scroll")].map((t) => t.scrollWidth - t.clientWidth),
+             tableRegions: [...document.querySelectorAll(".table-scroll")].map((t) => t.tabIndex === 0 && t.getAttribute("role") === "region" &&
+               !!document.getElementById(t.getAttribute("aria-labelledby"))),
              claim: document.getElementById("claim").textContent };
   });
 
@@ -134,9 +137,140 @@ async function verifyRender(page, view, label, chart) {
         f.utc === chart.birth.utc && f.schema_version === "0.2.0" && f.metadata_schema === "sabpuja-calculation-metadata/3", f);
   check(view, `${label}: method panel states the claim boundary`, dom.claim.includes("not independently astronomically certified"), dom.claim);
   check(view, `${label}: no horizontal page overflow`, dom.overflow <= 0, dom.overflow);
-  check(view, `${label}: D1 and D9 tables fit without horizontal scrolling`, dom.tableOverflow.every((o) => o <= 0), dom.tableOverflow);
+  if (opts.allowTableScroll) {
+    // Very narrow widths: a table may scroll only inside its labelled, keyboard-focusable region.
+    check(view, `${label}: any table scrolling stays inside a labelled, focusable region`,
+          dom.tableRegions.every(Boolean), { tableOverflow: dom.tableOverflow, regions: dom.tableRegions });
+  } else {
+    check(view, `${label}: D1 and D9 tables fit without horizontal scrolling`, dom.tableOverflow.every((o) => o <= 0), dom.tableOverflow);
+  }
+  return dom;
 }
 
+
+/* Approved Sabpuja logo masters (sabpuja/design-system assets/logo/brand-assets.json, release 2026-10-07-rebrand). */
+const LOGOS = {
+  "/static/brand/sabpuja-logo-horizontal-color.svg": { sha256: "2f9acce59b19cac8e1abed203686cb791b82fa97678005189416ccf7e10f7b14", ratio: 2172 / 724 },
+  "/static/brand/sabpuja-emblem-color.svg": { sha256: "c52269c8b475f60c0b1a5d5342bc18380b8dffaf88f960f43e7361db6656a2b8", ratio: 1 }
+};
+
+async function logoHashes(base) {
+  const out = {};
+  for (const p of Object.keys(LOGOS)) {
+    const buf = Buffer.from(await (await fetch(base + p)).arrayBuffer());
+    out[p] = crypto.createHash("sha256").update(buf).digest("hex");
+  }
+  return out;
+}
+
+/* Logo, links, fonts and colour contrast on the current page. */
+async function designChecks(page, view, label) {
+  const d = await page.evaluate(async () => {
+    await document.fonts.ready;
+    const shown = [...document.querySelectorAll(".brand img")].filter((i) => getComputedStyle(i).display !== "none");
+    const logos = shown.map((i) => { const r = i.getBoundingClientRect();
+      return { src: new URL(i.src).pathname, alt: i.alt, complete: i.complete, natural: i.naturalWidth,
+               w: r.width, h: r.height, left: r.left, right: r.right, vw: document.documentElement.clientWidth }; });
+    const links = [...document.querySelectorAll("a.site-link")].map((a) => { const r = a.getBoundingClientRect();
+      return { id: a.id, href: a.href, target: a.target, rel: a.rel, text: a.textContent.trim(), visible: r.width > 0 && r.height > 0 }; });
+    const loaded = [...document.fonts].filter((f) => f.status === "loaded").map((f) => `${f.family.replace(/["']/g, "")} ${f.weight}`);
+    const first = (el) => getComputedStyle(el).fontFamily.split(",")[0].replace(/["']/g, "").trim();
+    const families = {};
+    document.querySelectorAll("body *:not(script):not(style):not(code)").forEach((el) => {
+      if (el.closest("svg") && el.tagName.toLowerCase() !== "text") { return; }
+      if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())) { return; }
+      const f = first(el); families[f] = (families[f] || 0) + 1;
+    });
+    const roles = { h1: first(document.querySelector("h1")), h3: first(document.querySelector("h3")),
+                    body: first(document.body), label: first(document.querySelector("label")),
+                    input: first(document.querySelector("input")), button: first(document.querySelector("button")),
+                    help: first(document.querySelector(".help")) };
+    // WCAG contrast of text against the nearest opaque background.
+    const rgb = (s) => { const v = (s.match(/[\d.]+/g) || []).map(Number);
+                         return s.startsWith("color(srgb") ? v.map((x, i) => (i < 3 ? x * 255 : x)) : v; };
+    const lum = ([r, g, b]) => { const c = [r, g, b].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; });
+                                 return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+    const bgOf = (el) => { for (let e = el; e; e = e.parentElement) { const c = rgb(getComputedStyle(e).backgroundColor);
+                             if (c.length === 3 || (c.length === 4 && c[3] === 1)) { return c.slice(0, 3); } } return [255, 255, 255]; };
+    const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+    const sels = ["body", ".lede", ".help", ".badge", ".product-name", "#header-site-link", "#footer-site-link", ".status-label",
+                  ".button--primary", ".button--ghost", ".notice p", "h1", "label", "thead th", "td .en", ".footnote", ".facts dt",
+                  ".legend", ".error-card h2", ".error-code", ".field-error", ".site-footer p:last-child"];
+    const contrast = [];
+    sels.forEach((sel) => document.querySelectorAll(sel).forEach((el, i) => { if (i > 0) { return; }
+      const cs = getComputedStyle(el); const r = ratio(rgb(cs.color).slice(0, 3), bgOf(el));
+      contrast.push({ sel, ratio: Math.round(r * 100) / 100 }); }));
+    // SVG chart text against its house fill.
+    document.querySelectorAll("#d1-chart g.house").forEach((g, i) => { if (i > 0 && !g.classList.contains("house--lagna")) { return; }
+      const fill = rgb(getComputedStyle(g.querySelector("polygon")).fill).slice(0, 3);
+      g.querySelectorAll("text").forEach((t) => contrast.push({ sel: `svg ${t.getAttribute("class")} (house ${g.dataset.house})`,
+        ratio: Math.round(ratio(rgb(getComputedStyle(t).fill).slice(0, 3), fill) * 100) / 100 })); });
+    return { logos, links, loaded, families, roles, contrast };
+  });
+  const lg = d.logos;
+  check(view, `${label}: exactly one approved logo shown, loaded, with alt text`, lg.length === 1 && LOGOS[lg[0].src] &&
+        lg[0].complete && lg[0].natural > 0 && lg[0].alt === "Sabpuja", lg);
+  check(view, `${label}: logo keeps its original proportions and fits the viewport`, lg.length === 1 &&
+        Math.abs(lg[0].w / lg[0].h - LOGOS[lg[0].src].ratio) < 0.01 && lg[0].left >= 0 && lg[0].right <= lg[0].vw && lg[0].h >= 40, lg);
+  check(view, `${label}: header and footer link to https://sabpuja.com (new tab, noopener noreferrer)`,
+        d.links.length === 2 && d.links.every((l) => l.href === "https://sabpuja.com/" && l.target === "_blank" &&
+        /\bnoopener\b/.test(l.rel) && /\bnoreferrer\b/.test(l.rel) && l.visible && l.text.includes("sabpuja.com")), d.links);
+  const r = d.roles;
+  check(view, `${label}: Poppins for headings; Inter for body, labels, fields, buttons and help`,
+        r.h1 === "Poppins" && r.h3 === "Poppins" && ["body", "label", "input", "button", "help"].every((k) => r[k] === "Inter"), r);
+  const want = ["Inter 400", "Inter 500", "Inter 600", "Poppins 600"];
+  check(view, `${label}: local Poppins and Inter faces loaded`, want.every((w) => d.loaded.includes(w)), d.loaded);
+  check(view, `${label}: no text uses a font other than Poppins or Inter`,
+        Object.keys(d.families).every((f) => f === "Poppins" || f === "Inter"), d.families);
+  const low = d.contrast.filter((c) => c.ratio < 4.5);
+  check(view, `${label}: text contrast at least 4.5:1 (WCAG AA) for ${d.contrast.length} sampled styles`, d.contrast.length >= 15 && low.length === 0, low.length ? low : d.contrast);
+  return d;
+}
+
+/* Fluid layout at QA sample widths (not CSS breakpoints). 640 px also stands for a 1280 px window at 200% zoom. */
+const FLUID_WIDTHS = [280, 320, 360, 414, 480, 600, 640, 768, 900, 1024, 1180, 1280, 1440, 1920];
+
+async function fluidChecks(browser, base) {
+  const fluidOut = path.join(OUT, "fluid");
+  fs.mkdirSync(fluidOut, { recursive: true });
+  const metrics = [];
+  for (const width of FLUID_WIDTHS) {
+    const view = `w${width}`;
+    const context = await browser.newContext({ viewport: { width, height: 900 } });
+    const page = await context.newPage();
+    const external = [];
+    page.on("request", (rq) => { if (!rq.url().startsWith(base)) { external.push(rq.url()); } });
+    await page.goto(base + "/");
+    await page.waitForSelector("#place optgroup", { state: "attached" });
+    let res = await fillAndSubmit(page, "in-new-delhi", "1990-05-15", "10:30:00");
+    await page.waitForSelector("#result:not([hidden])");
+    const dom = await verifyRender(page, view, "New Delhi chart", res.body.chart, { allowTableScroll: width < 360 });
+    const d = await designChecks(page, view, "design");
+    const m = await page.evaluate(() => {
+      const px = (sel, prop) => parseFloat(getComputedStyle(document.querySelector(sel))[prop]);
+      return { h1: px("h1", "fontSize"), body: px("body", "fontSize"), gutter: px("main", "paddingLeft"),
+               logo: Math.max(...[...document.querySelectorAll(".brand img")].map((i) => i.getBoundingClientRect().width)),
+               chart: document.getElementById("d1-chart").getBoundingClientRect().width,
+               columns: getComputedStyle(document.querySelector(".bento")).gridTemplateColumns.split(" ").length };
+    });
+    m.width = width; m.tableOverflow = dom.tableOverflow; m.logoShown = d.logos.map((l) => path.basename(l.src));
+    metrics.push(m);
+    await page.screenshot({ path: path.join(fluidOut, `${view}-result.png`), fullPage: true });
+    res = await fillAndSubmit(page, "in-new-delhi", "2070-10-04", "06:00:00");
+    await page.waitForSelector("#result:not([hidden])");
+    await verifyRender(page, view, "crowded Lagna house", res.body.chart, { allowTableScroll: width < 360 });
+    await page.locator(".chart-card").screenshot({ path: path.join(fluidOut, `${view}-crowded-chart.png`) });
+    check(view, "no request leaves 127.0.0.1", external.length === 0, external);
+    await context.close();
+  }
+  // Type, gutters and logo scale continuously: never shrink as the window widens.
+  const mono = (k) => metrics.every((m, i) => i === 0 || m[k] >= metrics[i - 1][k] - 0.01 || metrics[i - 1].logoShown[0] !== m.logoShown[0]);
+  check("fluid", "heading size, body size, gutter and logo width never decrease as width grows",
+        ["h1", "body", "gutter", "logo"].every(mono), metrics);
+  check("fluid", "compact emblem only where the header is too narrow for the horizontal logo",
+        metrics.every((m) => (m.width < 288) === (m.logoShown[0] === "sabpuja-emblem-color.svg")), metrics.map((m) => [m.width, m.logoShown]));
+  fs.writeFileSync(path.join(OUT, "fluid-metrics.json"), JSON.stringify(metrics, null, 1));
+}
 
 /* G3B-UI-01/02: late or reordered responses never replace the current form.
  * Responses for birth_time A are held at a gate the test opens, so the order
@@ -269,6 +403,7 @@ async function runView(browser, base, view, contextOpts) {
   const labelled = await page.evaluate(() => [...document.querySelectorAll("input, select")].every((el) => el.labels && el.labels.length > 0));
   check(view, "every form control has a label", labelled, null);
   await shot("01-form");
+  await shot("00-header", ".site-header");
 
   // Client-side validation of an empty form.
   await page.click("#submit");
@@ -281,6 +416,7 @@ async function runView(browser, base, view, contextOpts) {
   await page.waitForSelector("#result:not([hidden])");
   check(view, "valid request returns a chart (HTTP 200)", res.status === 200, res.status);
   await verifyRender(page, view, "New Delhi 1990-05-15 10:30:00", res.body.chart);
+  await designChecks(page, view, "result page");
   await shot("03-result");
   await shot("04-d1-chart", ".chart-card");
   await shot("05-d9-table", "#d9-heading >> xpath=..");
@@ -318,6 +454,7 @@ async function runView(browser, base, view, contextOpts) {
     check(view, `${code} shown with no chart and focus on the message`,
           res.status === 422 && shown.code === code && shown.resultHidden && shown.focus === "error-card" && shown.text.length > 20, shown);
     if (name) { await shot(name); }
+    if (code === "LATITUDE_OUTSIDE_SUPPORTED_BAND") { await designChecks(page, view, "error state"); }
   }
 
   // Repeated hour: the user must choose; nothing is guessed.
@@ -360,7 +497,7 @@ async function runView(browser, base, view, contextOpts) {
     if (!order.length || order[order.length - 1].id !== now.id) { order.push(now); }
   }
   const ids = order.map((o) => o.id);
-  const wanted = ["skip-link", "place", "birth-date", "birth-time", "time-unknown", "submit", "clear"];
+  const wanted = ["skip-link", "header-site-link", "place", "birth-date", "birth-time", "time-unknown", "submit", "clear"];
   check(view, "keyboard Tab order reaches all controls in order", JSON.stringify(ids) === JSON.stringify(wanted), ids);
   check(view, "focused controls show a focus ring", order.every((o) => o.ring), order);
   // Keyboard-only submission.
@@ -389,6 +526,10 @@ async function runView(browser, base, view, contextOpts) {
   try {
     await runView(browser, base, "desktop", { viewport: { width: 1366, height: 900 } });
     await runView(browser, base, "mobile", { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+    await fluidChecks(browser, base);
+    const hashes = await logoHashes(base);
+    check("assets", "served logo files are byte-identical to the approved masters (SHA-256)",
+          Object.entries(LOGOS).every(([p, l]) => hashes[p] === l.sha256), hashes);
   } catch (e) {
     check("run", "browser run completed", false, String(e && e.stack || e));
   } finally {

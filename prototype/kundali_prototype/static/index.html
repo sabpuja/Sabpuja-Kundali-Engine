@@ -5,16 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
   <title>Sabpuja Kundali (internal prototype)</title>
+  <link rel="stylesheet" href="/static/fonts.css">
   <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap header-inner">
-      <div class="wordmark" aria-label="Sabpuja">Sabpuja</div>
+      <div class="brand">
+        <img class="brand__logo" id="brand-logo" src="/static/brand/sabpuja-logo-horizontal-color.svg"
+             width="2172" height="724" alt="Sabpuja">
+        <img class="brand__emblem" id="brand-emblem" src="/static/brand/sabpuja-emblem-color.svg"
+             width="1254" height="1254" alt="Sabpuja">
+      </div>
       <div class="header-meta">
         <span class="product-name">Janam Kundali</span>
         <span class="badge">Internal prototype · localhost only</span>
+        <a class="site-link" id="header-site-link" href="https://sabpuja.com" target="_blank" rel="noopener noreferrer">sabpuja.com<span class="visually-hidden"> (opens in a new tab)</span></a>
       </div>
     </div>
   </header>
@@ -92,17 +99,17 @@
           <dl class="facts" id="confirm-list"></dl>
         </article>
 
+        <article class="card key-card" aria-labelledby="key-heading">
+          <h3 id="key-heading">Key placements</h3>
+          <dl class="facts" id="key-list"></dl>
+        </article>
+
         <article class="card chart-card" aria-labelledby="d1-heading">
           <h3 id="d1-heading">D1 Rashi chart <span class="sub">North Indian style</span></h3>
           <div class="chart-wrap">
             <svg id="d1-chart" class="d1-chart" role="img" aria-labelledby="d1-title d1-desc" focusable="false"></svg>
           </div>
           <p class="legend">Houses are fixed with the Lagna (Asc) at the top; numbers are signs (1 Mesha … 12 Meena). Su Sun, Mo Moon, Ma Mars, Me Mercury, Ju Jupiter, Ve Venus, Sa Saturn, Ra Rahu, Ke Ketu.</p>
-        </article>
-
-        <article class="card key-card" aria-labelledby="key-heading">
-          <h3 id="key-heading">Key placements</h3>
-          <dl class="facts" id="key-list"></dl>
         </article>
 
         <article class="card table-card table-card--d1" aria-labelledby="d1-table-heading">
@@ -148,8 +155,13 @@
   </main>
 
   <footer class="site-footer">
-    <div class="wrap">
-      <p>Sabpuja Kundali Engine · AGPL-3.0 · Swiss Ephemeris (AGPL licence option). Place data: GeoNames (CC BY 4.0) and Natural Earth (public domain). English-only internal prototype; production remains NO-GO.</p>
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <img class="footer-emblem" src="/static/brand/sabpuja-emblem-color.svg" width="1254" height="1254" alt="" aria-hidden="true">
+        <p><strong>Sabpuja</strong> · <a class="site-link" id="footer-site-link" href="https://sabpuja.com" target="_blank" rel="noopener noreferrer">https://sabpuja.com<span class="visually-hidden"> (opens in a new tab)</span></a></p>
+      </div>
+      <p class="status-label">Internal prototype · localhost only · Production NO-GO</p>
+      <p>Sabpuja Kundali Engine · AGPL-3.0 · Swiss Ephemeris (AGPL licence option). Place data: GeoNames (CC BY 4.0) and Natural Earth (public domain). Fonts: Poppins and Inter (SIL OFL 1.1), served from this computer. English-only internal prototype.</p>
     </div>
   </footer>
   <script src="/static/chart.js"></script>

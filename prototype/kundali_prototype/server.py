@@ -39,10 +39,19 @@ _OPTIONAL_KEYS = {"utc_offset"}
 _STATIC = {"/": ("index.html", "text/html; charset=utf-8"),
            "/static/app.css": ("app.css", "text/css; charset=utf-8"),
            "/static/app.js": ("app.js", "text/javascript; charset=utf-8"),
-           "/static/chart.js": ("chart.js", "text/javascript; charset=utf-8")}
+           "/static/chart.js": ("chart.js", "text/javascript; charset=utf-8"),
+           "/static/fonts.css": ("fonts.css", "text/css; charset=utf-8")}
+# Approved Sabpuja logo masters and self-hosted OFL fonts; see prototype/README.md for provenance.
+_STATIC.update({f"/static/brand/{name}": (f"brand/{name}", "image/svg+xml")
+                for name in ("sabpuja-logo-horizontal-color.svg", "sabpuja-emblem-color.svg")})
+_STATIC.update({f"/static/fonts/{family}-{subset}-{weight}-normal.woff2":
+                (f"fonts/{family}-{subset}-{weight}-normal.woff2", "font/woff2")
+                for family, weights in (("inter", (400, 500, 600)), ("poppins", (500, 600, 700)))
+                for weight in weights for subset in ("latin", "latin-ext")})
 _SECURITY_HEADERS = {
     "Content-Security-Policy": ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; "
-                                "connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"),
+                                "font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; "
+                                "frame-ancestors 'none'"),
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "no-referrer",
     "X-Frame-Options": "DENY",
@@ -248,7 +257,7 @@ class PrototypeServer(ThreadingHTTPServer):
     def __init__(self, port: int, ephe_path: str, places: dict[str, dict]):
         self.ephe_path = ephe_path
         self.places = places
-        self.static = {path: (resources.files(__package__).joinpath("static", name).read_bytes(), ctype)
+        self.static = {path: (resources.files(__package__).joinpath("static", *name.split("/")).read_bytes(), ctype)
                        for path, (name, ctype) in _STATIC.items()}
         self.places_payload = json.dumps({"places": [public_place(p) for p in places.values()]},
                                          ensure_ascii=False).encode("utf-8")
