@@ -207,10 +207,19 @@ class ControlledErrors(Base):
             resp, data = self.request("POST", "/api/chart", GOOD)
         self.assertSafe(resp, data, 500, "INTERNAL_ERROR")
 
-    def test_engine_runtime_error_is_503_without_details(self):
+    def test_untyped_runtime_error_is_a_500_defect_not_a_resource_fault(self):
+        # Gate 3D: typed Swiss faults are 503; an untyped RuntimeError is a defect.
         with mock.patch.object(server, "calculate", side_effect=RuntimeError("Swiss ephemeris files unavailable: secret")):
             resp, data = self.request("POST", "/api/chart", GOOD)
-        self.assertSafe(resp, data, 503, "ENGINE_UNAVAILABLE")
+        self.assertSafe(resp, data, 500, "INTERNAL_ERROR")
+
+    def test_typed_swiss_runtime_error_is_503_without_details(self):
+        from sabpuja_kundali.engine import ChartComputationError
+        fault = ChartComputationError("SWISS_BINDING_MISSING", "secret /home/user/path")
+        with mock.patch.object(server, "calculate", side_effect=fault):
+            resp, data = self.request("POST", "/api/chart", GOOD)
+        self.assertSafe(resp, data, 503, "SWISS_BINDING_MISSING")
+        self.assertEqual(json.loads(data)["error"]["category"], "resources")
 
     def test_invariant_failure_is_500(self):
         with mock.patch.object(server, "calculate", return_value={"chart": "should never be shown"}):

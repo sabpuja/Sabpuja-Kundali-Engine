@@ -56,13 +56,19 @@ class StartupFailsClosed(unittest.TestCase):
 
     @requires_data
     def test_version_mismatch(self):
-        for key, value in (("pyswisseph", "2.10.3.1"), ("swiss_library", "2.10.02"), ("tzdata", "2026.4")):
-            with self.subTest(key):
-                pins = dict(server.REQUIRED_VERSIONS, **{key: value})
-                with mock.patch.object(server, "REQUIRED_VERSIONS", pins):
-                    with self.assertRaises(server.StartupError) as ctx:
-                        server.startup_verify(EPHE)
-                self.assertIn(ctx.exception.code, ("SWISS_VERSION_MISMATCH", "TZDATA_VERSION_MISMATCH"))
+        # The engine's own pins (engine.swiss_runtime, readiness) decide; the wrapper has no copy.
+        import swisseph
+        import tzdata
+        from sabpuja_kundali import provenance
+        cases = ((mock.patch.object(provenance, "binding_distribution_version", return_value="2.10.3.1"),
+                  "SWISS_BINDING_VERSION_MISMATCH"),
+                 (mock.patch.object(swisseph, "version", "2.10.02"), "SWISS_LIBRARY_VERSION_MISMATCH"),
+                 (mock.patch.object(tzdata, "__version__", "2026.4"), "TZDATA_VERSION_MISMATCH"))
+        for patch, code in cases:
+            with self.subTest(code), patch:
+                with self.assertRaises(server.StartupError) as ctx:
+                    server.startup_verify(EPHE)
+                self.assertEqual(ctx.exception.code, code)
 
     @requires_data
     def test_bad_fixture(self):
@@ -73,10 +79,13 @@ class StartupFailsClosed(unittest.TestCase):
 
     @requires_data
     def test_canary_failure(self):
-        with mock.patch.object(server, "calculate", side_effect=RuntimeError("Swiss ephemeris files unavailable")):
+        from sabpuja_kundali import engine
+        with mock.patch.object(engine, "calculate", side_effect=engine.ChartComputationError(
+                "SWISS_EPHEMERIS_FALLBACK_REFUSED", "refused")):
             with self.assertRaises(server.StartupError) as ctx:
                 server.startup_verify(EPHE)
-        self.assertEqual(ctx.exception.code, "ENGINE_CANARY_FAILED")
+        self.assertEqual((ctx.exception.code, ctx.exception.check, ctx.exception.cause),
+                         ("ENGINE_CANARY_FAILED", "canary_calculation", "SWISS_EPHEMERIS_FALLBACK_REFUSED"))
 
     @requires_data
     def test_good_resources_start(self):

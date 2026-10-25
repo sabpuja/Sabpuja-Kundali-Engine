@@ -1,35 +1,36 @@
-"""Localhost-only HTTP wrapper around the Gate 1 engine (internal prototype).
+"""Localhost-only HTTP wrapper around the hardened engine (internal prototype).
 
 Binds 127.0.0.1 only; the host is not configurable. No logging of requests,
 no storage, no analytics and no outbound network. Every chart comes from
 `sabpuja_kundali.engine.calculate`; this module only turns a form (place id,
 local date, local time) into the engine's request and never changes its result.
+Start-up readiness is the engine's own `readiness.require_ready()`.
 """
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from importlib import metadata, resources
+from importlib import resources
 import json
-import os
 import re
+import sys
 
-from sabpuja_kundali import provenance
+from sabpuja_kundali import readiness
 from sabpuja_kundali.engine import (ChartComputationError, InputRefusalError, UnsupportedInputError,
-                                    calculate)
-from sabpuja_kundali.ephemeris import EphemerisDataError, verify_ephemeris_dir
-from sabpuja_kundali.timezones import TimezoneDataError, default_loader, get_zone
+                                    calculate, ephemeris_path)
+from sabpuja_kundali.ephemeris import EphemerisDataError
+from sabpuja_kundali.timezones import TimezoneDataError, get_zone
 
 from .places import PlaceFixtureError, load_places, public_place
 
 HOST = "127.0.0.1"
 MAX_BODY_BYTES = 4096
-# The versions pinned in pyproject.toml; the engine records them but does not
-# enforce them at run time (Gate 3A G3A-07), so the wrapper refuses to start.
-REQUIRED_VERSIONS = {"pyswisseph": "2.10.3.2", "swiss_library": "2.10.03", "tzdata": "2026.5"}
-# Synthetic start-up canary (examples/request.example.json); its result is discarded.
-CANARY_REQUEST = {"birth_datetime": "2000-01-01T17:30:00+05:30", "timezone": "Asia/Kolkata",
-                  "latitude": 28.6139, "longitude": 77.2090}
+# ChartComputationError codes meaning the pinned Swiss runtime itself is unusable on
+# this server (engine.swiss_runtime and the Moshier refusal), reported as "resources".
+# Every other ChartComputationError is a server-side calculation failure.
+SWISS_RUNTIME_CODES = frozenset({"SWISS_BINDING_MISSING", "SWISS_LIBRARY_VERSION_MISMATCH",
+                                 "SWISS_BINDING_METADATA_MISSING", "SWISS_BINDING_VERSION_MISMATCH",
+                                 "SWISS_EPHEMERIS_FALLBACK_REFUSED"})
 
 _DATE = re.compile(r"^([0-9]{4})-([0-9]{2})-([0-9]{2})$")
 _TIME = re.compile(r"^([0-9]{2}):([0-9]{2})(?::([0-9]{2}))?$")
@@ -65,9 +66,9 @@ _SECURITY_HEADERS = {
 class StartupError(RuntimeError):
     """A pinned resource is missing or invalid; the server does not start."""
 
-    def __init__(self, code: str, detail: str):
+    def __init__(self, code: str, detail: str, check: str | None = None, cause: str | None = None):
         super().__init__(f"{code}: {detail}")
-        self.code = code
+        self.code, self.check, self.cause = code, check, cause
 
 
 class InvariantError(Exception):
@@ -83,36 +84,24 @@ class FormError(ValueError):
 
 
 def startup_verify(ephe_path: str) -> dict[str, dict]:
-    """Fail closed before listening: data, versions, zones, fixture and one real chart."""
+    """Fail closed before listening: the engine's readiness preflight, then the place fixture.
+
+    readiness.require_ready() checks the ephemeris data, the pinned Swiss library and
+    binding, every pinned zone file, one synthetic chart and the output contract. Its
+    typed NOT_READY becomes a StartupError; any other exception is a defect and propagates.
+    """
     try:
-        verify_ephemeris_dir(ephe_path)
-    except EphemerisDataError as exc:
-        raise StartupError(exc.code, "pinned Swiss Ephemeris data failed verification") from None
+        readiness.require_ready(ephe_path)
+    except readiness.EngineNotReadyError as exc:
+        failed = next(c for c in exc.result.checks if c.status == readiness.FAIL)
+        raise StartupError(exc.result.code, "the calculation engine is not ready", failed.name,
+                           failed.cause) from None
     try:
-        import swisseph as swe
-        binding = metadata.version("pyswisseph")
-    except (ImportError, metadata.PackageNotFoundError):
-        raise StartupError("SWISS_BINDING_MISSING", "pinned pyswisseph is not installed") from None
-    if binding != REQUIRED_VERSIONS["pyswisseph"] or swe.version != REQUIRED_VERSIONS["swiss_library"]:
-        raise StartupError("SWISS_VERSION_MISMATCH", "installed Swiss Ephemeris is not the pinned version")
-    try:
-        loader = default_loader()
-        if loader.provenance()["package_version"] != REQUIRED_VERSIONS["tzdata"]:
-            raise StartupError("TZDATA_VERSION_MISMATCH", "installed tzdata is not the pinned version")
-        loader.verify_all()
-        places = load_places()
+        return load_places()
     except TimezoneDataError as exc:
-        raise StartupError(exc.code, "pinned timezone data failed verification") from None
+        raise StartupError(exc.code, "pinned timezone data failed verification", "place_fixture") from None
     except PlaceFixtureError:
-        raise StartupError("PLACE_FIXTURE_INVALID", "birthplace fixture failed verification") from None
-    try:
-        chart = calculate(dict(CANARY_REQUEST), ephe_path=ephe_path)
-    except Exception:
-        raise StartupError("ENGINE_CANARY_FAILED", "the engine could not compute the synthetic start-up chart") from None
-    if chart.get("schema_version") != provenance.SCHEMA_VERSION or \
-            chart.get(provenance.METADATA_KEY, {}).get("metadata_schema") != provenance.METADATA_SCHEMA:
-        raise StartupError("ENGINE_SCHEMA_MISMATCH", "engine output schema is not the expected version")
-    return places
+        raise StartupError("PLACE_FIXTURE_INVALID", "birthplace fixture failed verification", "place_fixture") from None
 
 
 def _offset_text(delta: timedelta) -> str:
@@ -220,6 +209,28 @@ def _error(status: int, code: str, message: str, category: str, **extra) -> tupl
     return status, {"error": {"code": code, "message": message, "category": category, **extra}}
 
 
+def classify(exc: Exception) -> tuple[int, str, str, str]:
+    """The one rule from an exception to (HTTP status, code, message, category).
+
+    Client refusals keep their codes; server-side faults are 503; anything untyped is a
+    defect and gets a fixed 500. Server-fault messages are fixed and never carry the
+    request, a path or exception text.
+    """
+    if isinstance(exc, FormError):
+        return exc.status, exc.code, exc.message, exc.category
+    if isinstance(exc, InputRefusalError):
+        category = "unsupported" if isinstance(exc, UnsupportedInputError) else "input"
+        # Engine refusal texts are fixed strings without birth data (docs/api-contract.md).
+        return 422, exc.code, str(exc).split(": ", 1)[-1], category
+    if isinstance(exc, (EphemerisDataError, TimezoneDataError)):
+        return 503, exc.code, "pinned calculation data failed verification; no chart produced", "resources"
+    if isinstance(exc, ChartComputationError):
+        if exc.code in SWISS_RUNTIME_CODES:
+            return 503, exc.code, "the pinned Swiss Ephemeris runtime is unavailable on this server; no chart produced", "resources"
+        return 503, exc.code, "the server could not compute this chart; no chart produced", "computation"
+    return 500, "INTERNAL_ERROR", "unexpected error; no chart produced", "internal"
+
+
 def handle_chart(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[int, dict]:
     """Map every outcome to a controlled JSON response; nothing from the input is echoed in errors."""
     try:
@@ -228,20 +239,12 @@ def handle_chart(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[i
         except (UnicodeDecodeError, ValueError):
             raise FormError(400, "REQUEST_INVALID", "the request must be one UTF-8 JSON object") from None
         return 200, compute(body, places, ephe_path)
-    except FormError as exc:
-        return _error(exc.status, exc.code, exc.message, exc.category, **exc.extra)
-    except InputRefusalError as exc:
-        category = "unsupported" if isinstance(exc, UnsupportedInputError) else "input"
-        # Engine refusal texts are fixed strings without birth data (docs/api-contract.md).
-        return _error(422, exc.code, str(exc).split(": ", 1)[-1], category)
-    except ChartComputationError as exc:
-        return _error(422, exc.code, "the engine could not compute this chart; no chart produced", "computation")
-    except (EphemerisDataError, TimezoneDataError) as exc:
-        return _error(503, exc.code, "pinned calculation data failed verification; no chart produced", "resources")
-    except RuntimeError:
-        return _error(503, "ENGINE_UNAVAILABLE", "the calculation engine refused to run; no chart produced", "resources")
-    except Exception:
-        return _error(500, "INTERNAL_ERROR", "unexpected error; no chart produced", "internal")
+    except Exception as exc:
+        status, code, message, category = classify(exc)
+        if status == 500:
+            # A defect is never disguised as a refusal: name its type (no message, no data) locally.
+            print(json.dumps({"event": "INTERNAL_ERROR", "type": type(exc).__name__}), file=sys.stderr, flush=True)
+        return _error(status, code, message, category, **(exc.extra if isinstance(exc, FormError) else {}))
 
 
 def _no_duplicates(pairs):
@@ -264,7 +267,7 @@ class PrototypeServer(ThreadingHTTPServer):
         super().__init__((HOST, port), Handler)
         if self.socket.getsockname()[0] != HOST:
             self.server_close()
-            raise StartupError("BIND_NOT_LOOPBACK", "the server socket is not bound to 127.0.0.1")
+            raise StartupError("BIND_NOT_LOOPBACK", "the server socket is not bound to 127.0.0.1", "local_server")
 
     @property
     def allowed_hosts(self) -> set[str]:
@@ -356,16 +359,19 @@ class Handler(BaseHTTPRequestHandler):
 
 def main(argv: list[str] | None = None) -> int:
     import argparse
-    import sys
     parser = argparse.ArgumentParser(description="Sabpuja Kundali internal prototype (127.0.0.1 only)")
     parser.add_argument("--port", type=int, default=8765)
     args = parser.parse_args(argv)
-    ephe_path = os.environ.get("SABPUJA_EPHE_PATH", "")
+    # The same path every request's engine.calculate uses (SABPUJA_EPHE_PATH).
+    ephe_path = ephemeris_path()
     try:
         places = startup_verify(ephe_path)
         server = PrototypeServer(args.port, ephe_path, places)
     except StartupError as exc:
-        print(json.dumps({"error": exc.code, "message": "prototype not started; nothing is listening"}), file=sys.stderr)
+        report = {"error": exc.code, "check": exc.check, "message": "prototype not started; nothing is listening"}
+        if exc.cause:
+            report["cause"] = exc.cause
+        print(json.dumps(report), file=sys.stderr)
         return 2
     except OSError:
         print(json.dumps({"error": "PORT_UNAVAILABLE", "message": "prototype not started"}), file=sys.stderr)

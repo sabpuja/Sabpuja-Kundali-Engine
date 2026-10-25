@@ -1,8 +1,8 @@
-# Sabpuja Kundali: internal localhost prototype (Gate 3B)
+# Sabpuja Kundali: internal localhost prototype (Gate 3B, on the Gate 3C engine)
 
 **Internal, non-public prototype. Production remains NO-GO.** This is a browser
-front end and a `127.0.0.1`-only HTTP wrapper around the Gate 1 engine in
-`src/sabpuja_kundali`. It adds no astronomy: every position comes from
+front end and a `127.0.0.1`-only HTTP wrapper around the hardened engine in
+`src/sabpuja_kundali` (Gate 1 plus the Gate 3C hardening; integrated in Gate 3D). It adds no astronomy: every position comes from
 `sabpuja_kundali.engine.calculate` with the pinned Swiss Ephemeris data. It is
 English only and stores nothing.
 
@@ -64,12 +64,48 @@ configurable. Requests whose `Host` is not `127.0.0.1:<port>` or
 `localhost:<port>` are refused (DNS-rebinding guard), and so are cross-origin
 POSTs.
 
-The server refuses to start (exit 2, nothing listening) unless all of these hold:
-- the required `.se1` files match the pinned manifest and `SE_EPHE_PATH` is unset;
-- pyswisseph is 2.10.3.2, the Swiss library is 2.10.03 and tzdata is 2026.5;
-- all 598 pinned zone files verify;
-- the place fixture loads, and each zone is pinned and geographic;
-- one synthetic canary chart computes with schema `0.2.0` and metadata `/3`.
+Before it opens any socket the server runs the engine's own start-up preflight,
+`sabpuja_kundali.readiness.require_ready(path)`, on the same ephemeris path that
+every request uses (`engine.ephemeris_path()`, from `SABPUJA_EPHE_PATH`), then
+loads the place fixture. It refuses to start (exit 2, nothing listening) unless
+all of these hold:
+- `ephemeris_data`: the packaged manifest is well formed, the required `.se1`
+  files match it and `SE_EPHE_PATH` is unset;
+- `swiss_runtime`: the Swiss library is 2.10.03 and pyswisseph is 2.10.3.2
+  (the engine's pins in `engine.py`; the wrapper keeps no copy);
+- `timezone_data`: tzdata is 2026.5 and all 598 pinned zone files verify;
+- `canary_calculation` and `output_contract`: one synthetic chart computes with
+  schema `0.2.0`, metadata `/3` and the pinned versions;
+- `place_fixture`: the place fixture loads, and each zone is pinned and geographic.
+
+A refusal is one JSON line on stderr with a stable code and the failing check,
+for example `{"error": "EPHEMERIS_FILE_MISMATCH", "check": "ephemeris_data",
+"message": "prototype not started; nothing is listening"}`; a failed canary
+adds `"cause"` (the engine code). It never contains a path or exception text.
+An untyped exception during start-up is a programming defect: it is not turned
+into a refusal, it propagates (exit 1, traceback on the local console) and
+nothing listens.
+
+### HTTP errors
+
+Every error is `{"error": {"code", "message", "category"}}` (plus `choices` for
+a repeated hour). One rule, `server.classify()`, decides the status:
+
+| Situation | HTTP | `category` |
+|---|---:|---|
+| Malformed HTTP/JSON or form fields | 400 (or 404/405/411/413/415/421/403 at the HTTP layer) | `input` / `http` |
+| Invalid or unsupported birth input (form or `InputRefusalError`) | 422 | `input`, `place`, `unknown_time` or `unsupported` |
+| Repeated local time: choose the occurrence | 409 | `ambiguous` |
+| Swiss binding missing, library or binding version wrong, binding metadata missing, Moshier fallback refused | 503 | `resources` |
+| Ephemeris or timezone data fails verification | 503 | `resources` |
+| Any other `ChartComputationError` | 503 | `computation` |
+| Anything untyped (a defect) | 500 `INTERNAL_ERROR`, fixed text | `internal` |
+
+Input-refusal codes and their order are unchanged. Server-fault messages are
+fixed: they never contain the birth date, time, coordinates, a path or
+exception text, and no failure returns a partial chart. A 500 writes one line
+naming only the exception type (`{"event": "INTERNAL_ERROR", "type": "KeyError"}`)
+to the local console; no request data is printed.
 
 ## Tests
 
@@ -163,14 +199,16 @@ browser (static/index.html, app.js, chart.js, app.css, fonts.css; no computation
    | POST /api/chart {place_id, birth_date, birth_time[, utc_offset]}
    v
 kundali_prototype.server (127.0.0.1 only; stdlib http.server)
+   - start-up: readiness.require_ready(path), then the place fixture, then bind
    - strict form validation and fixture lookup (places.py)
    - offset candidates from the engine's pinned zone loader; no guessing
    - engine.calculate({birth_datetime with offset, timezone, latitude, longitude})
-   - maps engine refusals and errors to controlled JSON
+   - classify(): refusals 422/409, typed server faults 503, defects 500
    v
-sabpuja_kundali.engine (Gate 1, unchanged): pinned tzdata, D3, P5 order,
-   RG-HIST Option B, latitude band, manifest-verified Swiss .se1, Lahiri,
-   mean Rahu, exact opposite Ketu, whole-sign D1, D9 signs, metadata /3
+sabpuja_kundali.engine (Gate 1 numerics, Gate 3C hardening): pinned tzdata, D3,
+   P5 order, RG-HIST Option B, latitude band, manifest-verified Swiss .se1,
+   pinned Swiss runtime, Lahiri, mean Rahu, exact opposite Ketu, whole-sign D1,
+   D9 signs, metadata /3
 ```
 
 The response is `{"input": {...confirmed input...}, "chart": <engine result, unchanged>}`.

@@ -22,8 +22,12 @@
     BIRTH_DATE_INVALID: "This date does not exist. Please check the day and month.",
     PLACE_UNKNOWN: "Choose a birthplace from the list.",
     REQUEST_INVALID: "The form could not be sent correctly. Please reload the page and try again.",
-    ENGINE_UNAVAILABLE: "The calculation engine refused to run on this computer. No chart was produced.",
     INTERNAL_ERROR: "Something unexpected went wrong. No chart was produced."
+  };
+  // Server-side faults (HTTP 503) by category; the code is still shown as sent.
+  var SERVER_FAULTS = {
+    resources: "The calculation engine is not available on this computer right now. No chart was produced.",
+    computation: "The calculation engine could not compute this chart on this computer. No chart was produced."
   };
 
   function setFieldError(input, errId, text) {
@@ -253,7 +257,7 @@
         hideAmbiguity();
         if (e.code === "BIRTH_DATE_INVALID") { setFieldError(dateIn, "date-error", MESSAGES[e.code]); }
         if (e.code === "BIRTH_TIME_INVALID" || e.code === "BIRTH_TIME_REQUIRED") { setFieldError(timeIn, "time-error", MESSAGES[e.code]); }
-        showError(e.code || "INTERNAL_ERROR", e.message);
+        showError(e.code || "INTERNAL_ERROR", (res.status === 503 && SERVER_FAULTS[e.category]) || e.message);
       })
       .catch(function () {
         if (mine !== generation) { ignored(); return; }

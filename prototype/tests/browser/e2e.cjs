@@ -9,7 +9,7 @@
  */
 "use strict";
 const { chromium } = require("playwright");
-const { spawn } = require("child_process");
+const { spawn, spawnSync } = require("child_process");
 const fs = require("fs");
 const net = require("net");
 const path = require("path");
@@ -33,8 +33,8 @@ function freePort() {
   return new Promise((resolve) => { const s = net.createServer(); s.listen(0, "127.0.0.1", () => { const p = s.address().port; s.close(() => resolve(p)); }); });
 }
 
-async function startServer(port) {
-  const env = { PATH: process.env.PATH, SABPUJA_EPHE_PATH: EPHE, PYTHONDONTWRITEBYTECODE: "1",
+async function startServer(port, ephe = EPHE) {
+  const env = { PATH: process.env.PATH, SABPUJA_EPHE_PATH: ephe, PYTHONDONTWRITEBYTECODE: "1",
                 PYTHONPATH: `${path.join(ROOT, "src")}:${path.join(ROOT, "prototype")}` };
   const proc = spawn(PYTHON, ["-m", "kundali_prototype", "--port", String(port)], { env, cwd: ROOT });
   let output = "";
@@ -56,7 +56,97 @@ async function fillAndSubmit(page, placeId, date, time) {
     page.waitForResponse((r) => r.url().endsWith("/api/chart") && r.request().method() === "POST"),
     page.click("#submit")
   ]);
-  return { status: resp.status(), body: await resp.json() };
+  const body = await resp.json();
+  if (resp.status() === 200) { received.push(body); }
+  return { status: resp.status(), body };
+}
+
+// Every chart the browser received, for the Gate 3D comparison with the engine CLI.
+const received = [];
+function canon(v) {
+  if (Array.isArray(v)) { return "[" + v.map(canon).join(",") + "]"; }
+  if (v && typeof v === "object") { return "{" + Object.keys(v).sort().map((k) => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}"; }
+  return JSON.stringify(v);
+}
+
+/* Gate 3D: browser charts equal the hardened engine CLI, and a real server-side
+ * fault (pinned data corrupted after a READY start-up) shows a controlled 503 with
+ * no chart, after which the next valid chart is unchanged. */
+function cliChart(input) {
+  const req = { birth_datetime: `${input.local_date}T${input.local_time}${input.utc_offset}`, timezone: input.place.timezone,
+                latitude: input.place.latitude, longitude: input.place.longitude };
+  const env = { PATH: process.env.PATH, SABPUJA_EPHE_PATH: EPHE, PYTHONDONTWRITEBYTECODE: "1", PYTHONPATH: path.join(ROOT, "src") };
+  const r = spawnSync(PYTHON, ["-m", "sabpuja_kundali.cli"], { input: JSON.stringify(req), env, cwd: ROOT });
+  return { status: r.status, stderr: String(r.stderr), chart: r.status === 0 ? JSON.parse(String(r.stdout)) : null };
+}
+
+function cliChecks() {
+  const seen = new Map();
+  received.forEach((b) => seen.set(canon(b.input), b));
+  const bad = [];
+  for (const b of seen.values()) {
+    const cli = cliChart(b.input);
+    if (cli.status !== 0 || cli.stderr !== "" || canon(cli.chart) !== canon(b.chart)) { bad.push({ input: b.input, status: cli.status }); }
+  }
+  check("gate3d", `every chart the browser received (${seen.size} distinct) equals the hardened engine CLI output`,
+        seen.size >= 12 && bad.length === 0, { distinct: seen.size, bad });
+}
+
+async function serverFaultChecks(browser) {
+  const tmp = fs.mkdtempSync(path.join(require("os").tmpdir(), "gate3d-ephe-"));
+  for (const f of ["sepl_18.se1", "semo_18.se1"]) { fs.copyFileSync(path.join(EPHE, f), path.join(tmp, f)); }
+  const port = await freePort();
+  const srv = await startServer(port, tmp);
+  const base = `http://127.0.0.1:${port}`;
+  const context = await browser.newContext({ viewport: { width: 1366, height: 900 } });
+  const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+  const semo = path.join(tmp, "semo_18.se1"), original = fs.readFileSync(semo);
+  try {
+    for (const [view, ctx] of [["desktop", context], ["mobile", mobile]]) {
+      const page = await ctx.newPage();
+      const unexpected = [];
+      page.on("console", (m) => {
+        if (m.type() === "error" && !/^Failed to load resource: the server responded with a status of (500|503) /.test(m.text())) { unexpected.push(m.text()); }
+      });
+      page.on("pageerror", (e) => unexpected.push(String(e)));
+      await page.goto(base + "/");
+      await page.waitForSelector("#place optgroup", { state: "attached" });
+      const before = await fillAndSubmit(page, "in-new-delhi", "1990-05-15", "10:30:00");
+      await page.waitForSelector("#result:not([hidden])");
+      // Corrupt one byte of the pinned Moon file under the running server (real fault, real server).
+      const bad = Buffer.from(original); bad[Math.floor(bad.length / 2)] ^= 0x01; fs.writeFileSync(semo, bad);
+      await page.click("#edit");
+      const fault = await fillAndSubmit(page, "in-mumbai", "1984-11-02", "23:59:59");
+      await page.waitForSelector("#error-card:not([hidden])");
+      const shown = await page.evaluate(() => ({ code: document.getElementById("error-code").textContent,
+        resultHidden: document.getElementById("result").hidden, text: document.getElementById("error-message").textContent,
+        page: document.body.innerText }));
+      const leaks = ["1984-11-02", "23:59:59", "19.0", "72.8", tmp, "Traceback", "semo_18"].filter((m) => JSON.stringify(fault.body).includes(m));
+      check(view, "real ephemeris corruption after start-up: HTTP 503 EPHEMERIS_FILE_MISMATCH, category resources, no chart, nothing echoed",
+            fault.status === 503 && fault.body.error && fault.body.error.code === "EPHEMERIS_FILE_MISMATCH" &&
+            fault.body.error.category === "resources" && !("chart" in fault.body) && leaks.length === 0 &&
+            shown.code === "EPHEMERIS_FILE_MISMATCH" && shown.resultHidden && /not available on this computer/.test(shown.text),
+            { status: fault.status, body: fault.body, shown: { code: shown.code, text: shown.text }, leaks });
+      await page.screenshot({ path: path.join(OUT, `${view}-12-error-server-resources-503.png`), fullPage: true });
+      // Restore the file: the next valid request gives exactly the chart from before the fault.
+      fs.writeFileSync(semo, original);
+      const after = await fillAndSubmit(page, "in-new-delhi", "1990-05-15", "10:30:00");
+      await page.waitForSelector("#result:not([hidden])");
+      check(view, "after the 503 the next valid chart is byte-identical to the chart before the fault",
+            after.status === 200 && canon(after.body) === canon(before.body), { status: after.status });
+      await verifyRender(page, view, "after server fault", after.body.chart);
+      check(view, "server-fault page: no unexpected console errors", unexpected.length === 0, unexpected);
+      await page.close();
+    }
+  } finally {
+    fs.writeFileSync(semo, original);
+    await context.close(); await mobile.close();
+    srv.proc.kill("SIGTERM");
+    await new Promise((r) => setTimeout(r, 300));
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+  check("gate3d", "fault server printed nothing about requests (banner only)",
+        srv.output().trim().split("\n").length === 1 && !srv.output().includes("1984-11-02"), srv.output());
 }
 
 /* Compare the rendered chart and tables with the engine JSON the page received. */
@@ -527,6 +617,8 @@ async function runView(browser, base, view, contextOpts) {
     await runView(browser, base, "desktop", { viewport: { width: 1366, height: 900 } });
     await runView(browser, base, "mobile", { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
     await fluidChecks(browser, base);
+    await serverFaultChecks(browser);
+    cliChecks();
     const hashes = await logoHashes(base);
     check("assets", "served logo files are byte-identical to the approved masters (SHA-256)",
           Object.entries(LOGOS).every(([p, l]) => hashes[p] === l.sha256), hashes);
