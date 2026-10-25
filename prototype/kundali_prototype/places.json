@@ -1,0 +1,284 @@
+{
+ "fixture": "sabpuja-prototype-places",
+ "fixture_version": "1",
+ "status": "INTERNAL PROTOTYPE FIXTURE ONLY - not the DATA-01 production gazetteer and not a licensing decision for it",
+ "selection": "India-first: ten well-known Indian cities, plus two labelled non-India entries used only to exercise refusal paths",
+ "coordinate_meaning": "city reference point (GeoNames populated-place point), decimal degrees, WGS84; a birth elsewhere in the city can differ by a few km",
+ "timezone_meaning": "geographic IANA identifier chosen together with the place; the browser sends only the place id, never coordinates or a zone",
+ "sources": {
+  "geonames": {
+   "role": "primary coordinates, names and IANA timezone",
+   "dataset": "GeoNames cities15000 as bundled in the PyPI wheel geonamescache 2.0.0",
+   "artifact": "geonamescache-2.0.0-py3-none-any.whl",
+   "artifact_sha256": "24fdaaeaf236f88786dec8c0ab55447f5f7f95ef6c094e79fa9ef74114ea1fe2",
+   "data_licence": "GeoNames data: Creative Commons Attribution 4.0 (CC BY 4.0), https://www.geonames.org/; wrapper package MIT",
+   "attribution": "Contains data from GeoNames (www.geonames.org), CC BY 4.0"
+  },
+  "natural_earth": {
+   "role": "independent cross-check of each coordinate (accepted when within 10 km)",
+   "dataset": "Natural Earth 1:10m populated places (simple), ne_10m_populated_places_simple.geojson",
+   "repository": "https://github.com/nvkelso/natural-earth-vector",
+   "tag": "v5.1.2",
+   "commit": "f1890d9f152c896d250a77557a5751a93d494776",
+   "artifact_sha256": "fd3fa867a320cbd5c5b6bb5bc550afeec2939fb2cef688e508007282a55ac42f",
+   "data_licence": "Public domain (Natural Earth terms of use)"
+  }
+ },
+ "curated": "2026-10-25 by Claude for Gate 3B; English region names by hand, IANA zone from GeoNames and checked against the engine's pinned tzdata 2026.5 and D3 policy at server start",
+ "places": [
+  {
+   "id": "in-new-delhi",
+   "name": "New Delhi",
+   "region": "Delhi (National Capital Territory)",
+   "country": "India",
+   "latitude": 28.63576,
+   "longitude": 77.22445,
+   "timezone": "Asia/Kolkata",
+   "provenance": {
+    "source": "geonames",
+    "geonames_id": 1261481,
+    "geonames_name": "New Delhi",
+    "cross_check": {
+     "source": "natural_earth",
+     "name": "Delhi",
+     "latitude": 28.67194,
+     "longitude": 77.22806,
+     "distance_km": 4.04
+    }
+   }
+  },
+  {
+   "id": "in-mumbai",
+   "name": "Mumbai",
+   "region": "Maharashtra",
+   "country": "India",
+   "latitude": 19.07283,
+   "longitude": 72.88261,
+   "timezone": "Asia/Kolkata",
+   "provenance": {
+    "source": "geonames",
+    "geonames_id": 1275339,
+    "geonames_name": "Mumbai",
+    "cross_check": {
+     "source": "natural_earth",
+     "name": "Mumbai",
+     "latitude": 19.06841,
+     "longitude": 72.87584,
+     "distance_km": 0.86
+    }
+   }
+  },
+  {
+   "id": "in-kolkata",
+   "name": "Kolkata",
+   "region": "West Bengal",
+   "country": "India",
+   "latitude": 22.56263,
+   "longitude": 88.36304,
+   "timezone": "Asia/Kolkata",
+   "provenance": {
+    "source": "geonames",
+    "geonames_id": 1275004,
+    "geonames_name": "Kolkata",
+    "cross_check": {
+     "source": "natural_earth",
+     "name": "Kolkata",
+     "latitude": 22.56958,
+     "longitude": 88.36913,
+     "distance_km": 0.99
+    }
+   }
+  },
+  {
+   "id": "in-chennai",
+   "name": "Chennai",
+   "region": "Tamil Nadu",
+   "country": "India",
+   "latitude": 13.08784,
+   "longitude": 80.27847,
+   "timezone": "Asia/Kolkata",
+   "provenance": {
+    "source": "geonames",
+    "geonames_id": 1264527,
+    "geonames_name": "Chennai",
+    "cross_check": {
+     "source": "natural_earth",
+     "name": "Chennai",
+     "latitude": 13.09193,
+     "longitude": 80.27805,
+     "distance_km": 0.46
+    }
+   }
+  },
+  {
+   "id": "in-bengaluru",
+   "name": "Bengaluru",
+   "region": "Karnataka",
+   "country": "India",
+   "latitude": 12.97194,
+   "longitude": 77.59369,
+   "timezone": "Asia/Kolkata",
+   "provenance": {
+    "source": "geonames",
+    "geonames_id": 1277333,
+    "geonames_name": "Bengaluru",
+    "cross_check": {
+     "source": "natural_earth",
+     "name": "Bengaluru",
+     "latitude": 12.97194,
+     "longitude": 77.55806,
+     "distance_km": 3.86
+    }
+   }
+  },
+  {
+   "id": "in-hyderabad",
+   "name": "Hyderabad",
+   "region": "Telangana",
+   "country": "India",
+   "latitude": 17.38405,
+   "longitude": 78.45636,
+   "timezone": "Asia/Kolkata",
+   "provenance": {
+    "source": "geonames",
+    "geonames_id": 1269843,
+    "geonames_name": "Hyderābād",
+    "cross_check": {
+     "source": "natural_earth",
+     "name": "Hyderabad",
+     "latitude": 17.40193,
+     "longitude": 78.47801,
+     "distance_km": 3.04
+    }
+   }
+  },
+  {
+   "id": "in-jaipur",
+   "name": "Jaipur",
+   "region": "Rajasthan",
+   "country": "India",
+   "latitude": 26.91962,
+   "longitude": 75.78781,
+   "timezone": "Asia/Kolkata",
+   "provenance": {
+    "source": "geonames",
+    "geonames_id": 1269515,
+    "geonames_name": "Jaipur",
+    "cross_check": {
+     "source": "natural_earth",
+     "name": "Jaipur",
+     "latitude": 26.92308,
+     "longitude": 75.80804,
+     "distance_km": 2.04
+    }
+   }
+  },
+  {
+   "id": "in-lucknow",
+   "name": "Lucknow",
+   "region": "Uttar Pradesh",
+   "country": "India",
+   "latitude": 26.83928,
+   "longitude": 80.92313,
+   "timezone": "Asia/Kolkata",
+   "provenance": {
+    "source": "geonames",
+    "geonames_id": 1264733,
+    "geonames_name": "Lucknow",
+    "cross_check": {
+     "source": "natural_earth",
+     "name": "Lucknow",
+     "latitude": 26.85699,
+     "longitude": 80.91305,
+     "distance_km": 2.21
+    }
+   }
+  },
+  {
+   "id": "in-varanasi",
+   "name": "Varanasi",
+   "region": "Uttar Pradesh",
+   "country": "India",
+   "latitude": 25.31668,
+   "longitude": 83.01041,
+   "timezone": "Asia/Kolkata",
+   "provenance": {
+    "source": "geonames",
+    "geonames_id": 1253405,
+    "geonames_name": "Varanasi",
+    "cross_check": {
+     "source": "natural_earth",
+     "name": "Varanasi",
+     "latitude": 25.33194,
+     "longitude": 82.99809,
+     "distance_km": 2.1
+    }
+   }
+  },
+  {
+   "id": "in-guwahati",
+   "name": "Guwahati",
+   "region": "Assam",
+   "country": "India",
+   "latitude": 26.1844,
+   "longitude": 91.7458,
+   "timezone": "Asia/Kolkata",
+   "provenance": {
+    "source": "geonames",
+    "geonames_id": 1271476,
+    "geonames_name": "Guwahati",
+    "cross_check": {
+     "source": "natural_earth",
+     "name": "Guwahati",
+     "latitude": 26.16196,
+     "longitude": 91.76805,
+     "distance_km": 3.34
+    }
+   }
+  },
+  {
+   "id": "gb-london",
+   "name": "London",
+   "region": "England",
+   "country": "United Kingdom",
+   "latitude": 51.50853,
+   "longitude": -0.12574,
+   "timezone": "Europe/London",
+   "provenance": {
+    "source": "geonames",
+    "geonames_id": 2643743,
+    "geonames_name": "London",
+    "cross_check": {
+     "source": "natural_earth",
+     "name": "London",
+     "latitude": 51.50194,
+     "longitude": -0.11867,
+     "distance_km": 0.88
+    }
+   },
+   "note": "Non-India test coverage: daylight-saving gap and repeated-hour handling."
+  },
+  {
+   "id": "no-tromso",
+   "name": "Tromsø",
+   "region": "Troms",
+   "country": "Norway",
+   "latitude": 69.6489,
+   "longitude": 18.95508,
+   "timezone": "Europe/Oslo",
+   "provenance": {
+    "source": "geonames",
+    "geonames_id": 3133895,
+    "geonames_name": "Tromsø",
+    "cross_check": {
+     "source": "natural_earth",
+     "name": "Tromsø",
+     "latitude": 69.63508,
+     "longitude": 18.99203,
+     "distance_km": 2.1
+    }
+   },
+   "note": "Non-India test coverage: latitude 69.6° N is outside the engine's supported band (−66° to +66°), so every chart here is refused."
+  }
+ ]
+}
