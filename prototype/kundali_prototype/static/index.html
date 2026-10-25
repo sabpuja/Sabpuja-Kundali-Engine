@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Sabpuja Kundali (internal prototype)</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <div class="wordmark" aria-label="Sabpuja">Sabpuja</div>
+      <div class="header-meta">
+        <span class="product-name">Janam Kundali</span>
+        <span class="badge">Internal prototype · localhost only</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <section class="notice" aria-label="Prototype notice">
+      <p><strong>Internal prototype, not for customers.</strong> Charts are calculated on this computer with the Sabpuja engine and Swiss Ephemeris. Nothing you enter is stored, logged or sent anywhere else.</p>
+    </section>
+
+    <section class="card form-card" aria-labelledby="form-heading" id="form-section">
+      <h1 id="form-heading">Birth details</h1>
+      <p class="lede">Enter the date, exact time and place of birth as written on the birth record, in local clock time.</p>
+      <form id="birth-form" novalidate>
+        <div class="field-grid">
+          <div class="field field--wide">
+            <label for="place">Birthplace</label>
+            <select id="place" name="place" required aria-describedby="place-help place-error">
+              <option value="">Loading places…</option>
+            </select>
+            <p class="help" id="place-help">A small curated list for this prototype. The place fixes the coordinates and the timezone together.</p>
+            <p class="field-error" id="place-error" role="alert" hidden></p>
+          </div>
+          <div class="field">
+            <label for="birth-date">Date of birth</label>
+            <input id="birth-date" name="birth-date" type="date" required aria-describedby="date-help date-error">
+            <p class="help" id="date-help">Supported: local dates from 1970-01-01 to 2100-12-31.</p>
+            <p class="field-error" id="date-error" role="alert" hidden></p>
+          </div>
+          <div class="field">
+            <label for="birth-time">Exact time of birth</label>
+            <input id="birth-time" name="birth-time" type="time" step="1" required aria-describedby="time-help time-error">
+            <p class="help" id="time-help">Local clock time. Seconds are optional.</p>
+            <p class="field-error" id="time-error" role="alert" hidden></p>
+          </div>
+        </div>
+
+        <div class="unknown-time">
+          <input type="checkbox" id="time-unknown" aria-controls="unknown-time-panel">
+          <label for="time-unknown">I don't know the exact birth time</label>
+        </div>
+        <div class="explain" id="unknown-time-panel" hidden>
+          <h2>Why an exact time is needed</h2>
+          <p>The Lagna (ascendant) moves through a whole sign in about two hours, and the twelve houses and the D9 Lagna all follow from it. A guessed time could give a different Lagna, so this prototype never assumes midnight, noon or any other time.</p>
+          <p>Please check a birth certificate, hospital record or family record, then enter the time here. A chart without a birth time is not part of this prototype.</p>
+        </div>
+
+        <fieldset class="ambiguity" id="ambiguity" hidden>
+          <legend>This time happened twice at this place</legend>
+          <p id="ambiguity-text">Clocks were set back that night, so this local time occurred twice. Choose which one is on the birth record.</p>
+          <div id="ambiguity-choices" class="choices"></div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="submit" class="button button--primary" id="submit">Calculate Kundali</button>
+          <button type="button" class="button button--ghost" id="clear">Clear</button>
+        </div>
+      </form>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+      <div class="error-card" id="error-card" role="alert" tabindex="-1" hidden>
+        <h2 id="error-title">We could not calculate this chart</h2>
+        <p id="error-message"></p>
+        <p class="error-code">Code: <code id="error-code"></code></p>
+      </div>
+    </section>
+
+    <section id="result" class="result" hidden aria-labelledby="result-heading" tabindex="-1">
+      <div class="result-head">
+        <h2 id="result-heading">Janam Kundali</h2>
+        <button type="button" class="button button--ghost" id="edit">Edit birth details</button>
+      </div>
+
+      <div class="bento">
+        <article class="card confirm-card" aria-labelledby="confirm-heading">
+          <h3 id="confirm-heading">Confirmed birth details</h3>
+          <dl class="facts" id="confirm-list"></dl>
+        </article>
+
+        <article class="card chart-card" aria-labelledby="d1-heading">
+          <h3 id="d1-heading">D1 Rashi chart <span class="sub">North Indian style</span></h3>
+          <div class="chart-wrap">
+            <svg id="d1-chart" class="d1-chart" role="img" aria-labelledby="d1-title d1-desc" focusable="false"></svg>
+          </div>
+          <p class="legend">Houses are fixed with the Lagna (Asc) at the top; numbers are signs (1 Mesha … 12 Meena). Su Sun, Mo Moon, Ma Mars, Me Mercury, Ju Jupiter, Ve Venus, Sa Saturn, Ra Rahu, Ke Ketu.</p>
+        </article>
+
+        <article class="card key-card" aria-labelledby="key-heading">
+          <h3 id="key-heading">Key placements</h3>
+          <dl class="facts" id="key-list"></dl>
+        </article>
+
+        <article class="card table-card table-card--d1" aria-labelledby="d1-table-heading">
+          <h3 id="d1-table-heading">D1 placements</h3>
+          <div class="table-scroll" tabindex="0" role="region" aria-labelledby="d1-table-heading">
+            <table id="d1-table">
+              <caption class="visually-hidden">D1 placements: sidereal longitude, rashi and whole-sign house of the Lagna and each graha</caption>
+              <thead><tr><th scope="col">Graha</th><th scope="col">Longitude</th><th scope="col">Rashi</th><th scope="col">House</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p class="footnote">Sidereal longitudes (Lahiri), Rahu and Ketu by the mean node. Longitudes are the engine's 8-decimal display values. Rashi and house come from the unrounded values, so a value shown as exactly 30° can still belong to the earlier sign.</p>
+        </article>
+
+        <article class="card table-card table-card--d9" aria-labelledby="d9-heading">
+          <h3 id="d9-heading">D9 Navamsa placements</h3>
+          <div class="table-scroll" tabindex="0" role="region" aria-labelledby="d9-heading">
+            <table id="d9-table">
+              <caption class="visually-hidden">D9 Navamsa sign of the Lagna and each graha</caption>
+              <thead><tr><th scope="col">Graha</th><th scope="col">D9 sign</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p class="footnote">Signs only. D9 house positions and a D9 chart are not shown, because that part of the engine (P6) is not yet authorized.</p>
+        </article>
+
+        <article class="card method-card" aria-labelledby="method-heading">
+          <h3 id="method-heading">Method and transparency</h3>
+          <p class="claim" id="claim"></p>
+          <dl class="facts facts--method" id="method-list"></dl>
+          <h4>What this prototype does not calculate</h4>
+          <ul class="limits">
+            <li>Births before 1970-01-01: historical clock records are not yet verified, so these are refused.</li>
+            <li>Local dates after 2100-12-31.</li>
+            <li>Latitudes beyond 66° north or south.</li>
+            <li>Unknown birth times: no time is ever assumed.</li>
+            <li>Local times that never happened (clocks moved forward); repeated times need your choice.</li>
+            <li>Places outside the curated list.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Sabpuja Kundali Engine · AGPL-3.0 · Swiss Ephemeris (AGPL licence option). Place data: GeoNames (CC BY 4.0) and Natural Earth (public domain). English-only internal prototype; production remains NO-GO.</p>
+    </div>
+  </footer>
+  <script src="/static/chart.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
