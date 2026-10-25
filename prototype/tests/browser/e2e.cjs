@@ -137,6 +137,117 @@ async function verifyRender(page, view, label, chart) {
   check(view, `${label}: D1 and D9 tables fit without horizontal scrolling`, dom.tableOverflow.every((o) => o <= 0), dom.tableOverflow);
 }
 
+
+/* G3B-UI-01/02: late or reordered responses never replace the current form.
+ * Responses for birth_time A are held at a gate the test opens, so the order
+ * is fixed, not timed. form.dataset.ignoredResponses counts dropped replies. */
+async function raceChecks(page, view) {
+  const A = "10:30:00", B = "18:20:10";
+  let gate = null;
+  const gated = [];
+  await page.route("**/api/chart", async (route) => {
+    const body = route.request().postDataJSON();
+    if (body.birth_time !== A || !gate) { return route.continue(); }
+    const response = await route.fetch();
+    gated.push(body);
+    await gate.promise;
+    try { await route.fulfill({ response }); } catch (e) { /* request was aborted by the page */ }
+  });
+  const newGate = () => { let open; const promise = new Promise((r) => { open = r; }); gate = { promise, open }; };
+  const ignoredCount = () => page.evaluate(() => Number(document.getElementById("birth-form").dataset.ignoredResponses || 0));
+  const state = () => page.evaluate(() => ({
+    result: !document.getElementById("result").hidden, error: !document.getElementById("error-card").hidden,
+    status: document.getElementById("status").textContent, submitDisabled: document.getElementById("submit").disabled,
+    localTime: (document.querySelector("dd[data-field=local_time]") || {}).textContent,
+    place: document.getElementById("place").value, time: document.getElementById("birth-time").value }));
+  async function startA(placeId) {
+    await page.selectOption("#place", placeId);
+    await page.fill("#birth-date", "1990-05-15");
+    await page.fill("#birth-time", A);
+    const before = gated.length;
+    await page.click("#submit");
+    for (let i = 0; i < 100 && gated.length === before; i++) { await page.waitForTimeout(20); }
+    return gated.length > before;
+  }
+  // Settles when the page drops the late reply, or when it wrongly shows it.
+  async function releaseAndSettle(before, shownBefore) {
+    gate.open();
+    await page.waitForFunction(([n, shown]) => {
+      const dropped = Number(document.getElementById("birth-form").dataset.ignoredResponses || 0) > n;
+      const visible = !document.getElementById("result").hidden || !document.getElementById("error-card").hidden;
+      const time = (document.querySelector("dd[data-field=local_time]") || {}).textContent;
+      return dropped || (shown ? time !== shown : visible);
+    }, [before, shownBefore || null], { timeout: 10000 });
+    gate = null;
+  }
+
+  // 1. Submit A, Clear, then A's 200 arrives: nothing is shown.
+  await page.goto(page.url().split("#")[0]);
+  await page.waitForSelector("#place optgroup", { state: "attached" });
+  newGate();
+  let held = await startA("in-new-delhi");
+  let before = await ignoredCount();
+  await page.click("#clear");
+  await releaseAndSettle(before);
+  let st = await state();
+  check(view, "late 200 after Clear is ignored (no chart, no status, form empty)",
+        held && !st.result && !st.error && st.status === "" && st.place === "" && !st.submitDisabled, st);
+
+  // 2. Submit A, edit the time, submit B; B completes, then A: B stays.
+  newGate();
+  held = await startA("in-new-delhi");
+  before = await ignoredCount();
+  await page.fill("#birth-time", B);
+  const [respB] = await Promise.all([page.waitForResponse((r) => r.url().endsWith("/api/chart")), page.click("#submit")]);
+  const bodyB = await respB.json();
+  await page.waitForSelector("#result:not([hidden])");
+  await releaseAndSettle(before, B);
+  st = await state();
+  check(view, "late A after B is ignored; B's chart stays shown", held && st.result && st.localTime === B && st.time === B, st);
+  await verifyRender(page, view, "after reordered A/B responses", bodyB.chart);
+
+  // 3. Submit A, edit the date (no resubmit), then A arrives: nothing is shown.
+  newGate();
+  held = await startA("in-mumbai");
+  before = await ignoredCount();
+  await page.fill("#birth-date", "1991-06-16");
+  await releaseAndSettle(before);
+  st = await state();
+  check(view, "late 200 after a field edit is ignored", held && !st.result && !st.error && st.status === "" && !st.submitDisabled, st);
+
+  // 4. Submit A for a refused place, Clear, then the late 422 arrives: no error shown.
+  newGate();
+  held = await startA("no-tromso");
+  before = await ignoredCount();
+  await page.click("#clear");
+  await releaseAndSettle(before);
+  st = await state();
+  check(view, "late refusal after Clear is ignored (no error card)", held && !st.error && !st.result, st);
+
+  // 5. G3B-UI-02: a shown result is hidden as soon as a field is edited ...
+  let res = await fillAndSubmit(page, "in-jaipur", "2024-08-15", "06:05:00");
+  await page.waitForSelector("#result:not([hidden])");
+  await page.fill("#birth-date", "2024-08-16");
+  st = await state();
+  check(view, "editing a field hides the previous result", res.status === 200 && !st.result, st);
+  // ... and an invalid submit after a result leaves no result shown.
+  res = await fillAndSubmit(page, "in-jaipur", "2024-08-15", "06:05:00");
+  await page.waitForSelector("#result:not([hidden])");
+  await page.evaluate(() => { const t = document.getElementById("birth-time"); t.value = ""; });
+  await page.click("#submit");
+  st = await state();
+  const invalidTime = await page.getAttribute("#birth-time", "aria-invalid");
+  check(view, "invalid submit after a result hides the result and marks the field", !st.result && invalidTime === "true", { st, invalidTime });
+  // Unknown-time toggle after a result also hides it.
+  res = await fillAndSubmit(page, "in-jaipur", "2024-08-15", "06:05:00");
+  await page.waitForSelector("#result:not([hidden])");
+  await page.check("#time-unknown");
+  st = await state();
+  check(view, "checking 'unknown time' hides the previous result", !st.result && st.submitDisabled, st);
+  await page.uncheck("#time-unknown");
+  await page.unroute("**/api/chart");
+}
+
 async function runView(browser, base, view, contextOpts) {
   const context = await browser.newContext(contextOpts);
   const page = await context.newPage();
@@ -262,6 +373,8 @@ async function runView(browser, base, view, contextOpts) {
   check(view, "keyboard-only submission calculates", kresp.status() === 200, kresp.status());
   await page.waitForSelector("#result:not([hidden])");
   await verifyRender(page, view, "keyboard submission", (await kresp.json()).chart);
+
+  await raceChecks(page, view);
 
   check(view, "no request leaves 127.0.0.1", external.length === 0, external);
   check(view, "no console errors", consoleErrors.length === 0, consoleErrors);

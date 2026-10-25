@@ -212,19 +212,40 @@
     $("result").focus();
   }
 
+  /* Every submit, Clear and field edit starts a new generation and aborts the
+   * request in flight. A response from an older generation is ignored, so a
+   * late chart or error can never replace what the current fields describe. */
+  var generation = 0, inflight = null;
+
+  function invalidate() {
+    generation += 1;
+    if (inflight) { inflight.abort(); inflight = null; }
+    $("result").hidden = true;
+    $("error-card").hidden = true;
+    setStatus("");
+    submitBtn.disabled = unknown.checked;
+  }
+
+  function ignored() {
+    form.dataset.ignoredResponses = String(Number(form.dataset.ignoredResponses || 0) + 1);
+  }
+
   function submit(ev) {
     ev.preventDefault();
+    invalidate();
     if (!validate()) { return; }
     if (pendingChoice && !form.querySelector("input[name='occurrence']:checked")) {
       showError("TIME_AMBIGUOUS_LOCAL"); return;
     }
+    var mine = generation, controller = new AbortController();
+    inflight = controller;
     submitBtn.disabled = true;
     setStatus("Calculating with the local engine…");
-    $("result").hidden = true;
     fetch("/api/chart", { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                          body: JSON.stringify(payload()) })
+                          body: JSON.stringify(payload()), signal: controller.signal })
       .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
       .then(function (res) {
+        if (mine !== generation) { ignored(); return; }
         setStatus("");
         if (res.status === 200) { hideAmbiguity(); render(res.body); setStatus("Chart calculated."); return; }
         var e = res.body.error || {};
@@ -234,21 +255,34 @@
         if (e.code === "BIRTH_TIME_INVALID" || e.code === "BIRTH_TIME_REQUIRED") { setFieldError(timeIn, "time-error", MESSAGES[e.code]); }
         showError(e.code || "INTERNAL_ERROR", e.message);
       })
-      .catch(function () { setStatus(""); showError("INTERNAL_ERROR"); })
-      .then(function () { submitBtn.disabled = false; });
+      .catch(function () {
+        if (mine !== generation) { ignored(); return; }
+        setStatus(""); showError("INTERNAL_ERROR");
+      })
+      .then(function () {
+        if (mine !== generation) { return; }
+        inflight = null;
+        submitBtn.disabled = unknown.checked;
+      });
   }
 
   form.addEventListener("submit", submit);
-  [placeSel, dateIn, timeIn].forEach(function (el) { el.addEventListener("change", hideAmbiguity); });
+  // An edit means any shown result or pending request no longer matches the form.
+  [placeSel, dateIn, timeIn].forEach(function (el) {
+    ["input", "change"].forEach(function (type) {
+      el.addEventListener(type, function () { invalidate(); hideAmbiguity(); });
+    });
+  });
   unknown.addEventListener("change", function () {
     $("unknown-time-panel").hidden = !unknown.checked;
     timeIn.disabled = unknown.checked;
-    submitBtn.disabled = unknown.checked;
-    if (unknown.checked) { timeIn.value = ""; $("result").hidden = true; }
+    if (unknown.checked) { timeIn.value = ""; }
+    invalidate(); hideAmbiguity();
   });
   $("clear").addEventListener("click", function () {
-    form.reset(); clearErrors(); hideAmbiguity(); setStatus("");
-    timeIn.disabled = false; submitBtn.disabled = false; $("unknown-time-panel").hidden = true; $("result").hidden = true;
+    form.reset(); clearErrors(); hideAmbiguity();
+    timeIn.disabled = false; $("unknown-time-panel").hidden = true;
+    invalidate();
     placeSel.focus();
   });
   $("edit").addEventListener("click", function () {
