@@ -606,6 +606,30 @@ async function runView(browser, base, view, contextOpts) {
     if (hour === "04") { await shot("07-crowded-triangle-house", ".chart-card"); }
   }
 
+  // Gate 3E: an engine response whose D9 fields disagree is never drawn. The real server's
+  // response is altered in the browser only (this test route), then the route is removed.
+  const tamper = [
+    ["D9 house field moved", (c) => { c.planets.sun.navamsa_whole_sign_house = c.planets.sun.navamsa_whole_sign_house % 12 + 1; }],
+    ["D9 block lists a graha twice", (c) => { c.d9.houses[(c.planets.sun.navamsa_whole_sign_house) % 12].grahas.push("sun"); }],
+    ["D9 Lagna disagrees", (c) => { c.d9.lagna_rashi = SIGNS[(SIGNS.indexOf(c.d9.lagna_rashi) + 1) % 12]; }],
+    ["D9 block missing", (c) => { delete c.d9; }]
+  ];
+  for (const [what, mutate] of tamper) {
+    await page.route("**/api/chart", async (route) => {
+      const response = await route.fetch();
+      const body = await response.json();
+      if (body.chart) { mutate(body.chart); }
+      await route.fulfill({ response, body: JSON.stringify(body) });
+    });
+    const tampered = await fillAndSubmit(page, "in-new-delhi", "1990-05-15", "10:30:00");
+    if (tampered.status === 200) { received.pop(); } // the altered body is not engine output
+    await page.waitForSelector("#error-card:not([hidden])");
+    const t = await page.evaluate(() => ({ resultHidden: document.getElementById("result").hidden,
+      code: document.getElementById("error-code").textContent }));
+    check(view, `inconsistent engine D9 fields (${what}): no chart shown, INTERNAL_ERROR`, t.resultHidden && t.code === "INTERNAL_ERROR", t);
+    await page.unroute("**/api/chart");
+  }
+
   // Gate 3E crowded D9 houses: seven grahas in D9 house 1 (with Asc) through house 12 in turn.
   const d9Crowded = [["04:56", 1], ["04:48", 2], ["04:40", 3], ["04:28", 4], ["04:20", 5], ["04:08", 6],
                      ["04:00", 7], ["03:48", 8], ["03:40", 9], ["03:28", 10], ["05:16", 11], ["05:08", 12]];
