@@ -36,4 +36,4 @@ Rules:
    ```
 5. Record Swiss code/binding/ephemeris data version in deployment logs **without logging birth data**.
 
-Do not enable public requests if data is missing. The code also still rejects any Moshier fallback reported by Swiss Ephemeris.
+Do not enable public requests if data is missing. The code also still rejects any Moshier fallback reported by Swiss Ephemeris (`SWISS_EPHEMERIS_FALLBACK_REFUSED`). A service checks the data, the Swiss versions and the timezone data once at start-up with `sabpuja_kundali.readiness.require_ready()` (see `docs/engine-readiness.md`).

@@ -13,9 +13,9 @@ import os
 import re
 
 from . import provenance, zone_policy
-from .ephemeris import load_manifest as load_ephemeris_manifest, verify_ephemeris_dir
+from .ephemeris import EphemerisDataError, load_manifest as load_ephemeris_manifest, verify_ephemeris_dir
 from .rules import nakshatra, normalize, sign, navamsa_sign, whole_sign_house
-from .timezones import default_loader, get_zone
+from .timezones import TimezoneDataError, default_loader, get_zone
 
 _SWISS_LOCK = RLock()
 
@@ -23,7 +23,10 @@ _SWISS_LOCK = RLock()
 class ChartComputationError(RuntimeError):
     """Swiss Ephemeris could not compute part of the chart for valid input.
 
-    Distinct from invalid input (ValueError). Messages never contain birth data.
+    Also raised, before any Swiss computation, when the Swiss runtime is not the
+    pinned one (SWISS_BINDING_*, SWISS_LIBRARY_VERSION_MISMATCH). Distinct from
+    invalid input (ValueError). Messages are fixed and never contain birth data,
+    paths or Swiss exception text.
     """
 
     def __init__(self, code: str, detail: str):
@@ -45,6 +48,17 @@ class InputRefusalError(ValueError):
 
 class UnsupportedInputError(InputRefusalError):
     """Valid input outside the supported product envelope (SCI-01g, SCI-03)."""
+
+
+# Every expected outcome other than a chart: typed, coded (.code) and with fixed text.
+# Any other exception is a programming defect and is never reported as one of these.
+EXPECTED_ERRORS = (InputRefusalError, ChartComputationError, EphemerisDataError, TimezoneDataError)
+
+
+# Approved Swiss runtime pins (pyproject.toml; ledger rows 10-11). Enforced on every
+# request before any Swiss computation: an exact string match, no range, no bypass.
+REQUIRED_SWISS_LIBRARY_VERSION = "2.10.03"
+REQUIRED_BINDING_VERSION = "2.10.3.2"
 
 
 # SCI-01g: fixed band, the same for every date. The ascendant vehicle (b"W",
@@ -156,6 +170,40 @@ def _input_policy() -> dict[str, object]:
     }
 
 
+def ephemeris_path(ephe_path: str | None = None) -> str:
+    """The ephemeris directory a calculation uses: the argument, else SABPUJA_EPHE_PATH."""
+    return ephe_path or os.environ.get("SABPUJA_EPHE_PATH", "")
+
+
+def swiss_runtime():
+    """Import swisseph and return it only if it is the pinned library and binding.
+
+    Imports and reads version strings only: no Swiss state is set and nothing is
+    computed. Unavailable distribution metadata is a refusal, never evidence of a
+    matching version.
+    """
+    try:
+        import swisseph as swe
+    except ImportError:
+        raise ChartComputationError(
+            "SWISS_BINDING_MISSING",
+            "the pinned Swiss Ephemeris Python binding is not installed; no chart produced") from None
+    if getattr(swe, "version", None) != REQUIRED_SWISS_LIBRARY_VERSION:
+        raise ChartComputationError(
+            "SWISS_LIBRARY_VERSION_MISMATCH",
+            "the Swiss Ephemeris library is not the pinned version; no chart produced")
+    installed = provenance.binding_distribution_version()
+    if installed is None:
+        raise ChartComputationError(
+            "SWISS_BINDING_METADATA_MISSING",
+            "the Swiss Ephemeris binding version cannot be verified; no chart produced")
+    if installed != REQUIRED_BINDING_VERSION:
+        raise ChartComputationError(
+            "SWISS_BINDING_VERSION_MISMATCH",
+            "the Swiss Ephemeris binding is not the pinned version; no chart produced")
+    return swe
+
+
 def _parse_birth(birth_datetime: str, tz_name: str) -> datetime:
     """Validate the birth time in the fixed P5 order and return it in UTC.
 
@@ -243,11 +291,9 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
     # Every required manifest file must match its pinned SHA-256 before Swiss runs. The
     # manifest is read once, so P7 metadata describes exactly the one that was verified.
     ephemeris_manifest = load_ephemeris_manifest()
-    folder = verify_ephemeris_dir(ephe_path or os.environ.get("SABPUJA_EPHE_PATH", ""), ephemeris_manifest)
-    try:
-        import swisseph as swe
-    except ImportError as exc:
-        raise RuntimeError("Install pinned local pyswisseph package") from exc
+    folder = verify_ephemeris_dir(ephemeris_path(ephe_path), ephemeris_manifest)
+    # After every refusal and the ephemeris gate (their order is unchanged), before julday.
+    swe = swiss_runtime()
     # Swiss failures become fixed, coded ChartComputationErrors: swe.Error is not a
     # RuntimeError and its text can carry server paths, so it never reaches the caller.
     # Only swe.Error is translated; any other exception is a defect and propagates.
@@ -292,7 +338,11 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
                     "Swiss Ephemeris could not complete the planetary calculation; no chart produced"
                 ) from None
             if not (flags & swe.FLG_SWIEPH):
-                raise RuntimeError("Swiss ephemeris files unavailable: refused Moshier fallback")
+                # Swiss fell back to another ephemeris: no substitute value, no partial chart.
+                raise ChartComputationError(
+                    "SWISS_EPHEMERIS_FALLBACK_REFUSED",
+                    "Swiss Ephemeris did not use the verified local files; refused Moshier fallback; "
+                    "no chart produced")
             raw[name] = float(pos[0])
         # Geographic ascendant in explicit Lahiri sidereal mode (SCI-01e): ascmc[0]
         # of the whole-sign call; bit-identical to Placidus at every sampled point
