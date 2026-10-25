@@ -1,4 +1,10 @@
-# Calculation request/output contract, schema v0.2.0
+# Calculation request/output contract, schema v0.2.0 (canonical baseline) and v0.3.0 (PROPOSED, Gate 3E)
+
+> **Gate 3E (draft, unmerged):** the engine on this branch emits the **proposed** schema `0.3.0`,
+> which adds D9 whole-sign house fields (see "Proposed schema 0.3.0" below). `0.3.0` is a candidate
+> pending independent QA and a separate owner decision; it is **not canonical**. The owner-approved
+> engineering baseline remains `0.2.0` (SCI-02, ledger row 9), recovered exactly by
+> `provenance.baseline_projection`.
 
 **Status: local CLI interface implemented; HTTP API not implemented.**
 
@@ -28,7 +34,7 @@ Requirements:
 - No name, email, phone, address, account ID or other identifying attributes in the calculation request.
 - A birthplace autocomplete service is future work and must be offline/self-hosted.
 
-Success returns JSON `schema_version` (`"0.2.0"`), `validation_status`, `method`, `birth`, `lagna`, `moon_nakshatra`, `planets` and `calculation_metadata` (KUN-03 P7, see below). Planet values contain longitude, Rashi, D9 sign and whole-sign house. Output is not yet independently verified.
+Success returns JSON `schema_version` (`"0.3.0"` proposed on this branch; `"0.2.0"` baseline), `validation_status`, `method`, `birth`, `lagna`, `moon_nakshatra`, `planets`, `calculation_metadata` (KUN-03 P7, see below) and, in proposed 0.3.0 only, `d9`. Planet values contain longitude, Rashi, D9 sign and whole-sign house, and in proposed 0.3.0 also the D9 whole-sign house. Output is not yet independently verified.
 
 Longitude and category semantics:
 - Rashi (30°), Nakshatra (40/3°) and Pada/D9 (10/3°) segments are half-open, `[start, end)`. Every category, house, Moon Nakshatra and Ketu (exactly opposite Rahu) is derived from the unrounded Swiss Ephemeris value with exact arithmetic, never from the displayed number.
@@ -278,6 +284,43 @@ Synthetic request `{"birth_datetime":"2030-03-20T09:00:00+00:00","timezone":"Atl
 - All 0.1.0 keys, values and their order are unchanged; `method` keeps its five keys. `schema_version` becomes `"0.2.0"` and `calculation_metadata` is appended last.
 - A 0.1.0 consumer that ignores unknown keys keeps working once it accepts `"0.2.0"`. A consumer that pins `"0.1.0"` must be updated.
 - `provenance.legacy_projection(chart)` drops `calculation_metadata` and restores `"0.1.0"`. For every accepted request it equals the KUN-03 conformance engine output (PR #33, `bec4641`) byte for byte under canonical JSON; `tests/test_calculation_metadata.py` pins this for ten synthetic boundary requests (seven of them on `UTC`, reproduced with a test-only D3 bypass, and again on geographic zones; see D3 above).
+
+## Proposed schema 0.3.0: D9 whole-sign houses (Gate 3E, PENDING OWNER APPROVAL)
+
+**Status.** Proposed candidate only. Built under the owner's Gate 3E instruction for isolated development; it does not canonize a schema, does not lift any merge or release gate and does not satisfy the remaining KUN-F06 items (Nakshatra/Pada for all bodies and the Lagna stay deferred). Adoption needs independent QA and a separate owner decision.
+
+**Convention (SCI-01f, unchanged).** D9 sign = Navamsa sign of the unrounded longitude (108 half-open 3°20′ segments from Mesha); D9 Lagna = Navamsa sign of the unrounded Lagna (no second Swiss call); D9 house = `((D9 sign index of body − D9 sign index of Lagna) mod 12) + 1`, sign indices 0 Mesha … 11 Meena. Ketu is classified from the exact sum Rahu + 180. No new Swiss computation.
+
+**Old versus new.**
+
+| | 0.2.0 (canonical baseline) | 0.3.0 (proposed) |
+|---|---|---|
+| `schema_version` | `"0.2.0"` | `"0.3.0"` |
+| `planets.<body>` keys | `longitude_deg`, `rashi`, `navamsa_rashi`, `whole_sign_house` | the same four, then `navamsa_whole_sign_house` |
+| top-level keys | … `planets`, `calculation_metadata` | the same, then `d9` (last) |
+| `lagna` | unchanged | unchanged (its D9 house is 1 by definition) |
+| `calculation_metadata` | `/3` | unchanged, still `/3` (see "Metadata" below) |
+
+**New fields.**
+
+| Field | Meaning |
+|---|---|
+| `planets.<body>.navamsa_whole_sign_house` | Integer 1–12: D9 whole-sign house of the body counted from the D9 Lagna sign (house 1). The one source of each body's D9 house. |
+| `d9.house_system` | `"whole_sign"`. |
+| `d9.lagna_rashi` | D9 Lagna sign; always equals `lagna.navamsa_rashi`. |
+| `d9.houses` | Twelve objects in house order 1–12 (the order North Indian charts number houses): `house` (1–12), `rashi` (D9 sign of that house, `SIGNS[(D9 Lagna + house − 1) mod 12]`), `grahas` (body keys whose `navamsa_whole_sign_house` equals `house`, in `planets` order; may be empty). |
+
+`d9` is built only from the per-body fields after they are set (`engine._d9_chart`), so it cannot be an independent or inconsistent source: every body is listed exactly once, in its own house, and that house's `rashi` equals the body's `navamsa_rashi`. Consumers that receive a chart where these disagree must refuse to present it (the prototype does).
+
+**Compatibility.**
+- Additive only: every 0.2.0 key, value and key order is unchanged; the new per-body key is appended after `whole_sign_house` and `d9` after `calculation_metadata`.
+- `provenance.baseline_projection(chart)` removes `d9` and every `navamsa_whole_sign_house` and restores `"0.2.0"`; for every accepted request it is meant to equal Gate 3D (`6c9e670`) output byte for byte (Gate 3E invariance evidence on the 3,301-case CLI corpus and the 1,229-request HTTP corpus). `provenance.legacy_projection` now applies the baseline projection first, so 0.1.0 output is unchanged (the PR #33 golden tests still pass).
+- A consumer that ignores unknown keys keeps working once it accepts `"0.3.0"`; a consumer that pins `"0.2.0"` must be updated or fed `baseline_projection`. Refusals, refusal order, error codes and texts are unchanged.
+- Readiness (`output_contract`) now also requires a `d9` block with `house_system` `"whole_sign"` and checks `schema_version` against the engine constant (`0.3.0` here).
+
+**Metadata.** No metadata change is made in this proposal, so `metadata_schema` stays `/3` and every metadata value is unchanged. `conventions.houses` still describes only the D1 model. Recording the D9 house rule there (`d9_model`, `d9_rule`) would be a new key and need `/4`; that is left as an owner option.
+
+**Regression expectations.** For every request: identical refusal (exit code, code, text); for every accepted request: `baseline_projection(new)` equals the Gate 3D chart exactly, including longitudes, D1 houses, D9 signs, D1 Lagna, Moon Nakshatra/Pada, UTC conversion and metadata. Golden references are not regenerated from the new code.
 
 ### Reproduction requirements
 

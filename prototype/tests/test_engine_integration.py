@@ -38,7 +38,7 @@ class SameAsEngine(unittest.TestCase):
     def test_conventions_preserved(self):
         status, body = post({"place_id": "in-new-delhi", "birth_date": "1990-05-15", "birth_time": "10:30"})
         chart = body["chart"]
-        self.assertEqual(chart["schema_version"], "0.2.0")
+        self.assertEqual(chart["schema_version"], "0.3.0")  # Gate 3E proposed candidate (owner approval pending)
         self.assertEqual(chart["calculation_metadata"]["metadata_schema"], "sabpuja-calculation-metadata/3")
         self.assertEqual(chart["method"], {"ayanamsa": "Lahiri", "nodes": "mean", "houses": "whole_sign",
                                            "ephemeris": "Swiss Ephemeris, local .se1", "binding_version": "2.10.03"})

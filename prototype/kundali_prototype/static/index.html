@@ -92,6 +92,10 @@
         <h2 id="result-heading">Janam Kundali</h2>
         <button type="button" class="button button--ghost" id="edit">Edit birth details</button>
       </div>
+      <nav class="chart-nav" aria-label="Chart sections">
+        <a href="#d1-section" id="nav-d1">D1 Rashi chart</a>
+        <a href="#d9-section" id="nav-d9">D9 Navamsa chart</a>
+      </nav>
 
       <div class="bento">
         <article class="card confirm-card" aria-labelledby="confirm-heading">
@@ -104,7 +108,7 @@
           <dl class="facts" id="key-list"></dl>
         </article>
 
-        <article class="card chart-card" aria-labelledby="d1-heading">
+        <article class="card chart-card" id="d1-section" tabindex="-1" aria-labelledby="d1-heading">
           <h3 id="d1-heading">D1 Rashi chart <span class="sub">North Indian style</span></h3>
           <div class="chart-wrap">
             <svg id="d1-chart" class="d1-chart" role="img" aria-labelledby="d1-title d1-desc" focusable="false"></svg>
@@ -124,16 +128,24 @@
           <p class="footnote">Sidereal longitudes (Lahiri), Rahu and Ketu by the mean node. Longitudes are the engine's 8-decimal display values. Rashi and house come from the unrounded values, so a value shown as exactly 30° can still belong to the earlier sign.</p>
         </article>
 
+        <article class="card chart-card--d9" id="d9-section" tabindex="-1" aria-labelledby="d9-chart-heading">
+          <h3 id="d9-chart-heading">D9 Navamsa chart <span class="sub">North Indian style</span></h3>
+          <div class="chart-wrap">
+            <svg id="d9-chart" class="d9-chart" role="img" aria-labelledby="d9-title d9-desc" focusable="false"></svg>
+          </div>
+          <p class="legend">D9 houses are whole-sign houses counted from the D9 Lagna (Asc, House 1, at the top); numbers are D9 signs (1 Mesha … 12 Meena). They are not the D1 houses. Su Sun, Mo Moon, Ma Mars, Me Mercury, Ju Jupiter, Ve Venus, Sa Saturn, Ra Rahu, Ke Ketu.</p>
+        </article>
+
         <article class="card table-card table-card--d9" aria-labelledby="d9-heading">
           <h3 id="d9-heading">D9 Navamsa placements</h3>
           <div class="table-scroll" tabindex="0" role="region" aria-labelledby="d9-heading">
             <table id="d9-table">
-              <caption class="visually-hidden">D9 Navamsa sign of the Lagna and each graha</caption>
-              <thead><tr><th scope="col">Graha</th><th scope="col">D9 sign</th></tr></thead>
+              <caption class="visually-hidden">D9 Navamsa sign and D9 whole-sign house of the D9 Lagna and each graha</caption>
+              <thead><tr><th scope="col">Graha</th><th scope="col">D9 Rashi</th><th scope="col">D9 House</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
-          <p class="footnote">Signs only. D9 house positions and a D9 chart are not shown, because that part of the engine (P6) is not yet authorized.</p>
+          <p class="footnote">D9 signs come from the unrounded sidereal longitudes in 3°20′ divisions; D9 houses are counted from the D9 Lagna sign, so a D9 house number is not a D1 house number. The D9 house fields belong to the proposed chart schema 0.3.0, which awaits owner approval.</p>
         </article>
 
         <article class="card method-card" aria-labelledby="method-heading">

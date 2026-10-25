@@ -45,6 +45,10 @@ async function startServer(port, ephe = EPHE) {
   return { proc, output: () => output };
 }
 
+// Graha names as chart.js writes them into the SVG description.
+const SABPUJA_NAMES = { sun: "Sun (Surya)", moon: "Moon (Chandra)", mars: "Mars (Mangal)", mercury: "Mercury (Budha)",
+                        jupiter: "Jupiter (Guru)", venus: "Venus (Shukra)", saturn: "Saturn (Shani)",
+                        rahu_mean: "Rahu (mean node)", ketu_mean: "Ketu (opposite mean Rahu)" };
 const SIGNS = ["Mesha", "Vrishabha", "Mithuna", "Karka", "Simha", "Kanya", "Tula", "Vrischika", "Dhanu", "Makara", "Kumbha", "Meena"];
 const BODIES = ["sun", "moon", "mars", "mercury", "jupiter", "venus", "saturn", "rahu_mean", "ketu_mean"];
 
@@ -152,11 +156,6 @@ async function serverFaultChecks(browser) {
 /* Compare the rendered chart and tables with the engine JSON the page received. */
 async function verifyRender(page, view, label, chart, opts = {}) {
   const dom = await page.evaluate(() => {
-    const houses = [...document.querySelectorAll("#d1-chart g.house")].map((g) => ({
-      house: Number(g.dataset.house), sign: g.dataset.sign,
-      signNumber: g.querySelector("[data-role=sign-number]").textContent,
-      grahas: [...g.querySelectorAll("text[data-graha]")].map((t) => t.dataset.graha).sort()
-    }));
     function inside(pt, poly) {
       let c = false;
       for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
@@ -165,28 +164,45 @@ async function verifyRender(page, view, label, chart, opts = {}) {
       }
       return c;
     }
-    const outside = [];
-    const boxes = [];
-    document.querySelectorAll("#d1-chart g.house").forEach((g) => {
-      const poly = g.querySelector("polygon").getAttribute("points").split(" ").map((p) => p.split(",").map(Number));
-      g.querySelectorAll("text").forEach((t) => {
-        const b = t.getBBox();
-        const corners = [[b.x, b.y], [b.x + b.width, b.y], [b.x, b.y + b.height], [b.x + b.width, b.y + b.height]];
-        if (!corners.every((c) => inside(c, poly))) { outside.push({ house: g.dataset.house, text: t.textContent, b: [b.x, b.y, b.width, b.height] }); }
-        boxes.push({ house: g.dataset.house, text: t.textContent, b: [b.x, b.y, b.x + b.width, b.y + b.height] });
+    // Gate 3E: the same geometry checks for the D1 and the D9 SVG.
+    function chartDom(sel) {
+      const svg = document.querySelector(sel);
+      const houses = [...svg.querySelectorAll("g.house")].map((g) => ({
+        house: Number(g.dataset.house), sign: g.dataset.sign,
+        signNumber: g.querySelector("[data-role=sign-number]").textContent,
+        grahas: [...g.querySelectorAll("text[data-graha]")].map((t) => t.dataset.graha).sort()
+      }));
+      const outside = [];
+      const boxes = [];
+      svg.querySelectorAll("g.house").forEach((g) => {
+        const poly = g.querySelector("polygon").getAttribute("points").split(" ").map((p) => p.split(",").map(Number));
+        g.querySelectorAll("text").forEach((t) => {
+          const b = t.getBBox();
+          const corners = [[b.x, b.y], [b.x + b.width, b.y], [b.x, b.y + b.height], [b.x + b.width, b.y + b.height]];
+          if (!corners.every((c) => inside(c, poly))) { outside.push({ house: g.dataset.house, text: t.textContent, b: [b.x, b.y, b.width, b.height] }); }
+          boxes.push({ house: g.dataset.house, text: t.textContent, b: [b.x, b.y, b.x + b.width, b.y + b.height] });
+        });
       });
-    });
-    const overlaps = [];
-    for (let i = 0; i < boxes.length; i++) {
-      for (let j = i + 1; j < boxes.length; j++) {
-        const a = boxes[i].b, c = boxes[j].b;
-        if (a[0] < c[2] && c[0] < a[2] && a[1] < c[3] && c[1] < a[3]) { overlaps.push([boxes[i].text, boxes[j].text, boxes[i].house]); }
+      const overlaps = [];
+      for (let i = 0; i < boxes.length; i++) {
+        for (let j = i + 1; j < boxes.length; j++) {
+          const a = boxes[i].b, c = boxes[j].b;
+          if (a[0] < c[2] && c[0] < a[2] && a[1] < c[3] && c[1] < a[3]) { overlaps.push([boxes[i].text, boxes[j].text, boxes[i].house]); }
+        }
       }
+      const ids = (svg.getAttribute("aria-labelledby") || "").split(" ");
+      const named = ids.map((id) => document.getElementById(id));
+      return { houses, outside, overlaps, role: svg.getAttribute("role"), labelledBy: ids,
+               labelsInside: named.every((n) => n && svg.contains(n)),
+               title: (svg.querySelector("title") || {}).textContent, desc: (svg.querySelector("desc") || {}).textContent,
+               width: svg.getBoundingClientRect().width };
     }
+    const d1Chart = chartDom("#d1-chart"), d9Chart = chartDom("#d9-chart");
+    const { houses, outside, overlaps } = d1Chart;
     const rows = (sel, f) => Object.fromEntries([...document.querySelectorAll(sel + " tbody tr")].map((tr) =>
       [tr.dataset.graha, Object.fromEntries([...tr.querySelectorAll("[data-field]")].map((c) => [c.dataset.field, c.textContent]))]));
     const facts = Object.fromEntries([...document.querySelectorAll("dd[data-field]")].map((d) => [d.dataset.field, d.textContent]));
-    return { houses, outside, overlaps, d1: rows("#d1-table"), d9: rows("#d9-table"), facts,
+    return { houses, outside, overlaps, d1Chart, d9Chart, d1: rows("#d1-table"), d9: rows("#d9-table"), facts,
              overflow: document.documentElement.scrollWidth - window.innerWidth,
              tableOverflow: [...document.querySelectorAll(".table-scroll")].map((t) => t.scrollWidth - t.clientWidth),
              tableRegions: [...document.querySelectorAll(".table-scroll")].map((t) => t.tabIndex === 0 && t.getAttribute("role") === "region" &&
@@ -207,6 +223,33 @@ async function verifyRender(page, view, label, chart, opts = {}) {
   check(view, `${label}: D1 chart houses, signs and grahas equal engine JSON`, dom.houses.length === 12 && houseErrors.length === 0, houseErrors);
   check(view, `${label}: every chart label inside its house (no clipping)`, dom.outside.length === 0, dom.outside);
   check(view, `${label}: no overlapping chart labels`, dom.overlaps.length === 0, dom.overlaps);
+  check(view, `${label}: D1 SVG title and description unchanged in form`, dom.d1Chart.role === "img" && dom.d1Chart.labelsInside &&
+        dom.d1Chart.labelledBy.join(" ") === "d1-title d1-desc" && dom.d1Chart.title === `North Indian D1 chart, Lagna ${chart.lagna.rashi}`,
+        { role: dom.d1Chart.role, labelledBy: dom.d1Chart.labelledBy, title: dom.d1Chart.title });
+
+  // Gate 3E: the D9 chart equals the engine's d9 block and per-graha D9 fields; nothing recomputed.
+  const d9 = chart.d9, d9Lagna = SIGNS.indexOf(d9.lagna_rashi);
+  const d9HouseErrors = [];
+  dom.d9Chart.houses.forEach((h) => {
+    const idx = (d9Lagna + h.house - 1) % 12, block = d9.houses[h.house - 1];
+    const expected = BODIES.filter((b) => chart.planets[b].navamsa_whole_sign_house === h.house);
+    const fromBlock = [...block.grahas];
+    if (h.house === 1) { expected.push("lagna"); fromBlock.push("lagna"); }
+    if (h.sign !== SIGNS[idx] || h.sign !== block.rashi || h.signNumber !== String(idx + 1) ||
+        JSON.stringify(h.grahas) !== JSON.stringify(expected.sort()) || JSON.stringify(h.grahas) !== JSON.stringify(fromBlock.sort())) {
+      d9HouseErrors.push({ house: h.house, dom: h, block, expected });
+    }
+  });
+  check(view, `${label}: D9 chart houses, D9 signs and grahas equal engine JSON`,
+        d9.lagna_rashi === chart.lagna.navamsa_rashi && dom.d9Chart.houses.length === 12 && d9HouseErrors.length === 0, d9HouseErrors);
+  check(view, `${label}: every D9 chart label inside its house (no clipping)`, dom.d9Chart.outside.length === 0, dom.d9Chart.outside);
+  check(view, `${label}: no overlapping D9 chart labels`, dom.d9Chart.overlaps.length === 0, dom.d9Chart.overlaps);
+  const descWant = d9.houses.map((h) => `House ${h.house}, ${h.rashi}: ` +
+    (h.grahas.length ? h.grahas.map((k) => SABPUJA_NAMES[k]).join(", ") : "empty")).join(". ") + ".";
+  check(view, `${label}: D9 SVG is an accessible image with its own title and description`,
+        dom.d9Chart.role === "img" && dom.d9Chart.labelsInside && dom.d9Chart.labelledBy.join(" ") === "d9-title d9-desc" &&
+        dom.d9Chart.title === `North Indian D9 Navamsa chart, D9 Lagna ${d9.lagna_rashi}` && dom.d9Chart.desc === descWant,
+        { title: dom.d9Chart.title, desc: dom.d9Chart.desc, descWant });
 
   const d1Errors = [], d9Errors = [];
   const lag = dom.d1.lagna || {};
@@ -214,17 +257,21 @@ async function verifyRender(page, view, label, chart, opts = {}) {
   BODIES.forEach((b) => {
     const r = dom.d1[b] || {}, p = chart.planets[b];
     if (r.longitude !== p.longitude_deg.toFixed(8) + "°" || !String(r.rashi).startsWith(p.rashi + " ") || r.house !== String(p.whole_sign_house)) { d1Errors.push({ b, r, p }); }
-    const n = (dom.d9[b] || {}).navamsa;
-    if (!String(n).startsWith(p.navamsa_rashi + " ")) { d9Errors.push({ b, n, expected: p.navamsa_rashi }); }
+    const n = (dom.d9[b] || {}).navamsa, dh = (dom.d9[b] || {}).d9_house;
+    if (!String(n).startsWith(p.navamsa_rashi + " ") || dh !== String(p.navamsa_whole_sign_house) ||
+        !chart.d9.houses[p.navamsa_whole_sign_house - 1].grahas.includes(b)) {
+      d9Errors.push({ b, n, dh, expected: [p.navamsa_rashi, p.navamsa_whole_sign_house] });
+    }
   });
-  if (!String((dom.d9.lagna || {}).navamsa).startsWith(chart.lagna.navamsa_rashi + " ")) { d9Errors.push({ lagna: dom.d9.lagna }); }
+  const dl = dom.d9.lagna || {};
+  if (!String(dl.navamsa).startsWith(chart.lagna.navamsa_rashi + " ") || dl.d9_house !== "1") { d9Errors.push({ lagna: dl }); }
   check(view, `${label}: D1 table equals engine JSON (10 rows)`, Object.keys(dom.d1).length === 10 && d1Errors.length === 0, d1Errors);
-  check(view, `${label}: D9 table equals engine D9 signs and D9 Lagna (10 rows)`, Object.keys(dom.d9).length === 10 && d9Errors.length === 0, d9Errors);
+  check(view, `${label}: D9 table equals engine D9 signs, D9 houses and D9 Lagna (10 rows)`, Object.keys(dom.d9).length === 10 && d9Errors.length === 0, d9Errors);
   const f = dom.facts;
   check(view, `${label}: key facts and method versions equal engine JSON`,
         f.lagna_rashi.startsWith(chart.lagna.rashi) && f.d9_lagna.startsWith(chart.lagna.navamsa_rashi) &&
         f.moon_nakshatra === `${chart.moon_nakshatra.name}, Pada ${chart.moon_nakshatra.pada}` &&
-        f.utc === chart.birth.utc && f.schema_version === "0.2.0" && f.metadata_schema === "sabpuja-calculation-metadata/3", f);
+        f.utc === chart.birth.utc && f.schema_version === "0.3.0" && f.metadata_schema === "sabpuja-calculation-metadata/3", f);
   check(view, `${label}: method panel states the claim boundary`, dom.claim.includes("not independently astronomically certified"), dom.claim);
   check(view, `${label}: no horizontal page overflow`, dom.overflow <= 0, dom.overflow);
   if (opts.allowTableScroll) {
@@ -291,10 +338,13 @@ async function designChecks(page, view, label) {
       const cs = getComputedStyle(el); const r = ratio(rgb(cs.color).slice(0, 3), bgOf(el));
       contrast.push({ sel, ratio: Math.round(r * 100) / 100 }); }));
     // SVG chart text against its house fill.
-    document.querySelectorAll("#d1-chart g.house").forEach((g, i) => { if (i > 0 && !g.classList.contains("house--lagna")) { return; }
+    document.querySelectorAll("#d1-chart g.house, #d9-chart g.house").forEach((g, i) => { if (i % 12 > 0 && !g.classList.contains("house--lagna")) { return; }
       const fill = rgb(getComputedStyle(g.querySelector("polygon")).fill).slice(0, 3);
       g.querySelectorAll("text").forEach((t) => contrast.push({ sel: `svg ${t.getAttribute("class")} (house ${g.dataset.house})`,
         ratio: Math.round(ratio(rgb(getComputedStyle(t).fill).slice(0, 3), fill) * 100) / 100 })); });
+    // Gate 3E: the chart section links.
+    document.querySelectorAll(".chart-nav a").forEach((a) => contrast.push({ sel: `.chart-nav a#${a.id}`,
+      ratio: Math.round(ratio(rgb(getComputedStyle(a).color).slice(0, 3), bgOf(a)) * 100) / 100 }));
     return { logos, links, loaded, families, roles, contrast };
   });
   const lg = d.logos;
@@ -341,15 +391,22 @@ async function fluidChecks(browser, base) {
       return { h1: px("h1", "fontSize"), body: px("body", "fontSize"), gutter: px("main", "paddingLeft"),
                logo: Math.max(...[...document.querySelectorAll(".brand img")].map((i) => i.getBoundingClientRect().width)),
                chart: document.getElementById("d1-chart").getBoundingClientRect().width,
+               d9chart: document.getElementById("d9-chart").getBoundingClientRect().width,
                columns: getComputedStyle(document.querySelector(".bento")).gridTemplateColumns.split(" ").length };
     });
     m.width = width; m.tableOverflow = dom.tableOverflow; m.logoShown = d.logos.map((l) => path.basename(l.src));
     metrics.push(m);
     await page.screenshot({ path: path.join(fluidOut, `${view}-result.png`), fullPage: true });
+    await page.locator(".chart-card--d9").screenshot({ path: path.join(fluidOut, `${view}-d9-chart.png`) });
+    check(view, "D9 chart is drawn at least as large as the D1 chart", m.d9chart >= m.chart - 0.5, { d1: m.chart, d9: m.d9chart });
     res = await fillAndSubmit(page, "in-new-delhi", "2070-10-04", "06:00:00");
     await page.waitForSelector("#result:not([hidden])");
     await verifyRender(page, view, "crowded Lagna house", res.body.chart, { allowTableScroll: width < 360 });
     await page.locator(".chart-card").screenshot({ path: path.join(fluidOut, `${view}-crowded-chart.png`) });
+    res = await fillAndSubmit(page, "in-new-delhi", "2025-04-09", "04:56:00");
+    await page.waitForSelector("#result:not([hidden])");
+    await verifyRender(page, view, "crowded D9 Lagna house", res.body.chart, { allowTableScroll: width < 360 });
+    await page.locator(".chart-card--d9").screenshot({ path: path.join(fluidOut, `${view}-crowded-d9-chart.png`) });
     check(view, "no request leaves 127.0.0.1", external.length === 0, external);
     await context.close();
   }
@@ -510,6 +567,27 @@ async function runView(browser, base, view, contextOpts) {
   await shot("03-result");
   await shot("04-d1-chart", ".chart-card");
   await shot("05-d9-table", "#d9-heading >> xpath=..");
+  await shot("13-d9-chart", ".chart-card--d9");
+
+  // Gate 3E: keyboard chart navigation. From "Edit birth details", Tab reaches the D1 and D9
+  // section links; Enter on the D9 link moves focus (with a visible ring) to the D9 chart card,
+  // and the next Tab reaches the D9 table region.
+  await page.focus("#edit");
+  const navOrder = [];
+  for (let i = 0; i < 2; i++) { await page.keyboard.press("Tab"); navOrder.push(await page.evaluate(() => document.activeElement.id)); }
+  await page.keyboard.press("Enter");
+  const navTarget = await page.evaluate(() => { const el = document.activeElement, cs = getComputedStyle(el);
+    return { id: el.id, ring: cs.outlineStyle !== "none" && cs.outlineWidth !== "0px", top: el.getBoundingClientRect().top, vh: window.innerHeight }; });
+  await page.keyboard.press("Tab");
+  const afterNav = await page.evaluate(() => ({ role: document.activeElement.getAttribute("role"), labelledBy: document.activeElement.getAttribute("aria-labelledby") }));
+  check(view, "keyboard: Tab reaches the D1 and D9 chart links; Enter moves focus to the D9 chart; Tab then reaches the D9 table",
+        JSON.stringify(navOrder) === JSON.stringify(["nav-d1", "nav-d9"]) && navTarget.id === "d9-section" && navTarget.ring &&
+        navTarget.top >= -1 && navTarget.top < navTarget.vh && afterNav.role === "region" && afterNav.labelledBy === "d9-heading",
+        { navOrder, navTarget, afterNav });
+  await page.focus("#nav-d1");
+  await page.keyboard.press("Enter");
+  const d1Target = await page.evaluate(() => document.activeElement.id);
+  check(view, "keyboard: Enter on the D1 link moves focus to the D1 chart", d1Target === "d1-section", d1Target);
 
   // Edit and recalculate.
   await page.click("#edit");
@@ -527,6 +605,22 @@ async function runView(browser, base, view, contextOpts) {
     if (hour === "06") { await shot("06-crowded-lagna-house", ".chart-card"); }
     if (hour === "04") { await shot("07-crowded-triangle-house", ".chart-card"); }
   }
+
+  // Gate 3E crowded D9 houses: seven grahas in D9 house 1 (with Asc) through house 12 in turn.
+  const d9Crowded = [["04:56", 1], ["04:48", 2], ["04:40", 3], ["04:28", 4], ["04:20", 5], ["04:08", 6],
+                     ["04:00", 7], ["03:48", 8], ["03:40", 9], ["03:28", 10], ["05:16", 11], ["05:08", 12]];
+  const d9Seen = [];
+  for (const [time, house] of d9Crowded) {
+    res = await fillAndSubmit(page, "in-new-delhi", "2025-04-09", `${time}:00`);
+    await page.waitForSelector("#result:not([hidden])");
+    await verifyRender(page, view, `crowded D9 2025-04-09 ${time}`, res.body.chart);
+    const counts = res.body.chart.d9.houses.map((h) => h.grahas.length);
+    d9Seen.push([house, counts[house - 1]]);
+    if (house === 1) { await shot("14-d9-crowded-lagna-house", ".chart-card--d9"); }
+    if (house === 12) { await shot("15-d9-crowded-triangle-house", ".chart-card--d9"); }
+  }
+  check(view, "crowded D9 cases put seven grahas in every D9 house 1..12 in turn",
+        d9Seen.every(([, n]) => n === 7), d9Seen);
 
   // Refusals from the engine, shown clearly, with no chart.
   const refusals = [

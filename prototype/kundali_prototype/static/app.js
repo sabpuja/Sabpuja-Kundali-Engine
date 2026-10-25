@@ -157,8 +157,11 @@
 
   function render(data) {
     var chart = data.chart, input = data.input, meta = chart.calculation_metadata;
-    var model = C.buildD1Model(chart); // throws if the engine result is inconsistent
+    // Both models are built before anything is drawn: either throws if the engine result is
+    // inconsistent, and then no chart is shown (the result stays hidden).
+    var model = C.buildD1Model(chart), d9Model = C.buildD9Model(chart);
     C.renderNorthIndian($("d1-chart"), model);
+    C.renderNorthIndian($("d9-chart"), d9Model, { id: "d9", title: "North Indian D9 Navamsa chart, D9 Lagna " });
 
     var p = input.place;
     dl($("confirm-list"), [
@@ -181,12 +184,14 @@
     d1.textContent = ""; d9.textContent = "";
     row(d1, [{ text: "Lagna" }, { text: chart.lagna.longitude_deg.toFixed(8) + "°", cls: "num", field: "longitude" },
              { sign: chart.lagna.rashi, field: "rashi" }, { text: "1", field: "house", cls: "num" }], "row--lagna", "lagna");
-    row(d9, [{ text: "D9 Lagna" }, { sign: chart.lagna.navamsa_rashi, field: "navamsa" }], "row--lagna", "lagna");
+    row(d9, [{ text: "D9 Lagna" }, { sign: chart.lagna.navamsa_rashi, field: "navamsa" },
+             { text: "1", field: "d9_house", cls: "num" }], "row--lagna", "lagna");
     C.GRAHAS.forEach(function (g) {
       var pl = chart.planets[g.key];
       row(d1, [{ text: SHORT[g.key] }, { text: pl.longitude_deg.toFixed(8) + "°", cls: "num", field: "longitude" },
                { sign: pl.rashi, field: "rashi" }, { text: String(pl.whole_sign_house), field: "house", cls: "num" }], "", g.key);
-      row(d9, [{ text: SHORT[g.key] }, { sign: pl.navamsa_rashi, field: "navamsa" }], "", g.key);
+      row(d9, [{ text: SHORT[g.key] }, { sign: pl.navamsa_rashi, field: "navamsa" },
+               { text: String(pl.navamsa_whole_sign_house), field: "d9_house", cls: "num" }], "", g.key);
     });
 
     var eph = meta.ephemeris_data, tz = meta.timezone_data, sw = meta.swiss_ephemeris;
@@ -197,7 +202,7 @@
       ["Zodiac and ayanamsa", "Sidereal, " + meta.conventions.ayanamsa.definition],
       ["Nodes", "Mean Rahu; Ketu exactly opposite"],
       ["Houses", "Whole-sign houses from the sidereal Lagna"],
-      ["D9", "Navamsa signs from 3°20′ divisions of the sidereal longitude"],
+      ["D9", "Navamsa signs from 3°20′ divisions of the sidereal longitude; D9 whole-sign houses counted from the D9 Lagna sign"],
       ["Swiss Ephemeris", "Library " + sw.library_version + ", " + sw.python_binding + " " + sw.python_binding_version],
       ["Ephemeris data", eph.source_repository + " @ " + eph.source_commit.slice(0, 12) + "; " +
         eph.required_files.map(function (f) { return f.name + " sha256 " + f.sha256.slice(0, 12) + "…"; }).join(", ")],
@@ -288,6 +293,16 @@
     timeIn.disabled = false; $("unknown-time-panel").hidden = true;
     invalidate();
     placeSel.focus();
+  });
+  // Chart section links move focus to the section, so keyboard users land on it.
+  [].forEach.call(document.querySelectorAll(".chart-nav a"), function (a) {
+    a.addEventListener("click", function (ev) {
+      var target = $(a.getAttribute("href").slice(1));
+      if (!target) { return; }
+      ev.preventDefault();
+      target.scrollIntoView();
+      target.focus();
+    });
   });
   $("edit").addEventListener("click", function () {
     $("form-section").scrollIntoView(); placeSel.focus();
