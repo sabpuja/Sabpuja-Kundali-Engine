@@ -93,7 +93,7 @@ a repeated hour). One rule, `server.classify()`, decides the status:
 
 | Situation | HTTP | `category` |
 |---|---:|---|
-| Malformed HTTP/JSON or form fields | 400 (or 404/405/411/413/415/421/403 at the HTTP layer) | `input` / `http` |
+| Malformed HTTP/JSON (including JSON nested too deeply to decode) or form fields | 400 (or 404/405/411/413/415/421/403 at the HTTP layer) | `input` / `http` |
 | Invalid or unsupported birth input (form or `InputRefusalError`) | 422 | `input`, `place`, `unknown_time` or `unsupported` |
 | Repeated local time: choose the occurrence | 409 | `ambiguous` |
 | Swiss binding missing, library or binding version wrong, binding metadata missing, Moshier fallback refused | 503 | `resources` |

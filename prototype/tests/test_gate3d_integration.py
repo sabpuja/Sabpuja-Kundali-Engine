@@ -272,11 +272,17 @@ class JsonDecoderBoundary(unittest.TestCase):
                                  (400, "REQUEST_INVALID", "input"))
 
     def test_recursion_error_outside_the_decoder_stays_a_500(self):
-        err = io.StringIO()
-        with mock.patch.object(server, "compute", side_effect=RecursionError("secret")), redirect_stderr(err):
-            status, body = server.handle_chart(json.dumps(GOOD).encode(), PLACES, EPHE or "")
-        self.assertEqual((status, body["error"]["code"]), (500, "INTERNAL_ERROR"))
-        self.assertEqual(json.loads(err.getvalue()), {"event": "INTERNAL_ERROR", "type": "RecursionError"})
+        # From the wrapper's compute() and from the engine calculation it calls: a defect, not a 400.
+        fixed = {"error": {"code": "INTERNAL_ERROR", "message": "unexpected error; no chart produced",
+                           "category": "internal"}}
+        for target in ("compute", "calculate"):
+            with self.subTest(raised_in=target):
+                err = io.StringIO()
+                with mock.patch.object(server, target, side_effect=RecursionError("secret 1990-05-15")), \
+                        redirect_stderr(err):
+                    status, body = server.handle_chart(json.dumps(GOOD).encode(), PLACES, EPHE or "")
+                self.assertEqual((status, body), (500, fixed))
+                self.assertEqual(json.loads(err.getvalue()), {"event": "INTERNAL_ERROR", "type": "RecursionError"})
 
 
 @requires_data
