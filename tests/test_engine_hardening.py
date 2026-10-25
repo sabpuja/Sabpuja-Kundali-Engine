@@ -298,6 +298,158 @@ class EphemerisManifestTests(unittest.TestCase):
         self.assertEqual(len(ephemeris.load_manifest()["files"]), 2)
 
 
+
+PACKAGED_MANIFEST = Path(engine.__file__).with_name("ephemeris-manifest.json")
+
+
+def _mutated(change):
+    manifest = json.loads(PACKAGED_MANIFEST.read_text(encoding="utf-8"))
+    change(manifest)
+    return manifest
+
+
+def _set(entry_field, value):
+    def change(m):
+        if value is _ABSENT:
+            del m["files"][0][entry_field]
+        else:
+            m["files"][0][entry_field] = value
+    return change
+
+
+def _top(path, value):
+    def change(m):
+        *parents, last = path
+        for key in parents:
+            m = m[key]
+        if value is _ABSENT:
+            del m[last]
+        else:
+            m[last] = value
+    return change
+
+
+# G3C-MAN-01: syntactically valid JSON whose shape the gate cannot use. Each must be
+# EPHEMERIS_MANIFEST_INVALID, never an AttributeError, KeyError or TypeError.
+MALFORMED_MANIFESTS = {
+    "files [null]": {"files": [None]},
+    "files [{required: true}]": {"files": [{"required": True}]},
+    "entry is a list": _mutated(lambda m: m["files"].__setitem__(0, ["sepl_18.se1"])),
+    "entry is a string": _mutated(lambda m: m["files"].__setitem__(0, "sepl_18.se1")),
+    "required missing": _mutated(_set("required", _ABSENT)),
+    "required is a string": _mutated(_set("required", "true")),
+    "required is 1": _mutated(_set("required", 1)),
+    "required is null": _mutated(_set("required", None)),
+    "name missing": _mutated(_set("name", _ABSENT)),
+    "name not a string": _mutated(_set("name", 7)),
+    "name empty": _mutated(_set("name", "")),
+    "name is ..": _mutated(_set("name", "..")),
+    "name has a directory": _mutated(_set("name", "../sepl_18.se1")),
+    "name has a backslash": _mutated(_set("name", "ephe\\sepl_18.se1")),
+    "name has a NUL": _mutated(_set("name", "sepl_18.se1\0")),
+    "size_bytes missing": _mutated(_set("size_bytes", _ABSENT)),
+    "size_bytes a string": _mutated(_set("size_bytes", "484061")),
+    "size_bytes a boolean": _mutated(_set("size_bytes", True)),
+    "size_bytes a float": _mutated(_set("size_bytes", 484061.0)),
+    "size_bytes negative": _mutated(_set("size_bytes", -1)),
+    "sha256 missing": _mutated(_set("sha256", _ABSENT)),
+    "sha256 not a string": _mutated(_set("sha256", 0)),
+    "sha256 uppercase": _mutated(lambda m: m["files"][0].update(sha256=m["files"][0]["sha256"].upper())),
+    "sha256 too short": _mutated(lambda m: m["files"][0].update(sha256=m["files"][0]["sha256"][:-1])),
+    "manifest_version missing": _mutated(_top(("manifest_version",), _ABSENT)),
+    "source missing": _mutated(_top(("source",), _ABSENT)),
+    "source.commit not a string": _mutated(_top(("source", "commit"), 1)),
+    "coverage missing": _mutated(_top(("coverage",), _ABSENT)),
+    "coverage.start_year a string": _mutated(_top(("coverage", "start_year"), "1800")),
+}
+MANIFEST_INVALID = "EPHEMERIS_MANIFEST_INVALID: ephemeris manifest has an unexpected structure"
+
+
+@contextlib.contextmanager
+def packaged_manifest_text(text):
+    """Serve `text` as the packaged ephemeris manifest (the resource, not json.loads)."""
+    from sabpuja_kundali import ephemeris
+    real_files = ephemeris.resources.files
+    resource = mock.Mock()
+    resource.read_text.return_value = text
+
+    def files(package):
+        root = real_files(package)
+        if package != ephemeris.__package__:
+            return root  # the timezone manifest and anything else stay real
+        wrapped = mock.Mock()
+        wrapped.joinpath.side_effect = lambda name: resource if name == ephemeris._MANIFEST_NAME else root.joinpath(name)
+        return wrapped
+
+    with mock.patch.object(ephemeris.resources, "files", side_effect=files):
+        yield
+
+
+class MalformedManifestEntryTests(unittest.TestCase):
+    """G3C-MAN-01 (QA review on 097f3fa): entry and field shapes are checked before use."""
+
+    def setUp(self):
+        env = mock.patch.dict(os.environ)
+        env.start()
+        self.addCleanup(env.stop)
+        os.environ.pop("SE_EPHE_PATH", None)
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+
+    def test_load_manifest_refuses_each_malformed_shape(self):
+        from sabpuja_kundali import ephemeris
+        for label, manifest in MALFORMED_MANIFESTS.items():
+            with self.subTest(label):
+                with packaged_manifest_text(json.dumps(manifest)), self.assertRaises(EphemerisDataError) as ctx:
+                    ephemeris.load_manifest()
+                self.assertEqual(str(ctx.exception), MANIFEST_INVALID)
+                self.assertIsNone(ctx.exception.__cause__)
+
+    def test_verify_refuses_each_malformed_entry_supplied_by_a_caller(self):
+        from sabpuja_kundali import ephemeris
+        for label, manifest in MALFORMED_MANIFESTS.items():
+            if not label.startswith(("files", "entry", "required", "name", "size", "sha")):
+                continue  # top-level metadata fields are read by load_manifest, not the file gate
+            with self.subTest(label):
+                with self.assertRaises(EphemerisDataError) as ctx:
+                    ephemeris.verify_ephemeris_dir(self._tmp.name, manifest)
+                self.assertEqual(str(ctx.exception), MANIFEST_INVALID)
+
+    def test_refusal_order_is_unchanged(self):
+        from sabpuja_kundali import ephemeris
+        bad = MALFORMED_MANIFESTS["files [null]"]
+        with self.assertRaises(EphemerisDataError) as ctx:
+            ephemeris.verify_ephemeris_dir("/nonexistent/sabpuja-ephe", bad)
+        self.assertEqual(ctx.exception.code, "EPHEMERIS_PATH_MISSING")
+        os.environ["SE_EPHE_PATH"] = self._tmp.name
+        with self.assertRaises(EphemerisDataError) as ctx:
+            ephemeris.verify_ephemeris_dir(self._tmp.name, bad)
+        self.assertEqual(ctx.exception.code, "EPHEMERIS_PATH_OVERRIDE")
+        del os.environ["SE_EPHE_PATH"]
+        # A well-formed manifest still reaches the file checks, and "no required files" keeps its text.
+        with self.assertRaises(EphemerisDataError) as ctx:
+            ephemeris.verify_ephemeris_dir(self._tmp.name, json.loads(PACKAGED_MANIFEST.read_text()))
+        self.assertEqual(str(ctx.exception), "EPHEMERIS_FILE_MISSING: required file sepl_18.se1 not found")
+        with self.assertRaises(EphemerisDataError) as ctx:
+            ephemeris.verify_ephemeris_dir(self._tmp.name, {"files": [{"name": "x", "required": False}]})
+        self.assertEqual(str(ctx.exception), "EPHEMERIS_MANIFEST_INVALID: manifest lists no required files")
+
+    def test_packaged_manifest_is_accepted_unchanged(self):
+        from sabpuja_kundali import ephemeris
+        raw = PACKAGED_MANIFEST.read_bytes()
+        self.assertEqual(ephemeris.load_manifest(), json.loads(raw))
+        self.assertEqual(provenance.canonical_sha256(ephemeris.load_manifest()),
+                         provenance.canonical_sha256(json.loads(raw)))
+
+    def test_calculate_refuses_before_any_swiss_call(self):
+        calls = []
+        with fake_runtime(recording_swisseph(calls)), packaged_manifest_text('{"files": [null]}'), \
+                self.assertRaises(EphemerisDataError) as ctx:
+            calculate(SYNTHETIC, ephe_path=self._tmp.name)
+        self.assertEqual(str(ctx.exception), MANIFEST_INVALID)
+        self.assertEqual(calls, [])
+
+
 def _cli_body(kind):
     """Subprocess body: the real CLI module run as __main__ under an injected fault."""
     if kind == "binding_missing":
@@ -318,6 +470,9 @@ def _cli_body(kind):
             exc = {"defect_value": ValueError, "defect_runtime": RuntimeError,
                    "defect_other": KeyError}[kind]("defect /srv/internal 28.6139")
             stack.enter_context(mock.patch.object(engine, "calculate", side_effect=exc))
+        if kind.startswith("manifest:"):
+            text = json.dumps(MALFORMED_MANIFESTS[kind.split(":", 1)[1]])
+            stack.enter_context(packaged_manifest_text(text))
         if kind == "json_recursion":
             stack.enter_context(mock.patch("json.loads", side_effect=RecursionError("deep")))
         runpy.run_module("sabpuja_kundali.cli", run_name="__main__")
@@ -349,6 +504,16 @@ class CliBoundaryTests(unittest.TestCase):
                 self.assertNotIn("Traceback", proc.stderr)
                 for piece in REQUEST_PIECES + ("/", "\\", str(SRC)):
                     self.assertNotIn(piece, proc.stderr)
+
+    def test_malformed_manifest_is_one_private_json_error_with_exit_2(self):
+        for label in ("files [null]", "files [{required: true}]", "name missing", "size_bytes a string",
+                      "sha256 missing", "required is a string", "source missing"):
+            with self.subTest(label):
+                proc = run_cli(f"manifest:{label}")
+                self.assertEqual(proc.returncode, 2)
+                self.assertEqual(proc.stdout, "")
+                self.assertEqual(proc.stderr, json.dumps({"error": MANIFEST_INVALID}) + "\n")
+                self.assertNotIn("Traceback", proc.stderr)
 
     def test_success_still_prints_only_the_chart(self):
         proc = run_cli("success")

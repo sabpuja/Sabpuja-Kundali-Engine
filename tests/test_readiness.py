@@ -103,6 +103,21 @@ class OrderingTests(Isolated):
                         self.assertRaises(ZeroDivisionError):
                     preflight("/unused")
 
+    def test_malformed_ephemeris_manifest_entries(self):
+        # G3C-MAN-01: valid JSON with unusable entries is a typed NOT_READY, not a defect.
+        from test_engine_hardening import MALFORMED_MANIFESTS, packaged_manifest_text
+        with tempfile.TemporaryDirectory() as folder:
+            for label, manifest in MALFORMED_MANIFESTS.items():
+                with self.subTest(label):
+                    calls = []
+                    with packaged_manifest_text(json.dumps(manifest)), \
+                            mock.patch.object(engine, "swiss_runtime", side_effect=lambda: calls.append(1)), \
+                            mock.patch.object(engine, "calculate", side_effect=lambda *a, **k: calls.append(2)):
+                        result = preflight(folder)
+                    self.assertNotReady(result, "ephemeris_data", "EPHEMERIS_MANIFEST_INVALID")
+                    self.assertNotIn(folder, json.dumps(result.as_dict()))
+                    self.assertEqual(calls, [])
+
     def test_service_does_not_listen_after_a_failure(self):
         listened = []
         with self.assertRaises(EngineNotReadyError):
