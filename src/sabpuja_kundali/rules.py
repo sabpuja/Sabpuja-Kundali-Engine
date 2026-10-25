@@ -65,3 +65,13 @@ def navamsa_sign(longitude: float | Rational) -> str:
 
 def whole_sign_house(longitude: float | Rational, ascendant: float | Rational) -> int:
     return (sign_index(longitude) - sign_index(ascendant)) % 12 + 1
+
+
+def navamsa_sign_index(longitude: float | Rational) -> int:
+    """Zero-based D9 sign (0 Mesha .. 11 Meena); navamsa_sign names the same index."""
+    return _sector(longitude, 108) % 12
+
+
+def navamsa_whole_sign_house(longitude: float | Rational, ascendant: float | Rational) -> int:
+    """D9 whole-sign house counted from the D9 Lagna sign (SCI-01f; Gate 3E proposal)."""
+    return (navamsa_sign_index(longitude) - navamsa_sign_index(ascendant)) % 12 + 1

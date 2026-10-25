@@ -519,7 +519,9 @@ class CliBoundaryTests(unittest.TestCase):
         proc = run_cli("success")
         self.assertEqual(proc.returncode, 0)
         self.assertEqual(proc.stderr, "")
-        self.assertEqual(json.loads(proc.stdout)["schema_version"], "0.2.0")
+        out = json.loads(proc.stdout)
+        self.assertEqual(out["schema_version"], "0.3.0")  # Gate 3E proposed candidate; baseline_projection gives 0.2.0
+        self.assertEqual(provenance.baseline_projection(out)["schema_version"], "0.2.0")
 
     def test_untyped_exceptions_are_defects_not_refusals(self):
         # Before Gate 3C a bare ValueError or RuntimeError from inside calculate() was printed

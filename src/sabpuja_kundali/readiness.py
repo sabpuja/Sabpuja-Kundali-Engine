@@ -126,7 +126,9 @@ def _output_contract(chart: dict, facts: dict) -> None:
     ok = (chart.get("schema_version") == provenance.SCHEMA_VERSION
           and isinstance(meta, dict) and meta.get("metadata_schema") == provenance.METADATA_SCHEMA
           and isinstance(chart.get("planets"), dict) and tuple(chart["planets"]) == CANARY_BODIES
-          and isinstance(chart.get("lagna"), dict))
+          and isinstance(chart.get("lagna"), dict)
+          and isinstance(chart.get(provenance.D9_KEY), dict)
+          and chart[provenance.D9_KEY].get("house_system") == "whole_sign")
     if not ok:
         raise _Failed("ENGINE_SCHEMA_MISMATCH")
     swiss = meta.get("swiss_ephemeris", {})

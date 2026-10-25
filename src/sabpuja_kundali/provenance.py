@@ -16,8 +16,13 @@ from importlib import metadata
 import hashlib
 import json
 
-SCHEMA_VERSION = "0.2.0"
+# 0.3.0 is the Gate 3E PROPOSED candidate (D9 whole-sign houses), pending owner approval;
+# it is not canonical. 0.2.0 is the frozen SCI-02 engineering baseline (baseline_projection).
+SCHEMA_VERSION = "0.3.0"
+BASELINE_SCHEMA_VERSION = "0.2.0"
 LEGACY_SCHEMA_VERSION = "0.1.0"
+D9_KEY = "d9"
+D9_HOUSE_FIELD = "navamsa_whole_sign_house"
 METADATA_SCHEMA = "sabpuja-calculation-metadata/3"  # /3: P7 Option 2 era values and meanings
 METADATA_KEY = "calculation_metadata"
 
@@ -245,11 +250,21 @@ def calculation_metadata(*, utc: datetime, latitude: float, swe, ephemeris_manif
     }
 
 
+def baseline_projection(chart: dict) -> dict:
+    """The 0.2.0 output: drop the Gate 3E D9 house block and per-body D9 house field."""
+    if (chart.get("schema_version") != SCHEMA_VERSION or METADATA_KEY not in chart
+            or D9_KEY not in chart):
+        raise ValueError("not a schema 0.3.0 chart")
+    baseline = {k: v for k, v in chart.items() if k != D9_KEY}
+    baseline["planets"] = {name: {k: v for k, v in val.items() if k != D9_HOUSE_FIELD}
+                           for name, val in chart["planets"].items()}
+    baseline["schema_version"] = BASELINE_SCHEMA_VERSION
+    return baseline
+
+
 def legacy_projection(chart: dict) -> dict:
-    """The 0.1.0 output: drop the P7 block and restore the previous schema version."""
-    if chart.get("schema_version") != SCHEMA_VERSION or METADATA_KEY not in chart:
-        raise ValueError("not a P7 chart")
-    legacy = {k: v for k, v in chart.items() if k != METADATA_KEY}
+    """The 0.1.0 output: the 0.2.0 projection without the P7 block, at the earlier version."""
+    legacy = {k: v for k, v in baseline_projection(chart).items() if k != METADATA_KEY}
     legacy["schema_version"] = LEGACY_SCHEMA_VERSION
     return legacy
 

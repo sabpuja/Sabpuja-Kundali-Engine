@@ -290,7 +290,8 @@ class Eras(unittest.TestCase):
         self.assertIn("not uniformly greater", lowered)
 
     def test_legacy_projection_rejects_non_p7_output(self):
-        for chart in ({"schema_version": "0.1.0"}, {"schema_version": "0.2.0"}):
+        for chart in ({"schema_version": "0.1.0"}, {"schema_version": "0.2.0"},
+                      {"schema_version": "0.3.0", "calculation_metadata": {}}):
             with self.assertRaises(ValueError):
                 provenance.legacy_projection(chart)
 
@@ -305,8 +306,9 @@ class ChartMetadata(unittest.TestCase):
 
     def test_schema_version_and_shape(self):
         chart = self.chart("2000-01-01T12:00:00+00:00")
-        self.assertEqual(chart["schema_version"], "0.2.0")
-        self.assertEqual(list(chart), LEGACY_KEYS + ["calculation_metadata"])
+        self.assertEqual(chart["schema_version"], "0.3.0")  # Gate 3E proposed candidate; baseline_projection gives 0.2.0
+        self.assertEqual(list(chart), LEGACY_KEYS + ["calculation_metadata", "d9"])
+        self.assertEqual(list(provenance.baseline_projection(chart)), LEGACY_KEYS + ["calculation_metadata"])
         self.assertEqual(chart["calculation_metadata"]["metadata_schema"], "sabpuja-calculation-metadata/3")  # /3 since P7 Option 2 eras; /2 since D3
         check_shape(self, chart["calculation_metadata"], SHAPE)
         json.dumps(chart, allow_nan=False)
@@ -681,7 +683,7 @@ class ChartMetadata(unittest.TestCase):
                               capture_output=True, text=True, env=env, timeout=120)
         self.assertEqual((proc.returncode, proc.stderr), (0, ""))
         out = json.loads(proc.stdout)
-        self.assertEqual(out["schema_version"], "0.2.0")
+        self.assertEqual(out["schema_version"], "0.3.0")  # Gate 3E proposed candidate; baseline_projection gives 0.2.0
         self.assertEqual(out["calculation_metadata"], calculate(req, ephe_path=DATA)["calculation_metadata"])
         self.assertNotIn(DATA, proc.stdout)
 

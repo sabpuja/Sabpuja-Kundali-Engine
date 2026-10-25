@@ -139,7 +139,7 @@ class ReadinessTests(Isolated):
         self.assertEqual(facts["tzdata_package_version"], "2026.5")
         self.assertEqual(facts["tzdata_iana_version"], "2026e")
         self.assertEqual(facts["tzdata_zones_verified"], len(json.loads(TZ_MANIFEST.read_text())["zones"]))
-        self.assertEqual(facts["chart_schema_version"], "0.2.0")
+        self.assertEqual(facts["chart_schema_version"], "0.3.0")  # Gate 3E proposed candidate; baseline_projection gives 0.2.0
         self.assertEqual(facts["metadata_schema"], "sabpuja-calculation-metadata/3")
         self.assertEqual(facts["ephemeris_required_files"], ["semo_18.se1", "sepl_18.se1"])
         self.assertPrivate(result)
@@ -344,7 +344,7 @@ class ReadinessTests(Isolated):
                 return (422 if isinstance(exc, engine.InputRefusalError) else 503), {"error": exc.code}
 
         status, chart = handle(dict(readiness.CANARY_REQUEST))
-        self.assertEqual((status, chart["schema_version"]), (200, "0.2.0"))
+        self.assertEqual((status, chart["schema_version"]), (200, "0.3.0"))  # Gate 3E proposed candidate; baseline_projection gives 0.2.0
         self.assertEqual(handle({**readiness.CANARY_REQUEST, "latitude": 70.0}),
                          (422, {"error": "LATITUDE_OUTSIDE_SUPPORTED_BAND"}))
         with mock.patch.object(provenance, "binding_distribution_version", return_value="2.10.3.1"):

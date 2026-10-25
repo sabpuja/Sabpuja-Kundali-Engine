@@ -14,7 +14,7 @@ import re
 
 from . import provenance, zone_policy
 from .ephemeris import EphemerisDataError, load_manifest as load_ephemeris_manifest, verify_ephemeris_dir
-from .rules import nakshatra, normalize, sign, navamsa_sign, whole_sign_house
+from .rules import SIGNS, nakshatra, normalize, sign, navamsa_sign, navamsa_sign_index, navamsa_whole_sign_house, whole_sign_house
 from .timezones import TimezoneDataError, default_loader, get_zone
 
 _SWISS_LOCK = RLock()
@@ -137,6 +137,24 @@ def _display_deg(longitude: float) -> float:
 
 def _placement(longitude: float | Fraction) -> dict[str, object]:
     return {"rashi": sign(longitude), "navamsa_rashi": navamsa_sign(longitude)}
+
+
+def _d9_chart(lagna: float, planets: dict[str, dict]) -> dict[str, object]:
+    """Proposed schema 0.3.0 D9 block, read only from the per-body D9 fields already set.
+
+    House h holds the sign (D9 Lagna + h - 1) mod 12 and the bodies whose
+    navamsa_whole_sign_house is h, in the planets order, so it cannot disagree
+    with planets.*.navamsa_rashi or planets.*.navamsa_whole_sign_house.
+    """
+    first = navamsa_sign_index(lagna)
+    return {
+        "house_system": "whole_sign",
+        "lagna_rashi": SIGNS[first],
+        "houses": [{"house": house, "rashi": SIGNS[(first + house - 1) % 12],
+                    "grahas": [name for name, val in planets.items()
+                               if val[provenance.D9_HOUSE_FIELD] == house]}
+                   for house in range(1, 13)],
+    }
 
 
 def _historical_clock_unverified(civil: date, tz_name: str) -> bool:
@@ -371,6 +389,10 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
         sources = {**raw, "ketu_mean": ketu_exact}
         for name, val in planets.items():
             val["whole_sign_house"] = whole_sign_house(sources[name], lagna)
+        # Gate 3E (proposed schema 0.3.0): D9 whole-sign house from the same unrounded
+        # sources, counted from the D9 Lagna sign; appended after the 0.2.0 fields.
+        for name, val in planets.items():
+            val[provenance.D9_HOUSE_FIELD] = navamsa_whole_sign_house(sources[name], lagna)
         moon_nakshatra = nakshatra(raw["moon"])
         chart = {
             "schema_version": provenance.SCHEMA_VERSION,
@@ -393,4 +415,6 @@ def calculate(request: dict[str, object], ephe_path: str | None = None) -> dict[
         utc=utc, latitude=lat, swe=swe, ephemeris_manifest=ephemeris_manifest,
         timezone_provenance=default_loader().provenance(), input_policy=_input_policy(),
         validation_status=chart["validation_status"])
+    # Gate 3E: appended last, so the 0.2.0 keys keep their order (provenance.baseline_projection).
+    chart[provenance.D9_KEY] = _d9_chart(lagna, chart["planets"])
     return chart
