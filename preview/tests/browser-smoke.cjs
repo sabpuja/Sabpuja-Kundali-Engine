@@ -5,7 +5,10 @@ const dir=process.env.QA_RESULTS||'/qa/browser-results';fs.mkdirSync(dir,{recurs
 (async()=>{const browser=await chromium.launch({headless:true,args:['--no-sandbox']});let checks=[];
 try{for(const width of [280,375,768,1440]){
  const ctx=await browser.newContext({viewport:{width,height:860},httpCredentials:{username:'qa',password}});
- const page=await ctx.newPage();let errors=[];let outside=[];page.on('response',async r=>{if(r.url().includes('/api/chart'))console.log('API_CHART',width,r.status(),(await r.text()).slice(0,400));});
+ const page=await ctx.newPage();let errors=[];let outside=[];
+ // Isolated QA uses private HTTP; emulate the owner-authorized future HTTPS browser Origin.
+ // This does NOT validate actual TLS, external routing, or client-release readiness.
+ await page.route('**/api/chart', route=>route.continue({headers:{...route.request().headers(),origin:'https://kundali-preview.sabpuja.com'}}));page.on('response',async r=>{if(r.url().includes('/api/chart'))console.log('API_CHART',width,r.status(),(await r.text()).slice(0,400));});
  page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(!r.url().startsWith(base+'/'))outside.push(r.url())});
  const nav=await page.goto(base+'/',{waitUntil:'networkidle'});
  assert.equal(nav.status(),200);await page.waitForFunction(()=>document.querySelectorAll('#place option').length===11);
