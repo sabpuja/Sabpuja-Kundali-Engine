@@ -1,0 +1,64 @@
+# PREPARATION ONLY. Do not deploy to real edge without separate owner authorization.
+name: sabpuja-kundali-private-preview
+services:
+  engine:
+    build:
+      context: ..
+      dockerfile: preview/Dockerfile
+    image: sabpuja-kundali-private-preview:gate3e
+    read_only: true
+    user: "10001:10001"
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: 1.0
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    environment:
+      SABPUJA_EPHE_PATH: /opt/kundali/ephe
+    volumes:
+      - type: bind
+        source: ${SABPUJA_PREVIEW_EPHE_DIR:?Set the verified ephemeris directory}
+        target: /opt/kundali/ephe
+        read_only: true
+    networks:
+      edge:
+        aliases: [sabpuja-kundali-preview]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/api/places',timeout=4).read()"]
+      interval: 30s
+      timeout: 6s
+      retries: 3
+      start_period: 20s
+
+  gateway:
+    image: caddy:2.10.2-alpine
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 100
+    mem_limit: 128m
+    cpus: 0.5
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=8m
+      - /config:rw,nosuid,size=8m
+      - /data:rw,nosuid,size=8m
+    network_mode: "service:engine"
+    depends_on:
+      engine:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./Gateway.Caddyfile
+        target: /etc/caddy/Caddyfile
+        read_only: true
+    environment:
+      PREVIEW_USER: ${SABPUJA_PREVIEW_USER:?Set a private preview login}
+      PREVIEW_PASSWORD_HASH: ${SABPUJA_PREVIEW_PASSWORD_HASH:?Set bcrypt hash outside Git}
+      PREVIEW_PUBLIC_ORIGIN: ${SABPUJA_PREVIEW_ORIGIN:?Set the exact HTTPS origin}
+
+networks:
+  edge:
+    external: true
+    name: ${SABPUJA_PREVIEW_NETWORK:-edge}
