@@ -1,0 +1,19 @@
+{
+  "source": "sabpuja/design-system/tokens/tokens.css",
+  "source_git_sha": "b371e009bb0d655c94695acb0ff8ec381fed9135",
+  "component_source": "sabpuja/design-system/docs/components.md",
+  "title_family": "Poppins",
+  "body_family": "Inter",
+  "colors": {
+    "saffron": "#D35400",
+    "gold": "#F4B400",
+    "brown": "#4E342E",
+    "brown_deep": "#33241F",
+    "cream": "#FFF8E7",
+    "ivory": "#FFFBEF",
+    "white": "#FFFFFF",
+    "text": "#2E211D",
+    "muted": "#75655E",
+    "border": "#E9DDCF"
+  }
+}
