@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
-  <title>Sabpuja Kundali (internal prototype)</title>
+  <title>Sabpuja Kundali - Private Client Preview</title>
   <link rel="stylesheet" href="/static/fonts.css">
   <link rel="stylesheet" href="/static/app.css">
 </head>
@@ -20,7 +20,7 @@
       </div>
       <div class="header-meta">
         <span class="product-name">Janam Kundali</span>
-        <span class="badge">Internal prototype · localhost only</span>
+        <span class="badge">Private client preview · Invitation only</span>
         <a class="site-link" id="header-site-link" href="https://sabpuja.com" target="_blank" rel="noopener noreferrer">sabpuja.com<span class="visually-hidden"> (opens in a new tab)</span></a>
       </div>
     </div>
@@ -28,7 +28,7 @@
 
   <main id="main" class="wrap">
     <section class="notice" aria-label="Prototype notice">
-      <p><strong>Internal prototype, not for customers.</strong> Charts are calculated on this computer with the Sabpuja engine and Swiss Ephemeris. Nothing you enter is stored, logged or sent anywhere else.</p>
+      <p><strong>Private preview, not a public release.</strong> This chart is calculated using the Sabpuja engine and Swiss Ephemeris. Your birth details are processed for this calculation and are not saved as a customer profile. Enter only information you are comfortable sharing in a restricted preview.</p>
     </section>
 
     <section class="card form-card" aria-labelledby="form-heading" id="form-section">
@@ -41,7 +41,7 @@
             <select id="place" name="place" required aria-describedby="place-help place-error">
               <option value="">Loading places…</option>
             </select>
-            <p class="help" id="place-help">A small curated list for this prototype. The place fixes the coordinates and the timezone together.</p>
+            <p class="help" id="place-help">A curated list of Indian city reference points for this preview. The place fixes the coordinates and the timezone together.</p>
             <p class="field-error" id="place-error" role="alert" hidden></p>
           </div>
           <div class="field">
@@ -64,8 +64,8 @@
         </div>
         <div class="explain" id="unknown-time-panel" hidden>
           <h2>Why an exact time is needed</h2>
-          <p>The Lagna (ascendant) moves through a whole sign in about two hours, and the twelve houses and the D9 Lagna all follow from it. A guessed time could give a different Lagna, so this prototype never assumes midnight, noon or any other time.</p>
-          <p>Please check a birth certificate, hospital record or family record, then enter the time here. A chart without a birth time is not part of this prototype.</p>
+          <p>The Lagna (ascendant) moves through a whole sign in about two hours, and the twelve houses and the D9 Lagna all follow from it. A guessed time could give a different Lagna, so this preview never assumes midnight, noon or any other time.</p>
+          <p>Please check a birth certificate, hospital record or family record, then enter the time here. A chart without a birth time is not available in this preview.</p>
         </div>
 
         <fieldset class="ambiguity" id="ambiguity" hidden>
@@ -145,14 +145,14 @@
               <tbody></tbody>
             </table>
           </div>
-          <p class="footnote">D9 signs come from the unrounded sidereal longitudes in 3°20′ divisions; D9 houses are counted from the D9 Lagna sign, so a D9 house number is not a D1 house number. The D9 house fields belong to the proposed chart schema 0.3.0, which awaits owner approval.</p>
+          <p class="footnote">D9 signs come from the unrounded sidereal longitudes in 3°20′ divisions; D9 houses are counted from the D9 Lagna sign, so a D9 house number is not a D1 house number. The D9 house fields use the owner-approved chart schema 0.3.0.</p>
         </article>
 
         <article class="card method-card" aria-labelledby="method-heading">
           <h3 id="method-heading">Method and transparency</h3>
           <p class="claim" id="claim"></p>
           <dl class="facts facts--method" id="method-list"></dl>
-          <h4>What this prototype does not calculate</h4>
+          <h4>What this private preview does not calculate</h4>
           <ul class="limits">
             <li>Births before 1970-01-01: historical clock records are not yet verified, so these are refused.</li>
             <li>Local dates after 2100-12-31.</li>
@@ -172,8 +172,8 @@
         <img class="footer-emblem" src="/static/brand/sabpuja-emblem-color.svg" width="1254" height="1254" alt="" aria-hidden="true">
         <p><strong>Sabpuja</strong> · <a class="site-link" id="footer-site-link" href="https://sabpuja.com" target="_blank" rel="noopener noreferrer">https://sabpuja.com<span class="visually-hidden"> (opens in a new tab)</span></a></p>
       </div>
-      <p class="status-label">Internal prototype · localhost only · Production NO-GO</p>
-      <p>Sabpuja Kundali Engine · AGPL-3.0 · Swiss Ephemeris (AGPL licence option). Place data: GeoNames (CC BY 4.0) and Natural Earth (public domain). Fonts: Poppins and Inter (SIL OFL 1.1), served from this computer. English-only internal prototype.</p>
+      <p class="status-label">Private invitation-only preview · Not a public release</p>
+      <p>Sabpuja Kundali Engine · AGPL-3.0 · Swiss Ephemeris (AGPL licence option). Place data: GeoNames (CC BY 4.0) and Natural Earth (public domain). Fonts: Poppins and Inter (SIL OFL 1.1), served from this computer. English-only restricted preview.</p>
     </div>
   </footer>
   <script src="/static/chart.js"></script>
