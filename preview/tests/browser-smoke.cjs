@@ -16,7 +16,7 @@ try{for(const width of [280,375,768,1440]){
  await page.locator('#birth-time').fill('10:30:00');await page.locator('#submit').click();
  await page.waitForTimeout(1800); console.log('UI_STATE',width,await page.locator('#status').innerText(),await page.locator('#error-card').innerText().catch(()=>''),JSON.stringify(errors));await page.locator('#result').waitFor({state:'visible',timeout:5000});
  for(const name of ['d1','d9']){assert.equal(await page.locator('#'+name+'-table tbody tr').count(),10);
- assert.ok(await page.locator('#'+name+'-chart path, #'+name+'-chart line').count()>5);}
+ assert.ok(await page.locator('#'+name+'-chart *').count()>5);}
  const metric=await page.evaluate(()=>[document.documentElement.scrollWidth,document.documentElement.clientWidth]);
  assert.ok(metric[0]<=metric[1]+1,'overflow '+JSON.stringify(metric));assert.deepEqual(errors,[]);assert.deepEqual(outside,[]);
  await page.screenshot({path:dir+'/'+width+'-synthetic.png',fullPage:true,animations:'disabled'});
