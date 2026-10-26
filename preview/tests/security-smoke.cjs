@@ -1,14 +1,14 @@
 // Private-network-only synthetic QA for the preview gateway. No real client data.
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const base=process.env.QA_ORIGIN||'http://sabpuja-kundali-preview:8080';
-const pass=process.env.QA_PASSWORD;if(!pass)throw Error('QA_PASSWORD required');
-const auth='Basic '+Buffer.from('qa:'+pass).toString('base64');
+const username=process.env.QA_USER||'qa';const pass=process.env.QA_PASSWORD;if(!pass)throw Error('QA_PASSWORD required');
+const auth='Basic '+Buffer.from(username+':'+pass).toString('base64');
 (async()=>{
   const result={checks:[],status:'FAIL'};
   const check=(name,ok,detail)=>{result.checks.push({name,passed:ok,detail});console.log(ok?'PASS '+name:'FAIL '+name,detail||'');assert.ok(ok,name)};
   const fetchCode=(url,opts={})=>fetch(url,{signal:AbortSignal.timeout(10000),...opts}).then(r=>r.status);
   check('missing auth 401',await fetchCode(base+'/api/places')===401);
-  check('wrong auth 401',await fetchCode(base+'/api/places',{headers:{Authorization:'Basic '+Buffer.from('qa:incorrect').toString('base64')}})===401);
+  check('wrong auth 401',await fetchCode(base+'/api/places',{headers:{Authorization:'Basic '+Buffer.from(username+':incorrect').toString('base64')}})===401);
   const good=await fetch(base+'/api/places',{headers:{Authorization:auth}});
   check('correct auth 200',good.status===200);
   check('privacy response headers',good.headers.get('cache-control')?.includes('no-store')&&good.headers.get('x-robots-tag')?.includes('noindex'));
