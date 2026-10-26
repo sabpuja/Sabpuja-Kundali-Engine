@@ -13,8 +13,8 @@
 ## Isolation and access design
 
 - `preview/Dockerfile` packages the existing Gate 3E core, with `pyswisseph==2.10.3.2` and `tzdata==2026.5`. Astronomical source and pinned files are unchanged. A deterministic packaging step excludes the two foreign test-only place fixtures from the preview image.
-- Core remains **127.0.0.1:8765-only**. A sidecar Caddy gateway shares its network namespace and forwards on internal :8080. There is **no published host port** in the production-oriented Compose file.
-- Gateway Basic Auth, exact browser Origin restriction, no-store/noindex responses, 4 KiB body limit. Body and URL request access logs are disabled. Engine stores no profiles, cookies or request bodies.
+- Core remains **127.0.0.1:8765-only**. A rootless Nginx gateway shares the engine network namespace and forwards on internal :8080, with 10 requests/sec plus a 40-request general burst and a stricter chart POST limit (1 request/sec, burst 3). There is **no published host port** in the production-oriented Compose file.
+- Gateway Basic Auth from a protected htpasswd file, exact browser Origin restriction, no-store/noindex responses, 4 KiB body limit, and HTTP 429 abuse throttling. Body and URL request access logs are disabled. Engine stores no profiles, cookies or request bodies.
 - No client secrets in the repository. Generate credentials and a secure `htpasswd` file outside Git and use a private `--env-file` pointing to the file. Passwords must be sent only over HTTPS. Copying test credentials from the QA suite is forbidden.
 - External Docker network name is supplied through an environment variable. Use a dedicated disposable QA network for testing, **never attach dev containers to the existing `edge` network**.
 - `preview/Edge.Caddyfile.example` is a **dormant snippet**, not an installed route. Owner must explicitly authorize the hostname, DNS, real HTTPS certificate and preview release before making it reachable.
