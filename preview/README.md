@@ -15,7 +15,7 @@
 - `preview/Dockerfile` packages the existing Gate 3E core, with `pyswisseph==2.10.3.2` and `tzdata==2026.5`. Astronomical source and pinned files are unchanged. A deterministic packaging step excludes the two foreign test-only place fixtures from the preview image.
 - Core remains **127.0.0.1:8765-only**. A sidecar Caddy gateway shares its network namespace and forwards on internal :8080. There is **no published host port** in the production-oriented Compose file.
 - Gateway Basic Auth, exact browser Origin restriction, no-store/noindex responses, 4 KiB body limit. Body and URL request access logs are disabled. Engine stores no profiles, cookies or request bodies.
-- No client secrets in the repository. Generate password hashes outside Git and use a private `--env-file`. Passwords must be sent only over HTTPS.
+- No client secrets in the repository. Generate credentials and a secure `htpasswd` file outside Git and use a private `--env-file` pointing to the file. Passwords must be sent only over HTTPS. Copying test credentials from the QA suite is forbidden.
 - External Docker network name is supplied through an environment variable. Use a dedicated disposable QA network for testing, **never attach dev containers to the existing `edge` network**.
 - `preview/Edge.Caddyfile.example` is a **dormant snippet**, not an installed route. Owner must explicitly authorize the hostname, DNS, real HTTPS certificate and preview release before making it reachable.
 - Basic Auth is only appropriate for a tiny invite-only client preview, not public authentication. Confirm request-rate protections and access revocation before opening to clients.
@@ -35,3 +35,7 @@
 Do not call the application **client ready** until the owner separately approves an exact preview deployment SHA and HTTPS route, and an independent QA reviewer signs off the end-to-end HTTPS/Basicauth test plus request throttling/access-revocation checks. Do not call it public production even after preview approval. The existing PR #1 HOLD remains binding for merging code into `main`; C7 source accuracy is only exact-SHA reviewed.
 
 **Sabpuja | https://sabpuja.com | Preview preparation only | Production NO-GO**
+
+## Access revocation and throttling gate
+
+Each invited reviewer must have a distinct credential in the operator-managed htpasswd file. To revoke access, remove that user's htpasswd entry and reload the Nginx gateway, then verify the old credentials return 401. Use synthetic identities only in QA. The Nginx limit is per connecting source IP, not per reviewer, and the separate live HTTPS edge may cause source-address aggregation; this needs explicit acceptance or a trusted-proxy design before access. Never trust arbitrary X-Forwarded-For from the public Internet. Keep the site inaccessible from the public Internet until separate owner deployment approval.
