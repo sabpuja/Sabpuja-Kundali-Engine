@@ -14,6 +14,7 @@ from importlib import resources
 import json
 import re
 import sys
+import threading
 
 from sabpuja_kundali import readiness
 from sabpuja_kundali.engine import (ChartComputationError, InputRefusalError, UnsupportedInputError,
@@ -25,6 +26,8 @@ from .places import PlaceFixtureError, load_places, public_place
 
 HOST = "127.0.0.1"
 MAX_BODY_BYTES = 4096
+MAX_PDF_BYTES = 1024 * 1024
+_PDF_RENDER_SLOT = threading.BoundedSemaphore(1)
 # ChartComputationError codes meaning the pinned Swiss runtime itself is unusable on
 # this server (engine.swiss_runtime and the Moshier refusal), reported as "resources".
 # Every other ChartComputationError is a server-side calculation failure.
@@ -249,6 +252,18 @@ def handle_chart(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[i
         return _error(status, code, message, category, **(exc.extra if isinstance(exc, FormError) else {}))
 
 
+def handle_report(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[int, dict | bytes]:
+    """An in-memory PDF derived only from the authenticated engine request and response."""
+    status, response = handle_chart(raw, places, ephe_path)
+    if status != 200:
+        return status, response
+    from report.phase1.generate_report import generate
+    pdf = generate(response)
+    if len(pdf) > MAX_PDF_BYTES:
+        raise RuntimeError("controlled PDF size exceeded")
+    return 200, pdf
+
+
 def _no_duplicates(pairs):
     keys = [k for k, _ in pairs]
     if len(keys) != len(set(keys)):
@@ -303,6 +318,16 @@ class Handler(BaseHTTPRequestHandler):
         self.close_connection = status >= 400
         self._send(status, json.dumps(payload, ensure_ascii=False).encode("utf-8"), "application/json; charset=utf-8")
 
+    def _pdf(self, body: bytes) -> None:
+        self.send_response(200)
+        self.send_header("Content-Type", "application/pdf")
+        self.send_header("Content-Disposition", 'attachment; filename="Sabpuja-Janma-Kundali.pdf"')
+        self.send_header("Content-Length", str(len(body)))
+        for name, value in _SECURITY_HEADERS.items():
+            self.send_header(name, value)
+        self.end_headers()
+        self.wfile.write(body)
+
     def _host_ok(self) -> bool:
         # DNS-rebinding guard: only the loopback names this server was opened on.
         if self.headers.get("Host") in self.server.allowed_hosts:
@@ -328,7 +353,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self._host_ok():
             return
-        if self.path != "/api/chart":
+        if self.path not in ("/api/chart", "/api/report"):
             self._json(404, {"error": {"code": "NOT_FOUND", "message": "not found", "category": "http"}})
             return
         origin = self.headers.get("Origin")
@@ -350,6 +375,28 @@ class Handler(BaseHTTPRequestHandler):
                                        "category": "http"}})
             return
         raw = self.rfile.read(int(length))
+        if self.path == "/api/report":
+            if not _PDF_RENDER_SLOT.acquire(blocking=False):
+                self._json(429, {"error": {"code": "REPORT_BUSY", "message": "try again shortly",
+                                          "category": "resources"}})
+                return
+            try:
+                try:
+                    status, payload = handle_report(raw, self.server.places, self.server.ephe_path)
+                    if status == 200:
+                        self._pdf(payload)
+                    else:
+                        self._json(status, payload)
+                except Exception as exc:
+                    # Never log input data, exception text, filenames or personal records.
+                    print(json.dumps({"event": "REPORT_FAILURE", "type": type(exc).__name__}),
+                          file=sys.stderr, flush=True)
+                    self._json(503, {"error": {"code": "REPORT_UNAVAILABLE",
+                                               "message": "the PDF could not be generated",
+                                               "category": "resources"}})
+            finally:
+                _PDF_RENDER_SLOT.release()
+            return
         status, payload = handle_chart(raw, self.server.places, self.server.ephe_path)
         self._json(status, payload)
 

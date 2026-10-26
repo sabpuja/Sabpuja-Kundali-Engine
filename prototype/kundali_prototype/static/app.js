@@ -5,7 +5,7 @@
   var C = window.SabpujaChart;
   var $ = function (id) { return document.getElementById(id); };
   var form = $("birth-form"), placeSel = $("place"), dateIn = $("birth-date"), timeIn = $("birth-time");
-  var unknown = $("time-unknown"), submitBtn = $("submit");
+  var unknown = $("time-unknown"), submitBtn = $("submit"), downloadBtn = $("download-pdf");
   var places = {};
   var pendingChoice = null; // set only while the server is asking which repeated hour
 
@@ -218,17 +218,21 @@
     dl($("method-list"), rows);
 
     $("result").hidden = false;
+    downloadBtn.disabled = false;
     $("result").focus();
   }
 
   /* Every submit, Clear and field edit starts a new generation and aborts the
    * request in flight. A response from an older generation is ignored, so a
    * late chart or error can never replace what the current fields describe. */
-  var generation = 0, inflight = null;
+  var generation = 0, inflight = null, pdfInflight = null, lastSuccessfulPayload = null;
 
   function invalidate() {
     generation += 1;
     if (inflight) { inflight.abort(); inflight = null; }
+    if (pdfInflight) { pdfInflight.abort(); pdfInflight = null; }
+    lastSuccessfulPayload = null;
+    downloadBtn.disabled = true;
     $("result").hidden = true;
     $("error-card").hidden = true;
     setStatus("");
@@ -248,15 +252,16 @@
     }
     var mine = generation, controller = new AbortController();
     inflight = controller;
+    var requestPayload = payload();
     submitBtn.disabled = true;
     setStatus("Calculating with the local engine…");
     fetch("/api/chart", { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                          body: JSON.stringify(payload()), signal: controller.signal })
+                          body: JSON.stringify(requestPayload), signal: controller.signal })
       .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
       .then(function (res) {
         if (mine !== generation) { ignored(); return; }
         setStatus("");
-        if (res.status === 200) { hideAmbiguity(); render(res.body); setStatus("Chart calculated."); return; }
+        if (res.status === 200) { hideAmbiguity(); render(res.body); lastSuccessfulPayload = requestPayload; setStatus("Chart calculated."); return; }
         var e = res.body.error || {};
         if (e.code === "TIME_AMBIGUOUS_LOCAL" && e.choices) { showAmbiguity(e.choices); setStatus(MESSAGES.TIME_AMBIGUOUS_LOCAL); return; }
         hideAmbiguity();
@@ -274,6 +279,49 @@
         submitBtn.disabled = unknown.checked;
       });
   }
+
+  downloadBtn.addEventListener("click", function () {
+    if (downloadBtn.disabled || !lastSuccessfulPayload || $("result").hidden) { return; }
+    var mine = generation, controller = new AbortController();
+    pdfInflight = controller;
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = "Preparing PDF...";
+    setStatus("Creating your Kundali PDF in memory...");
+    fetch("/api/report", {
+      method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/pdf" },
+      body: JSON.stringify(lastSuccessfulPayload), signal: controller.signal
+    }).then(function (r) {
+      if (!r.ok || !(r.headers.get("Content-Type") || "").startsWith("application/pdf")) {
+        throw new Error("report refused");
+      }
+      return r.blob();
+    }).then(function (pdf) {
+      if (mine !== generation) { ignored(); return; }
+      if (pdf.size < 100 || pdf.size > 1048576) { throw new Error("invalid PDF size"); }
+      return pdf.slice(0, 5).text().then(function (signature) {
+        if (signature !== "%PDF-") { throw new Error("invalid PDF response"); }
+        if (mine !== generation) { ignored(); return; }
+        var blobUrl = URL.createObjectURL(pdf);
+        var a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = "Sabpuja-Janma-Kundali.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 2000);
+        setStatus("PDF downloaded.");
+      });
+    }).catch(function () {
+      if (mine === generation && !controller.signal.aborted) {
+        setStatus("PDF download is unavailable. Your chart is still available.");
+      }
+    }).then(function () {
+      if (mine !== generation) { return; }
+      pdfInflight = null;
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = "Download Kundali PDF";
+    });
+  });
 
   form.addEventListener("submit", submit);
   // An edit means any shown result or pending request no longer matches the form.
