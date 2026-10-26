@@ -85,13 +85,22 @@ class Routes(Base):
         for tag, url in page.loads:
             with self.subTest(tag=tag, url=url):
                 self.assertTrue(url.startswith("/static/"))
-        # The only external URL is the user-clicked link to sabpuja.com, opened without opener or referrer.
-        self.assertEqual(len(page.links), 2)
+        # Only intentional user-clicked links leave the page. Fonts/scripts/images remain local.
+        # Two Sabpuja links plus the owner's source and GeoNames attribution links.
+        from collections import Counter
+        allowed = {
+            "https://sabpuja.com": 2,
+            "https://github.com/sabpuja/Sabpuja-Kundali-Engine": 1,
+            "https://www.geonames.org/": 1,
+        }
+        self.assertEqual(Counter(attrs["href"] for attrs in page.links), allowed)
         for attrs in page.links:
-            self.assertEqual(attrs["href"], "https://sabpuja.com")
             self.assertEqual(attrs["target"], "_blank")
             self.assertEqual(set(attrs["rel"].split()), {"noopener", "noreferrer"})
-        rest = html.replace(b'href="https://sabpuja.com"', b"").replace(b">https://sabpuja.com<", b"><")
+        rest = html
+        for link in allowed:
+            rest = rest.replace(('href="' + link + '"').encode(), b"")
+            rest = rest.replace(('>' + link + '<').encode(), b"><")
         for marker in (b"http://", b"https://", b"//cdn", b"googletagmanager", b"analytics", b"fonts.g"):
             self.assertNotIn(marker, rest)
         for css in ("/static/app.css", "/static/fonts.css"):
