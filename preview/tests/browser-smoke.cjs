@@ -1,10 +1,10 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs');
 const base=process.env.QA_ORIGIN||'http://sabpuja-kundali-preview:8080';
-const password=process.env.QA_PASSWORD; if(!password)throw Error('QA_PASSWORD must be a synthetic testing credential');
+const username=process.env.QA_USER||'qa';const password=process.env.QA_PASSWORD; if(!password)throw Error('QA_PASSWORD must be a synthetic testing credential');
 const dir=process.env.QA_RESULTS||'/qa/browser-results';fs.mkdirSync(dir,{recursive:true});
 (async()=>{const browser=await chromium.launch({headless:true,args:['--no-sandbox']});let checks=[];
 try{for(const width of [280,375,768,1440]){
- const ctx=await browser.newContext({viewport:{width,height:860},httpCredentials:{username:'qa',password}});
+ const ctx=await browser.newContext({viewport:{width,height:860},httpCredentials:{username,password}});
  const page=await ctx.newPage();let errors=[];let outside=[];
  // Isolated QA uses private HTTP; emulate the owner-authorized future HTTPS browser Origin.
  // This does NOT validate actual TLS, external routing, or client-release readiness.
