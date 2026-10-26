@@ -6,20 +6,25 @@ const base=process.env.QA_ORIGIN||'http://sabpuja-kundali-preview:8080';
 (async()=>{
   const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
   try{
-    for(const width of [375,1440]){
+    for(const width of [280,375,768,1440]){
       const context=await browser.newContext({
         viewport:{width,height:820},acceptDownloads:true,
         httpCredentials:{username:process.env.QA_USER||'qa-download',password:process.env.QA_PASSWORD||'SYNTHETIC-PDF-QA-ONLY'}
       });
       const page=await context.newPage();
-      const errors=[];const external=[];
+      const errors=[];const external=[];const failed=[];
+      page.on('requestfailed',r=>failed.push(r.url()+' '+r.failure()?.errorText));
       page.on('pageerror',e=>errors.push(e.message));
       page.on('request',r=>{if(!r.url().startsWith(base+'/')&&!r.url().startsWith('blob:'))external.push(r.url())});
       // Internal HTTP QA only: model the intended Hostinger HTTPS Origin in both API POSTs.
       await page.route('**/api/chart',route=>route.continue({headers:{...route.request().headers(),origin:'https://kundali-preview.sabpuja.com'}}));
       await page.route('**/api/report',route=>route.continue({headers:{...route.request().headers(),origin:'https://kundali-preview.sabpuja.com'}}));
+      // Same-site WOFF2 font fetches also carry Origin; simulate intended HTTPS Origin only in isolated QA.
+      await page.route('**/*.woff2',route=>route.continue({headers:{...route.request().headers(),origin:'https://kundali-preview.sabpuja.com'}}));
       const nav=await page.goto(base+'/',{waitUntil:'networkidle'});
       assert.equal(nav.status(),200);
+      await page.evaluate(()=>document.fonts.ready);
+      assert.equal(await page.evaluate(()=>document.fonts.check('400 12px Inter')&&document.fonts.check('600 12px Poppins')),true);
       await page.waitForFunction(()=>document.querySelectorAll('#place option').length===11);
       assert.equal(await page.locator('#download-pdf').isDisabled(),true);
       await page.locator('#place').selectOption('in-new-delhi');
@@ -43,8 +48,10 @@ const base=process.env.QA_ORIGIN||'http://sabpuja-kundali-preview:8080';
       assert.ok(dims[0]<=dims[1]+1,'horizontal overflow');
       assert.deepEqual(errors,[]);
       assert.deepEqual(external,[]);
+      assert.deepEqual(failed,[]);
       console.log('PDF_BROWSER_PASS',width,'bytes',blob.length);
       await context.close();
+      await new Promise(resolve=>setTimeout(resolve,1600));
     }
   } finally{await browser.close()}
 })().catch(e=>{console.error(e.stack);process.exitCode=1});
