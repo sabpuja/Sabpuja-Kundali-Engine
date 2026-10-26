@@ -9,9 +9,9 @@ try{for(const width of [280,375,768,1440]){
  // Isolated QA uses private HTTP; emulate the owner-authorized future HTTPS browser Origin.
  // This does NOT validate actual TLS, external routing, or client-release readiness.
  await page.route('**/api/chart', route=>route.continue({headers:{...route.request().headers(),origin:'https://kundali-preview.sabpuja.com'}}));page.on('response',async r=>{if(r.url().includes('/api/chart'))console.log('API_CHART',width,r.status(),(await r.text()).slice(0,400));});
- page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(!r.url().startsWith(base+'/'))outside.push(r.url())});
+ page.on('response',r=>{if(r.url().includes('/api/places'))console.log('PLACES_RESPONSE',width,r.status());});page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(!r.url().startsWith(base+'/'))outside.push(r.url())});
  const nav=await page.goto(base+'/',{waitUntil:'networkidle'});
- assert.equal(nav.status(),200);await page.waitForFunction(()=>document.querySelectorAll('#place option').length===11);
+ assert.equal(nav.status(),200);await page.waitForTimeout(1200);console.log('PLACES_UI',width,await page.locator('#place option').allTextContents(),await page.locator('#status').innerText(),JSON.stringify(errors));await page.waitForFunction(()=>document.querySelectorAll('#place option').length===11,{timeout:5000});
  await page.locator('#place').selectOption('in-new-delhi');await page.locator('#birth-date').fill('1990-05-15');
  await page.locator('#birth-time').fill('10:30:00');await page.locator('#submit').click();
  await page.waitForTimeout(1800); console.log('UI_STATE',width,await page.locator('#status').innerText(),await page.locator('#error-card').innerText().catch(()=>''),JSON.stringify(errors));await page.locator('#result').waitFor({state:'visible',timeout:5000});
