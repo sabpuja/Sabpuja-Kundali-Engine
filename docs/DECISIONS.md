@@ -153,3 +153,47 @@ Change request needed: YES | NO
 **As of 2026-10-24, before the 11:01:55Z merge (historical),** SCI-01b and SCI-01c were still the only canonical scientific decisions, and the owner pre-merge selections in the [ledger](#owner-pre-merge-selection-ledger) were canonically PENDING.
 
 **Since 2026-10-24 (merge `5b71408`, [receipt 6383419093](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/20#issuecomment-6383419093)),** the 14 ledger selections are canonical to their recorded scopes, together with SCI-01b and SCI-01c. UX-01, UX-02, UX-03, DATA-01, SEC-01, LEG-01 and PERF-01 remain PENDING. No release or production approval is implied.
+
+---
+
+## SCI-02 C2 - Gate 3E Chart Schema 0.3.0 Canonical Adoption - 2026-10-26
+
+*Append-only record. It does not modify the SCI-01f row, the SCI-02 row, the [owner pre-merge selection ledger](#owner-pre-merge-selection-ledger) (rows 9 and 12) or any earlier status or date. Those stay exactly as recorded.*
+
+| Item | Record |
+|---|---|
+| ID | SCI-02 C2 |
+| Status | **OWNER APPROVED / CANONICAL** - effective 2026-10-26 (Asia/Kolkata). The owner gave the decision in the Sabpuja Kundali Engine project conversation, and Claude (Lead Developer) recorded it at the owner's instruction in [PR #42 comment 6407057368](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/42#issuecomment-6407057368) |
+| Approved version | Chart schema **`0.3.0`**, the next canonical Kundali output contract |
+| Scientific rule | SCI-01f (canonical since 2026-10-24), **unchanged**: D9 house = ((D9 sign index of body − D9 sign index of D9 Lagna) mod 12) + 1, with sign indices in Mesha-to-Meena order. D9 signs come from the 108 half-open 3°20′ segments from Mesha on unrounded longitudes. The D9 Lagna is the Navamsa sign of the unrounded Lagna. Ketu is classified from the exact sum mean Rahu + 180 |
+| Candidate implementation | Draft PR [#42](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/42) at `185353a1de8e5da02d20ea156cd4fca225fc1a27`, stacked on draft PR #41 at `6c9e67069f86aa5c7e91771905d3cb5de2e66d69`. It is a draft, unmerged feature branch |
+| Independent QA | [ChatGPT Gate 3E exact-SHA review 5646798499](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/42#pullrequestreview-5646798499): PASS for scoped D9 source, rule and UI-contract QA. It is not C7 execution |
+| Calculation metadata | **`sabpuja-calculation-metadata/3` retained.** No new keys in `calculation_metadata.conventions.houses`. The D9 house rule is documented in the chart contract and the method presentation |
+| Deferred | Metadata `/4`, which would give the D9 house method in machine-readable form, needs a future scoped proposal and owner approval. All-body and Lagna Nakshatra/Pada remain deferred |
+| Gates still open | C7 independent exact-SHA engine execution is **pending** ([C7 record 6393656493](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/1#issuecomment-6393656493)). The [PR #1 HOLD 6323581875](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/1#issuecomment-6323581875) remains active. No merge or deployment is authorized. **Production NO-GO** |
+
+**Approved fields (names, types and meanings as reviewed at `185353a`).** No other field, and no scientific change, is authorized.
+
+| Field | Type and meaning |
+|---|---|
+| `planets.<body>.navamsa_whole_sign_house` | Integer 1–12. The D9 whole-sign house counted from the D9 Lagna sign, from unrounded sidereal positions, for all nine supported bodies: Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, mean Rahu, and Ketu exactly opposite mean Rahu |
+| `d9.house_system` | `"whole_sign"` |
+| `d9.lagna_rashi` | The D9 Lagna sign. It equals `lagna.navamsa_rashi` |
+| `d9.houses` | Exactly twelve house objects |
+| `d9.houses[].house` | Integer 1–12 |
+| `d9.houses[].rashi` | The house's D9 sign |
+| `d9.houses[].grahas` | The keys of the supported bodies in that house, in canonical planet order. It may be empty |
+
+**Numbering and ordering.**
+- House 1 is the D9 Lagna sign.
+- House *h* has the D9 sign (D9 Lagna + *h* − 1) mod 12.
+- `d9.houses` lists the houses in order 1 to 12, the North Indian house numbering.
+- Each supported body appears in exactly one house, and that house's `rashi` equals the body's `navamsa_rashi`.
+- In the output, `navamsa_whole_sign_house` follows the four `0.2.0` planet fields, and `d9` follows `calculation_metadata`.
+
+**Relation to earlier records.**
+- This decision addresses the deferral of D9 whole-sign house fields recorded under SCI-02 (ledger row 9) and the "future D9 houses" note in SCI-01f (ledger row 12). It does so for the Gate 3E functionality only.
+- Schema `0.2.0` remains the historical first engineering integration baseline (SCI-02 C1, adopted 2026-10-24). It stays recoverable byte for byte through `provenance.baseline_projection()`, and legacy `0.1.0` compatibility is unchanged.
+- The rest of the KUN-F06 D9 requirement, Nakshatra/Pada for all bodies and the Lagna, is **not** addressed and remains deferred.
+
+**Register merge.** This section was prepared on the documentation-only branch `docs/kun03-schema-030-owner-adoption` from `main` `5415ee9e232945153e89c043a14fa2ea0eba9099`. Merging it into `main` is a separate owner authorization. Until then, the approval is recorded in PR #42 comment 6407057368 and in this proposed amendment, and the register on `main` is unchanged.
