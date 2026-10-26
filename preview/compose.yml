@@ -33,7 +33,10 @@ services:
       start_period: 20s
 
   gateway:
-    image: caddy:2.10.2-alpine
+    build:
+      context: ..
+      dockerfile: preview/Gateway.Dockerfile
+    image: sabpuja-kundali-preview-gateway:gate3e
     read_only: true
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]
