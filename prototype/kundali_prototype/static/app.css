@@ -213,6 +213,9 @@ code { font-family: var(--sp-font-mono); font-size: 0.92em; overflow-wrap: anywh
 .result:focus { outline: none; }
 .result-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-space-3); flex-wrap: wrap; margin-bottom: var(--sp-space-4); }
 .result-head h2 { margin: 0; }
+.report-actions { display: flex; flex-wrap: wrap; gap: var(--sp-space-2); align-items: center; }
+.report-actions .button { min-height: var(--sp-control-min-height); }
+.report-actions .button:disabled { opacity: .6; cursor: not-allowed; }
 
 .bento { display: grid; gap: var(--sp-grid-gap); grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); }
 .chart-card, .chart-card--d9, .table-card, .method-card { grid-column: 1 / -1; }
