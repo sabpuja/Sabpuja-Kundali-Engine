@@ -1,0 +1,23 @@
+{
+  admin off
+}
+:8080 {
+  # No request access logging. Reject cross-origin requests before rewriting upstream Origin.
+  @foreign_origin expression {http.request.header.Origin} != "" && {http.request.header.Origin} != "{$PREVIEW_PUBLIC_ORIGIN}"
+  respond @foreign_origin "Forbidden" 403
+  basic_auth {
+    {$PREVIEW_USER} {$PREVIEW_PASSWORD_HASH}
+  }
+  header {
+    Cache-Control "no-store"
+    Referrer-Policy "no-referrer"
+    X-Robots-Tag "noindex, nofollow, noarchive"
+  }
+  request_body {
+    max_size 4096
+  }
+  reverse_proxy 127.0.0.1:8765 {
+    header_up Host 127.0.0.1:8765
+    header_up Origin http://127.0.0.1:8765
+  }
+}
