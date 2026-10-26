@@ -1,4 +1,6 @@
 """HTTP contract smoke for private in-memory PDF download route, synthetic only."""
+import contextlib
+import io
 import http.client
 import json
 import threading
@@ -59,11 +61,35 @@ class PDFHTTPContract(unittest.TestCase):
         self.assertEqual(status,415)
 
     def test_pdf_render_exception_fixed_public_error(self):
+        captured=io.StringIO()
         with patch.object(server,"handle_report",side_effect=ValueError("birth_date 1990-05-15 should not leak")):
-            status,_,body=self.request('/api/report')
+            with contextlib.redirect_stderr(captured):
+                status,_,body=self.request('/api/report')
         self.assertEqual(status,503)
         self.assertNotIn(b'1990-05-15',body)
+        self.assertNotIn('1990-05-15',captured.getvalue())
+        self.assertIn('"type": "ValueError"',captured.getvalue())
         self.assertEqual(json.loads(body)['error']['code'],'REPORT_UNAVAILABLE')
+
+    def test_busy_render_rejected_without_invoking_generator(self):
+        locked=server._PDF_RENDER_SLOT.acquire(blocking=False)
+        self.assertTrue(locked)
+        try:
+            with patch.object(server,"handle_report") as generator:
+                status,headers,body=self.request('/api/report')
+                generator.assert_not_called()
+            self.assertEqual(status,429)
+            self.assertEqual(json.loads(body)['error']['code'],'REPORT_BUSY')
+            self.assertEqual(headers['Cache-Control'],'no-store')
+        finally:
+            server._PDF_RENDER_SLOT.release()
+
+    def test_oversized_generated_pdf_is_refused(self):
+        from report.phase1 import generate_report
+        with patch.object(server,"handle_chart",return_value=(200,{'input':{},'chart':{}})):
+            with patch.object(generate_report,"generate",return_value=b'%PDF-'+b'x'*(server.MAX_PDF_BYTES+1)):
+                with self.assertRaises(RuntimeError):
+                    server.handle_report(b'{}',{},'/synthetic-only')
 
 if __name__=='__main__':
     unittest.main()
