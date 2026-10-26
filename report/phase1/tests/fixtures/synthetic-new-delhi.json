@@ -1,0 +1,187 @@
+{
+  "input": {
+    "local_date": "1990-05-15",
+    "local_time": "10:30:00",
+    "place": {
+      "name": "New Delhi",
+      "region": "Delhi",
+      "country": "India",
+      "latitude": 28.63576,
+      "longitude": 77.22445,
+      "timezone": "Asia/Kolkata"
+    }
+  },
+  "chart": {
+    "schema_version": "0.3.0",
+    "validation_status": "UNVERIFIED_GOLDEN_CHARTS",
+    "birth": {
+      "utc": "1990-05-15T05:00:00Z",
+      "timezone": "Asia/Kolkata",
+      "latitude": 28.63576,
+      "longitude": 77.22445
+    },
+    "method": {
+      "ayanamsa": "Lahiri",
+      "nodes": "mean",
+      "houses": "whole_sign",
+      "ephemeris": "Swiss Ephemeris, local .se1",
+      "binding_version": "2.10.03"
+    },
+    "lagna": {
+      "longitude_deg": 99.90641925,
+      "rashi": "Karka",
+      "navamsa_rashi": "Kanya"
+    },
+    "moon_nakshatra": {
+      "index": 20,
+      "name": "Uttara Ashadha",
+      "pada": 1
+    },
+    "planets": {
+      "sun": {
+        "longitude_deg": 30.38907071,
+        "rashi": "Vrishabha",
+        "navamsa_rashi": "Makara",
+        "whole_sign_house": 11,
+        "navamsa_whole_sign_house": 5
+      },
+      "moon": {
+        "longitude_deg": 269.8424363,
+        "rashi": "Dhanu",
+        "navamsa_rashi": "Dhanu",
+        "whole_sign_house": 6,
+        "navamsa_whole_sign_house": 4
+      },
+      "mars": {
+        "longitude_deg": 324.39141724,
+        "rashi": "Kumbha",
+        "navamsa_rashi": "Vrishabha",
+        "whole_sign_house": 8,
+        "navamsa_whole_sign_house": 9
+      },
+      "mercury": {
+        "longitude_deg": 14.32495225,
+        "rashi": "Mesha",
+        "navamsa_rashi": "Simha",
+        "whole_sign_house": 10,
+        "navamsa_whole_sign_house": 12
+      },
+      "jupiter": {
+        "longitude_deg": 75.76082599,
+        "rashi": "Mithuna",
+        "navamsa_rashi": "Kumbha",
+        "whole_sign_house": 12,
+        "navamsa_whole_sign_house": 6
+      },
+      "venus": {
+        "longitude_deg": 348.75990407,
+        "rashi": "Meena",
+        "navamsa_rashi": "Dhanu",
+        "whole_sign_house": 9,
+        "navamsa_whole_sign_house": 4
+      },
+      "saturn": {
+        "longitude_deg": 271.52847997,
+        "rashi": "Makara",
+        "navamsa_rashi": "Makara",
+        "whole_sign_house": 7,
+        "navamsa_whole_sign_house": 5
+      },
+      "rahu_mean": {
+        "longitude_deg": 287.62879494,
+        "rashi": "Makara",
+        "navamsa_rashi": "Mithuna",
+        "whole_sign_house": 7,
+        "navamsa_whole_sign_house": 10
+      },
+      "ketu_mean": {
+        "longitude_deg": 107.62879494,
+        "rashi": "Karka",
+        "navamsa_rashi": "Dhanu",
+        "whole_sign_house": 1,
+        "navamsa_whole_sign_house": 4
+      }
+    },
+    "d9": {
+      "house_system": "whole_sign",
+      "lagna_rashi": "Kanya",
+      "houses": [
+        {
+          "house": 1,
+          "rashi": "Kanya",
+          "grahas": []
+        },
+        {
+          "house": 2,
+          "rashi": "Tula",
+          "grahas": []
+        },
+        {
+          "house": 3,
+          "rashi": "Vrischika",
+          "grahas": []
+        },
+        {
+          "house": 4,
+          "rashi": "Dhanu",
+          "grahas": [
+            "moon",
+            "venus",
+            "ketu_mean"
+          ]
+        },
+        {
+          "house": 5,
+          "rashi": "Makara",
+          "grahas": [
+            "sun",
+            "saturn"
+          ]
+        },
+        {
+          "house": 6,
+          "rashi": "Kumbha",
+          "grahas": [
+            "jupiter"
+          ]
+        },
+        {
+          "house": 7,
+          "rashi": "Meena",
+          "grahas": []
+        },
+        {
+          "house": 8,
+          "rashi": "Mesha",
+          "grahas": []
+        },
+        {
+          "house": 9,
+          "rashi": "Vrishabha",
+          "grahas": [
+            "mars"
+          ]
+        },
+        {
+          "house": 10,
+          "rashi": "Mithuna",
+          "grahas": [
+            "rahu_mean"
+          ]
+        },
+        {
+          "house": 11,
+          "rashi": "Karka",
+          "grahas": []
+        },
+        {
+          "house": 12,
+          "rashi": "Simha",
+          "grahas": [
+            "mercury"
+          ]
+        }
+      ]
+    }
+  }
+}
