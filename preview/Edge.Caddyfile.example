@@ -1,0 +1,12 @@
+# DORMANT EXAMPLE ONLY; not inserted into running Caddy.
+# Owner must separately approve DNS, exact host, HTTPS ingress and private deployment.
+kundali-preview.sabpuja.com {
+  encode zstd gzip
+  header {
+    Strict-Transport-Security "max-age=31536000"
+    Referrer-Policy "no-referrer"
+    Cache-Control "no-store"
+    X-Robots-Tag "noindex, nofollow, noarchive"
+  }
+  reverse_proxy sabpuja-kundali-preview:8080
+}
