@@ -52,7 +52,7 @@ class Segments(unittest.TestCase):
 
     def test_solar_lunar_elon_wrap(self):
         self.assertEqual(panchanga_segment_numbers(350, 2)['tithi_number'],2)
-        self.assertEqual(panchanga_segment_numbers(2, 350)['tithi_number'],29)
+        self.assertEqual(panchanga_segment_numbers(2, 350)['tithi_number'],30)
         self.assertEqual(panchanga_segment_numbers(180,180)['karana_half_tithi_slot'],1)
 
     def test_invalid_values_refused(self):
