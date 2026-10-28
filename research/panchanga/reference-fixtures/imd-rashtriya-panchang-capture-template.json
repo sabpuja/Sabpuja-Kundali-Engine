@@ -55,51 +55,69 @@
   },
   "rows": [],
   "notation_rules": {
-    "24_hour_plus": "A printed time of hh:mm with hh >= 24 on civil date D means (hh-24):mm IST on civil date D+1. Store printed_value and printed_date unchanged, and add derived_instant_utc as a DERIVED field.",
-    "central_station": "Sunrise and sunset values apply to the IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported). Never compare them with city coordinates.",
-    "geocentric_endings": "Tithi, Nakshatra, Yoga and Karana ending times are geocentric moments in IST (as reported) and need no city correction."
+    "24_hour_plus": "IMD's explanation page states that times such as 25h and 26h mean 1 AM and 2 AM on the following Gregorian civil date (read directly by the reviewer). A printed time hh-mm with hh >= 24 on civil date D therefore means (hh-24):mm IST on D+1. printed_value and date_civil_as_printed are never changed; interpreted_ist_datetime and derived_instant_utc_minute are stored separately as deterministic arithmetic",
+    "central_station": "Sunrise and sunset values apply to the IMD Central Station, 82 deg 30 min E, 23 deg 11 min N (stated on the explanation page, read directly by the reviewer). Never compare them with city coordinates",
+    "geocentric_endings": "Tithi, Nakshatra, Yoga and Karana ending moments are geocentric and printed in IST = UTC+05:30 (explanation page, read directly by the reviewer); no city correction applies"
   },
   "reviewer_mediated_evidence": {
-    "status": "CANDIDATES ONLY (status REVIEWER_SOURCED_PENDING_VERIFICATION; none may be promoted directly to VERIFIED_INDEPENDENT_PRIMARY_GOLDEN) - NOT FIXTURES - NOT COUNTED AS VERIFIED REFERENCES. Transcribed by the ChatGPT PM/QA reviewer from official packolkata.imd.gov.in pages and handed over in PR #51 comment 6464388772 (2026-10-28), which states that the owner authorized this reviewer-mediated handoff. Claude did not retrieve any IMD page; the host remains blocked from this environment and was not accessed by any other route.",
+    "status": "CANDIDATES ONLY - status REVIEWER_SOURCED_PENDING_VERIFICATION; none may be promoted directly to VERIFIED_INDEPENDENT_PRIMARY_GOLDEN. Stage A: transcribed by the ChatGPT PM/QA reviewer from official packolkata.imd.gov.in pages (PR #51 comment 6464388772), under the owner's authorization. Stage B: the same reviewer reopened all three daily pages, the explanation page and the names page directly (review 5680023508). Stages C and D: pending for all 46. Claude did not retrieve any IMD page; the host remains blocked from this environment and was not accessed by any other route.",
     "handoff_reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#issuecomment-6464388772",
     "promotion_rule": "A candidate moves into rows only after: exact-source reconfirmation on the official page; an independent second-person comparison; the 24-hour-plus interpretation confirmed from IMD's own text; IMD's reuse terms recorded; and, for Nakshatra and Yoga, the ayanamsa assessment in SCI-PAN-01 section 3.1",
     "retrieval_tiers": {
       "OFFICIAL_HTML_OPENED_BY_REVIEWER": "The reviewer reports opening the official HTML page and reading the values (30 candidates)",
-      "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY": "The reviewer reports seeing the values only in official-domain search-index text; the direct page open timed out. Lower tier, needs direct confirmation (16 candidates)"
+      "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY": "The reviewer reports seeing the values only in official-domain search-index text; the direct page open timed out. Lower tier, needs direct confirmation (16 candidates)",
+      "note": "Tiers record how each value was first obtained (Stage A) and are never rewritten. The later direct reopening of the Ashadha page by the reviewer is recorded in each candidate's source_recheck, not by changing its tier"
     },
     "method_facts_reported": [
       {
         "fact": "Sunrise and sunset: upper limb on the ideal horizon; refraction 31 arcmin plus solar semidiameter 16 arcmin, so the centre is 47 arcmin below the horizontal",
         "source_url": "https://packolkata.imd.gov.in/panchang/en/explanation",
-        "tier": "official-domain index text retrieved by the reviewer"
+        "tier": "Official-domain text first (comment 6464388772); explanation page later opened directly by the reviewer (review 5680023508)"
       },
       {
         "fact": "Solar times apply to the adopted Central Station 82 deg 30 min E, 23 deg 11 min N",
         "source_url": "https://packolkata.imd.gov.in/panchang/en/explanation",
-        "tier": "official-domain index text retrieved by the reviewer"
+        "tier": "Official-domain text first (comment 6464388772); explanation page later opened directly by the reviewer (review 5680023508)"
       },
       {
         "fact": "Tithi, Nakshatra, Yoga and Karana ending instants are geocentric and printed in IST (UTC+05:30)",
         "source_url": "https://packolkata.imd.gov.in/panchang/en/explanation",
-        "tier": "official-domain index text retrieved by the reviewer"
+        "tier": "Official-domain text first (comment 6464388772); explanation page later opened directly by the reviewer (review 5680023508)"
       },
       {
         "fact": "Nakshatra and Yoga use a variable (increasing) ayanamsa with 23 deg 15 min 00 sec at 0h on 21 March 1956; monthly initial values 24 deg 13 min 30 sec (1 Chaitra 2026), 24 deg 13 min 45 sec (1 Ashadha 2026), 24 deg 14 min 02 sec (1 Kartika 2026)",
         "source_url": "https://packolkata.imd.gov.in/panchang/en/explanation and monthly pages",
-        "tier": "official-domain index text and opened pages, per the reviewer",
+        "tier": "Official-domain text first (comment 6464388772); explanation page later opened directly by the reviewer (review 5680023508)",
         "claude_comparison": "See SCI-PAN-01 section 3.1: the three 2026 values agree with Swiss true Lahiri at 0h UT on the corresponding Indian national calendar dates to within 0.8 arcsec, and differ from the mean (no-nutation) value by 6 to 8 arcsec"
       },
       {
         "fact": "Eleven Karana names as printed: Bava, Balava, Kaulava, Taitila, Gara, Vanij, Vishti, Sakuni, Chatuspada, Naga, Kimstughna",
-        "source_url": "https://packolkata.imd.gov.in/panchang/te/tithi-nakshatra (English table under the Telugu route; the English route timed out)",
-        "tier": "official-domain index text retrieved by the reviewer",
+        "source_url": "https://packolkata.imd.gov.in/panchang/ta/tithi-nakshatra (opened directly); https://packolkata.imd.gov.in/panchang/te/tithi-nakshatra (first seen in index text)",
+        "tier": "Official-domain index text first (Telugu route /te/); the reviewer later opened /panchang/ta/tithi-nakshatra directly, which lists 27 Yoga and 11 Karana names (review 5680023508)",
         "note": "The names alone do not establish the 60-position indexing. The daily row for 2026-07-14 spells the first Karana Kinstughna"
       },
       {
         "fact": "Times of 24 hours or more appear in the daily tables (for example h. 24-10, h. 29-22, h. 28-43)",
-        "source_url": "daily pages above",
-        "tier": "as rows",
-        "note": "Read as the next civil date only as a derived interpretation until IMD's own wording is confirmed"
+        "source_url": "https://packolkata.imd.gov.in/panchang/en/explanation (rule); daily pages (usage)",
+        "tier": "Rule read directly by the reviewer",
+        "note": "The explanation page states that 25h, 26h etc. mean 1 AM, 2 AM etc. on the following Gregorian date (read directly by the reviewer, review 5680023508)"
+      },
+      {
+        "fact": "The traditional sunrise-based day is used for displaying Panchanga phenomena",
+        "source_url": "https://packolkata.imd.gov.in/panchang/en/explanation",
+        "tier": "Read directly by the reviewer (owner task message, 2026-10-28)"
+      },
+      {
+        "fact": "The explanation describes seven repeating (movable) Karanas and four fixed Karanas",
+        "source_url": "https://packolkata.imd.gov.in/panchang/en/explanation",
+        "tier": "Read directly by the reviewer (review 5680023508)",
+        "note": "The principle is described; the complete 60-position mapping is not thereby established for Sabpuja"
+      },
+      {
+        "fact": "Yoga names: the names page lists 27 Yoga names",
+        "source_url": "https://packolkata.imd.gov.in/panchang/ta/tithi-nakshatra",
+        "tier": "Read directly by the reviewer",
+        "note": "The full 27-name list has not been transcribed into the evidence available to Claude. Only the six Yoga names in the daily candidates are known in publisher spelling"
       }
     ],
     "candidates": [
@@ -116,10 +134,31 @@
         "printed_value": "h. 21-17",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-22T21:17+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-03-22T15:47Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Ayanamsa-free (Moon-Sun elongation, 12-degree sectors); geocentric; IST. Depends only on the ephemeris and Delta-T model",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-22 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-02",
@@ -133,10 +172,31 @@
         "printed_value": "h. 22-43",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-22T22:43+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-03-22T17:13Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Depends on IMD's variable ayanamsa; numerical compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-22 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-03",
@@ -150,11 +210,32 @@
         "printed_value": "h. 15-42",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-22T15:42+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-03-22T10:12Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "consistency_note": "Yoga 27 ends; the next row (2026-03-23) ends Viskumbha, so the pair covers the Vaidhriti to Viskumbha wrap",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Depends on IMD's variable ayanamsa twice (Sun plus Moon); compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-22 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-04",
@@ -168,11 +249,32 @@
         "printed_value": "h. 10-37",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-22T10:37+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-03-22T05:07Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 7,
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-22 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-05",
@@ -186,12 +288,33 @@
         "printed_value": "h. 21-17",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-22T21:17+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-03-22T15:47Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 8,
         "consistency_note": "Same printed time as the Chaturthi end, as the 6-degree rule requires",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-22 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-06",
@@ -204,10 +327,31 @@
         "printed_value": "6:02 AM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-22T06:02+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 12-hour AM/PM time read as IST on the printed date",
         "derived_instant_utc_minute": "2026-03-22T00:32Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "SUN-D convention (upper limb, 31 arcmin refraction plus 16 arcmin semidiameter, centre 47 arcmin below the horizontal) at the IMD Central Station only; usable only if PAN-D03 selects SUN-D; never compared with city coordinates",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-22 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (PAN-D03 must select SUN-D)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-07",
@@ -220,10 +364,31 @@
         "printed_value": "6:12 PM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-22T18:12+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 12-hour AM/PM time read as IST on the printed date",
         "derived_instant_utc_minute": "2026-03-22T12:42Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Same as sunrise",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-22 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (PAN-D03 must select SUN-D)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-08",
@@ -238,10 +403,31 @@
         "printed_value": "h. 18-39",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-23T18:39+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-03-23T13:09Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Ayanamsa-free (Moon-Sun elongation, 12-degree sectors); geocentric; IST. Depends only on the ephemeris and Delta-T model",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-23 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-09",
@@ -255,10 +441,31 @@
         "printed_value": "h. 20-50",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-23T20:50+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-03-23T15:20Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Depends on IMD's variable ayanamsa; numerical compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-23 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-10",
@@ -272,10 +479,31 @@
         "printed_value": "h. 12-22",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-23T12:22+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-03-23T06:52Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Depends on IMD's variable ayanamsa twice (Sun plus Moon); compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-23 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-11",
@@ -289,11 +517,32 @@
         "printed_value": "h. 7-57",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-23T07:57+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-03-23T02:27Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 9,
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-23 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-12",
@@ -307,12 +556,33 @@
         "printed_value": "h. 18-39",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-23T18:39+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-03-23T13:09Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 10,
         "consistency_note": "Same printed time as the Panchami end",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-23 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-13",
@@ -326,12 +596,33 @@
         "printed_value": "h. 29-22",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-24T05:22+05:30",
+        "interpretation_basis": "Deterministic arithmetic on the publisher-defined notation: IMD explanation page states that 25h, 26h etc. mean 1 AM, 2 AM etc. on the following Gregorian date (read directly by the reviewer, review 5680023508). The printed date and value above are unchanged",
         "derived_instant_utc_minute": "2026-03-23T23:52Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 11,
         "consistency_note": "24-hour-plus value",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-23 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-14",
@@ -344,11 +635,33 @@
         "printed_value": "h. 6-01",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-23T06:01+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-03-23T00:31Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "consistency_note": "Printed in a different notation from the 2026-03-22 row",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "SUN-D convention (upper limb, 31 arcmin refraction plus 16 arcmin semidiameter, centre 47 arcmin below the horizontal) at the IMD Central Station only; usable only if PAN-D03 selects SUN-D; never compared with city coordinates",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-23 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (PAN-D03 must select SUN-D)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "Printed in 24-hour h. notation, while the 2026-03-22 sunrise is printed as 6:02 AM; notation differs between rows",
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-15",
@@ -361,10 +674,31 @@
         "printed_value": "h. 18-12",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-03-23T18:12+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-03-23T12:42Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Same as sunrise",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/chaitra directly and finding that the date block for 2026-03-23 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (PAN-D03 must select SUN-D)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-16",
@@ -379,11 +713,33 @@
         "printed_value": "h. 15-14",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-14T15:14+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-07-14T09:44Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "consistency_note": "USNO and NASA New Moon PAN-REF-PHASE-2026-27: 15:13 IST (09:43 UT). IMD candidate is 1 minute later; within the provisional phase window only if IMD rounds up or uses a slightly different model",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "method_dependencies": "Ayanamsa-free (Moon-Sun elongation, 12-degree sectors); geocentric; IST. Depends only on the ephemeris and Delta-T model",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-14 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "One minute later than the USNO/NASA New Moon (15:13 IST); IMD rounding rule unknown",
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-17",
@@ -397,11 +753,32 @@
         "printed_value": "h. 24-10",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-15T00:10+05:30",
+        "interpretation_basis": "Deterministic arithmetic on the publisher-defined notation: IMD explanation page states that 25h, 26h etc. mean 1 AM, 2 AM etc. on the following Gregorian date (read directly by the reviewer, review 5680023508). The printed date and value above are unchanged",
         "derived_instant_utc_minute": "2026-07-14T18:40Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "consistency_note": "24-hour-plus value",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "method_dependencies": "Depends on IMD's variable ayanamsa; numerical compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-14 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-18",
@@ -415,10 +792,31 @@
         "printed_value": "h. 11-57",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-14T11:57+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-07-14T06:27Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Depends on IMD's variable ayanamsa twice (Sun plus Moon); compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-14 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-19",
@@ -432,12 +830,33 @@
         "printed_value": "h. 15-14",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-14T15:14+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-07-14T09:44Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 60,
         "consistency_note": "Same printed time as the Amavasya end; Karana #60 ends at New Moon",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-14 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-20",
@@ -451,12 +870,34 @@
         "printed_value": "h. 25-30",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-15T01:30+05:30",
+        "interpretation_basis": "Deterministic arithmetic on the publisher-defined notation: IMD explanation page states that 25h, 26h etc. mean 1 AM, 2 AM etc. on the following Gregorian date (read directly by the reviewer, review 5680023508). The printed date and value above are unchanged",
         "derived_instant_utc_minute": "2026-07-14T20:00Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 1,
         "consistency_note": "Spelled Kinstughna in this row and Kimstughna on the names page. 24-hour-plus value",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-14 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "Publisher spelling variant: daily row prints Kinstughna, names page prints Kimstughna (SCI-PAN-01 section 5.5)",
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-21",
@@ -469,10 +910,31 @@
         "printed_value": "5:23 AM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-14T05:23+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 12-hour AM/PM time read as IST on the printed date",
         "derived_instant_utc_minute": "2026-07-13T23:53Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "SUN-D convention (upper limb, 31 arcmin refraction plus 16 arcmin semidiameter, centre 47 arcmin below the horizontal) at the IMD Central Station only; usable only if PAN-D03 selects SUN-D; never compared with city coordinates",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-14 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (PAN-D03 must select SUN-D)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-22",
@@ -485,10 +947,31 @@
         "printed_value": "6:49 PM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-14T18:49+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 12-hour AM/PM time read as IST on the printed date",
         "derived_instant_utc_minute": "2026-07-14T13:19Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Same as sunrise",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-14 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (PAN-D03 must select SUN-D)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-23",
@@ -503,10 +986,31 @@
         "printed_value": "h. 6-28",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-17T06:28+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-07-17T00:58Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Ayanamsa-free (Moon-Sun elongation, 12-degree sectors); geocentric; IST. Depends only on the ephemeris and Delta-T model",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-17 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-24",
@@ -521,11 +1025,32 @@
         "printed_value": "h. 28-43",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-18T04:43+05:30",
+        "interpretation_basis": "Deterministic arithmetic on the publisher-defined notation: IMD explanation page states that 25h, 26h etc. mean 1 AM, 2 AM etc. on the following Gregorian date (read directly by the reviewer, review 5680023508). The printed date and value above are unchanged",
         "derived_instant_utc_minute": "2026-07-17T23:13Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "consistency_note": "24-hour-plus value",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "method_dependencies": "Ayanamsa-free (Moon-Sun elongation, 12-degree sectors); geocentric; IST. Depends only on the ephemeris and Delta-T model",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-17 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-25",
@@ -539,10 +1064,31 @@
         "printed_value": "h. 18-35",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-17T18:35+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-07-17T13:05Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Depends on IMD's variable ayanamsa; numerical compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-17 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-26",
@@ -556,10 +1102,31 @@
         "printed_value": "h. 22-46",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-17T22:46+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-07-17T17:16Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Depends on IMD's variable ayanamsa twice (Sun plus Moon); compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-17 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-27",
@@ -573,12 +1140,33 @@
         "printed_value": "h. 6-28",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-17T06:28+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-07-17T00:58Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 6,
         "consistency_note": "Same printed time as the Tritiya end",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-17 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-28",
@@ -592,11 +1180,32 @@
         "printed_value": "h. 17-31",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-17T17:31+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-07-17T12:01Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 7,
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-17 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-29",
@@ -610,12 +1219,33 @@
         "printed_value": "h. 28-43",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-18T04:43+05:30",
+        "interpretation_basis": "Deterministic arithmetic on the publisher-defined notation: IMD explanation page states that 25h, 26h etc. mean 1 AM, 2 AM etc. on the following Gregorian date (read directly by the reviewer, review 5680023508). The printed date and value above are unchanged",
         "derived_instant_utc_minute": "2026-07-17T23:13Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 8,
         "consistency_note": "Same printed time as the Chaturthi end; 24-hour-plus value",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-17 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-30",
@@ -628,10 +1258,31 @@
         "printed_value": "5:24 AM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-17T05:24+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 12-hour AM/PM time read as IST on the printed date",
         "derived_instant_utc_minute": "2026-07-16T23:54Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "SUN-D convention (upper limb, 31 arcmin refraction plus 16 arcmin semidiameter, centre 47 arcmin below the horizontal) at the IMD Central Station only; usable only if PAN-D03 selects SUN-D; never compared with city coordinates",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-17 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (PAN-D03 must select SUN-D)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-31",
@@ -644,10 +1295,31 @@
         "printed_value": "6:48 PM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-07-17T18:48+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 12-hour AM/PM time read as IST on the printed date",
         "derived_instant_utc_minute": "2026-07-17T13:18Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Same as sunrise",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/ashadha directly and finding that the date block for 2026-07-17 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (PAN-D03 must select SUN-D)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-32",
@@ -662,11 +1334,32 @@
         "printed_value": "h. 9-42",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-26T09:42+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-10-26T04:12Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "consistency_note": "USNO and NASA Full Moon PAN-REF-PHASE-2026-41: 09:42 IST (04:12 UT). Same minute",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Ayanamsa-free (Moon-Sun elongation, 12-degree sectors); geocentric; IST. Depends only on the ephemeris and Delta-T model",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-26 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-33",
@@ -680,10 +1373,31 @@
         "printed_value": "h. 17-41",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-26T17:41+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-10-26T12:11Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Depends on IMD's variable ayanamsa; numerical compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-26 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-34",
@@ -697,10 +1411,31 @@
         "printed_value": "h. 14-17",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-26T14:17+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-10-26T08:47Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Depends on IMD's variable ayanamsa twice (Sun plus Moon); compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-26 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-35",
@@ -714,12 +1449,33 @@
         "printed_value": "h. 9-42",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-26T09:42+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-10-26T04:12Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 30,
         "consistency_note": "Same printed time as the Purnima end and the USNO/NASA Full Moon",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-26 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-36",
@@ -733,11 +1489,32 @@
         "printed_value": "h. 20-24",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-26T20:24+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-10-26T14:54Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 31,
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-26 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-37",
@@ -750,10 +1527,31 @@
         "printed_value": "6:02 AM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-26T06:02+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 12-hour AM/PM time read as IST on the printed date",
         "derived_instant_utc_minute": "2026-10-26T00:32Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "SUN-D convention (upper limb, 31 arcmin refraction plus 16 arcmin semidiameter, centre 47 arcmin below the horizontal) at the IMD Central Station only; usable only if PAN-D03 selects SUN-D; never compared with city coordinates",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-26 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (PAN-D03 must select SUN-D)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-38",
@@ -766,10 +1564,31 @@
         "printed_value": "5:25 PM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-26T17:25+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 12-hour AM/PM time read as IST on the printed date",
         "derived_instant_utc_minute": "2026-10-26T11:55Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Same as sunrise",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-26 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (PAN-D03 must select SUN-D)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-39",
@@ -784,11 +1603,32 @@
         "printed_value": "h. 25-07",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-29T01:07+05:30",
+        "interpretation_basis": "Deterministic arithmetic on the publisher-defined notation: IMD explanation page states that 25h, 26h etc. mean 1 AM, 2 AM etc. on the following Gregorian date (read directly by the reviewer, review 5680023508). The printed date and value above are unchanged",
         "derived_instant_utc_minute": "2026-10-28T19:37Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "consistency_note": "24-hour-plus value",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Ayanamsa-free (Moon-Sun elongation, 12-degree sectors); geocentric; IST. Depends only on the ephemeris and Delta-T model",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-28 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-40",
@@ -802,10 +1642,31 @@
         "printed_value": "h. 13-26",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-28T13:26+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-10-28T07:56Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Depends on IMD's variable ayanamsa; numerical compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-28 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-41",
@@ -819,10 +1680,31 @@
         "printed_value": "h. 7-19",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-28T07:19+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-10-28T01:49Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Depends on IMD's variable ayanamsa twice (Sun plus Moon); compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-28 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-42",
@@ -836,11 +1718,32 @@
         "printed_value": "h. 27-41",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-29T03:41+05:30",
+        "interpretation_basis": "Deterministic arithmetic on the publisher-defined notation: IMD explanation page states that 25h, 26h etc. mean 1 AM, 2 AM etc. on the following Gregorian date (read directly by the reviewer, review 5680023508). The printed date and value above are unchanged",
         "derived_instant_utc_minute": "2026-10-28T22:11Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "consistency_note": "24-hour-plus value",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Depends on IMD's variable ayanamsa twice (Sun plus Moon); compatibility with SCI-01a not established (SCI-PAN-01 section 3.1)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-28 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (SCI-PAN-01 section 3.1 ayanamsa assessment)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-43",
@@ -854,11 +1757,32 @@
         "printed_value": "h. 14-37",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-28T14:37+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 24-hour h. notation read as hours and minutes IST on the printed date",
         "derived_instant_utc_minute": "2026-10-28T09:07Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 35,
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-28 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-44",
@@ -872,12 +1796,33 @@
         "printed_value": "h. 25-07",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "geocentric",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-29T01:07+05:30",
+        "interpretation_basis": "Deterministic arithmetic on the publisher-defined notation: IMD explanation page states that 25h, 26h etc. mean 1 AM, 2 AM etc. on the following Gregorian date (read directly by the reviewer, review 5680023508). The printed date and value above are unchanged",
         "derived_instant_utc_minute": "2026-10-28T19:37Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
         "implied_karana_number_under_candidate_rule": 36,
         "consistency_note": "Same printed time as the Krishna Tritiya end; 24-hour-plus value",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "method_dependencies": "Ayanamsa-free (elongation, 6-degree half-tithis); geocentric; IST. Name depends on the 60-position mapping (PAN-D07, not adopted)",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-28 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-45",
@@ -890,10 +1835,31 @@
         "printed_value": "6:03 AM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-28T06:03+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 12-hour AM/PM time read as IST on the printed date",
         "derived_instant_utc_minute": "2026-10-28T00:33Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "SUN-D convention (upper limb, 31 arcmin refraction plus 16 arcmin semidiameter, centre 47 arcmin below the horizontal) at the IMD Central Station only; usable only if PAN-D03 selects SUN-D; never compared with city coordinates",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-28 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (PAN-D03 must select SUN-D)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       },
       {
         "candidate_id": "PAN-CAND-IMD-46",
@@ -906,10 +1872,31 @@
         "printed_value": "5:24 PM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
+        "original_precision": "Whole minute, as printed",
+        "interpreted_ist_datetime": "2026-10-28T17:24+05:30",
+        "interpretation_basis": "Deterministic arithmetic: printed 12-hour AM/PM time read as IST on the printed date",
         "derived_instant_utc_minute": "2026-10-28T11:54Z",
-        "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
-        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
+        "derived_utc_note": "DERIVED by Claude: interpreted IST minus 05:30. Not a printed value",
+        "method_dependencies": "Same as sunrise",
+        "source_recheck": {
+          "stage": "B",
+          "by": "ChatGPT PM/QA reviewer (the same party that performed Stage A)",
+          "date": "2026-10-28",
+          "reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#pullrequestreview-5680023508",
+          "result": "The reviewer reports opening https://packolkata.imd.gov.in/panchang/bn/kartika directly and finding that the date block for 2026-10-28 matches the handoff entries. The review states this per date block, not per field",
+          "note": "Additional direct-source corroboration only. Not an independent second-person verification. retrieval_tier above records the original Stage A access and is unchanged"
+        },
+        "verification_register": {
+          "A_reviewer_sourced_candidate": "DONE: transcribed by the ChatGPT reviewer, PR #51 comment 6464388772",
+          "B_primary_page_rechecked": "DONE by the same reviewer: review 5680023508 (per date block)",
+          "C_independent_second_person_verification": "PENDING: no distinct authorized verifier has read the primary source for this record",
+          "D_engineering_reference_acceptance": "PENDING: requires C, the notation conversion check, IMD reuse permission and method compatibility (PAN-D03 must select SUN-D)"
+        },
+        "independent_second_person_verification": "NOT DONE",
+        "outstanding_ambiguity": [
+          "IMD rounding rule for printed minutes (round or truncate) not stated in the evidence available"
+        ],
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION"
       }
     ],
     "coverage": {
@@ -926,7 +1913,24 @@
         "spring (Chaitra)",
         "monsoon (Ashadha)",
         "autumn (Kartika)"
-      ]
+      ],
+      "stage_B_rechecked_by_same_reviewer": 46,
+      "stage_C_independent_second_person": 0,
+      "stage_D_engineering_accepted": 0
+    },
+    "verification_stages": {
+      "A": "Reviewer-sourced candidate: value transcribed from an official-domain source by the ChatGPT reviewer",
+      "B": "Primary page rechecked: the official page reopened and compared with the candidate; may be the same reviewing party",
+      "C": "Independent second-person verification: a distinct authorized verifier independently reads the primary source and checks the exact record",
+      "D": "Engineering reference acceptance: C done, notation/time conversion checked, source rights recorded and scientific-method compatibility established. Only D may enter the approved engineering golden-reference set",
+      "rule": "Claude's consistency calculations do not replace C. No record in this file has reached C or D"
+    },
+    "source_rights": {
+      "publisher": "Positional Astronomy Centre, India Meteorological Department, Government of India",
+      "publication": "Rashtriya Panchang, Saka 1948 (2026-27) web edition; explanation and names pages",
+      "access_dates": "Stage A 2026-10-28 (reviewer); Stage B recheck 2026-10-28 (same reviewer)",
+      "rights_notice": "The official pages identify the Government of India as publisher and show an all-rights-reserved notice (as reported by the owner and reviewer; not read by Claude)",
+      "reuse_permission": "UNRESOLVED. Only minimal individual factual fields are recorded here; no page text, screenshot or PDF is committed. Republication rights are not assumed"
     }
   }
 }

@@ -64,8 +64,28 @@ Owner-authorized final integration (same revision): every candidate carries stat
 
 No decision status changed. WP-B2 stays BLOCKED.
 
+## Revision 0.5 (owner-authorized final source validation and provenance reconciliation)
+
+- **Candidates:** each of the 46 IMD candidates now has:
+  - a Stage A to D verification register;
+  - a separate `source_recheck` record of the reviewer's direct reopening of the pages (review 5680023508);
+  - original precision, the interpreted IST time and the UTC minute, kept separate;
+  - method dependencies;
+  - open ambiguities.
+
+  Their `retrieval_tier` (30 opened HTML, 16 index text) and status `REVIEWER_SOURCED_PENDING_VERIFICATION` are unchanged. Stage B: 46. Stage C: 0. Stage D: 0.
+- **Source register:** section 5 has the stage definitions, the publisher and rights record (all-rights-reserved notice; reuse permission unresolved) and a 46-row register for a future independent verifier.
+- **SCI-PAN-01:**
+  - official 24-hour-plus rule and Central Station facts;
+  - name spellings (section 5.5.1);
+  - separated error sources (section 5.9);
+  - per-element coverage and missing cases (section 8.2).
+- **WP-B2 draft:** explicit configurable horizon for SUN-D; Stage C/D precondition.
+
+No decision status changed. WP-B2 stays BLOCKED.
+
 ## Known limits of this package
 
-- The IMD Rashtriya Panchang could not be retrieved (network policy refusal and robots disallow). There are 46 reviewer-mediated IMD candidates but no verified IMD rows, so there are still no verified Nakshatra or Yoga ending references and no verified Hindu-convention sunrise reference.
+- The IMD Rashtriya Panchang could not be retrieved (network policy refusal and robots disallow). There are 46 reviewer-mediated IMD candidates (Stage B rechecked by the same reviewer) but no Stage C or Stage D IMD rows, so there are still no verified Nakshatra or Yoga ending references and no verified Hindu-convention sunrise reference.
 - Values were read through an automated page-reading tool. Internal cross-checks pass, but QA should re-read rows from the live sources.
 - Karana names are not adopted.

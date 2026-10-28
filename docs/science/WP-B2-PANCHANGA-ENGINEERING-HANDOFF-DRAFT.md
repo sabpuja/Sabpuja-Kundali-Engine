@@ -8,7 +8,7 @@
 | Baseline | `main` `5395d2bc33847d1363e6d838f6109bad552221e3` |
 | Method source | [SCI-PAN-01 proposal](SCI-PAN-01-PANCHANGA-METHOD-DECISION-PROPOSAL.md) (PROPOSED, not canonical) |
 | Requirement | Proposed KUN-A01 Birth Panchanga (PRD 12.1), Gate ENG (PRD 13) |
-| Status | Revision 0.4-draft (after ChatGPT reviews 5679285841 and 5679456114, and the reviewer-mediated IMD evidence; the 46 IMD candidates are not usable as WP-B2 fixtures until promoted under SCI-PAN-01 section 8.1). Every choice below assumes the **recommended** SCI-PAN-01 option. SCI-PAN-01 0.2 makes **no** sunrise-convention recommendation, so the sunrise convention is a parameter here. If the owner selects otherwise on any item, this draft is revised before WP-B2 starts. **Readiness: BLOCKED** |
+| Status | Revision 0.5-draft (after ChatGPT reviews 5679285841, 5679456114 and 5680023508, the reviewer-mediated IMD evidence, and the owner-authorized final source validation). The 46 IMD candidates are not usable as WP-B2 fixtures until they reach Stage D (SOURCE-REGISTER section 5). Every choice below assumes the **recommended** SCI-PAN-01 option. SCI-PAN-01 0.2 makes **no** sunrise-convention recommendation, so the sunrise convention is a parameter here. If the owner selects otherwise on any item, this draft is revised before WP-B2 starts. **Readiness: BLOCKED** |
 
 Nothing here authorizes an endpoint, engine change, PDF feature, UI change, merge or deployment. WP-B2 needs its own scoped ticket and owner authorization.
 
@@ -17,7 +17,7 @@ Nothing here authorizes an endpoint, engine change, PDF feature, UI change, merg
 WP-B2 should start only when all of these hold:
 
 1. The owner has recorded SCI-PAN-01 decisions PAN-D01 to PAN-D20 under the two-step rule in [DECISIONS.md](../DECISIONS.md).
-2. IMD Rashtriya Panchang method facts and the SCI-PAN-01 section 8.1 coverage (at least 34 rows) are captured into the [capture template](../../research/panchanga/reference-fixtures/imd-rashtriya-panchang-capture-template.json) **from the primary source** and second-person checked. Alternatively, the owner explicitly accepts PAN-D20 option B. Reviewer-reported candidates do not count.
+2. IMD Rashtriya Panchang method facts and the SCI-PAN-01 section 8.1 coverage (at least 34 rows) are captured into the [capture template](../../research/panchanga/reference-fixtures/imd-rashtriya-panchang-capture-template.json) **from the primary source** and second-person checked. Alternatively, the owner explicitly accepts PAN-D20 option B. Reviewer-sourced candidates count only after Stage C (independent second-person verification) and Stage D (engineering acceptance); Stage B rechecks by the same reviewer do not count.
 3. The engine base for WP-B2 is fixed. Today the engine (`src/sabpuja_kundali/…`, chart schema `0.3.0`) lives on the draft stack (PR #42 `185353a`, not merged into `main`; PR #1 HOLD active). WP-B2 must name its base SHA and must not stack onto an unresolved branch without the owner's OD-09 merge plan.
 4. Karana naming source decided (PAN-D07), or WP-B2 ships with the index only.
 5. Hindi reviewer named (OD-08) before any Hindi Panchanga label reaches a report.
@@ -27,9 +27,21 @@ WP-B2 should start only when all of these hold:
 | Module (proposed) | Responsibility | Must not |
 |---|---|---|
 | `panchanga_rules` | Pure functions: tithi, paksha, nakshatra/pada (delegating to the existing chart `rules.nakshatra`), yoga, karana index and name (when adopted), vara mapping, name tables | Call Swiss; read clocks; round |
-| `panchanga_astro` | Sun and Moon longitudes at an instant through the **existing** SCI-01d path; sunrise and sunset through `swe.rise_trans` with the adopted flags; all Swiss calls under the existing Swiss lock with per-request state reset (sidereal mode, ΔT, topo) | Introduce new Swiss flags for longitudes; fall back to Moshier; call `mooncross`/`solcross` |
+| `panchanga_astro` | Sun and Moon longitudes at an instant through the **existing** SCI-01d path; sunrise and sunset through a Swiss rise/set call with an **explicit, configurable horizon geometry** for the adopted convention (see the note below this table); all Swiss calls under the existing Swiss lock with per-request state reset (sidereal mode, ΔT, topo) | Introduce new Swiss flags for longitudes; fall back to Moshier; call `mooncross`/`solcross` |
 | `panchanga_search` | Bounded transition search (TS-1 with optional TS-2) over E, S, λ☾ and the sunrise bracket | Unbounded loops; extrapolation |
 | `panchanga_contract` | Builds the `sabpuja-panchanga/1` document, provenance and refusals | Modify the chart document or metadata `/3` |
+
+**Sunrise horizon geometry (design proposal only, no implementation authorized).** `swe_rise_trans` with flags can express SUN-A (Swiss default upper limb with its refraction model) and SUN-B (`SE_BIT_HINDU_RISING`). It cannot, by flags alone, express SUN-D. IMD states (explanation page, read by the reviewer) that SUN-D is the upper limb with a fixed 31′ refraction and a 16′ semidiameter, so the centre is 47′ below the horizontal. The draft therefore does **not** assume that `rise_trans` defaults give SUN-D. `panchanga_astro` takes a declared horizon configuration per convention:
+- disc point: upper limb or centre;
+- refraction: model, fixed value or none;
+- semidiameter: actual or fixed 16′;
+- geometric horizon offset.
+
+Candidate realisations for WP-B2 to evaluate:
+- `swe_rise_trans_true_hor` with `SE_BIT_NO_REFRACTION` (plus `SE_BIT_DISC_CENTER` and a −47′ horizon height, or `SE_BIT_FIXED_DISC_SIZE` and −31′), as hypothesised in SCI-PAN-01 section 5.6.1;
+- a bounded root search on the Sun's geometric altitude reaching −47′, using `calc_ut` positions.
+
+Whichever is chosen must be checked against an independently coded altitude formula, must check `FLG_SWIEPH` separately (section 7), and must be disclosed in metadata. PAN-D03 stays PENDING.
 
 The existing chart engine stays the only producer of chart `0.3.0`. Panchanga reads the same validated request (birth instant, coordinates, zone) after the same SCI-03 validation and refusal order.
 
@@ -124,7 +136,7 @@ For an element with monotone angle f(t) ∈ {E, S, λ☾} and sector width w:
 5. Report the first instant at which the new sector holds (half-open), rounded to the whole second only for output.
 
 Sunrise and sunset:
-1. Governing sunrise for the birth = latest sunrise ≤ birth instant: call `rise_trans(t_birth − 1.5 d, Sun, rise | adopted flags)` and step forward until the next rise would pass the birth instant (bounded to 3 calls).
+1. Governing sunrise for the birth = latest sunrise ≤ birth instant: call the adopted convention's rise call (section 2 horizon configuration) from `t_birth − 1.5 d` and step forward until the next rise would pass the birth instant (bounded to 3 calls).
 2. Verify `FLG_SWIEPH` by a `calc_ut` call at the returned instant.
 3. Residual check: recompute the Sun's altitude at the returned instant with the convention's definition. Refuse if the residual exceeds the bound fixed by QA (proposed 1 arcsecond, about 0.25 s).
 4. Return code −2 → `PANCHANGA_SUNRISE_UNDEFINED`.
@@ -144,7 +156,7 @@ Sunrise and sunset:
 | PAN-REF-SUN-2026 (14) | SUN-A absolute check if SUN-A is adopted; for SUN-B, a differential check against an independently coded spherical-astronomy oracle anchored on the USNO time | ±120 s (SUN-A); oracle-defined bound (SUN-B); negative cases give `PANCHANGA_SUNRISE_UNDEFINED` (whole-object refusal under D11-A, typed `unavailable` sunrise fields under D11-B) |
 | PAN-DER-2026 (8) | Classification tests; convention-sensitive cases assert the adopted convention's branch | Exact classification; margins reported |
 | PAN-SPEC-BOUNDARY (16) | Each spec becomes unit, property or contract tests | As specified |
-| PAN-REF-IMD (to be captured) | Tithi/Nakshatra/Yoga/Karana ends; IMD Central Station sunrise (only if SUN-D is adopted, and never against city coordinates); 24-hour-plus times converted as a derived field | Per PAN-D15, fixed before running. Nakshatra/Yoga rows are pass/fail oracles only if the SCI-PAN-01 section 3.1 ayanamsa check passes; otherwise they are reported as method differences |
+| PAN-REF-IMD (46 candidates, 0 at Stage D) | Only Stage D rows: Tithi/Nakshatra/Yoga/Karana ends; IMD Central Station sunrise (only if SUN-D is adopted, and never against city coordinates); 24-hour-plus times converted with IMD's stated rule as a separate derived field | Per PAN-D15, fixed before running. Nakshatra/Yoga rows are pass/fail oracles only if the SCI-PAN-01 section 3.1 ayanamsa check passes; otherwise they are reported as method differences |
 
 The fixtures stay data. WP-B2 adds the executable harness in its own PR, and it may not edit a fixture's expected value without a new source citation.
 
@@ -153,8 +165,8 @@ The fixtures stay data. WP-B2 adds the executable harness in its own PR, and it 
 | Factor | Rule for every reference comparison |
 |---|---|
 | Adopted ayanamsa | Engine values always use canonical SCI-01a. A reference row whose ayanamsa differs is either converted, with the difference stated (only when the reference publishes its definition), or used as a method-difference report rather than pass/fail. Tithi and Karana comparisons are ayanamsa-free (SCI-PAN-01 section 3.1) |
-| IMD conventions | IMD sunrise is compared only at the IMD Central Station, only under the convention IMD states, and only after that statement is captured verbatim. IMD ending times are compared as geocentric IST moments. 24-hour-plus times are converted to the next civil date as a derived field, and the printed value is retained |
-| Location-specific sunrise | USNO rows are compared only at their exact queried coordinates, under SUN-A (or SUN-D with the documented 3′ correction). No sunrise reference is reused for another location, and no station value is compared with a city |
+| IMD conventions | IMD sunrise is compared only at the IMD Central Station (82°30′ E, 23°11′ N), only under the convention IMD states (47′ upper limb; read directly by the reviewer, not yet captured verbatim by a second person), and only for Stage D rows. IMD ending times are compared as geocentric IST moments. 24-hour-plus times are converted to the next civil date using IMD's stated rule (25h = 1 AM on the following Gregorian date) as a derived field, and the printed value is retained |
+| Location-specific sunrise | USNO rows are compared only at their exact queried coordinates, under SUN-A. A SUN-D comparison at a USNO city point would need a 3′ altitude correction and is a derived check, never a direct reference. No sunrise reference is reused for another location, and no station value is compared with a city |
 | Publisher rounding | Each source's rounding rule (truncate or round) is recorded. Until it is known, the acceptance window spans both interpretations ([printed − 60 s, printed + 60 s]), or the union across sources as in PAN-REF-PHASE |
 | Solver vs accuracy | Solver convergence (≤ 0.5 s) is reported separately from the residual against each reference. A pass means "within the pre-declared window", never "accurate to 0.5 s" |
 | Tolerances | Fixed and committed before any evaluation run (PAN-D15), and reviewed by ChatGPT |
@@ -201,4 +213,6 @@ Gate ENG PASS for WP-B2 requires, on the exact SHA:
 | Version | Date | Author | Change | Approval |
 |---|---|---|---|---|
 | 0.1-draft | 2026-10-28 | Claude, WP-B1 | Initial handoff draft | ChatGPT review 5679285841: CHANGES REQUESTED |
-| 0.2-draft | 2026-10-28 | Claude, WP-B1 | Sunrise convention parameterised; D11-B partial-output contract; IMD coverage precondition; precision wording | PENDING |
+| 0.2-draft | 2026-10-28 | Claude, WP-B1 | Sunrise convention parameterised; D11-B partial-output contract; IMD coverage precondition; precision wording | Superseded |
+| 0.3-draft to 0.4-draft | 2026-10-28 | Claude, WP-B1 | Conditional PAN-D11 wording; IMD candidates noted | Superseded |
+| 0.5-draft | 2026-10-28 | Claude, WP-B1 | Explicit configurable horizon for SUN-D; Stage C/D precondition; IMD notation rule | PENDING ChatGPT exact-SHA QA |
