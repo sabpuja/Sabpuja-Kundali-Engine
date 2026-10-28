@@ -8,7 +8,7 @@
 | Baseline | `main` `5395d2bc33847d1363e6d838f6109bad552221e3` |
 | Method source | [SCI-PAN-01 proposal](SCI-PAN-01-PANCHANGA-METHOD-DECISION-PROPOSAL.md) (PROPOSED, not canonical) |
 | Requirement | Proposed KUN-A01 Birth Panchanga (PRD 12.1), Gate ENG (PRD 13) |
-| Status | Revision 0.2-draft (after ChatGPT review 5679285841). Every choice below assumes the **recommended** SCI-PAN-01 option. SCI-PAN-01 0.2 makes **no** sunrise-convention recommendation, so the sunrise convention is a parameter here. If the owner selects otherwise on any item, this draft is revised before WP-B2 starts. **Readiness: BLOCKED** |
+| Status | Revision 0.3-draft (after ChatGPT reviews 5679285841 and 5679456114). Every choice below assumes the **recommended** SCI-PAN-01 option. SCI-PAN-01 0.2 makes **no** sunrise-convention recommendation, so the sunrise convention is a parameter here. If the owner selects otherwise on any item, this draft is revised before WP-B2 starts. **Readiness: BLOCKED** |
 
 Nothing here authorizes an endpoint, engine change, PDF feature, UI change, merge or deployment. WP-B2 needs its own scoped ticket and owner authorization.
 
@@ -83,6 +83,7 @@ Rules:
 - All instants are in UTC to the whole second in the machine output (PAN-D09). Whole seconds are an output resolution, not a statement of accuracy: method accuracy is at minute level for sunrise and is unquantified for lunar events until reference comparisons run. Local rendering is a presentation layer that uses the pinned tzdata and the SCI-03 rules. It is withheld, with a flag, for instants before 1970-01-01 local or after 2100-12-31 local (PAN-D13).
 - `near_boundary` is true when the birth instant lies within 120 s of the element's start or end.
 - `karana.id` stays `null`, with `name_status: "not_adopted"`, until PAN-D07 is decided.
+- The illustration shows the case where the governing sunrise exists. When it is physically undefined, the outcome depends on PAN-D11 (PENDING; section 6): under D11-A no document is produced; under the proposed D11-B, `vara`, the sunrise and sunset fields and `sunrise_day` carry `{"status": "unavailable", "reason": "PANCHANGA_SUNRISE_UNDEFINED"}`.
 - No field of the chart document changes. The Panchanga document references the chart only by sharing the request; it never embeds birth details beyond what the chart already returns.
 
 ## 4. Naming and identifiers
@@ -140,7 +141,7 @@ Sunrise and sunset:
 | Fixture set | How WP-B2 uses it | Pass rule |
 |---|---|---|
 | PAN-REF-PHASE-2026 (50 whole-minute events) | Search for E = 0/180 crossings (25 Tithi + Karana boundaries) and E = 90/270 crossings (25 Karana-only boundaries); check the Tithi/Karana index on both sides | Instant inside each fixture's provisional `accept_window_utc`. This shows minute-level agreement only, not second-level accuracy |
-| PAN-REF-SUN-2026 (14) | SUN-A absolute check if SUN-A is adopted; for SUN-B, a differential check against an independently coded spherical-astronomy oracle anchored on the USNO time | ±120 s (SUN-A); oracle-defined bound (SUN-B); negative cases give typed refusal |
+| PAN-REF-SUN-2026 (14) | SUN-A absolute check if SUN-A is adopted; for SUN-B, a differential check against an independently coded spherical-astronomy oracle anchored on the USNO time | ±120 s (SUN-A); oracle-defined bound (SUN-B); negative cases give `PANCHANGA_SUNRISE_UNDEFINED` (whole-object refusal under D11-A, typed `unavailable` sunrise fields under D11-B) |
 | PAN-DER-2026 (8) | Classification tests; convention-sensitive cases assert the adopted convention's branch | Exact classification; margins reported |
 | PAN-SPEC-BOUNDARY (16) | Each spec becomes unit, property or contract tests | As specified |
 | PAN-REF-IMD (to be captured) | Tithi/Nakshatra/Yoga/Karana ends; IMD Central Station sunrise (only if SUN-D is adopted, and never against city coordinates); 24-hour-plus times converted as a derived field | Per PAN-D15, fixed before running. Nakshatra/Yoga rows are pass/fail oracles only if the SCI-PAN-01 section 3.1 ayanamsa check passes; otherwise they are reported as method differences |
@@ -177,7 +178,7 @@ These rules add to Gate ENG and REL-01 and change neither. REL-01's mandatory Sw
 | PAN-QA-02 | Unit | Name tables: counts, order, ids stable, EN/HI parity |
 | PAN-QA-03 | Boundary | Transition search convergence, caps and refusal (PAN-SPEC-06, -14) |
 | PAN-QA-04 | Reference | 50 phase events within tolerance (independent) |
-| PAN-QA-05 | Reference | Sunrise/sunset per the adopted convention; negative cases refuse (PAN-SPEC-07, -11) |
+| PAN-QA-05 | Reference | Sunrise/sunset per the adopted convention; negative cases give `PANCHANGA_SUNRISE_UNDEFINED` per the PAN-D11 option adopted (PAN-SPEC-07, -11) |
 | PAN-QA-06 | Reference | IMD rows within tolerance (after capture) |
 | PAN-QA-07 | Conformance | Swiss CLI (`swetest`) conformance for Sun/Moon longitudes and rise/set at the same instants, per REL-01 |
 | PAN-QA-08 | Integration | Chart `0.3.0` byte identity; Nakshatra identity; metadata `/3` unchanged |

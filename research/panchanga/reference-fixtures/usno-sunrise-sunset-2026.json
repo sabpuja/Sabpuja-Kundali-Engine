@@ -473,7 +473,7 @@
         ]
       },
       "expected": {
-        "option_SUN_A": "No sunrise and no sunset on this date (published). Engine must return a typed refusal, never a guessed time.",
+        "option_SUN_A": "No sunrise and no sunset on this date (published). Engine must return the typed code PANCHANGA_SUNRISE_UNDEFINED, never a guessed time: whole-object refusal under PAN-D11-A, or typed unavailable sunrise-dependent fields under the proposed PAN-D11-B (PAN-D11 PENDING).",
         "option_SUN_B": "DERIVED, not published: the Sun's centre should still dip below the geometric horizon (needs |lat| < 90 - 23.44 = 66.56 deg at solstice), so a Hindu rising/setting is expected to exist. To be confirmed by the WP-B2 oracle; Swiss uses its slower algorithm here because |lat| > 65 deg for the Sun."
       },
       "why_selected": "Shows that inside the canonical latitude band an astronomical-sunrise convention can be undefined while a centre/no-refraction convention is defined. Proves fail-closed handling is reachable in-band under SUN-A.",

@@ -43,6 +43,10 @@ The scratch scripts used to transcribe and check the data are deliberately **not
 
 The ten checks in the receipt above were re-run on the revision. The file count is unchanged (10 added files against the base, no canonical file modified). The id and source-resolution checks now include the new register entries.
 
+## Revision 0.3 (after ChatGPT re-review 5679456114, CHANGES REQUESTED)
+
+The re-review found one stale statement: SCI-PAN-01 section 5.2 still refused the whole Panchanga unconditionally when sunrise cannot be computed, which contradicted the PAN-D11 analysis in section 5.6.6. That bullet now depends on the owner's PAN-D11 decision and describes both D11-A and the proposed D11-B. The same conditional wording was applied to PAN-SPEC-11, the PAN-REF-SUN-N01 expectation and WP-B2 sections 3, 9 and 11. PAN-D11 stays PENDING. No fixture value, case id, source or file count changed. The IMD observations in the re-review were not added as fixtures, because the review asks for a separate owner opt-in first.
+
 ## Known limits of this package
 
 - The IMD Rashtriya Panchang could not be retrieved (network policy refusal and robots disallow). As a result there are no IMD rows, no Nakshatra or Yoga ending references, and no verified Hindu-convention sunrise reference.

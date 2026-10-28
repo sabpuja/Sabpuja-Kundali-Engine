@@ -129,7 +129,7 @@ Two different quantities are often both called "Vara":
 Further rules proposed:
 - The sunrise-day interval is half-open: [sunrise_d, sunrise_d+1). A birth exactly at sunrise belongs to the new day.
 - The sunrise used is the one at the birth coordinates, never at a reference station.
-- If the governing sunrise cannot be computed, refuse the Panchanga object with a typed code (PAN-D11). Do not fall back to the civil weekday under the `vara` name.
+- If the governing sunrise cannot be computed, `vara` is never output. What happens to the rest of the Panchanga depends on the owner's PAN-D11 decision (section 5.6.6), which is PENDING: under D11-A the whole Panchanga object is refused; under the proposed D11-B, a physically undefined sunrise returns `vara` and the sunrise-dependent fields as typed `unavailable` while the sunrise-independent elements are kept, and an ephemeris or numerical failure still refuses the whole object. Under either option, do not fall back to the civil weekday under the `vara` name.
 - The weekday sequence is anchored on the civil calendar weekday of the sunrise's local date. No separate weekday epoch arithmetic is introduced.
 
 Derived cases PAN-DER-04, -05 and -06 show the difference. PAN-DER-06 shows that a birth two minutes after astronomical sunrise has a different Vara under SUN-A and SUN-B.
@@ -485,4 +485,5 @@ Machine identifiers are lower-snake-case ASCII and stable across languages. Hind
 | Version | Date | Author | Change | Approval |
 |---|---|---|---|---|
 | 0.1 | 2026-10-28 | Claude, WP-B1 | Initial proposal | ChatGPT review 5679285841: CHANGES REQUESTED |
-| 0.2 | 2026-10-28 | Claude, WP-B1 | QA-01 to QA-04 corrections (see section 1) | PENDING ChatGPT re-review and owner selection |
+| 0.2 | 2026-10-28 | Claude, WP-B1 | QA-01 to QA-04 corrections (see section 1) | ChatGPT re-review 5679456114: CHANGES REQUESTED (one stale statement) |
+| 0.3 | 2026-10-28 | Claude, WP-B1 | Section 5.2 Vara refusal bullet made conditional on PAN-D11 (A or B); matching wording in PAN-SPEC-11, PAN-REF-SUN-N01 and WP-B2 sections 3, 9 and 11. No decision status changed | PENDING ChatGPT re-review and owner selection |
