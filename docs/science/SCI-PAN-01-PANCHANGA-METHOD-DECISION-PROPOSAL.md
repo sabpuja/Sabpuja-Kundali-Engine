@@ -167,7 +167,7 @@ Derived cases PAN-DER-04, -05 and -06 show the difference. PAN-DER-06 shows that
 | Definition | 60 half-Tithis of 6° of elongation per lunar month; half-tithi index h = sector(E, 60), 0..59 |
 | Sequence (to be verified) | One-based #1 (h = 0, first half of Shukla Pratipada) = Kimstughna; #2 to #57 = the seven movable Karanas Bava, Balava, Kaulava, Taitila, Gara, Vanija, Vishti in that order, repeated 8 times; #58 = Shakuni; #59 = Chatushpada; #60 = Naga (second half of Amavasya) |
 | Equivalent formula | h = 0 → Kimstughna; 1 ≤ h ≤ 56 → movable[(h − 1) mod 7]; h = 57, 58, 59 → Shakuni, Chatushpada, Naga |
-| Verification status | **Not verified against a primary source.** The only source read (SRC-WP-KARANA) states this rule, but its own table contradicts it. The classical sources it cites (Sewell & Dikshit 1896; S. B. Dikshit, IMD 1981) and the IMD Rashtriya Panchang were not retrievable. Per the WP-B1 brief, **no Karana naming convention is adopted** here |
+| Verification status | **Not verified against a primary source.** The only source read (SRC-WP-KARANA) states this rule, but its own table contradicts it. The classical sources it cites (Sewell & Dikshit 1896; S. B. Dikshit, IMD 1981) and the IMD Rashtriya Panchang were not retrievable. Per the WP-B1 brief, **no Karana naming convention is adopted** here Revision 0.2: the owner and the PM/QA review identify IMD's official names page (`/panchang/en/tithi-nakshatra`, SRC-IMD-NAMES) as listing the eleven Karana names. That page is the proposed primary name source. It could not be read from this environment (robots disallow, network refusal), so the eleven names, their spelling and their order remain unverified here. Adoption needs the page's list captured verbatim, plus the indexing confirmed against at least one named Kimstughna transition and one fixed-Karana transition from the IMD daily tables (section 8.1) |
 | What is verified | The **index boundaries** h = 59→0 (New Moon), 14→15 (First Quarter, E = 90), 29→30 (Full Moon) and 44→45 (Last Quarter, E = 270), by all 50 USNO/NASA events. These are geometric facts that do not depend on names |
 | Proposal (PAN-D07) | WP-B2 outputs the half-tithi index (1..60) from the start. Karana **names** are emitted only after the owner adopts a verified naming source. Until then the name field is absent and a reason is recorded, never guessed |
 | Transition time | Instant where E(t) = 6k |
@@ -266,7 +266,17 @@ Birth-time Tithi, Nakshatra, Yoga, Karana and the civil weekday do not depend on
 
 In every option, `vara` is **never** silently filled with the civil weekday.
 
-**Proposal (PAN-D11):** D11-B. This replaces revision 0.1's whole-object recommendation, which assumed SUN-B, under which a physical no-sunrise case cannot occur in the band. It remains a proposed owner choice, not an authorization to build a code path.
+Trade-offs between whole-object refusal (A) and the structured partial result (B):
+
+| Aspect | D11-A whole refusal | D11-B structured partial |
+|---|---|---|
+| Safety | Nothing partial can be misread. But a correct result is also withheld | Fail-closed is kept for everything that depends on the missing event. Ephemeris and numerical faults still refuse everything, so no element computed from suspect data is released |
+| Consistency | One rule for all failures | Sunrise-independent elements are identical to what they would be at any other location for the same instant (they are geocentric). The chart's `moon_nakshatra` and the Panchanga Nakshatra still agree. The output shape varies, so the contract must type `unavailable` explicitly |
+| Customer experience | A customer born at, for example, 65.9° N in June gets no Panchanga at all, with only a refusal message | The customer gets Tithi, Nakshatra, Yoga, Karana and the calendar weekday, with a plain-language note that the traditional sunrise weekday and sunrise times cannot be determined for that place and date |
+| Reporting (Gate RPT) | No Panchanga section | The report needs explanatory text for the unavailable fields, which is an editorial item |
+| Engineering cost | Lowest | Moderate: typed `unavailable` fields, tests for each cause |
+
+**Proposal (PAN-D11):** D11-B. The owner status stays **PENDING**. This replaces revision 0.1's whole-object recommendation, which assumed SUN-B, under which a physical no-sunrise case cannot occur in the band. It remains a proposed owner choice, not an authorization to build a code path.
 
 ### 5.7 Transition-time calculation
 

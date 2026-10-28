@@ -147,6 +147,19 @@ Sunrise and sunset:
 
 The fixtures stay data. WP-B2 adds the executable harness in its own PR, and it may not edit a fixture's expected value without a new source citation.
 
+### 9.1 How WP-B2 validation accounts for method differences (proposed)
+
+| Factor | Rule for every reference comparison |
+|---|---|
+| Adopted ayanamsa | Engine values always use canonical SCI-01a. A reference row whose ayanamsa differs is either converted, with the difference stated (only when the reference publishes its definition), or used as a method-difference report rather than pass/fail. Tithi and Karana comparisons are ayanamsa-free (SCI-PAN-01 section 3.1) |
+| IMD conventions | IMD sunrise is compared only at the IMD Central Station, only under the convention IMD states, and only after that statement is captured verbatim. IMD ending times are compared as geocentric IST moments. 24-hour-plus times are converted to the next civil date as a derived field, and the printed value is retained |
+| Location-specific sunrise | USNO rows are compared only at their exact queried coordinates, under SUN-A (or SUN-D with the documented 3′ correction). No sunrise reference is reused for another location, and no station value is compared with a city |
+| Publisher rounding | Each source's rounding rule (truncate or round) is recorded. Until it is known, the acceptance window spans both interpretations ([printed − 60 s, printed + 60 s]), or the union across sources as in PAN-REF-PHASE |
+| Solver vs accuracy | Solver convergence (≤ 0.5 s) is reported separately from the residual against each reference. A pass means "within the pre-declared window", never "accurate to 0.5 s" |
+| Tolerances | Fixed and committed before any evaluation run (PAN-D15), and reviewed by ChatGPT |
+
+These rules add to Gate ENG and REL-01 and change neither. REL-01's mandatory Swiss CLI conformance, independent rule and formula checks, boundary and refusal fixtures, and data and state safeguards all still apply. Independent JPL/INPOP assurance remains optional, and only needed for an independent-accuracy claim.
+
 ## 10. Performance and determinism targets (proposed)
 
 | Target | Proposal |
