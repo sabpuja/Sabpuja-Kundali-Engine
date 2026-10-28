@@ -8,7 +8,7 @@
 | [usno-sunrise-sunset-2026.json](usno-sunrise-sunset-2026.json) | PAN-REF-SUN-2026 | Direct published, one publisher (USNO) | 14 (12 positive, 2 negative) |
 | [derived-classification-cases.json](derived-classification-cases.json) | PAN-DER-2026 | Derived from the two sets above | 8 |
 | [boundary-test-specifications.json](boundary-test-specifications.json) | PAN-SPEC-BOUNDARY | Specifications, no numerical expectations | 16 |
-| [imd-rashtriya-panchang-capture-template.json](imd-rashtriya-panchang-capture-template.json) | PAN-REF-IMD | Empty template; IMD not retrievable on 2026-10-28. Holds reviewer-reported **unverified** candidates, which are not counted | 0 |
+| [imd-rashtriya-panchang-capture-template.json](imd-rashtriya-panchang-capture-template.json) | PAN-REF-IMD | Template with 0 verified rows; IMD not retrievable from this environment on 2026-10-28. Holds 46 owner-authorized, reviewer-mediated **unverified candidates** (30 from opened official pages, 16 from official-domain index text) and the reported method facts; not counted | 0 verified (46 candidates) |
 
 ## Classes
 

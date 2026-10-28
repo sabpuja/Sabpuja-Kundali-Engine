@@ -8,7 +8,7 @@
 | Baseline | `main` `5395d2bc33847d1363e6d838f6109bad552221e3` |
 | Method source | [SCI-PAN-01 proposal](SCI-PAN-01-PANCHANGA-METHOD-DECISION-PROPOSAL.md) (PROPOSED, not canonical) |
 | Requirement | Proposed KUN-A01 Birth Panchanga (PRD 12.1), Gate ENG (PRD 13) |
-| Status | Revision 0.3-draft (after ChatGPT reviews 5679285841 and 5679456114). Every choice below assumes the **recommended** SCI-PAN-01 option. SCI-PAN-01 0.2 makes **no** sunrise-convention recommendation, so the sunrise convention is a parameter here. If the owner selects otherwise on any item, this draft is revised before WP-B2 starts. **Readiness: BLOCKED** |
+| Status | Revision 0.4-draft (after ChatGPT reviews 5679285841 and 5679456114, and the reviewer-mediated IMD evidence; the 46 IMD candidates are not usable as WP-B2 fixtures until promoted under SCI-PAN-01 section 8.1). Every choice below assumes the **recommended** SCI-PAN-01 option. SCI-PAN-01 0.2 makes **no** sunrise-convention recommendation, so the sunrise convention is a parameter here. If the owner selects otherwise on any item, this draft is revised before WP-B2 starts. **Readiness: BLOCKED** |
 
 Nothing here authorizes an endpoint, engine change, PDF feature, UI change, merge or deployment. WP-B2 needs its own scoped ticket and owner authorization.
 

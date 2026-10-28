@@ -11,7 +11,7 @@ WP-B1 prepares the Panchanga (proposed KUN-A01) method decision. It contains doc
 | [../../docs/science/SCI-PAN-01-PANCHANGA-METHOD-DECISION-PROPOSAL.md](../../docs/science/SCI-PAN-01-PANCHANGA-METHOD-DECISION-PROPOSAL.md) | Method proposal, decision matrix (PAN-D01 to PAN-D20), uncertainties, owner checklist |
 | [../../docs/science/WP-B2-PANCHANGA-ENGINEERING-HANDOFF-DRAFT.md](../../docs/science/WP-B2-PANCHANGA-ENGINEERING-HANDOFF-DRAFT.md) | Draft engineering handoff for a future, separately authorized WP-B2 |
 | [SOURCE-REGISTER.md](SOURCE-REGISTER.md) | Every source with publisher, edition, method, precision, rights and role; sources that could not be retrieved |
-| [reference-fixtures/](reference-fixtures/README.md) | 64 direct published references, 8 derived cases, 16 boundary specifications, IMD capture template |
+| [reference-fixtures/](reference-fixtures/README.md) | 64 direct published references, 8 derived cases, 16 boundary specifications, IMD capture template with 46 unverified reviewer-mediated candidates |
 
 ## QA receipt (pre-PR)
 
@@ -47,8 +47,23 @@ The ten checks in the receipt above were re-run on the revision. The file count 
 
 The re-review found one stale statement: SCI-PAN-01 section 5.2 still refused the whole Panchanga unconditionally when sunrise cannot be computed, which contradicted the PAN-D11 analysis in section 5.6.6. That bullet now depends on the owner's PAN-D11 decision and describes both D11-A and the proposed D11-B. The same conditional wording was applied to PAN-SPEC-11, the PAN-REF-SUN-N01 expectation and WP-B2 sections 3, 9 and 11. PAN-D11 stays PENDING. No fixture value, case id, source or file count changed. The IMD observations in the re-review were not added as fixtures, because the review asks for a separate owner opt-in first.
 
+## Revision 0.4 (owner-authorized reviewer-mediated IMD evidence, PR #51 comment 6464388772)
+
+The PM/QA reviewer transcribed official IMD values and method facts. Claude still has no access to the IMD host and used no other route. The changes:
+- **Capture template:** 46 field-level candidates for 2026-03-22, 03-23, 07-14, 07-17, 10-26 and 10-28. Each candidate keeps its printed notation, URL and retrieval tier, and has a derived UTC minute. The template also holds the reported method facts. `rows` (verified) stays empty.
+- **Consistency checks (SCI-PAN-01 sections 1, 3.1, 5.5 and 5.6.1):**
+  - Phase-coincident Tithi ends match USNO/NASA within one minute.
+  - All 14 Karana candidates fit the 60-position rule.
+  - IMD's ayanamsa values match Swiss true Lahiri within 0.8″.
+  - Central Station sunrise and sunset fit the 47′ convention within 0.7 minutes and miss SUN-B by 3.4 to 3.7 minutes.
+
+  The Swiss figures come from a scratch session and are not committed.
+- **Source register:** SRC-IMD-HANDOFF-6464388772 added.
+
+No decision status changed. WP-B2 stays BLOCKED.
+
 ## Known limits of this package
 
-- The IMD Rashtriya Panchang could not be retrieved (network policy refusal and robots disallow). As a result there are no IMD rows, no Nakshatra or Yoga ending references, and no verified Hindu-convention sunrise reference.
+- The IMD Rashtriya Panchang could not be retrieved (network policy refusal and robots disallow). There are 46 reviewer-mediated IMD candidates but no verified IMD rows, so there are still no verified Nakshatra or Yoga ending references and no verified Hindu-convention sunrise reference.
 - Values were read through an automated page-reading tool. Internal cross-checks pass, but QA should re-read rows from the live sources.
 - Karana names are not adopted.
