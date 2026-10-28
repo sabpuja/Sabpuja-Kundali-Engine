@@ -177,7 +177,7 @@ Use only approved Sabpuja design tokens and logo source from the design-system r
 See [DECISIONS.md](DECISIONS.md) for questions requiring owner selection, and [section 14](#14-open-owner-decisions) for the decisions raised by this revision. Top launch risks: AGPL combined-work boundary, sidereal Lagna precision, dataset licensing, time-zone historical correctness, Indian city collisions, data leakage, Hindi text rendering and unverified astrology interpretation claims. Block launch rather than asserting completion when evidence is missing.
 
 Additional risks identified by 2026-10-27:
-- **Preview runtime drift:** the restricted preview runs gateway settings patched on the server outside Git (permitted Origin, file mode, and a trusted upstream IP `172.28.0.3` for real-IP throttling). That IP can change if the edge proxy container is recreated, and the per-client limits must then be rechecked.
+- **Preview runtime drift:** the restricted preview runs gateway settings patched on the server outside Git (permitted Origin, file mode, and a trusted upstream IP `172.28.0.3` for real-IP throttling). **Control:** that IP can change if the edge proxy (Caddy) container is recreated. Any recreation must be followed by revalidating the trusted-IP line and re-running the per-client throttling checks before the preview is used again.
 - **Narrow privacy evidence:** the preview log scan searched only for three known synthetic input values. It is not a general privacy certification.
 - **Comprehensive-report scope creep:** premium content can outrun validated calculations. Only ENG-passed data may feed RPT content.
 - **Role separation:** see the PR #48 correction and the open authorship question in section 0.
@@ -200,7 +200,8 @@ Every Claude issue/PR must cite at least one KUN-F## identifier (or, once adopte
 |---|---|---|
 | **Canonical policy** (on `main`) | Swiss Ephemeris integration conventions SCI-01a to SCI-01h and SCI-01b/c; REL-01 release-evidence policy; SCI-03 date window, historical-clock Option B, D3 v2, pinned `tzdata==2026.5`; chart schema `0.3.0` (SCI-02 C2); metadata `/3` retained | [DECISIONS.md](DECISIONS.md); adoption merge `5b71408fadc4634805b56dbcff0c19f941830eb0`; schema 0.3.0 merged by docs-only [PR #43](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/43) at `main` `2f67c648f7c7e02dade58bd72993722d06cb1cd3` |
 | **Drafted feature code** (unmerged) | Engine hardening, prototype and D1/D9 charts (stack #39/#40 → #41 → #42); owner-preview gateway (#44); Phase 1 PDF renderer (#45); PDF download (#46). All are draft and unmerged; none is on `main` | [#41](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/41) `6c9e67069f86aa5c7e91771905d3cb5de2e66d69`, [#42](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/42) `185353a1de8e5da02d20ea156cd4fca225fc1a27`, [#44](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/44) `b436134fbcd82e0f3c510485c244f968dbb9deea`, [#45](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/45) `15b048b5587a0da819025177bc0db0d902447a5b`, [#46](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/46) `f808eacfd677beca85c2eb33b8107def9ef12c71` |
-| **Independent QA** (ChatGPT, exact SHA) | C7 engineering execution PASS at `185353a` (474/0/0 engine, 106/0/0 prototype, Swiss D3 v2 PASS 24/24); Gate 3E scoped source/rule/UI PASS; preview gateway isolated PASS; Phase 1 PDF isolated PASS; PDF download isolated PASS; real-HTTPS four-category synthetic QA PASS | [C7 5647737922](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/42#pullrequestreview-5647737922), [Gate 3E 5646798499](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/42#pullrequestreview-5646798499), [#44 5648673115](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/44#pullrequestreview-5648673115), [#45 5650911232](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/45#pullrequestreview-5650911232), [#46 5651387736](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/46#pullrequestreview-5651387736), [HTTPS 6442162352](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/46#issuecomment-6442162352) |
+| **Independent QA** (ChatGPT, exact SHA, Claude-authored code) | C7 engineering execution PASS at `185353a` (474/0/0 engine, 106/0/0 prototype, Swiss D3 v2 PASS 24/24); Gate 3E scoped source/rule/UI PASS | [C7 5647737922](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/42#pullrequestreview-5647737922), [Gate 3E 5646798499](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/42#pullrequestreview-5646798499) |
+| **Reviewer-executed functional and HTTPS QA** (ChatGPT, exact SHA; builder/reviewer independence unresolved, OD-12) | Preview gateway isolated PASS (#44); Phase 1 PDF isolated PASS (#45); PDF download isolated PASS (#46); real-HTTPS four-category synthetic QA PASS. These results stand as functional test evidence within their stated scope. They are not counted as independent QA acceptance until OD-12 is decided, and they are not a complete privacy, accessibility, legal or client-release signoff | [#44 5648673115](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/44#pullrequestreview-5648673115), [#45 5650911232](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/45#pullrequestreview-5650911232), [#46 5651387736](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/46#pullrequestreview-5651387736), [HTTPS 6442162352](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/46#issuecomment-6442162352) |
 | **Restricted deployment** | Owner-only, Basic-Auth HTTPS preview on Hostinger, updated on 2026-10-27 to PR #46 `f808eac` (engine image `sha256:b788ae5d4397a69a3647e3a02a964e1b721d3d70ae95064cdabd1fd15b2ff2c0`, rollback image `sha256:255cd8cab9e574a942b325c25c450eea7a72671370e87d72eb6cda3fa75909fd` preserved). Synthetic data only; no client invited | [Update receipt 6440936155](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/46#issuecomment-6440936155), [follow-up 6442162352](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/46#issuecomment-6442162352) |
 | **Owner acceptance** | Owner visual and editorial acceptance of the preview and PDF: **PENDING**. PRD and roadmap approval: **PENDING**. PR #1 HOLD: **ACTIVE** | [PR #1 HOLD 6323581875](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/1#issuecomment-6323581875), [C7 Option A 6393656493](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/1#issuecomment-6393656493) |
 | **Public release** | None. **Production NO-GO.** No Shopify staging, no public endpoint, no paid offering | - |
@@ -213,7 +214,7 @@ Every Claude issue/PR must cite at least one KUN-F## identifier (or, once adopte
 **It is not:** the public MVP, a Shopify integration, a client or paid release, golden-chart scientific certification, or a privacy/legal signoff. The [PR #1 HOLD](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/1#issuecomment-6323581875) is not closed by it.
 
 ### 11.3 P0 requirement status
-Status labels: **Completed in isolated development**, **Independent QA passed**, **Restricted preview deployed**, **Partially completed**, **Pending owner acceptance**, **Pending integration**, **Not started**, **Production blocked**. Every P0 requirement is also **Production blocked** until KUN-08.
+Status labels: **Completed in isolated development**, **Independent QA passed** (used only for QA of Claude-authored code), **Functional QA passed (independence unresolved, OD-12)** (used for #44 to #46), **Restricted preview deployed**, **Partially completed**, **Pending owner acceptance**, **Pending integration**, **Not started**, **Production blocked**. Every P0 requirement is also **Production blocked** until KUN-08.
 
 | Req | Status (2026-10-27) | Evidence | Remaining before public P0 |
 |---|---|---|---|
@@ -226,8 +227,8 @@ Status labels: **Completed in isolated development**, **Independent QA passed**,
 | KUN-F07 Core explanations | Not started (Phase 1 PDF states "not an interpretation") | `report/phase1` at `15b048b` | Rule-ID explanation library, editorial review, RPT gate |
 | KUN-F08 Transparent results | Partially completed; Restricted preview deployed (method, provenance and limitations shown) | #44/#46 | QA-014 formal run; correction-flow review |
 | KUN-F09 Hindi/English | Not started (English only) | - | Full Hindi UI, report and human review |
-| KUN-F10 Branded PDF | Partially completed: Phase 1 English eight-page PDF; Restricted preview deployed; Pending owner acceptance | #45, #46, HTTPS QA | Hindi PDF, owner editorial acceptance, QA-017 retention/authorization in final architecture |
-| KUN-F11 Self-hosted API | Partially completed; Restricted preview deployed (Basic Auth, Origin check, 4 KiB limit, rate limits, no-store) | #44, #46, HTTPS QA | SEC-01, threat model, app-proxy design, PERF-01 measurement, runtime patches into source |
+| KUN-F10 Branded PDF | Partially completed: Phase 1 English eight-page PDF; Functional QA passed (independence unresolved, OD-12); Restricted preview deployed; Pending owner acceptance | #45, #46, HTTPS QA | Hindi PDF, owner editorial acceptance, QA-017 retention/authorization in final architecture |
+| KUN-F11 Self-hosted API | Partially completed; Functional QA passed (independence unresolved, OD-12); Restricted preview deployed (Basic Auth, Origin check, 4 KiB limit, rate limits, no-store) | #44, #46, HTTPS QA | SEC-01, threat model, app-proxy design, PERF-01 measurement, runtime patches into source |
 | KUN-F12 Shopify staging | Not started | - | Owner staging authorization; KUN-07 |
 | KUN-F13 Accessibility | Partially completed (keyboard chart navigation, text tables, no overflow at four widths) | Gate 3E; #44/#46 browser QA | 200% zoom, screen-reader, contrast and reduced-motion audit (QA-022) |
 | KUN-F14 Privacy/security | Partially completed (in-memory, no storage, no-store, access logs off, limited synthetic log scan) | #46 receipts | SEC-01 decision, qualified privacy review, comprehensive log/PII audit |
@@ -245,26 +246,27 @@ Status labels: **Completed in isolated development**, **Independent QA passed**,
 - Owner editorial acceptance and final public release authorization.
 
 ## 12. Proposed comprehensive-report scope (KUN-P1-ADV)
-**Status: PROPOSED, not approved.** None of these requirements is a canonical scientific method, an approved product, or a completed feature. Each needs its own owner decision before implementation. The milestone identifier `KUN-P1-ADV` is new and proposed; it replaces the colliding use of "KUN-04" in draft PRs #47 and #48 ([OD-02](#14-open-owner-decisions)). The original KUN-04 still means the secure service milestone.
+**Status: PROPOSED, not approved.** None of these requirements is a canonical scientific method, an approved product, or a completed feature. Each needs its own owner decision before implementation. The milestone identifier `KUN-P1-ADV` is new and proposed; it replaces the colliding use of "KUN-04" in draft PRs #47 and #48 ([OD-02](#14-open-owner-decisions)). The original KUN-04 still means the secure service milestone (see the naming correction in [DEVELOPMENT-ROADMAP.md section 2.2](DEVELOPMENT-ROADMAP.md#22-milestone-status-as-of-2026-10-27)).
 
 ### 12.1 Proposed requirements
 | ID | Requirement (proposed) | Minimum acceptance outcome (proposed) | Gates |
 |---|---|---|---|
 | KUN-A01 Birth Panchanga | Tithi, Vara, Nakshatra, Yoga and Karana at birth, with sunrise/sunset under one validated, owner-approved convention | Owner-approved method record (e.g. Sun/Moon flags, tithi at birth vs sunrise, civil vs sunrise Vara, upper-limb and refraction choice); independently sourced reference cases such as an official national Panchang; fail closed when sunrise/sunset is undefined or the place/clock is unsupported | ENG; RPT for any explanation |
 | KUN-A02 Vimshottari Dasha | Mahadasha and Antardasha first, Pratyantardasha after separate validation | Owner-approved year-length and time-arithmetic convention; exact half-open boundaries; independently sourced timelines; no change to chart `0.3.0` outputs | ENG; RPT for any explanation |
-| KUN-A03 Additional divisional charts | Beginning with an independently validated D10, then individually approved vargas | One owner-approved transformation rule per chart; independent rule oracle; versioned contract | ENG |
+| KUN-A03 Additional divisional charts | Beginning with an independently validated D10; then, as proposals only, D7 and D12, and further individually approved vargas. Each chart has its own scientific-method gate | One owner-approved transformation rule per chart; independent rule oracle; versioned contract | ENG |
 | KUN-A04 Birthplace coverage | Expanded licensed offline Indian birthplace database, later worldwide | DATA-01 licensing, import and alias QA; ambiguity resolution; zone-to-coordinate consistency; no runtime geocoding API | ENG |
 | KUN-A05 Yogas and Doshas | Detection from versioned, source-cited rule definitions | Rule registry with IDs, sources and school differences; positive and negative fixtures; no invented yogas | ENG (detection) and RPT (wording) |
 | KUN-A06 Strengths | Planetary and house strengths, Shadbala and Ashtakavarga | Owner-approved method per component; independent reference cases | ENG |
 | KUN-A07 Transits and periods | Transit and period analysis over a stated horizon | Approved method and horizon; boundary-time tests; uncertainty disclosure | ENG; RPT |
 | KUN-A08 Interpretations | Professionally authored, traceable chart interpretations | Every statement maps to a rule ID, chart facts, method version and authored source; traditional framing; no certainty, no medical/financial/legal advice; AI may not invent content | RPT |
 | KUN-A09 Premium reports | Premium and comprehensive downloadable reports | Only ENG-passed modules included; no padded pages; accessible searchable PDF; bilingual when released | ENG for data; RPT for report |
-| KUN-A10 Specialized products | Marriage, compatibility, career and annual reports | Separate scope, consent (two-person data for compatibility), privacy and editorial review per product | ENG; RPT; privacy/legal |
+| KUN-A10 Specialized products | Marriage, compatibility, career and annual reports. Concepts under consideration include a Career & Finance report (no financial predictions or advice) and a Professional Astrologer report; neither is approved | Separate scope, consent (two-person data for compatibility), privacy and editorial review per product | ENG; RPT; privacy/legal |
 | KUN-A11 Bilingual reports | English and Hindi editions of every released report | Human-reviewed Hindi terminology and typography; numeric identity across languages | RPT |
 | KUN-A12 Report design system | Premium report layouts and readable tables built on the approved Sabpuja brand | Design-system fidelity; print and screen QA; accessibility | RPT |
+| KUN-A13 Commercial-demand validation | Evidence that a proposed paid report has real demand before it becomes a committed product | Competitor offer evidence, buyer-demand validation, format/price tests, pilot acceptance; owner signoff; no assumed prices or sales claims | Owner commercial decision (separate from ENG/RPT) |
 
 ### 12.2 Proposed delivery order
-Panchanga (KUN-A01) → Vimshottari (KUN-A02) → additional verified divisional charts, starting with D10 (KUN-A03) → strengths (KUN-A06). Birthplace expansion (KUN-A04) and report work (KUN-A08 to KUN-A12) run alongside, gated as set out in the roadmap. Yogas/Doshas and transits follow once their inputs are ENG-passed.
+Panchanga (KUN-A01) → Vimshottari (KUN-A02) → additional verified divisional charts, starting with D10 (KUN-A03) → strengths (KUN-A06). Birthplace expansion (KUN-A04) and report work (KUN-A08 to KUN-A12) run alongside, gated as set out in the roadmap. Yogas/Doshas and transits follow once their inputs are ENG-passed. Commercial-demand validation (KUN-A13) comes before any paid report product is committed.
 
 ### 12.3 Proposed offering structure
 *Names, contents, page counts and prices are placeholders for owner decision ([OD-03](#14-open-owner-decisions)). Draft PR #47 is reference only.*
@@ -275,9 +277,11 @@ Panchanga (KUN-A01) → Vimshottari (KUN-A02) → additional verified divisional
 | **Entry report** | Free Kundali plus validated Birth Panchanga and Dasha balance in a compact report | Proposed |
 | **Premium report** | Entry plus validated Dasha timelines, supported divisional charts and traceable interpretations | Proposed |
 | **Professional / comprehensive report** | Premium plus validated strengths, further charts, transits and method appendices | Proposed |
-| **Specialized reports** | Marriage, compatibility, career, annual | Proposed |
+| **Specialized reports** | Marriage, compatibility, career, annual; concepts such as Career & Finance and Professional Astrologer | Proposed |
 
 Only sections whose modules have passed the relevant gates may be included or marketed. A target page count is never a reason to add content.
+
+**Commercial-demand validation (proposed gate, KUN-A13).** Before the owner commits to any paid report product (SKU), a separate product-market check should be done and signed off by the owner: evidence of competitor offers and formats, buyer-demand validation, format and price tests, and pilot acceptance. This gate is about whether to sell a product. It does not replace ENG or RPT, which decide whether a module is correct and of report quality. No price, demand level or sales outcome is assumed in this document.
 
 ## 13. Module acceptance gates: ENG and RPT
 Two independent gates apply to every module in section 12, in addition to the existing gates in section 7 and the [acceptance matrix](ACCEPTANCE-MATRIX.md). They do not weaken REL-01 or any existing gate.
@@ -298,8 +302,8 @@ These are raised or restated by this revision. None is decided here. Existing pe
 | ID | Decision needed |
 |---|---|
 | OD-01 | Approve, revise or reject this PRD 1.1-proposed and roadmap 1.1-proposed |
-| OD-02 | Adopt `KUN-P1-ADV` (or another non-colliding identifier) for the advanced-report milestone, and the KUN-A01 to KUN-A12 requirement IDs |
-| OD-03 | Offering structure, tiers, page-count targets and prices (section 12.3) |
+| OD-02 | Adopt `KUN-P1-ADV` (or another non-colliding identifier) for the advanced-report milestone, and the KUN-A01 to KUN-A13 requirement IDs |
+| OD-03 | Offering structure, tiers, page-count targets and prices (section 12.3), and the commercial-demand validation approach before any paid product is committed (KUN-A13) |
 | OD-04 | Priority order of KUN-A modules and Workstreams A to E |
 | OD-05 | Whether broader independent golden-chart or JPL/INPOP assurance is required before any public or paid release, beyond REL-01's mandatory gates |
 | OD-06 | Panchanga conventions (SCI-PAN-01 style record): flags, sunrise definition, Vara convention, boundary rules, reference source |
@@ -325,4 +329,4 @@ This revision is limited to `docs/PRD.md` and `docs/DEVELOPMENT-ROADMAP.md`. The
 |---|---|---|---|---|
 | 1.0-rc1 | 2026-10-21 | ChatGPT PM (planning PR #3) | Initial PRD | PENDING |
 | 1.0-rc1 + REL-01 | 2026-10-24 | Claude (PR #20) | REL-01 evidence-policy wording | REL-01 owner approved / canonical, adoption merge `5b71408` |
-| 1.1-proposed | 2026-10-28 | Claude (CLAUDE-DOC-014, issue #49) | Roles restated; status snapshot as of 2026-10-27; expanded vision; proposed KUN-P1-ADV scope (KUN-A01 to KUN-A12); ENG and RPT gates; open decisions | PENDING owner review |
+| 1.1-proposed | 2026-10-28 | Claude (CLAUDE-DOC-014, issue #49) | Roles restated; status snapshot as of 2026-10-27; expanded vision; proposed KUN-P1-ADV scope (KUN-A01 to KUN-A13); ENG and RPT gates; open decisions. Revised 2026-10-28 for ChatGPT review 5678627440 | PENDING owner review |
