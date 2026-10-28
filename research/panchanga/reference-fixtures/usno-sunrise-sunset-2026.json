@@ -1,0 +1,518 @@
+{
+  "fixture_set": "PAN-REF-SUN-2026",
+  "schema": "sabpuja-panchanga-reference-fixture/0 (proposed, non-executable)",
+  "status": "PROPOSED - NOT CANONICAL - research fixture for WP-B1; owner scientific-method approval pending",
+  "generated_by": "Claude, WP-B1, 2026-10-28; values transcribed from USNO API responses; nothing computed by the Sabpuja engine, Swiss Ephemeris or PR #48",
+  "important": "These are ASTRONOMICAL (upper-limb, refracted) sunrise/sunset times for the exact coordinates shown. They are not Hindu (centre, no refraction) sunrise times, not Rashtriya Panchang values, and not valid for any other point in the same city.",
+  "cases": [
+    {
+      "case_id": "PAN-REF-SUN-S01",
+      "fixture_class": "DIRECT_PUBLISHED_LOCATION_EVENT",
+      "location": {
+        "label": "Delhi reference point",
+        "latitude_deg": 28.6139,
+        "longitude_deg": 77.209,
+        "elevation_m": "not an input; USNO assumes sea level, level unobstructed horizon",
+        "coordinate_note": "Reference coordinates chosen for this fixture and sent to USNO exactly as shown. Not a DATA-01 gazetteer entry and not asserted to equal the prototype's curated places."
+      },
+      "date_local": "2026-06-21",
+      "utc_offset": "+05:30",
+      "utc_offset_source": "fixed offset passed to USNO as tz parameter; dst=false",
+      "published": {
+        "day_of_week": "Sunday",
+        "begin_civil_twilight": "04:57",
+        "sunrise": "05:24",
+        "upper_transit": "12:23",
+        "sunset": "19:22",
+        "end_civil_twilight": "19:49"
+      },
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-06-21&coords=28.6139,77.2090&tz=5.5",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "convention": "USNO astronomical: upper limb on a level sea horizon; centre geometrically 50 arcmin below horizontal (16' mean semidiameter + 34' mean refraction); geocentric-to-topocentric handling per USNO, not stated in detail",
+      "precision": "1 minute in local time; USNO states computed rise/set times may be in error by a minute or more because refraction is unpredictable",
+      "why_selected": "June solstice, north India",
+      "proposed_tolerance": {
+        "applies_to": "Option SUN-A (astronomical upper-limb sunrise) only",
+        "rule": "|engine - published| <= 120 s for sunrise and sunset",
+        "justification": "60 s for minute publication with unstated rounding, plus up to 60 s for differences in refraction model (fixed 34' at USNO versus Swiss pressure/temperature model) and solar semidiameter. Proposed only."
+      },
+      "use_under_option_SUN_B": "Not a direct reference. Usable only as a differential anchor: the Hindu-rising time must exceed the published astronomical time by the geometric time for the Sun's centre to climb a further ~50' (independently computed in WP-B2 by a spherical-astronomy oracle). That check is DERIVED, not published.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-S02",
+      "fixture_class": "DIRECT_PUBLISHED_LOCATION_EVENT",
+      "location": {
+        "label": "Delhi reference point",
+        "latitude_deg": 28.6139,
+        "longitude_deg": 77.209,
+        "elevation_m": "not an input; USNO assumes sea level, level unobstructed horizon",
+        "coordinate_note": "Reference coordinates chosen for this fixture and sent to USNO exactly as shown. Not a DATA-01 gazetteer entry and not asserted to equal the prototype's curated places."
+      },
+      "date_local": "2026-06-30",
+      "utc_offset": "+05:30",
+      "utc_offset_source": "fixed offset passed to USNO as tz parameter; dst=false",
+      "published": {
+        "day_of_week": "Tuesday",
+        "begin_civil_twilight": "05:00",
+        "sunrise": "05:27",
+        "upper_transit": "12:25",
+        "sunset": "19:23",
+        "end_civil_twilight": "19:50"
+      },
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-06-30&coords=28.6139,77.2090&tz=5.5",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "convention": "USNO astronomical: upper limb on a level sea horizon; centre geometrically 50 arcmin below horizontal (16' mean semidiameter + 34' mean refraction); geocentric-to-topocentric handling per USNO, not stated in detail",
+      "precision": "1 minute in local time; USNO states computed rise/set times may be in error by a minute or more because refraction is unpredictable",
+      "why_selected": "Full Moon within a minute of sunrise (see derived case PAN-DER-01)",
+      "proposed_tolerance": {
+        "applies_to": "Option SUN-A (astronomical upper-limb sunrise) only",
+        "rule": "|engine - published| <= 120 s for sunrise and sunset",
+        "justification": "60 s for minute publication with unstated rounding, plus up to 60 s for differences in refraction model (fixed 34' at USNO versus Swiss pressure/temperature model) and solar semidiameter. Proposed only."
+      },
+      "use_under_option_SUN_B": "Not a direct reference. Usable only as a differential anchor: the Hindu-rising time must exceed the published astronomical time by the geometric time for the Sun's centre to climb a further ~50' (independently computed in WP-B2 by a spherical-astronomy oracle). That check is DERIVED, not published.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-S03",
+      "fixture_class": "DIRECT_PUBLISHED_LOCATION_EVENT",
+      "location": {
+        "label": "Delhi reference point",
+        "latitude_deg": 28.6139,
+        "longitude_deg": 77.209,
+        "elevation_m": "not an input; USNO assumes sea level, level unobstructed horizon",
+        "coordinate_note": "Reference coordinates chosen for this fixture and sent to USNO exactly as shown. Not a DATA-01 gazetteer entry and not asserted to equal the prototype's curated places."
+      },
+      "date_local": "2026-12-21",
+      "utc_offset": "+05:30",
+      "utc_offset_source": "fixed offset passed to USNO as tz parameter; dst=false",
+      "published": {
+        "day_of_week": "Monday",
+        "begin_civil_twilight": "06:44",
+        "sunrise": "07:09",
+        "upper_transit": "12:19",
+        "sunset": "17:29",
+        "end_civil_twilight": "17:55"
+      },
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-12-21&coords=28.6139,77.2090&tz=5.5",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "convention": "USNO astronomical: upper limb on a level sea horizon; centre geometrically 50 arcmin below horizontal (16' mean semidiameter + 34' mean refraction); geocentric-to-topocentric handling per USNO, not stated in detail",
+      "precision": "1 minute in local time; USNO states computed rise/set times may be in error by a minute or more because refraction is unpredictable",
+      "why_selected": "December solstice, north India",
+      "proposed_tolerance": {
+        "applies_to": "Option SUN-A (astronomical upper-limb sunrise) only",
+        "rule": "|engine - published| <= 120 s for sunrise and sunset",
+        "justification": "60 s for minute publication with unstated rounding, plus up to 60 s for differences in refraction model (fixed 34' at USNO versus Swiss pressure/temperature model) and solar semidiameter. Proposed only."
+      },
+      "use_under_option_SUN_B": "Not a direct reference. Usable only as a differential anchor: the Hindu-rising time must exceed the published astronomical time by the geometric time for the Sun's centre to climb a further ~50' (independently computed in WP-B2 by a spherical-astronomy oracle). That check is DERIVED, not published.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-S04",
+      "fixture_class": "DIRECT_PUBLISHED_LOCATION_EVENT",
+      "location": {
+        "label": "Mumbai reference point",
+        "latitude_deg": 19.076,
+        "longitude_deg": 72.8777,
+        "elevation_m": "not an input; USNO assumes sea level, level unobstructed horizon",
+        "coordinate_note": "Reference coordinates chosen for this fixture and sent to USNO exactly as shown. Not a DATA-01 gazetteer entry and not asserted to equal the prototype's curated places."
+      },
+      "date_local": "2026-03-19",
+      "utc_offset": "+05:30",
+      "utc_offset_source": "fixed offset passed to USNO as tz parameter; dst=false",
+      "published": {
+        "day_of_week": "Thursday",
+        "begin_civil_twilight": "06:22",
+        "sunrise": "06:44",
+        "upper_transit": "12:46",
+        "sunset": "18:49",
+        "end_civil_twilight": "19:11"
+      },
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-03-19&coords=19.0760,72.8777&tz=5.5",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "convention": "USNO astronomical: upper limb on a level sea horizon; centre geometrically 50 arcmin below horizontal (16' mean semidiameter + 34' mean refraction); geocentric-to-topocentric handling per USNO, not stated in detail",
+      "precision": "1 minute in local time; USNO states computed rise/set times may be in error by a minute or more because refraction is unpredictable",
+      "why_selected": "New Moon 9 minutes after sunrise (PAN-DER-03)",
+      "proposed_tolerance": {
+        "applies_to": "Option SUN-A (astronomical upper-limb sunrise) only",
+        "rule": "|engine - published| <= 120 s for sunrise and sunset",
+        "justification": "60 s for minute publication with unstated rounding, plus up to 60 s for differences in refraction model (fixed 34' at USNO versus Swiss pressure/temperature model) and solar semidiameter. Proposed only."
+      },
+      "use_under_option_SUN_B": "Not a direct reference. Usable only as a differential anchor: the Hindu-rising time must exceed the published astronomical time by the geometric time for the Sun's centre to climb a further ~50' (independently computed in WP-B2 by a spherical-astronomy oracle). That check is DERIVED, not published.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-S05",
+      "fixture_class": "DIRECT_PUBLISHED_LOCATION_EVENT",
+      "location": {
+        "label": "Mumbai reference point",
+        "latitude_deg": 19.076,
+        "longitude_deg": 72.8777,
+        "elevation_m": "not an input; USNO assumes sea level, level unobstructed horizon",
+        "coordinate_note": "Reference coordinates chosen for this fixture and sent to USNO exactly as shown. Not a DATA-01 gazetteer entry and not asserted to equal the prototype's curated places."
+      },
+      "date_local": "2026-03-20",
+      "utc_offset": "+05:30",
+      "utc_offset_source": "fixed offset passed to USNO as tz parameter; dst=false",
+      "published": {
+        "day_of_week": "Friday",
+        "begin_civil_twilight": "06:21",
+        "sunrise": "06:43",
+        "upper_transit": "12:46",
+        "sunset": "18:49",
+        "end_civil_twilight": "19:11"
+      },
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-03-20&coords=19.0760,72.8777&tz=5.5",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "convention": "USNO astronomical: upper limb on a level sea horizon; centre geometrically 50 arcmin below horizontal (16' mean semidiameter + 34' mean refraction); geocentric-to-topocentric handling per USNO, not stated in detail",
+      "precision": "1 minute in local time; USNO states computed rise/set times may be in error by a minute or more because refraction is unpredictable",
+      "why_selected": "March equinox, west coast",
+      "proposed_tolerance": {
+        "applies_to": "Option SUN-A (astronomical upper-limb sunrise) only",
+        "rule": "|engine - published| <= 120 s for sunrise and sunset",
+        "justification": "60 s for minute publication with unstated rounding, plus up to 60 s for differences in refraction model (fixed 34' at USNO versus Swiss pressure/temperature model) and solar semidiameter. Proposed only."
+      },
+      "use_under_option_SUN_B": "Not a direct reference. Usable only as a differential anchor: the Hindu-rising time must exceed the published astronomical time by the geometric time for the Sun's centre to climb a further ~50' (independently computed in WP-B2 by a spherical-astronomy oracle). That check is DERIVED, not published.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-S06",
+      "fixture_class": "DIRECT_PUBLISHED_LOCATION_EVENT",
+      "location": {
+        "label": "Kolkata reference point",
+        "latitude_deg": 22.5726,
+        "longitude_deg": 88.3639,
+        "elevation_m": "not an input; USNO assumes sea level, level unobstructed horizon",
+        "coordinate_note": "Reference coordinates chosen for this fixture and sent to USNO exactly as shown. Not a DATA-01 gazetteer entry and not asserted to equal the prototype's curated places."
+      },
+      "date_local": "2026-09-23",
+      "utc_offset": "+05:30",
+      "utc_offset_source": "fixed offset passed to USNO as tz parameter; dst=false",
+      "published": {
+        "day_of_week": "Wednesday",
+        "begin_civil_twilight": "05:03",
+        "sunrise": "05:25",
+        "upper_transit": "11:29",
+        "sunset": "17:32",
+        "end_civil_twilight": "17:55"
+      },
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-09-23&coords=22.5726,88.3639&tz=5.5",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "convention": "USNO astronomical: upper limb on a level sea horizon; centre geometrically 50 arcmin below horizontal (16' mean semidiameter + 34' mean refraction); geocentric-to-topocentric handling per USNO, not stated in detail",
+      "precision": "1 minute in local time; USNO states computed rise/set times may be in error by a minute or more because refraction is unpredictable",
+      "why_selected": "September equinox, east India",
+      "proposed_tolerance": {
+        "applies_to": "Option SUN-A (astronomical upper-limb sunrise) only",
+        "rule": "|engine - published| <= 120 s for sunrise and sunset",
+        "justification": "60 s for minute publication with unstated rounding, plus up to 60 s for differences in refraction model (fixed 34' at USNO versus Swiss pressure/temperature model) and solar semidiameter. Proposed only."
+      },
+      "use_under_option_SUN_B": "Not a direct reference. Usable only as a differential anchor: the Hindu-rising time must exceed the published astronomical time by the geometric time for the Sun's centre to climb a further ~50' (independently computed in WP-B2 by a spherical-astronomy oracle). That check is DERIVED, not published.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-S07",
+      "fixture_class": "DIRECT_PUBLISHED_LOCATION_EVENT",
+      "location": {
+        "label": "Kolkata reference point",
+        "latitude_deg": 22.5726,
+        "longitude_deg": 88.3639,
+        "elevation_m": "not an input; USNO assumes sea level, level unobstructed horizon",
+        "coordinate_note": "Reference coordinates chosen for this fixture and sent to USNO exactly as shown. Not a DATA-01 gazetteer entry and not asserted to equal the prototype's curated places."
+      },
+      "date_local": "2026-12-09",
+      "utc_offset": "+05:30",
+      "utc_offset_source": "fixed offset passed to USNO as tz parameter; dst=false",
+      "published": {
+        "day_of_week": "Wednesday",
+        "begin_civil_twilight": "05:41",
+        "sunrise": "06:05",
+        "upper_transit": "11:29",
+        "sunset": "16:53",
+        "end_civil_twilight": "17:17"
+      },
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-12-09&coords=22.5726,88.3639&tz=5.5",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "convention": "USNO astronomical: upper limb on a level sea horizon; centre geometrically 50 arcmin below horizontal (16' mean semidiameter + 34' mean refraction); geocentric-to-topocentric handling per USNO, not stated in detail",
+      "precision": "1 minute in local time; USNO states computed rise/set times may be in error by a minute or more because refraction is unpredictable",
+      "why_selected": "New Moon 17 minutes after sunrise (PAN-DER-02)",
+      "proposed_tolerance": {
+        "applies_to": "Option SUN-A (astronomical upper-limb sunrise) only",
+        "rule": "|engine - published| <= 120 s for sunrise and sunset",
+        "justification": "60 s for minute publication with unstated rounding, plus up to 60 s for differences in refraction model (fixed 34' at USNO versus Swiss pressure/temperature model) and solar semidiameter. Proposed only."
+      },
+      "use_under_option_SUN_B": "Not a direct reference. Usable only as a differential anchor: the Hindu-rising time must exceed the published astronomical time by the geometric time for the Sun's centre to climb a further ~50' (independently computed in WP-B2 by a spherical-astronomy oracle). That check is DERIVED, not published.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-S08",
+      "fixture_class": "DIRECT_PUBLISHED_LOCATION_EVENT",
+      "location": {
+        "label": "Chennai reference point",
+        "latitude_deg": 13.0827,
+        "longitude_deg": 80.2707,
+        "elevation_m": "not an input; USNO assumes sea level, level unobstructed horizon",
+        "coordinate_note": "Reference coordinates chosen for this fixture and sent to USNO exactly as shown. Not a DATA-01 gazetteer entry and not asserted to equal the prototype's curated places."
+      },
+      "date_local": "2026-01-15",
+      "utc_offset": "+05:30",
+      "utc_offset_source": "fixed offset passed to USNO as tz parameter; dst=false",
+      "published": {
+        "day_of_week": "Thursday",
+        "begin_civil_twilight": "06:12",
+        "sunrise": "06:35",
+        "upper_transit": "12:18",
+        "sunset": "18:01",
+        "end_civil_twilight": "18:24"
+      },
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-01-15&coords=13.0827,80.2707&tz=5.5",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "convention": "USNO astronomical: upper limb on a level sea horizon; centre geometrically 50 arcmin below horizontal (16' mean semidiameter + 34' mean refraction); geocentric-to-topocentric handling per USNO, not stated in detail",
+      "precision": "1 minute in local time; USNO states computed rise/set times may be in error by a minute or more because refraction is unpredictable",
+      "why_selected": "January, south India",
+      "proposed_tolerance": {
+        "applies_to": "Option SUN-A (astronomical upper-limb sunrise) only",
+        "rule": "|engine - published| <= 120 s for sunrise and sunset",
+        "justification": "60 s for minute publication with unstated rounding, plus up to 60 s for differences in refraction model (fixed 34' at USNO versus Swiss pressure/temperature model) and solar semidiameter. Proposed only."
+      },
+      "use_under_option_SUN_B": "Not a direct reference. Usable only as a differential anchor: the Hindu-rising time must exceed the published astronomical time by the geometric time for the Sun's centre to climb a further ~50' (independently computed in WP-B2 by a spherical-astronomy oracle). That check is DERIVED, not published.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-S09",
+      "fixture_class": "DIRECT_PUBLISHED_LOCATION_EVENT",
+      "location": {
+        "label": "Guwahati reference point",
+        "latitude_deg": 26.1445,
+        "longitude_deg": 91.7362,
+        "elevation_m": "not an input; USNO assumes sea level, level unobstructed horizon",
+        "coordinate_note": "Reference coordinates chosen for this fixture and sent to USNO exactly as shown. Not a DATA-01 gazetteer entry and not asserted to equal the prototype's curated places."
+      },
+      "date_local": "2026-06-21",
+      "utc_offset": "+05:30",
+      "utc_offset_source": "fixed offset passed to USNO as tz parameter; dst=false",
+      "published": {
+        "day_of_week": "Sunday",
+        "begin_civil_twilight": "04:05",
+        "sunrise": "04:31",
+        "upper_transit": "11:25",
+        "sunset": "18:18",
+        "end_civil_twilight": "18:44"
+      },
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-06-21&coords=26.1445,91.7362&tz=5.5",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "convention": "USNO astronomical: upper limb on a level sea horizon; centre geometrically 50 arcmin below horizontal (16' mean semidiameter + 34' mean refraction); geocentric-to-topocentric handling per USNO, not stated in detail",
+      "precision": "1 minute in local time; USNO states computed rise/set times may be in error by a minute or more because refraction is unpredictable",
+      "why_selected": "Far-east India: IST is about 37 minutes behind local mean time; earliest Indian sunrise in this set",
+      "proposed_tolerance": {
+        "applies_to": "Option SUN-A (astronomical upper-limb sunrise) only",
+        "rule": "|engine - published| <= 120 s for sunrise and sunset",
+        "justification": "60 s for minute publication with unstated rounding, plus up to 60 s for differences in refraction model (fixed 34' at USNO versus Swiss pressure/temperature model) and solar semidiameter. Proposed only."
+      },
+      "use_under_option_SUN_B": "Not a direct reference. Usable only as a differential anchor: the Hindu-rising time must exceed the published astronomical time by the geometric time for the Sun's centre to climb a further ~50' (independently computed in WP-B2 by a spherical-astronomy oracle). That check is DERIVED, not published.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-S10",
+      "fixture_class": "DIRECT_PUBLISHED_LOCATION_EVENT",
+      "location": {
+        "label": "Srinagar reference point",
+        "latitude_deg": 34.0837,
+        "longitude_deg": 74.7973,
+        "elevation_m": "not an input; USNO assumes sea level, level unobstructed horizon",
+        "coordinate_note": "Reference coordinates chosen for this fixture and sent to USNO exactly as shown. Not a DATA-01 gazetteer entry and not asserted to equal the prototype's curated places."
+      },
+      "date_local": "2026-12-21",
+      "utc_offset": "+05:30",
+      "utc_offset_source": "fixed offset passed to USNO as tz parameter; dst=false",
+      "published": {
+        "day_of_week": "Monday",
+        "begin_civil_twilight": "07:05",
+        "sunrise": "07:32",
+        "upper_transit": "12:29",
+        "sunset": "17:25",
+        "end_civil_twilight": "17:53"
+      },
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-12-21&coords=34.0837,74.7973&tz=5.5",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "convention": "USNO astronomical: upper limb on a level sea horizon; centre geometrically 50 arcmin below horizontal (16' mean semidiameter + 34' mean refraction); geocentric-to-topocentric handling per USNO, not stated in detail",
+      "precision": "1 minute in local time; USNO states computed rise/set times may be in error by a minute or more because refraction is unpredictable",
+      "why_selected": "Northernmost Indian case; latest sunrise in this set",
+      "proposed_tolerance": {
+        "applies_to": "Option SUN-A (astronomical upper-limb sunrise) only",
+        "rule": "|engine - published| <= 120 s for sunrise and sunset",
+        "justification": "60 s for minute publication with unstated rounding, plus up to 60 s for differences in refraction model (fixed 34' at USNO versus Swiss pressure/temperature model) and solar semidiameter. Proposed only."
+      },
+      "use_under_option_SUN_B": "Not a direct reference. Usable only as a differential anchor: the Hindu-rising time must exceed the published astronomical time by the geometric time for the Sun's centre to climb a further ~50' (independently computed in WP-B2 by a spherical-astronomy oracle). That check is DERIVED, not published.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-S11",
+      "fixture_class": "DIRECT_PUBLISHED_LOCATION_EVENT",
+      "location": {
+        "label": "Kanyakumari reference point",
+        "latitude_deg": 8.0883,
+        "longitude_deg": 77.5385,
+        "elevation_m": "not an input; USNO assumes sea level, level unobstructed horizon",
+        "coordinate_note": "Reference coordinates chosen for this fixture and sent to USNO exactly as shown. Not a DATA-01 gazetteer entry and not asserted to equal the prototype's curated places."
+      },
+      "date_local": "2026-03-20",
+      "utc_offset": "+05:30",
+      "utc_offset_source": "fixed offset passed to USNO as tz parameter; dst=false",
+      "published": {
+        "day_of_week": "Friday",
+        "begin_civil_twilight": "06:03",
+        "sunrise": "06:24",
+        "upper_transit": "12:27",
+        "sunset": "18:31",
+        "end_civil_twilight": "18:51"
+      },
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-03-20&coords=8.0883,77.5385&tz=5.5",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "convention": "USNO astronomical: upper limb on a level sea horizon; centre geometrically 50 arcmin below horizontal (16' mean semidiameter + 34' mean refraction); geocentric-to-topocentric handling per USNO, not stated in detail",
+      "precision": "1 minute in local time; USNO states computed rise/set times may be in error by a minute or more because refraction is unpredictable",
+      "why_selected": "Southernmost Indian case; equinox",
+      "proposed_tolerance": {
+        "applies_to": "Option SUN-A (astronomical upper-limb sunrise) only",
+        "rule": "|engine - published| <= 120 s for sunrise and sunset",
+        "justification": "60 s for minute publication with unstated rounding, plus up to 60 s for differences in refraction model (fixed 34' at USNO versus Swiss pressure/temperature model) and solar semidiameter. Proposed only."
+      },
+      "use_under_option_SUN_B": "Not a direct reference. Usable only as a differential anchor: the Hindu-rising time must exceed the published astronomical time by the geometric time for the Sun's centre to climb a further ~50' (independently computed in WP-B2 by a spherical-astronomy oracle). That check is DERIVED, not published.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-S12",
+      "fixture_class": "DIRECT_PUBLISHED_LOCATION_EVENT",
+      "location": {
+        "label": "Sydney reference point (southern hemisphere control)",
+        "latitude_deg": -33.8688,
+        "longitude_deg": 151.2093,
+        "elevation_m": "not an input; USNO assumes sea level, level unobstructed horizon",
+        "coordinate_note": "Reference coordinates chosen for this fixture and sent to USNO exactly as shown. Not a DATA-01 gazetteer entry and not asserted to equal the prototype's curated places."
+      },
+      "date_local": "2026-06-21",
+      "utc_offset": "+10:00",
+      "utc_offset_source": "fixed offset passed to USNO as tz parameter; dst=false",
+      "published": {
+        "day_of_week": "Sunday",
+        "begin_civil_twilight": "06:32",
+        "sunrise": "07:00",
+        "upper_transit": "11:57",
+        "sunset": "16:54",
+        "end_civil_twilight": "17:22"
+      },
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-06-21&coords=-33.8688,151.2093&tz=10",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "convention": "USNO astronomical: upper limb on a level sea horizon; centre geometrically 50 arcmin below horizontal (16' mean semidiameter + 34' mean refraction); geocentric-to-topocentric handling per USNO, not stated in detail",
+      "precision": "1 minute in local time; USNO states computed rise/set times may be in error by a minute or more because refraction is unpredictable",
+      "why_selected": "Southern-hemisphere winter; non-Indian zone",
+      "proposed_tolerance": {
+        "applies_to": "Option SUN-A (astronomical upper-limb sunrise) only",
+        "rule": "|engine - published| <= 120 s for sunrise and sunset",
+        "justification": "60 s for minute publication with unstated rounding, plus up to 60 s for differences in refraction model (fixed 34' at USNO versus Swiss pressure/temperature model) and solar semidiameter. Proposed only."
+      },
+      "use_under_option_SUN_B": "Not a direct reference. Usable only as a differential anchor: the Hindu-rising time must exceed the published astronomical time by the geometric time for the Sun's centre to climb a further ~50' (independently computed in WP-B2 by a spherical-astronomy oracle). That check is DERIVED, not published.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-N01",
+      "fixture_class": "DIRECT_PUBLISHED_NEGATIVE_EVENT",
+      "location": {
+        "label": "High-latitude reference point inside the SCI-01g band",
+        "latitude_deg": 65.9,
+        "longitude_deg": 25.0,
+        "coordinate_note": "Synthetic reference coordinates; 65.9 deg is inside the canonical +/-66.0 deg supported band"
+      },
+      "date_local": "2026-06-21",
+      "utc_offset": "+03:00",
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-06-21&coords=65.9,25.0&tz=3",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "published": {
+        "sundata": [
+          {
+            "phen": "Object continuously above the Horizon",
+            "time": null
+          },
+          {
+            "phen": "Object continuously above the Twilight Limit",
+            "time": null
+          },
+          {
+            "phen": "Lower Transit",
+            "time": "01:22"
+          },
+          {
+            "phen": "Upper Transit",
+            "time": "13:22"
+          }
+        ]
+      },
+      "expected": {
+        "option_SUN_A": "No sunrise and no sunset on this date (published). Engine must return a typed refusal, never a guessed time.",
+        "option_SUN_B": "DERIVED, not published: the Sun's centre should still dip below the geometric horizon (needs |lat| < 90 - 23.44 = 66.56 deg at solstice), so a Hindu rising/setting is expected to exist. To be confirmed by the WP-B2 oracle; Swiss uses its slower algorithm here because |lat| > 65 deg for the Sun."
+      },
+      "why_selected": "Shows that inside the canonical latitude band an astronomical-sunrise convention can be undefined while a centre/no-refraction convention is defined. Proves fail-closed handling is reachable in-band under SUN-A.",
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    },
+    {
+      "case_id": "PAN-REF-SUN-N02",
+      "fixture_class": "DIRECT_PUBLISHED_NEGATIVE_EVENT",
+      "location": {
+        "label": "Tromso reference point (outside the SCI-01g band)",
+        "latitude_deg": 69.6492,
+        "longitude_deg": 18.9553
+      },
+      "date_local": "2026-12-21",
+      "utc_offset": "+01:00",
+      "source_id": "SRC-USNO-RSTT",
+      "query": "https://aa.usno.navy.mil/api/rstt/oneday?date=2026-12-21&coords=69.6492,18.9553&tz=1",
+      "api_version": "4.0.1",
+      "accessed": "2026-10-28",
+      "published": {
+        "sundata": [
+          {
+            "phen": "Object continuously below the Horizon",
+            "time": null
+          },
+          {
+            "phen": "Begin Civil Twilight",
+            "time": "09:31"
+          },
+          {
+            "phen": "End Civil Twilight",
+            "time": "13:53"
+          }
+        ]
+      },
+      "expected": {
+        "sabpuja": "Refused earlier by LATITUDE_OUTSIDE_SUPPORTED_BAND (canonical SCI-01g, |lat| > 66.0). Panchanga must not reach sunrise computation. The published polar-night result documents why the band matters."
+      },
+      "status": "VERIFIED_SINGLE_PUBLISHER"
+    }
+  ]
+}

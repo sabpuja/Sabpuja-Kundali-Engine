@@ -1,0 +1,93 @@
+{
+  "fixture_set": "PAN-DER-2026",
+  "schema": "sabpuja-panchanga-reference-fixture/0 (proposed, non-executable)",
+  "status": "PROPOSED - NOT CANONICAL - research fixture for WP-B1; owner scientific-method approval pending",
+  "fixture_class": "DERIVED",
+  "warning": "Every case in this file is DERIVED: it combines published values from PAN-REF-PHASE-2026 and PAN-REF-SUN-2026 with stated arithmetic (IST = UT + 05:30; ordering of two published instants). None is a directly published Panchanga classification. Where a case depends on the SUN-B (Hindu rising) convention, the SUN-B time is an illustrative analytic estimate, not a published value, and the expected outcome is marked accordingly. No value here was computed by the Sabpuja engine, Swiss Ephemeris or PR #48.",
+  "illustrative_estimate_method": "Time for the Sun's centre to rise from a geometric altitude of -50 arcmin (USNO astronomical sunrise) to 0 (centre on the geometric horizon, no refraction), from the hour-angle relation cos H = (sin h - sin(lat) sin(dec)) / (cos(lat) cos(dec)) with dec held fixed. Results: about 3.3 to 4.6 minutes across Indian latitudes (8 to 34 deg), 4.2 to 4.3 minutes at Delhi near the solstices. This ignores the change of declination during the day and is used only to show convention sensitivity; WP-B2 must replace it with an independently coded oracle.",
+  "synthetic_inputs_note": "Birth times below are synthetic test instants, not personal data.",
+  "cases": [
+    {
+      "case_id": "PAN-DER-01",
+      "purpose": "Sunrise-Tithi classification that published minute data cannot settle under SUN-A, and that flips under SUN-B",
+      "inputs": {"location_ref": "PAN-REF-SUN-S02 (Delhi reference point, 2026-06-30)", "event_ref": "PAN-REF-PHASE-2026-25 (Full Moon)"},
+      "published_facts": {"full_moon_ist": ["2026-06-30T05:26+05:30 (USNO)", "2026-06-30T05:27+05:30 (NASA)"], "usno_astronomical_sunrise_ist": "05:27"},
+      "expected": {
+        "birth_time_tithi_at_05:20_IST": "Tithi 15 Shukla Purnima (instant precedes the Full Moon by at least 6 minutes under either source)",
+        "birth_time_tithi_at_05:35_IST": "Tithi 16 Krishna Pratipada (instant follows the Full Moon by at least 8 minutes)",
+        "sunrise_tithi_under_SUN_A": "UNRESOLVED from published data: the Full Moon and astronomical sunrise fall in the same published minute. Engine result must be reported with its second-precision instants and flagged as within the boundary-proximity window.",
+        "sunrise_tithi_under_SUN_B": "Tithi 16 Krishna Pratipada (DERIVED from the illustrative estimate: Hindu sunrise about 05:31 IST, about 4 minutes after the Full Moon)"
+      },
+      "status": "DERIVED"
+    },
+    {
+      "case_id": "PAN-DER-02",
+      "purpose": "Sunrise-Tithi with a comfortable margin; same answer under both sunrise conventions",
+      "inputs": {"location_ref": "PAN-REF-SUN-S07 (Kolkata reference point, 2026-12-09)", "event_ref": "PAN-REF-PHASE-2026-47 (New Moon)"},
+      "published_facts": {"new_moon_ist": "2026-12-09T06:22+05:30 (USNO and NASA agree)", "usno_astronomical_sunrise_ist": "06:05"},
+      "expected": {
+        "sunrise_tithi_under_SUN_A": "Tithi 30 Krishna Amavasya (New Moon 17 minutes after sunrise)",
+        "sunrise_tithi_under_SUN_B": "Tithi 30 Krishna Amavasya (Hindu sunrise estimated about 4 minutes later, still about 13 minutes before the New Moon)",
+        "tithi_transition_listed_in_daily_panchanga": "Amavasya ends / Shukla Pratipada begins at 06:22 IST (published minute)"
+      },
+      "status": "DERIVED"
+    },
+    {
+      "case_id": "PAN-DER-03",
+      "purpose": "Sunrise-Tithi with a single-digit-minute margin",
+      "inputs": {"location_ref": "PAN-REF-SUN-S04 (Mumbai reference point, 2026-03-19)", "event_ref": "PAN-REF-PHASE-2026-11 (New Moon)"},
+      "published_facts": {"new_moon_ist": "2026-03-19T06:53+05:30 (USNO and NASA agree)", "usno_astronomical_sunrise_ist": "06:44"},
+      "expected": {
+        "sunrise_tithi_under_SUN_A": "Tithi 30 Krishna Amavasya (margin about 9 minutes)",
+        "sunrise_tithi_under_SUN_B": "Tithi 30 Krishna Amavasya (estimated margin about 5 minutes)"
+      },
+      "status": "DERIVED"
+    },
+    {
+      "case_id": "PAN-DER-04",
+      "purpose": "Birth before local sunrise: civil weekday and sunrise Vara differ under every sunrise convention",
+      "inputs": {"location_ref": "PAN-REF-SUN-S01 (Delhi reference point, 2026-06-21)", "synthetic_birth_local": "2026-06-21T05:00+05:30"},
+      "published_facts": {"usno_day_of_week": "Sunday", "usno_astronomical_sunrise_ist": "05:24"},
+      "expected": {
+        "civil_weekday": "Sunday (Ravivara by civil date)",
+        "sunrise_vara_under_SUN_A": "Saturday (Shanivara): birth precedes sunrise by 24 minutes",
+        "sunrise_vara_under_SUN_B": "Saturday (Shanivara): Hindu sunrise is later still"
+      },
+      "status": "DERIVED"
+    },
+    {
+      "case_id": "PAN-DER-05",
+      "purpose": "Same as PAN-DER-04 in winter at the northernmost Indian case",
+      "inputs": {"location_ref": "PAN-REF-SUN-S10 (Srinagar reference point, 2026-12-21)", "synthetic_birth_local": "2026-12-21T07:20+05:30"},
+      "published_facts": {"usno_day_of_week": "Monday", "usno_astronomical_sunrise_ist": "07:32"},
+      "expected": {"civil_weekday": "Monday (Somavara by civil date)", "sunrise_vara_under_SUN_A": "Sunday (Ravivara)", "sunrise_vara_under_SUN_B": "Sunday (Ravivara)"},
+      "status": "DERIVED"
+    },
+    {
+      "case_id": "PAN-DER-06",
+      "purpose": "Convention-sensitive Vara: the answer depends on the sunrise convention the owner selects",
+      "inputs": {"location_ref": "PAN-REF-SUN-S03 (Delhi reference point, 2026-12-21)", "synthetic_birth_local": "2026-12-21T07:11+05:30"},
+      "published_facts": {"usno_day_of_week": "Monday", "usno_astronomical_sunrise_ist": "07:09"},
+      "expected": {
+        "civil_weekday": "Monday",
+        "sunrise_vara_under_SUN_A": "Monday (Somavara), birth about 2 minutes after published astronomical sunrise; inside the proposed 120 s SUN-A tolerance, so QA must use the engine's second-precision sunrise and report the margin",
+        "sunrise_vara_under_SUN_B": "Sunday (Ravivara), DERIVED: Hindu sunrise estimated about 07:13 IST, after the birth"
+      },
+      "status": "DERIVED - CONVENTION-SENSITIVE"
+    },
+    {
+      "case_id": "PAN-DER-07",
+      "purpose": "UT/IST civil-date rollover of a geocentric Tithi boundary",
+      "inputs": {"event_ref": "PAN-REF-PHASE-2026-03 (New Moon 2026-01-18 19:52 UT)"},
+      "expected": {"utc_date": "2026-01-18", "ist_instant": "2026-01-19T01:22+05:30", "meaning": "Shukla Pratipada begins on civil date 2026-01-19 in India although the UT date is 2026-01-18; the engine must convert instants, never dates."},
+      "status": "DERIVED"
+    },
+    {
+      "case_id": "PAN-DER-08",
+      "purpose": "Karana boundary 30 minutes after local midnight in India",
+      "inputs": {"event_ref": "PAN-REF-PHASE-2026-50 (Last Quarter 2026-12-30 18:59 UT)"},
+      "expected": {"ist_instant": "2026-12-31T00:29+05:30", "meaning": "One-based Karana 45 ends and 46 begins (zero-based 44 to 45) on civil date 2026-12-31 IST; names not asserted"},
+      "status": "DERIVED"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "fixture_set": "PAN-REF-IMD (EMPTY - CAPTURE REQUIRED)",
+  "schema": "sabpuja-panchanga-reference-fixture/0 (proposed, non-executable)",
+  "status": "TEMPLATE ONLY - contains no published values",
+  "why_empty": "On 2026-10-28 the Positional Astronomy Centre (IMD) host packolkata.imd.gov.in was unreachable from the Claude cloud environment: the environment's network policy refused the connection (HTTP 403 at the egress proxy) and the web-reading tool reported that the site disallows automated retrieval (robots). No IMD value was obtained, and no value has been substituted from another website.",
+  "identified_official_resources_not_retrieved": [
+    "https://packolkata.imd.gov.in/panchang/en/explanation",
+    "https://packolkata.imd.gov.in/panchang/en/panchang",
+    "https://packolkata.imd.gov.in/rashtriya-panchang-english.php",
+    "https://packolkata.imd.gov.in/rp.php",
+    "https://packolkata.imd.gov.in/panchang/en/asvina (monthly page pattern, seen in a search index only)",
+    "https://packolkata.imd.gov.in/panchang/en/regional-calendars (seen in a search index only)",
+    "https://packolkata.imd.gov.in/download/smrs/<City>.pdf (per-city sunrise/moonrise/set tables; titles seen in a search index: Panaji 73.82 E 15.45 N, Chandigarh 76.90 E 30.07 N, Gangtok 88.62 E 27.33 N; unverified)",
+    "https://packolkata.imd.gov.in/INDIAN_CALADAR_PAC.pdf (seen in a search index only)"
+  ],
+  "capture_targets": {
+    "minimum": "At least 24 rows: 6 Tithi endings, 6 Nakshatra endings, 6 Yoga endings, 3 Karana transitions (names as printed), 3 sunrise/sunset rows with the station they apply to; spread over at least three seasons",
+    "method_facts_to_record_verbatim": [
+      "Ayanamsa used and its stated value or epoch",
+      "Whether ending moments are geocentric and in IST",
+      "Sunrise/sunset definition (upper limb or centre; refraction included or not) and the station(s) it applies to",
+      "Rounding of printed times (truncated or rounded minute)",
+      "Karana names and their order as printed",
+      "Any statement on Vara (civil date or sunrise)"
+    ]
+  },
+  "row_template": {
+    "case_id": "PAN-REF-IMD-NN",
+    "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT | DIRECT_PUBLISHED_LOCATION_EVENT",
+    "source": {"publisher": "Positional Astronomy Centre, India Meteorological Department", "title": "", "edition_or_saka_year": "", "page_table_row_or_url": "", "accessed": "", "retrieved_by": "", "file_sha256_if_downloaded": "", "rights_note": "Record the publication's reuse statement verbatim; copy only the individual facts needed, never pages"},
+    "date_civil": "",
+    "station_or_location": "geocentric | station name with latitude/longitude as printed",
+    "time_standard": "IST (UTC+05:30) unless printed otherwise",
+    "element": "tithi | nakshatra | yoga | karana | sunrise | sunset",
+    "printed_value": "",
+    "printed_name": "",
+    "original_precision": "",
+    "proposed_tolerance_and_reason": "",
+    "assumptions_and_limitations": "",
+    "status": "UNVERIFIED until a second person checks the row against the source"
+  },
+  "rows": []
+}
