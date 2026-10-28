@@ -32,6 +32,17 @@ Run on 2026-10-28 in the Claude cloud environment, on branch `docs/claude-wp-b1-
 
 The scratch scripts used to transcribe and check the data are deliberately **not** committed, because WP-B1 must contain no executable code. Their checks are listed above so QA can repeat them independently.
 
+## Revision 0.2 (after ChatGPT review 5679285841, CHANGES REQUESTED)
+
+| Review item | Change |
+|---|---|
+| QA-01 | SUN-D (reviewer-reported IMD 47′ upper-limb convention, Central Station) added as unverified; provisional SUN-B preference removed (PAN-D03: no recommendation); IMD ayanamsa compatibility budget (SCI-PAN-01 §3.1); 24-hour-plus and Central Station rules; IMD coverage matrix (§8.1); reviewer-reported values kept as unverified candidates in the capture template. Access to the IMD pages named in the review was re-tried on 2026-10-28 and is still refused |
+| QA-02 | 25 Tithi + Karana versus 25 Karana-only phase events, stated everywhere; whole-minute precision note added to the fixture |
+| QA-03 | PAN-D11 re-analysed (SCI-PAN-01 §5.6.6): proposed D11-B, partial output for a physically undefined sunrise and whole-object refusal for ephemeris or numerical failure |
+| QA-04 | SCI-PAN-01 §5.9 separates publication precision, solver convergence and method accuracy; PAN-D15 tolerances provisional until IMD method facts are captured; WP-B2 contract key renamed `solver_convergence_s` |
+
+The ten checks in the receipt above were re-run on the revision. The file count is unchanged (10 added files against the base, no canonical file modified). The id and source-resolution checks now include the new register entries.
+
 ## Known limits of this package
 
 - The IMD Rashtriya Panchang could not be retrieved (network policy refusal and robots disallow). As a result there are no IMD rows, no Nakshatra or Yoga ending references, and no verified Hindu-convention sunrise reference.

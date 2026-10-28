@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document | SCI-PAN-01 proposal, revision 0.1 |
+| Document | SCI-PAN-01 proposal, revision 0.2 (revised for ChatGPT review 5679285841, CHANGES REQUESTED) |
 | Work package | WP-B1 (roadmap Workstream B), proposed requirement KUN-A01 Birth Panchanga, proposed milestone KUN-P1-ADV |
 | Owner decision it prepares | OD-06 (PRD section 14) |
 | Prepared by | Claude (Lead Developer), 2026-10-28 |
@@ -27,13 +27,19 @@ Sunrise enters in only two places: the traditional **sunrise-to-sunrise Vara**, 
 Main findings:
 
 1. **Frame.** Tithi and Karana depend only on the Moon−Sun elongation, which is the same in the tropical and sidereal frames. Nakshatra, Pada and Yoga depend on the Lahiri ayanamsa; Yoga depends on it twice (Sun + Moon), so an ayanamsa error enters Yoga with double weight. Reusing SCI-01d exactly is proposed (decision PAN-D01).
-2. **Sunrise.** Swiss Ephemeris documents two conventions: an astronomical default (upper limb, with refraction) and `SE_BIT_HINDU_RISING` (disc centre, no refraction, geocentric, ecliptic latitude ignored). Across India the Hindu sunrise comes about 3.3 to 4.6 minutes after the astronomical one (illustrative estimate, section 5.6.4). Inside the canonical ±66.0° latitude band, the astronomical convention has **no sunrise at all on some dates above about 65.7°**. USNO confirms this for 65.9° N on 2026-06-21. The Hindu convention stays defined throughout the band.
-3. **Official Indian reference.** The Positional Astronomy Centre (IMD) Rashtriya Panchang could not be retrieved from this environment (network policy and robots refusal). Its sunrise convention, station, rounding rule and Karana list are therefore **unverified**, and no IMD fixture exists. Nothing was substituted.
-4. **Independent references obtained.** 50 geocentric lunar-phase instants for 2026 from USNO, cross-checked against NASA/Espenak: they agree on 42 events and differ by exactly one minute on 8. These are exact Tithi and Karana boundary references, because the phases are defined at elongations of 0°, 90°, 180° and 270°. 14 USNO sunrise/sunset cases, two of them negative (no sunrise). 8 clearly labelled derived cases.
-5. **Gaps.** There is no independent reference for Nakshatra or Yoga ending times, for Hindu-convention sunrise, or for Karana names. Section 8 lists every gap.
+2. **Sunrise.** Three candidate conventions are compared (section 5.6.1). The astronomical one (SUN-A, USNO: upper limb, centre 50′ below the horizontal) and Swiss `SE_BIT_HINDU_RISING` (SUN-B: disc centre, no refraction, geocentric) are documented in sources read for this package. The Rashtriya Panchang convention (SUN-D) is **reported** by the PM/QA review as upper limb with 31′ refraction and 16′ semidiameter, i.e. centre 47′ below the horizontal, at the Central Station 82°30′ E, 23°11′ N. **Claude has not been able to verify this from the primary source** (section 5.6.1). Across India SUN-B comes about 3.2 to 4.3 minutes after SUN-D, and SUN-D about 12 to 17 seconds after SUN-A (illustrative estimates, section 5.6.4). Inside the canonical ±66.0° band, SUN-A and SUN-D have **no sunrise on some dates above about 65.7° to 65.8°**; USNO confirms this for 65.9° N on 2026-06-21. SUN-B stays defined throughout the band. **No sunrise convention is recommended in this revision** (PAN-D03).
+3. **Official Indian reference.** The Positional Astronomy Centre (IMD) Rashtriya Panchang still cannot be retrieved from this environment. On 2026-10-28 the network policy refused the host, and the reading tool reported a robots disallow for the explanation, names and monthly pages named in the review. No IMD fixture exists. Facts quoted by the PM/QA review are recorded as **reviewer-reported candidates, unverified by Claude**. They are not counted as references and are not used as expected values.
+4. **Independent references obtained.** 50 geocentric lunar-phase events for 2026 from USNO, cross-checked against NASA/Espenak: they agree on 42 events and differ by exactly one minute on 8. They are published **whole-minute** times, not exact-second instants. **25 of them (New and Full Moon, elongation 0° and 180°) are Tithi and Karana boundaries. The other 25 (First and Last Quarter, 90° and 270°) are Karana boundaries only**: they fall mid-Tithi. There are also 14 USNO sunrise/sunset cases, two of them negative (no sunrise), and 8 clearly labelled derived cases.
+5. **Gaps.** There is no verified reference for Nakshatra or Yoga ending times, for SUN-B or SUN-D sunrise, or for Karana names. Section 8 lists every gap and the IMD coverage needed to close it.
 6. **Swiss behaviours that matter for fail-closed design.** `swe_rise_trans` does not report which ephemeris it actually used. `swe_mooncross_ut` has an unbounded loop and does not check the returned ephemeris flag. The fast rise/set path is used for the Sun only up to |lat| ≤ 65°, and a different algorithm runs between 65° and 66°. The Swiss manual describes `SE_BIT_GEOCTR_NO_ECL_LAT` inconsistently. Details are in sections 5.6.3 and 5.7.
 
-The recommendations are in the [decision matrix](#7-decision-matrix). Each is **proposed only**, and every owner status is PENDING.
+The recommendations are in the [decision matrix](#7-decision-matrix). Each is **proposed only**, and every owner status is PENDING. Section 5.9 separates three ideas that are easy to conflate: publication precision, numerical convergence and method accuracy.
+
+**Revision 0.2 changes (review 5679285841):**
+- QA-01: added SUN-D; removed the provisional SUN-B preference; added the IMD ayanamsa compatibility analysis (section 3.1), the Central Station and 24-hour-plus notation rules, and an IMD coverage matrix (section 8.1); listed the reviewer-reported IMD facts as unverified candidates.
+- QA-02: 25 Tithi+Karana versus 25 Karana-only events, minute precision.
+- QA-03: re-analysed partial output versus whole-object refusal (PAN-D11).
+- QA-04: added section 5.9; tolerances are now provisional until the IMD method review.
 
 ## 2. Canonical constraints this proposal does not change
 
@@ -66,6 +72,19 @@ Let λ☉ and λ☾ be the unrounded sidereal apparent geocentric longitudes of 
 - Tithi and Karana can be validated against tropical, ayanamsa-free published phase times (USNO, NASA).
 - Nakshatra and Pada can only be validated against a source that uses a compatible Lahiri ayanamsa. A 1″ ayanamsa difference shifts a Nakshatra end by about 2 s; a 1′ difference shifts it by about 2 minutes.
 - For Yoga, a 1′ ayanamsa difference moves the sum by 2′, which shifts a Yoga end by about 3.4 minutes at the combined speed of about 14.2°/day. Using the **tropical** sum instead would shift every Yoga by about 2 × 24.2° ≈ 48°, which is 3.6 Yogas. That is the most consequential frame error possible here.
+
+### 3.1 Compatibility of an IMD ayanamsa with SCI-01a (QA-01)
+
+IMD Nakshatra and Yoga ending times can serve as exact oracles for the Sabpuja engine only if IMD's nirayana ayanamsa equals the canonical SCI-01a value (Swiss `SE_SIDM_LAHIRI`, **true** ayanamsha, IAE 1985 initial value 23°15′00.658″ at 1956-03-21 0h TT, Swiss 2.10.03 precession) to within an amount that is small against the printed minute. IMD's own statement of its ayanamsa could not be read (section 1, item 3). The things to establish, and their numerical effect, are:
+
+| Possible difference | Size of ayanamsa difference | Effect on a Nakshatra end (Moon about 13.2°/day) | Effect on a Yoga end (sum about 14.2°/day; ayanamsa counts twice) | Tithi / Karana |
+|---|---|---|---|---|
+| Same definition, rounding of the published value | ≤ 1″ | ≤ about 2 s | ≤ about 4 s | None |
+| Mean versus true ayanamsa (nutation in longitude, amplitude up to about 17″) | up to about 17″ | up to about 31 s | up to about 57 s | None |
+| Different precession model or epoch value, about 1′ | about 60″ | about 1.8 min | about 3.4 min | None |
+| A different ayanamsa family (for example Raman or Krishnamurti, about 1° to 1.5° away) | ≥ 3 600″ | hours | hours | None |
+
+**Proposed rule:** IMD Nakshatra/Yoga rows become oracles only after IMD's ayanamsa definition is captured verbatim and shown to fall in the first two rows. A mean/true difference must then be budgeted explicitly in the tolerance (section 5.9). Otherwise the rows are reported as method-difference comparisons, not pass/fail tests. Tithi and Karana rows are unaffected by any ayanamsa difference.
 
 ## 4. Inputs
 
@@ -164,11 +183,16 @@ Derived cases PAN-DER-04, -05 and -06 show the difference. PAN-DER-06 shows that
 | SUN-A′ | Swiss default with its own refraction model | Upper limb; refraction from Swiss `swe_refrac_extended` with the given or estimated pressure and temperature (0 °C if not given in the Python binding); apparent radius from the actual Sun distance | SRC-SWISS-SRC |
 | SUN-B | Swiss `SE_BIT_HINDU_RISING` | Centre of the disc on the geometric horizon, no refraction, geocentric (not topocentric) position, ecliptic latitude of the Sun set to 0 | SRC-SWISS-PRG ("Sunrise in Astronomy and in Hindu Astrology"); practice evidence SRC-DRIK-FAQ |
 | SUN-C | Centre with refraction | Centre at apparent horizon (about −34′ geometric) | Used by some almanacs; not documented as a Panchanga convention in the sources read |
-| SUN-D | Rashtriya Panchang convention | **Unknown**: IMD explanation page not retrievable | SRC-IMD-RP (not retrieved) |
+| SUN-D | Rashtriya Panchang convention, **as reported by the PM/QA review** | Upper limb with refraction taken as 31′ and semidiameter 16′, so the centre is geometrically 47′ below the horizontal; sunrise and sunset printed for the adopted **Central Station (82°30′ E, 23°11′ N)** only | SRC-IMD-RP via review 5679285841. **Not verified by Claude**: the primary page remains unreachable from this environment |
+
+Notes on SUN-D, if it is confirmed:
+- **Closeness to SUN-A.** SUN-D is close to SUN-A, not to SUN-B: it differs from USNO's 50′ by 3′ of altitude, about 12 to 17 s of time across India (section 5.6.4).
+- **No city sunrise.** Its printed sunrise belongs to the Central Station. It is not a sunrise for Delhi, Kolkata or any birthplace, and it must never be compared with the city-specific USNO fixtures.
+- **Swiss realisation (a hypothesis for WP-B2 to test, not a verified recipe).** One possible form is `swe_rise_trans_true_hor` with `SE_BIT_NO_REFRACTION | SE_BIT_FIXED_DISC_SIZE` (upper limb at the 1 AU radius, about 15.99′ in Swiss) and `horhgt` = −31′. In the 2.10.03 source, `horhgt` is subtracted from the body's altitude when refraction is off, so −31′ would put the upper limb 31′ below the geometric horizon. Whether IMD uses topocentric or geocentric solar positions is also unknown; for the Sun the difference is under a second.
 
 #### 5.6.2 Geocentric versus topocentric, centre versus limb, refraction, altitude
 
-- **Centre versus upper limb:** 16′ of altitude. **Refraction:** about 34′ at the horizon under mean conditions, with real-world variation of several arcminutes. Together they give the roughly 50′ difference between SUN-A and SUN-B.
+- **Centre versus upper limb:** 16′ of altitude. **Refraction:** about 34′ at the horizon in USNO's convention (31′ in the reviewer-reported IMD convention), with real-world variation of several arcminutes. Together they give the roughly 50′ (SUN-A) or 47′ (SUN-D) difference from SUN-B.
 - **Geocentric versus topocentric:** the Sun's horizontal parallax is about 8.8″, worth under a second of time at Indian latitudes. It is negligible for the Sun. (For the Moon it would be about 57′, which is why the Panchanga longitudes must stay geocentric; see PAN-D01.)
 - **Ecliptic latitude:** the Sun's ecliptic latitude is under about 1″. SUN-B sets it to zero by definition; the effect is negligible.
 - **Observer altitude and horizon dip:** a raised observer sees the horizon depressed by about 1.8′·√h(m) (for example about 6′ at 10 m). Swiss applies dip only when `swe_rise_trans_true_hor` is called with `horhgt = −100`. Under SUN-B, altitude and pressure do not enter the condition. Under SUN-A they do, and Sabpuja has no elevation data.
@@ -194,7 +218,7 @@ Read from the 2.10.03 source and manual shipped in `pyswisseph==2.10.3.2` (SRC-S
 
 #### 5.6.4 Size of the convention effect
 
-Illustrative spherical-astronomy estimate (scratch arithmetic, not engine output, not a fixture): the time for the Sun's centre to rise from −50′ to 0′, with declination held fixed.
+Illustrative spherical-astronomy estimate (scratch arithmetic, not engine output, not a fixture): the time for the Sun's centre to rise from −50′ (SUN-A) to 0′ (SUN-B), with declination held fixed. The same arithmetic puts SUN-D (−47′) about 12 to 17 s after SUN-A at Indian latitudes (8° to 34°), and therefore about 3.2 to 4.3 minutes before SUN-B.
 
 | Latitude | Dec −23.44° (Dec. solstice) | Dec 0° (equinox) | Dec +23.44° (June solstice) |
 |---|---|---|---|
@@ -212,17 +236,37 @@ Impact:
 - **Birth-time Tithi, Nakshatra, Yoga and Karana are unaffected**, because they do not use sunrise.
 - **Sunrise-day elements** change whenever a transition falls inside this window. E advances about 0.034° in 4 minutes. For Tithi (mean length about 23.6 h) the chance is roughly 4/1417 ≈ 0.3% per day; Nakshatra and Yoga are similar, and Karana (about 11.8 h) about 0.6%. Across the four sunrise-day elements, roughly 1 to 1.5% of days at an Indian location have at least one changed sunrise element.
 - **Sunrise Vara** changes for births inside the window, about 4 minutes per day in India.
-- **Polar edge:** with SUN-A, sunrise and/or sunset is undefined near the solstices for |lat| > 90° − 23.44° − 0.83° ≈ 65.73°, which lies **inside** the canonical ±66.0° band. With SUN-B the limit is 90° − 23.44° ≈ 66.56°, outside the band. USNO confirms SUN-A has no sunset at 65.9° N on 2026-06-21 (fixture PAN-REF-SUN-N01).
+- **Polar edge:** with SUN-A, sunrise and/or sunset is undefined near the solstices for |lat| > 90° − 23.44° − 0.83° ≈ 65.73°, which lies **inside** the canonical ±66.0° band. With SUN-D the limit is 90° − 23.44° − 0.78° ≈ 65.78°, also inside. With SUN-B it is 90° − 23.44° ≈ 66.56°, outside the band. USNO confirms SUN-A has no sunset at 65.9° N on 2026-06-21 (fixture PAN-REF-SUN-N01).
 
 #### 5.6.5 Undefined sunrise and fail-closed response
 
 | Condition | Required response (proposed) |
 |---|---|
 | \|lat\| > 66.0° | Existing `LATITUDE_OUTSIDE_SUPPORTED_BAND`, before any Panchanga step |
-| Swiss returns −2 (circumpolar), or no sunrise is bracketed in the search window | `PANCHANGA_SUNRISE_UNDEFINED` (or `…SUNSET_UNDEFINED`) for the whole Panchanga object (PAN-D11) |
+| Swiss returns −2 (circumpolar), or no sunrise is bracketed in the search window | `PANCHANGA_SUNRISE_UNDEFINED` (or `…SUNSET_UNDEFINED`). Whether this refuses the whole object or only the sunrise-dependent fields is decision PAN-D11 (section 5.6.6) |
 | Swiss returns −1, or the ephemeris pre-check fails | Existing ephemeris refusal; no Moshier |
 | Residual altitude check fails (section 5.6.3) | `PANCHANGA_TRANSITION_NOT_CONVERGED` |
 | Governing sunrise falls on a local date outside the SCI-03 envelope (for example a birth at 1970-01-01 03:00 whose governing sunrise is on 1969-12-31) | Proposed: refuse the sunrise-dependent output with `HISTORICAL_CLOCK_UNVERIFIED` semantics, or withhold local rendering (PAN-D13) |
+
+#### 5.6.6 Partial output versus whole-object refusal (QA-03)
+
+Birth-time Tithi, Nakshatra, Yoga, Karana and the civil weekday do not depend on sunrise (section 5.8). A sunrise failure therefore does not by itself make them wrong. Three cases need different treatment:
+
+| Cause | Example | Are the sunrise-independent elements still trustworthy? |
+|---|---|---|
+| Physically no sunrise or sunset under the adopted convention | SUN-A or SUN-D at 65.9° N in June (USNO N01); Swiss −2 agrees with the geometric expectation | Yes |
+| Ephemeris or Swiss error (−1, missing `FLG_SWIEPH`, manifest failure) | Corrupt `.se1` file | **No**: the same data feed every element |
+| Numerical failure (no convergence, residual check fails) | Bracket without a sector change | Unknown: it may indicate a defect |
+
+| Option | Behaviour | Pros | Cons |
+|---|---|---|---|
+| D11-A Whole-object refusal for every cause | Any sunrise failure refuses the Panchanga | Simplest; nothing partial can be misread | Discards valid elements in the physical case, which is reachable in-band under SUN-A and SUN-D |
+| D11-B Partial output for the physical case only | Birth-time Tithi, Nakshatra, Yoga, Karana and `civil_weekday` are returned. `vara`, sunrise, sunset and the entire sunrise-day object are replaced by a typed `unavailable` with reason `PANCHANGA_SUNRISE_UNDEFINED`. Ephemeris and numerical failures still refuse the whole object | Keeps correct results; fail-closed for everything that depends on the missing event; matches the polar reality | More contract surface; reports must explain the missing Vara |
+| D11-C Partial output for every cause | As B, but also for ephemeris and numerical failures | — | Unsafe: it can publish elements computed from bad data. Not offered as a recommendation |
+
+In every option, `vara` is **never** silently filled with the civil weekday.
+
+**Proposal (PAN-D11):** D11-B. This replaces revision 0.1's whole-object recommendation, which assumed SUN-B, under which a physical no-sunrise case cannot occur in the band. It remains a proposed owner choice, not an authorization to build a code path.
 
 ### 5.7 Transition-time calculation
 
@@ -243,6 +287,21 @@ Impact:
 
 **Proposal (PAN-D02):** deliver the birth-time Panchanga as the primary Kundali output. Deliver the daily Panchanga as a separate, clearly named object so that the two are never confused. They can legitimately differ (PAN-DER-01).
 
+### 5.9 Publication precision, numerical convergence and method accuracy (QA-04)
+
+These are three different things, and agreement in one does not prove another:
+
+| Quantity | What it is | Typical size here | What it does **not** show |
+|---|---|---|---|
+| Publication precision | The resolution of a printed value | USNO, NASA and (reported) IMD: whole minutes, with rounding versus truncation unstated | That the true event lies within ±30 s of the printed minute |
+| Numerical convergence | How tightly the WP-B2 solver locates the crossing **of its own model** | Proposed ≤ 0.5 s (PAN-D09) | Anything about the model's accuracy. A 0.5 s bracket around a wrong model is still wrong |
+| Method accuracy | How close the modelled instant is to the event as defined by the reference's method | Geocentric lunar events: ephemeris, ΔT model and SCI-01h UT1 ≈ UTC, expected to be well under a minute for 2026 (an expectation, not a measured bound). Sunrise: dominated by the refraction convention and real atmosphere, a minute or more (USNO's own statement) | — |
+
+Consequences for this package:
+- USNO/NASA agreement within one minute shows that two independent computations agree at **minute** resolution. It does not establish either one, or the Sabpuja engine, to the second.
+- The tolerances in PAN-D15 are **provisional**. They are to be fixed by QA and the owner only after the IMD method facts (ayanamsa definition, sunrise convention, rounding rule, 24-hour-plus notation) are captured and the budget in section 3.1 is applied. They must be fixed before any evaluation run.
+- Reports should never present an ending time to a precision greater than its method accuracy supports. That is why PAN-D09 proposes minute display and a near-boundary flag.
+
 ## 6. Consistency with the canonical engine
 
 | Question | Finding |
@@ -262,31 +321,33 @@ Every row is **PROPOSED ONLY**, and every owner status is **PENDING**.
 |---|---|---|---|---|---|---|---|
 | PAN-D01 | Panchanga longitude frame | Reuse SCI-01d exactly (geocentric apparent sidereal, true Lahiri) | Topocentric Moon | Tropical for E only (identical in theory) | **A**. No new convention; E is frame-independent anyway; matches USNO/NASA phase definitions; location-independent transitions | Section 3, 6; SRC-USNO-PHASE-DEF; canonical SCI-01a/d | PENDING |
 | PAN-D02 | Which Panchanga to output | Birth-time Panchanga + separate sunrise-based daily Panchanga | Birth-time only | Daily only | **A**, with birth-time as primary | Section 5.8; PAN-DER-01 | PENDING |
-| PAN-D03 | Sunrise convention | SUN-A astronomical (upper limb, refraction) | SUN-B Swiss Hindu rising (centre, no refraction, geocentric) | SUN-C; SUN-D (match IMD once known) | **B provisionally**, confirmed against SUN-D before WP-B2 ships, or with explicit owner acceptance of the lack of an IMD reference | Section 5.6; USNO N01; SRC-SWISS-PRG; SRC-DRIK-FAQ (practice only) | PENDING |
-| PAN-D04 | Sunrise parameters | SUN-B: altitude fixed 0 m, pressure/temperature irrelevant, no local horizon | SUN-A: fixed 1013.25 hPa, fixed temperature, altitude 0 m, disclosed | Use real elevation (not available) | Follows D03; with B, **altitude-independent and disclosed** | Section 5.6.2-5.6.3 | PENDING |
+| PAN-D03 | Sunrise convention | SUN-A astronomical (USNO: upper limb, centre −50′) | SUN-B Swiss Hindu rising (centre, no refraction, geocentric) | SUN-C (centre with refraction); SUN-D (Rashtriya Panchang: upper limb, centre −47′, as reported, unverified) | **No recommendation in this revision.** Decide after IMD's explanation page is verified from the primary source. The differences are about 12 to 17 s between A and D, and about 3.2 to 4.3 min between D and B; A and D lose sunrise in-band above about 65.7° to 65.8° | Section 5.6; USNO N01; SRC-SWISS-PRG; SRC-IMD-RP (reported); SRC-DRIK-FAQ (practice only) | PENDING |
+| PAN-D04 | Sunrise parameters | Fixed-geometry convention (SUN-B, or SUN-D as a fixed 47′ depression realised without Swiss's pressure/temperature refraction model): altitude 0 m, no local horizon | Swiss refraction model (SUN-A′): fixed 1013.25 hPa, fixed temperature, altitude 0 m, disclosed | Use real elevation (not available) | Follows D03. Whichever convention is chosen, prefer a **fixed, disclosed geometry** over an atmospheric model that needs data Sabpuja does not have | Section 5.6.1-5.6.3 | PENDING |
 | PAN-D05 | Vara boundary | `vara` = sunrise-based; `civil_weekday` separate | Civil weekday only | Sunrise only | **A** | Section 5.2; PAN-DER-04/05/06 | PENDING |
 | PAN-D06 | Sunrise-day element rule | Element in force at sunrise, plus all transitions to next sunrise | Element at local noon or midnight | — | **A** (traditional rule, SRC-WP-TITHI) | Section 5.1 | PENDING |
-| PAN-D07 | Karana names | Emit names only after a verified primary source is adopted; index meanwhile | Adopt the cyclic rule now from the secondary source | — | **A** | Section 5.5; SRC-WP-KARANA inconsistency | PENDING |
+| PAN-D07 | Karana names | Emit names only after a verified primary source is adopted; index meanwhile | Adopt the cyclic rule now from the secondary source | — | **A**. The review names IMD's `tithi-nakshatra` page as the candidate primary source for Karana and Yoga names; adopt it once it is read and its indexing checked | Section 5.5; SRC-WP-KARANA inconsistency; SRC-IMD-NAMES (not retrieved) | PENDING |
 | PAN-D08 | Boundary rule | Half-open, exact rational on unrounded values (same as chart) | Tolerance band | — | **A** | Canonical chart rule; PAN-SPEC-01..05 | PENDING |
 | PAN-D09 | Event-time precision and display | Converge to ≤ 0.5 s; machine output UTC to the second; display local HH:MM rounded to nearest minute; flag births within ±2 min of a transition | Display truncated minutes | Display seconds | **A**, with a "near boundary" flag in reports | Section 5.1, 5.7; USNO/NASA one-minute differences | PENDING |
 | PAN-D10 | Transition and sunrise numerics | TS-1 bounded bisection (optional TS-2), FLG_SWIEPH checked every call; sunrise residual-altitude check | Swiss `mooncross` | — | **A** | Section 5.6.3, 5.7 | PENDING |
-| PAN-D11 | Undefined sunrise | Refuse the whole Panchanga object with a typed code | Partial output: birth-time limbs plus `vara: unavailable` | — | **A** (fail closed; under SUN-B it is not expected in-band, so occurrence signals a defect) | Section 5.6.5; USNO N01 | PENDING |
+| PAN-D11 | Undefined sunrise | D11-A: refuse the whole Panchanga object | D11-B: for a physically undefined sunrise only, return the sunrise-independent elements and mark `vara`, sunrise, sunset and the sunrise-day object as typed `unavailable`; refuse the whole object for ephemeris or numerical failures | D11-C: partial for every cause (unsafe) | **D11-B** | Section 5.6.6; USNO N01 | PENDING |
 | PAN-D12 | Output contract and version | Separate `sabpuja-panchanga/1` document with its own metadata | Extend chart to `0.4.0` | — | **A**: chart `0.3.0` and metadata `/3` stay byte-identical | WP-B2 handoff section 3, 8 | PENDING |
 | PAN-D13 | Instants outside the SCI-03 envelope | Always report UTC; withhold local rendering (flagged) for instants before 1970-01-01 local or after 2100-12-31 local | Render with unverified offsets | Refuse the request | **A** | PAN-SPEC-12 | PENDING |
 | PAN-D14 | Reference hierarchy | IMD Rashtriya Panchang for Panchanga conventions and ending times; USNO/NASA for ayanamsa-free astronomical events and SUN-A sunrise; Swiss documentation for behaviour only | Use commercial Panchang websites | — | **A**; no commercial website as ground truth | SOURCE-REGISTER | PENDING |
-| PAN-D15 | Comparison tolerances | Phases: within [min published − 60 s, max published + 60 s]; SUN-A: ±120 s; Nakshatra/Yoga vs IMD: ±60 s around the printed minute plus the documented ayanamsa difference, set before running | Tighter, seconds-level | — | **A**, all to be confirmed by QA before any run | Fixture files | PENDING |
+| PAN-D15 | Comparison tolerances | Provisional: phases within [min published − 60 s, max published + 60 s]; SUN-A ±120 s; IMD rows: the printed-minute window, widened by the section 3.1 ayanamsa budget once IMD's definition is known | Tighter, seconds-level | — | **Provisional A.** Fix only after the IMD method facts are captured (section 5.9), and always before any run | Fixture files; sections 3.1, 5.9 | PENDING |
 | PAN-D16 | Names and localisation | Reuse the engine's English Nakshatra names; Yoga/Tithi/Karana English per Appendix A; Hindi pending the OD-08 reviewer | Adopt a published IMD spelling set once captured | — | **A now, B when IMD captured** | Appendix A | PENDING |
 | PAN-D17 | Sunset | Compute with the same convention as sunrise; display only | Omit | — | **A** (KUN-A01 names sunrise/sunset) | PRD 12.1 | PENDING |
 | PAN-D18 | Tithi numbering | Output both 1..30 and Paksha + day 1..15 | One only | — | **A** | Section 5.1 | PENDING |
 | PAN-D19 | Lunar month (Masa), Amanta/Purnimanta, Samvat | Out of scope for KUN-A01 | Include | — | **Out of scope**; needs its own decision if reports name the month | — | PENDING |
-| PAN-D20 | Proceed to WP-B2 without IMD fixtures | Not until the IMD convention and ≥ 24 IMD rows are captured | Proceed with USNO/NASA-only independence and Swiss conformance | — | **A** | Section 8 | PENDING |
+| PAN-D20 | Proceed to WP-B2 without IMD fixtures | Not until the IMD convention and the section 8.1 IMD coverage are captured and verified from the primary source | Proceed with USNO/NASA-only independence and Swiss conformance | — | **A**. WP-B2 readiness stays **BLOCKED** until then | Section 8.1 | PENDING |
 
 For each recommendation, if the owner picks the alternative:
 - **D01-B (topocentric):** results become location-dependent; no published phase reference applies; tithi ends shift by up to hours. This would require a new metadata convention and fixtures.
-- **D03-A (astronomical sunrise):** USNO fixtures become direct references; outputs differ from common Hindu Panchang practice by about 4 minutes; in-band polar refusals become reachable above about 65.7°, and elevation/pressure parameters must be fixed and disclosed.
+- **D03-A (astronomical sunrise):** USNO fixtures become direct references. Outputs differ from SUN-B practice by about 4 minutes. In-band polar unavailability becomes reachable above about 65.7°, and refraction parameters must be fixed and disclosed.
+- **D03-B (Swiss Hindu rising):** defined throughout the band and independent of altitude. If IMD's 47′ convention is confirmed, Sabpuja would differ from the official Indian Panchang by about 3 to 4 minutes at sunrise, and no published reference for SUN-B exists in this package.
+- **D03-D (IMD, once verified):** aligns with the official national Panchang. It is within seconds of the USNO fixtures, so they become near-direct references after a fixed 3′ correction. In-band polar unavailability is reachable above about 65.8°, so D11 matters.
 - **D05-B (civil only):** simpler and sunrise-free; the field must then not be called the traditional Vara.
 - **D07-B:** names may be wrong. The only source read is internally inconsistent.
-- **D11-B:** reports can show limbs where the place has no sunrise; the report must explain the missing Vara.
+- **D11-A (instead of the proposed B):** a place and date with no physical sunrise returns no Panchanga at all, even though Tithi, Nakshatra, Yoga and Karana are correct.
 - **D12-B:** chart schema `0.4.0`, new compatibility evidence, and a change to the canonical chart contract.
 - **D20-B:** WP-B2 starts sooner. Nakshatra/Yoga ending times would rest only on Swiss-on-Swiss conformance and the frame argument, which REL-01 does not treat as independent astronomical accuracy.
 
@@ -294,30 +355,50 @@ For each recommendation, if the owner picks the alternative:
 
 | Fixture set | Class | Count | Covers |
 |---|---|---|---|
-| [geocentric-lunar-phase-events-2026.json](../../research/panchanga/reference-fixtures/geocentric-lunar-phase-events-2026.json) | Direct, two independent publishers | 50 | Tithi 30→1 (12), Tithi 15→16 (13), Karana index boundaries (50), 0/360 wrap, UT/IST date rollover |
+| [geocentric-lunar-phase-events-2026.json](../../research/panchanga/reference-fixtures/geocentric-lunar-phase-events-2026.json) | Direct, two independent publishers, whole minutes | 50 | **25 Tithi + Karana boundaries** (New Moon 30→1: 12; Full Moon 15→16: 13) and **25 Karana-only boundaries** (First and Last Quarter, mid-Tithi); 0/360 wrap; UT/IST date rollover |
 | [usno-sunrise-sunset-2026.json](../../research/panchanga/reference-fixtures/usno-sunrise-sunset-2026.json) | Direct, single publisher | 12 positive + 2 negative | SUN-A sunrise/sunset, twilight, civil weekday at 9 Indian points and 1 southern control; polar day inside the band; polar night outside it |
 | [derived-classification-cases.json](../../research/panchanga/reference-fixtures/derived-classification-cases.json) | Derived | 8 | Sunrise Tithi, sunrise Vara versus civil weekday, convention sensitivity, date rollover, near-midnight Karana |
 | [boundary-test-specifications.json](../../research/panchanga/reference-fixtures/boundary-test-specifications.json) | Specifications | 16 | Every boundary and refusal named in the WP-B1 brief |
 | [imd-rashtriya-panchang-capture-template.json](../../research/panchanga/reference-fixtures/imd-rashtriya-panchang-capture-template.json) | Empty template | 0 | Capture plan for IMD |
 
-**Verified direct references: 64** (against a target of at least 24). They are **not** balanced across elements:
+**Verified direct references: 64** whole-minute publisher values. That meets the 24-case target in count but **not in coverage**, which is why section 8.1 sets IMD targets per element:
 
 | Element | Independent references | Shortfall |
 |---|---|---|
-| Tithi end | 25 (15/16 and 30/1 only) | Other 28 boundary types unreferenced |
-| Karana index boundary | 50 (4 boundary types) | Names unverified; other 56 boundary types unreferenced |
+| Tithi end | 25 (15/16 and 30/1 only; whole-minute) | Other 28 boundary types unreferenced |
+| Karana index boundary | 50 (4 boundary types: 25 coinciding with Tithi ends, 25 Karana-only) | Names unverified; other 56 boundary types unreferenced |
 | Nakshatra / Pada end | **0** | Needs IMD (or another Lahiri-documented primary source) |
 | Yoga end | **0** | Needs IMD |
 | Sunrise / sunset, SUN-A | 12 + 2 negative | — |
 | Sunrise / sunset, SUN-B (Hindu) | **0 direct** | Only differential checks via USNO + an independent oracle |
+| Sunrise / sunset, SUN-D (IMD) | **0** | Central Station values only, after capture |
 | Rashtriya Panchang central-station values | **0** | IMD unreachable |
 | Sunrise-day classifications | 8 derived, 0 direct | Needs IMD daily Panchang |
 
+### 8.1 Proposed IMD coverage (QA-04)
+
+These are targets for verified, individually sourced IMD rows, captured with the template's provenance fields. None exists yet. The PM/QA review reports example values, which are listed in the capture template as **unverified candidates**.
+
+| Element | Minimum rows | Spread | Notes |
+|---|---|---|---|
+| Method facts (ayanamsa definition, sunrise convention and refraction value, Central Station coordinates, time standard, rounding rule, 24-hour-plus notation, Vara statement) | 1 record each, verbatim | — | Needed before any tolerance is fixed (section 5.9) |
+| Tithi endings | 6 | At least 3 seasons; include at least one 15/16 or 30/1 end, to cross-check against USNO/NASA, and at least one 24-hour-plus value | Ayanamsa-free |
+| Nakshatra endings | 6 | 3 seasons; include a Revati→Ashwini wrap if available | Oracle status depends on section 3.1 |
+| Yoga endings | 6 | 3 seasons; include a Vaidhriti→Vishkambha wrap if available | Double ayanamsa sensitivity |
+| Karana transitions with names as printed | 4 | Must include Kimstughna and at least one of Shakuni, Chatushpada or Naga | Settles PAN-D07 indexing |
+| Yoga and Karana name lists | 1 each, verbatim | — | Name source for PAN-D07/D16 |
+| Central Station sunrise and sunset | 4 | Solstices and equinoxes | Central Station only; never compared with city fixtures |
+| **Total** | **≥ 34** | | Each row needs a second-person check against the source |
+
+**24-hour-plus notation:** a printed time such as 27:41 on a civil date means 03:41 IST on the **next** civil date. Fixtures keep the printed value and the date it was printed under, and add the converted ISO instant as a derived field.
+
+**Rights:** record IMD's reuse statement verbatim for each document. Copy individual facts only, never pages or tables wholesale.
+
 ## 9. Unresolved scientific questions
 
-1. IMD Rashtriya Panchang sunrise definition (limb, refraction), the station(s) it applies to, and whether its sunrise Vara/Tithi are tied to a central station or to each place.
-2. IMD's stated ayanamsa wording and value, and whether it is identical to Swiss `SE_SIDM_LAHIRI` (true) at the arcsecond level.
-3. IMD's rounding of printed ending times (truncated or rounded minute).
+1. Verification from the primary source of the reviewer-reported IMD sunrise definition (upper limb, 31′ refraction, 16′ semidiameter, Central Station 82°30′ E, 23°11′ N), and whether IMD's daily Vara/Tithi are tied to the Central Station sunrise.
+2. IMD's stated ayanamsa wording and value, including mean versus true; see the budget in section 3.1.
+3. IMD's rounding of printed ending times (truncated or rounded minute) and its 24-hour-plus notation.
 4. The authoritative Karana name list and order; spellings in English and Hindi.
 5. Primary confirmation of the Yoga name list.
 6. Whether USNO and NASA round or truncate. The one-directional one-minute differences (NASA later in all 8 cases) suggest different rounding rules, but neither page says.
@@ -350,7 +431,7 @@ The owner records a choice for each item (approve / modify / reject); none is de
 - [ ] PAN-D18 Tithi numbering
 - [ ] PAN-D19 Masa out of scope
 - [ ] PAN-D20 Whether WP-B2 waits for IMD capture
-- [ ] How IMD data will be obtained: allow `packolkata.imd.gov.in` in the cloud environment's network policy, or the owner downloads the official pages/PDFs into the project files
+- [ ] How IMD data will be obtained: allow `packolkata.imd.gov.in` in the cloud environment's network policy, or the owner (or ChatGPT, through legitimate access) saves the official pages/PDFs into the project files. Note that the site's robots policy also blocks Claude's page-reading tool, so a network allowance alone may only enable direct download
 
 Adoption then follows the two-step rule in [DECISIONS.md](../DECISIONS.md): pre-merge owner record, then post-merge adoption receipt. This document does not change that register.
 
@@ -393,4 +474,5 @@ Machine identifiers are lower-snake-case ASCII and stable across languages. Hind
 
 | Version | Date | Author | Change | Approval |
 |---|---|---|---|---|
-| 0.1 | 2026-10-28 | Claude, WP-B1 | Initial proposal | PENDING ChatGPT review and owner selection |
+| 0.1 | 2026-10-28 | Claude, WP-B1 | Initial proposal | ChatGPT review 5679285841: CHANGES REQUESTED |
+| 0.2 | 2026-10-28 | Claude, WP-B1 | QA-01 to QA-04 corrections (see section 1) | PENDING ChatGPT re-review and owner selection |

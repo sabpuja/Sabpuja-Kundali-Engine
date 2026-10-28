@@ -4,11 +4,11 @@
 
 | File | Fixture set | Class | Cases |
 |---|---|---|---|
-| [geocentric-lunar-phase-events-2026.json](geocentric-lunar-phase-events-2026.json) | PAN-REF-PHASE-2026 | Direct published, two independent publishers (USNO, NASA) | 50 |
+| [geocentric-lunar-phase-events-2026.json](geocentric-lunar-phase-events-2026.json) | PAN-REF-PHASE-2026 | Direct published, two independent publishers (USNO, NASA), whole minutes | 50 (25 Tithi + Karana boundaries, 25 Karana-only boundaries) |
 | [usno-sunrise-sunset-2026.json](usno-sunrise-sunset-2026.json) | PAN-REF-SUN-2026 | Direct published, one publisher (USNO) | 14 (12 positive, 2 negative) |
 | [derived-classification-cases.json](derived-classification-cases.json) | PAN-DER-2026 | Derived from the two sets above | 8 |
 | [boundary-test-specifications.json](boundary-test-specifications.json) | PAN-SPEC-BOUNDARY | Specifications, no numerical expectations | 16 |
-| [imd-rashtriya-panchang-capture-template.json](imd-rashtriya-panchang-capture-template.json) | PAN-REF-IMD | Empty template; IMD not retrievable on 2026-10-28 | 0 |
+| [imd-rashtriya-panchang-capture-template.json](imd-rashtriya-panchang-capture-template.json) | PAN-REF-IMD | Empty template; IMD not retrievable on 2026-10-28. Holds reviewer-reported **unverified** candidates, which are not counted | 0 |
 
 ## Classes
 

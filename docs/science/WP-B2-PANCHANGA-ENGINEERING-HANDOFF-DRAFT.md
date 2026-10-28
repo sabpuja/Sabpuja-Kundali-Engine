@@ -8,7 +8,7 @@
 | Baseline | `main` `5395d2bc33847d1363e6d838f6109bad552221e3` |
 | Method source | [SCI-PAN-01 proposal](SCI-PAN-01-PANCHANGA-METHOD-DECISION-PROPOSAL.md) (PROPOSED, not canonical) |
 | Requirement | Proposed KUN-A01 Birth Panchanga (PRD 12.1), Gate ENG (PRD 13) |
-| Status | Every choice below assumes the **recommended** SCI-PAN-01 option. If the owner selects otherwise, this draft is revised before WP-B2 starts |
+| Status | Revision 0.2-draft (after ChatGPT review 5679285841). Every choice below assumes the **recommended** SCI-PAN-01 option. SCI-PAN-01 0.2 makes **no** sunrise-convention recommendation, so the sunrise convention is a parameter here. If the owner selects otherwise on any item, this draft is revised before WP-B2 starts. **Readiness: BLOCKED** |
 
 Nothing here authorizes an endpoint, engine change, PDF feature, UI change, merge or deployment. WP-B2 needs its own scoped ticket and owner authorization.
 
@@ -17,7 +17,7 @@ Nothing here authorizes an endpoint, engine change, PDF feature, UI change, merg
 WP-B2 should start only when all of these hold:
 
 1. The owner has recorded SCI-PAN-01 decisions PAN-D01 to PAN-D20 under the two-step rule in [DECISIONS.md](../DECISIONS.md).
-2. IMD Rashtriya Panchang conventions and at least 24 IMD rows are captured into the [capture template](../../research/panchanga/reference-fixtures/imd-rashtriya-panchang-capture-template.json), or the owner has explicitly accepted PAN-D20 option B.
+2. IMD Rashtriya Panchang method facts and the SCI-PAN-01 section 8.1 coverage (at least 34 rows) are captured into the [capture template](../../research/panchanga/reference-fixtures/imd-rashtriya-panchang-capture-template.json) **from the primary source** and second-person checked. Alternatively, the owner explicitly accepts PAN-D20 option B. Reviewer-reported candidates do not count.
 3. The engine base for WP-B2 is fixed. Today the engine (`src/sabpuja_kundali/…`, chart schema `0.3.0`) lives on the draft stack (PR #42 `185353a`, not merged into `main`; PR #1 HOLD active). WP-B2 must name its base SHA and must not stack onto an unresolved branch without the owner's OD-09 merge plan.
 4. Karana naming source decided (PAN-D07), or WP-B2 ships with the index only.
 5. Hindi reviewer named (OD-08) before any Hindi Panchanga label reaches a report.
@@ -49,7 +49,8 @@ The existing chart engine stays the only producer of chart `0.3.0`. Panchanga re
     "sunrise_convention": "<adopted, e.g. swiss_hindu_rising: disc centre, no refraction, geocentric, ecliptic latitude 0>",
     "vara_convention": "sunrise_to_sunrise",
     "boundary_rule": "half_open_exact",
-    "event_time_tolerance_s": 0.5
+    "solver_convergence_s": 0.5,
+    "method_accuracy_note": "convergence is a solver property, not an accuracy claim (SCI-PAN-01 section 5.9)"
   },
   "birth_time": {
     "instant_utc": "YYYY-MM-DDThh:mm:ssZ",
@@ -79,7 +80,7 @@ The existing chart engine stays the only producer of chart `0.3.0`. Panchanga re
 ```
 
 Rules:
-- All instants are in UTC to the whole second in the machine output (PAN-D09). Local rendering is a presentation layer that uses the pinned tzdata and the SCI-03 rules. It is withheld, with a flag, for instants before 1970-01-01 local or after 2100-12-31 local (PAN-D13).
+- All instants are in UTC to the whole second in the machine output (PAN-D09). Whole seconds are an output resolution, not a statement of accuracy: method accuracy is at minute level for sunrise and is unquantified for lunar events until reference comparisons run. Local rendering is a presentation layer that uses the pinned tzdata and the SCI-03 rules. It is withheld, with a flag, for instants before 1970-01-01 local or after 2100-12-31 local (PAN-D13).
 - `near_boundary` is true when the birth instant lies within 120 s of the element's start or end.
 - `karana.id` stays `null`, with `name_status: "not_adopted"`, until PAN-D07 is decided.
 - No field of the chart document changes. The Panchanga document references the chart only by sharing the request; it never embeds birth details beyond what the chart already returns.
@@ -105,9 +106,9 @@ Existing codes keep their canonical order exactly as implemented on the WP-B2 en
 
 | Code (proposed) | When | Output |
 |---|---|---|
-| `PANCHANGA_SUNRISE_UNDEFINED` | Swiss −2 for rise, or no rise bracketed in the window | Whole Panchanga refused (PAN-D11) |
-| `PANCHANGA_SUNSET_UNDEFINED` | Same for set | Whole Panchanga refused |
-| `PANCHANGA_TRANSITION_NOT_CONVERGED` | Iteration cap reached, no sector change in the bracket, non-finite value, or sunrise residual-altitude check failed | Whole Panchanga refused |
+| `PANCHANGA_SUNRISE_UNDEFINED` | Swiss −2 for rise, consistent with the geometric expectation (physically no sunrise) | Under proposed D11-B: sunrise-independent elements and `civil_weekday` returned; `vara`, sunrise, sunset and `sunrise_day` returned as `{"status": "unavailable", "reason": "PANCHANGA_SUNRISE_UNDEFINED"}`. Under D11-A: whole object refused |
+| `PANCHANGA_SUNSET_UNDEFINED` | Same for set | Same as above |
+| `PANCHANGA_TRANSITION_NOT_CONVERGED` | Iteration cap reached, no sector change in the bracket, non-finite value, sunrise residual-altitude check failed, or no sunrise bracketed although geometry says one exists | Whole Panchanga refused (every option) |
 | `PANCHANGA_METHOD_NOT_ADOPTED` | A requested element (for example Karana names) has no adopted method | That field omitted with reason; not an error for the document |
 
 Error messages follow the canonical CLI contract (D4: JSON error, exit 2, fixed privacy-safe message, no traceback, no birth data).
@@ -138,11 +139,11 @@ Sunrise and sunset:
 
 | Fixture set | How WP-B2 uses it | Pass rule |
 |---|---|---|
-| PAN-REF-PHASE-2026 (50) | Search for E = 0/90/180/270 crossings; also check Tithi/Karana index on both sides | Instant inside each fixture's `accept_window_utc` |
+| PAN-REF-PHASE-2026 (50 whole-minute events) | Search for E = 0/180 crossings (25 Tithi + Karana boundaries) and E = 90/270 crossings (25 Karana-only boundaries); check the Tithi/Karana index on both sides | Instant inside each fixture's provisional `accept_window_utc`. This shows minute-level agreement only, not second-level accuracy |
 | PAN-REF-SUN-2026 (14) | SUN-A absolute check if SUN-A is adopted; for SUN-B, a differential check against an independently coded spherical-astronomy oracle anchored on the USNO time | ±120 s (SUN-A); oracle-defined bound (SUN-B); negative cases give typed refusal |
 | PAN-DER-2026 (8) | Classification tests; convention-sensitive cases assert the adopted convention's branch | Exact classification; margins reported |
 | PAN-SPEC-BOUNDARY (16) | Each spec becomes unit, property or contract tests | As specified |
-| PAN-REF-IMD (to be captured) | Tithi/Nakshatra/Yoga/Karana ends and IMD sunrise | Per PAN-D15, fixed before running |
+| PAN-REF-IMD (to be captured) | Tithi/Nakshatra/Yoga/Karana ends; IMD Central Station sunrise (only if SUN-D is adopted, and never against city coordinates); 24-hour-plus times converted as a derived field | Per PAN-D15, fixed before running. Nakshatra/Yoga rows are pass/fail oracles only if the SCI-PAN-01 section 3.1 ayanamsa check passes; otherwise they are reported as method differences |
 
 The fixtures stay data. WP-B2 adds the executable harness in its own PR, and it may not edit a fixture's expected value without a new source citation.
 
@@ -185,4 +186,5 @@ Gate ENG PASS for WP-B2 requires, on the exact SHA:
 
 | Version | Date | Author | Change | Approval |
 |---|---|---|---|---|
-| 0.1-draft | 2026-10-28 | Claude, WP-B1 | Initial handoff draft | PENDING |
+| 0.1-draft | 2026-10-28 | Claude, WP-B1 | Initial handoff draft | ChatGPT review 5679285841: CHANGES REQUESTED |
+| 0.2-draft | 2026-10-28 | Claude, WP-B1 | Sunrise convention parameterised; D11-B partial-output contract; IMD coverage precondition; precision wording | PENDING |

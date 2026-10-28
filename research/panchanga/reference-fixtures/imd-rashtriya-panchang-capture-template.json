@@ -2,7 +2,7 @@
   "fixture_set": "PAN-REF-IMD (EMPTY - CAPTURE REQUIRED)",
   "schema": "sabpuja-panchanga-reference-fixture/0 (proposed, non-executable)",
   "status": "TEMPLATE ONLY - contains no published values",
-  "why_empty": "On 2026-10-28 the Positional Astronomy Centre (IMD) host packolkata.imd.gov.in was unreachable from the Claude cloud environment: the environment's network policy refused the connection (HTTP 403 at the egress proxy) and the web-reading tool reported that the site disallows automated retrieval (robots). No IMD value was obtained, and no value has been substituted from another website.",
+  "why_empty": "On 2026-10-28 the Positional Astronomy Centre (IMD) host packolkata.imd.gov.in was unreachable from the Claude cloud environment: the environment's network policy refused the connection (HTTP 403 at the egress proxy) and the web-reading tool reported that the site disallows automated retrieval (robots). No IMD value was obtained, and no value has been substituted from another website. Re-tried on 2026-10-28 after PM/QA review 5679285841 for /panchang/en/tithi-nakshatra and /panchang/bn/kartika: same result (robots disallow for the reading tool; network refusal for direct download). No owner-supplied copy exists in the project files.",
   "identified_official_resources_not_retrieved": [
     "https://packolkata.imd.gov.in/panchang/en/explanation",
     "https://packolkata.imd.gov.in/panchang/en/panchang",
@@ -11,23 +11,37 @@
     "https://packolkata.imd.gov.in/panchang/en/asvina (monthly page pattern, seen in a search index only)",
     "https://packolkata.imd.gov.in/panchang/en/regional-calendars (seen in a search index only)",
     "https://packolkata.imd.gov.in/download/smrs/<City>.pdf (per-city sunrise/moonrise/set tables; titles seen in a search index: Panaji 73.82 E 15.45 N, Chandigarh 76.90 E 30.07 N, Gangtok 88.62 E 27.33 N; unverified)",
-    "https://packolkata.imd.gov.in/INDIAN_CALADAR_PAC.pdf (seen in a search index only)"
+    "https://packolkata.imd.gov.in/INDIAN_CALADAR_PAC.pdf (seen in a search index only)",
+    "https://packolkata.imd.gov.in/panchang/en/tithi-nakshatra (official Yoga and Karana names, per PM/QA review)",
+    "https://packolkata.imd.gov.in/panchang/bn/kartika and /panchang/bn/chaitra (2026-27 daily Panchanga; English body text per PM/QA review)"
   ],
   "capture_targets": {
-    "minimum": "At least 24 rows: 6 Tithi endings, 6 Nakshatra endings, 6 Yoga endings, 3 Karana transitions (names as printed), 3 sunrise/sunset rows with the station they apply to; spread over at least three seasons",
+    "minimum": "At least 34 verified rows per SCI-PAN-01 section 8.1: method facts (1 each), 6 Tithi endings, 6 Nakshatra endings, 6 Yoga endings, 4 named Karana transitions including Kimstughna and a fixed Karana, Yoga and Karana name lists (1 each), 4 Central Station sunrise/sunset rows at solstices and equinoxes; spread over at least three seasons",
     "method_facts_to_record_verbatim": [
       "Ayanamsa used and its stated value or epoch",
       "Whether ending moments are geocentric and in IST",
       "Sunrise/sunset definition (upper limb or centre; refraction included or not) and the station(s) it applies to",
       "Rounding of printed times (truncated or rounded minute)",
       "Karana names and their order as printed",
-      "Any statement on Vara (civil date or sunrise)"
+      "Any statement on Vara (civil date or sunrise)",
+      "Central Station coordinates and the refraction and semidiameter values used",
+      "Notation for times after midnight (24-hour-plus)",
+      "Mean or true ayanamsa"
     ]
   },
   "row_template": {
     "case_id": "PAN-REF-IMD-NN",
     "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT | DIRECT_PUBLISHED_LOCATION_EVENT",
-    "source": {"publisher": "Positional Astronomy Centre, India Meteorological Department", "title": "", "edition_or_saka_year": "", "page_table_row_or_url": "", "accessed": "", "retrieved_by": "", "file_sha256_if_downloaded": "", "rights_note": "Record the publication's reuse statement verbatim; copy only the individual facts needed, never pages"},
+    "source": {
+      "publisher": "Positional Astronomy Centre, India Meteorological Department",
+      "title": "",
+      "edition_or_saka_year": "",
+      "page_table_row_or_url": "",
+      "accessed": "",
+      "retrieved_by": "",
+      "file_sha256_if_downloaded": "",
+      "rights_note": "Record the publication's reuse statement verbatim; copy only the individual facts needed, never pages"
+    },
     "date_civil": "",
     "station_or_location": "geocentric | station name with latitude/longitude as printed",
     "time_standard": "IST (UTC+05:30) unless printed otherwise",
@@ -39,5 +53,44 @@
     "assumptions_and_limitations": "",
     "status": "UNVERIFIED until a second person checks the row against the source"
   },
-  "rows": []
+  "rows": [],
+  "notation_rules": {
+    "24_hour_plus": "A printed time of hh:mm with hh >= 24 on civil date D means (hh-24):mm IST on civil date D+1. Store printed_value and printed_date unchanged, and add derived_instant_utc as a DERIVED field.",
+    "central_station": "Sunrise and sunset values apply to the IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported). Never compare them with city coordinates.",
+    "geocentric_endings": "Tithi, Nakshatra, Yoga and Karana ending times are geocentric moments in IST (as reported) and need no city correction."
+  },
+  "reviewer_reported_candidates": {
+    "status": "UNVERIFIED BY CLAUDE - quoted from ChatGPT PM/QA review 5679285841 on PR #51 (posted from the owner's GitHub account). Not fixtures, not expected values, not counted in any reference total. Each must be confirmed against the primary page by a person with access, then moved into rows with full provenance.",
+    "method_facts": [
+      "Sunrise/sunset: upper solar limb with refraction; refraction 31 arcmin + semidiameter 16 arcmin, so the geometric centre is 47 arcmin below the horizon (source cited: /panchang/en/explanation)",
+      "Station-based sunrise/sunset belong to the Central Station 82 deg 30 min E, 23 deg 11 min N; geocentric ending times are in IST"
+    ],
+    "values": [
+      {
+        "date": "2026-10-26",
+        "element": "tithi",
+        "printed": "Purnima ends 09:42 IST",
+        "source_cited": "/panchang/bn/kartika",
+        "independent_consistency": "Consistent with USNO and NASA Full Moon 2026-10-26 04:12 UT = 09:42 IST (PAN-REF-PHASE-2026-41)"
+      },
+      {
+        "date": "2026-10-28",
+        "element": "nakshatra",
+        "printed": "Krittika 13:26",
+        "source_cited": "/panchang/bn/kartika"
+      },
+      {
+        "date": "2026-10-28",
+        "element": "yoga",
+        "printed": "Vyatipata 07:19, then Variyan 27:41",
+        "source_cited": "/panchang/bn/kartika"
+      },
+      {
+        "date": "2026-10-28",
+        "element": "karana",
+        "printed": "Vanij 14:37, then Vishti 25:07",
+        "source_cited": "/panchang/bn/kartika"
+      }
+    ]
+  }
 }
