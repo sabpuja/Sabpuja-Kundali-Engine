@@ -16,11 +16,8 @@ const base=process.env.QA_ORIGIN||'http://sabpuja-kundali-preview:8080';
       page.on('requestfailed',r=>failed.push(r.url()+' '+r.failure()?.errorText));
       page.on('pageerror',e=>errors.push(e.message));
       page.on('request',r=>{if(!r.url().startsWith(base+'/')&&!r.url().startsWith('blob:'))external.push(r.url())});
-      // Internal HTTP QA only: model the intended Hostinger HTTPS Origin in both API POSTs.
-      await page.route('**/api/chart',route=>route.continue({headers:{...route.request().headers(),origin:'https://kundali-preview.sabpuja.com'}}));
-      await page.route('**/api/report',route=>route.continue({headers:{...route.request().headers(),origin:'https://kundali-preview.sabpuja.com'}}));
-      // Same-site WOFF2 font fetches also carry Origin; simulate intended HTTPS Origin only in isolated QA.
-      await page.route('**/*.woff2',route=>route.continue({headers:{...route.request().headers(),origin:'https://kundali-preview.sabpuja.com'}}));
+      // The browser sends its real Origin (also on WOFF2 font fetches): QA_ORIGIN's origin must be
+      // listed in the gateway's allowed-origins map. Chromium ignores Origin rewrites in page.route.
       const nav=await page.goto(base+'/',{waitUntil:'networkidle'});
       assert.equal(nav.status(),200);
       await page.evaluate(()=>document.fonts.ready);
@@ -44,6 +41,28 @@ const base=process.env.QA_ORIGIN||'http://sabpuja-kundali-preview:8080';
       await page.locator('#birth-date').fill('1990-05-16');
       assert.equal(await page.locator('#download-pdf').isDisabled(),true);
       assert.equal(await page.locator('#result').isHidden(),true);
+      // Regression: a PDF request aborted by an edit must not leave the button saying "Preparing PDF...".
+      await new Promise(resolve=>setTimeout(resolve,1200));
+      await page.locator('#submit').click();
+      await page.locator('#result').waitFor({state:'visible',timeout:15000});
+      await page.route('**/api/report',async route=>{await new Promise(r=>setTimeout(r,2500));route.continue().catch(()=>{});});
+      let lateDownload=false;
+      page.once('download',()=>{lateDownload=true;});
+      await page.locator('#download-pdf').click();
+      await page.waitForFunction(()=>document.getElementById('download-pdf').textContent==='Preparing PDF...');
+      await page.locator('#birth-date').fill('1990-05-17');
+      await new Promise(resolve=>setTimeout(resolve,3200));
+      assert.equal(lateDownload,false);
+      // The deliberately aborted PDF request is expected; any other failure still fails the run.
+      for(let i=failed.length-1;i>=0;i--){if(failed[i].endsWith('/api/report net::ERR_ABORTED'))failed.splice(i,1);}
+      await page.unroute('**/api/report');
+      await new Promise(resolve=>setTimeout(resolve,1200));
+      await page.locator('#submit').click();
+      await page.locator('#result').waitFor({state:'visible',timeout:15000});
+      assert.equal(await page.locator('#download-pdf').textContent(),'Download Kundali PDF');
+      assert.equal(await page.locator('#download-pdf').isEnabled(),true);
+      await page.locator('#clear').click();
+      assert.equal(await page.locator('#download-pdf').isDisabled(),true);
       const dims=await page.evaluate(()=>[document.documentElement.scrollWidth,document.documentElement.clientWidth]);
       assert.ok(dims[0]<=dims[1]+1,'horizontal overflow');
       assert.deepEqual(errors,[]);

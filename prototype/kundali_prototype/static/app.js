@@ -233,6 +233,8 @@
     if (pdfInflight) { pdfInflight.abort(); pdfInflight = null; }
     lastSuccessfulPayload = null;
     downloadBtn.disabled = true;
+    // An aborted PDF request skips its own reset, so restore the label here.
+    downloadBtn.textContent = "Download Kundali PDF";
     $("result").hidden = true;
     $("error-card").hidden = true;
     setStatus("");
