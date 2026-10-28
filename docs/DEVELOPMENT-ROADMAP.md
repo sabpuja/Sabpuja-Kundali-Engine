@@ -219,7 +219,7 @@ Later Shopify staging integration, digital report products, customer experience,
 
 | WP | Work | Depends on | Gate |
 |---|---|---|---|
-| WP-E0 | Commercial-demand validation (proposed, KUN-A13): competitor offer evidence, buyer-demand validation, format and price tests, pilot acceptance, with no assumed prices or sales claims. Product-market work, separate from ENG/RPT (owner, with PM; Claude only for evidence gathering if asked) | OD-03 | Owner commercial signoff |
+| WP-E0 | Market and competitor validation (proposed, KUN-A13 commercial-demand validation): evidence of existing paid competitor offerings, buyer-demand validation, format and price tests, pilot acceptance, with no assumed prices or sales claims. Product-market work, separate from ENG/RPT (owner, with PM; Claude only for evidence gathering if asked) | OD-03 | Owner commercial signoff |
 | WP-E1 | Shopify unpublished-staging integration (CLAUDE-012, KUN-07) | KUN-04 to KUN-06; owner staging approval | QA-020, QA-021, QA-028 |
 | WP-E2 | Digital report product definitions and delivery (KUN-A09, KUN-A10) | OD-03; WP-E0 signoff; ENG and RPT per module | Owner sale approval |
 | WP-E3 | Privacy, consent and legal approval (SEC-01, LEG-01; two-person consent for compatibility) | Qualified review | Gate C |
