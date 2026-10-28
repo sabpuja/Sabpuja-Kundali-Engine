@@ -58,6 +58,14 @@ services:
         source: ${SABPUJA_PREVIEW_HTPASSWD_FILE:?Set protected Basic Auth htpasswd file}
         target: /etc/nginx/private-htpasswd
         read_only: true
+      - type: bind
+        source: ${SABPUJA_PREVIEW_ALLOWED_ORIGINS_FILE:?Set the allowed HTTPS Origin map file}
+        target: /etc/nginx/preview-allowed-origins.map
+        read_only: true
+      - type: bind
+        source: ${SABPUJA_PREVIEW_TRUSTED_PROXY_FILE:?Set the trusted proxy file}
+        target: /etc/nginx/preview-trusted-proxy.conf
+        read_only: true
 
 networks:
   edge:
