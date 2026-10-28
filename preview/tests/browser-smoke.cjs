@@ -6,9 +6,9 @@ const dir=process.env.QA_RESULTS||'/qa/browser-results';fs.mkdirSync(dir,{recurs
 try{for(const width of [280,375,768,1440]){
  const ctx=await browser.newContext({viewport:{width,height:860},httpCredentials:{username,password}});
  const page=await ctx.newPage();let errors=[];let outside=[];
- // Isolated QA uses private HTTP; emulate the owner-authorized future HTTPS browser Origin.
- // This does NOT validate actual TLS, external routing, or client-release readiness.
- await page.route('**/api/chart', route=>route.continue({headers:{...route.request().headers(),origin:'https://kundali-preview.sabpuja.com'}}));page.on('response',async r=>{if(r.url().includes('/api/chart'))console.log('API_CHART',width,r.status(),(await r.text()).slice(0,400));});
+ // The browser sends its real Origin: QA_ORIGIN's origin must be listed in the gateway's
+ // allowed-origins map. Chromium ignores Origin rewrites in page.route, so none is attempted.
+ page.on('response',async r=>{if(r.url().includes('/api/chart'))console.log('API_CHART',width,r.status(),(await r.text()).slice(0,400));});
  page.on('response',r=>{if(r.url().includes('/api/places'))console.log('PLACES_RESPONSE',width,r.status());});page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(!r.url().startsWith(base+'/'))outside.push(r.url())});
  const nav=await page.goto(base+'/',{waitUntil:'networkidle'});
  assert.equal(nav.status(),200);await page.waitForTimeout(1200);console.log('PLACES_UI',width,await page.locator('#place option').allTextContents(),await page.locator('#status').innerText(),JSON.stringify(errors));await page.waitForFunction(()=>document.querySelectorAll('#place option').length===11,{timeout:5000});

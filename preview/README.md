@@ -41,3 +41,18 @@ Do not call the application **client ready** until the owner separately approves
 Each invited reviewer must have a distinct credential in the operator-managed htpasswd file. To revoke access, remove that user's htpasswd entry on the host, **recreate only the isolated gateway container** so Docker remounts the updated file inode, then verify the old credentials return 401 and unaffected credentials still return 200. Use synthetic identities only in QA. The Nginx limit is per connecting source IP, not per reviewer, and the separate live HTTPS edge may cause source-address aggregation; this needs explicit acceptance or a trusted-proxy design before access. Never trust arbitrary X-Forwarded-For from the public Internet. Keep the site inaccessible from the public Internet until separate owner deployment approval.
 
 **QA revocation finding:** An atomic htpasswd-file rewrite plus Nginx SIGHUP left the old bind-mounted inode in place; old credentials still worked. A gateway-only Compose force-recreate remounted the updated file and independently returned **401** for the removed synthetic account and **200** for the retained synthetic account. Do not use reload-only as a revocation step. This is mandatory operator guidance for any preview deployment.
+
+## Gateway deployment files (owner-preview drift, recorded 2026-10-27)
+
+The 2026-10-27 owner-preview update needed three hand edits on the host that were not in Git: the allowed HTTPS Origin, the gateway file mode for non-root Nginx, and a trusted Caddy address for per-client throttling. They are now configuration files beside `htpasswd`, outside Git, and Compose refuses to start without them:
+
+- `SABPUJA_PREVIEW_ALLOWED_ORIGINS_FILE`: the exact browser Origin(s). Start from `preview/gateway/allowed-origins.map.example`.
+- `SABPUJA_PREVIEW_TRUSTED_PROXY_FILE`: one `set_real_ip_from` line naming the HTTPS edge (Caddy) address. Start from `preview/gateway/trusted-proxy.conf.example`. Nginx then takes the client address from the last `X-Forwarded-For` entry, the one Caddy appends, and only from that address. A client that forges the header directly, or sends earlier entries, cannot change its throttling bucket. With no `set_real_ip_from` line the header is ignored and every caller behind the edge shares one bucket.
+
+Before starting or recreating the gateway, as the operator:
+
+1. Make all mounted gateway files readable by the Nginx user: `chmod 0644 Gateway.nginx.conf allowed-origins.map trusted-proxy.conf` and keep `htpasswd` readable by UID 101. The first 2026-10-27 switch failed on an unreadable file.
+2. Confirm the edge address still matches the file, because recreating the Caddy container can change it: `docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' <caddy-container>` and compare with `trusted-proxy.conf`.
+3. Validate the exact files as the Nginx user before switching: `docker run --rm --user 101:101 --read-only --tmpfs /tmp -v "$PWD/preview/Gateway.nginx.conf:/etc/nginx/nginx.conf:ro" -v "$HTPASSWD:/etc/nginx/private-htpasswd:ro" -v "$ORIGINS:/etc/nginx/preview-allowed-origins.map:ro" -v "$PROXY:/etc/nginx/preview-trusted-proxy.conf:ro" nginx:1.28.0-alpine nginx -t`.
+
+Isolated QA lists its own private origin in a throwaway allowed-origins file, for example `"http://<gateway-qa-ip>:8080" 0;`, and passes the same address as `QA_ORIGIN`. The browser smoke tests no longer try to rewrite the `Origin` header: Chromium ignores such rewrites, so the old tests could only pass against a gateway that already allowed the QA origin.

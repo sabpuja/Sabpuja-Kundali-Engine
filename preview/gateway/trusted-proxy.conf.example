@@ -1,0 +1,11 @@
+# Trusted reverse proxy: the HTTPS edge (Caddy) address on the shared Docker
+# network, exactly one address. Mounted read-only at
+# /etc/nginx/preview-trusted-proxy.conf; must be readable by Nginx (mode 0644).
+#
+# Only this address may set the client IP through X-Forwarded-For; the gateway
+# uses the last entry, which Caddy appends. Without this line every caller is
+# throttled as the proxy's single address.
+#
+# The edge address can change when its container is recreated. Before each
+# gateway start, compare it with the live value (see preview/README.md).
+set_real_ip_from 172.28.0.3;
