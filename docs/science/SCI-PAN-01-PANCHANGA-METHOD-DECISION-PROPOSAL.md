@@ -91,7 +91,18 @@ IMD Nakshatra and Yoga ending times can serve as exact oracles for the Sabpuja e
 | 1 Ashadha = 2026-06-22 | 24°13′45″ | 24°13′44.54″ | 24°13′36.78″ | +0.5″ |
 | 1 Kartika = 2026-10-23 | 24°14′02″ | 24°14′01.72″ | 24°13′53.71″ | +0.3″ |
 
-On these four points IMD's printed ayanamsa matches true Lahiri to within the 1″ rounding of the printed value, and is clearly not the mean value. This is consistent with the first row of the table below. It is **not yet proof** of identical models: it is four points, the values were reviewer-transcribed, and the Swiss figures are the engine's own model, not an independent reference. The things to establish, and their numerical effect, are:
+On these four points IMD's printed ayanamsa matches true Lahiri to within the 1″ rounding of the printed value, and is clearly not the mean value. It is **not proof** that the two conventions are numerically identical. What remains unverified:
+
+| Aspect | SCI-01a (Swiss 2.10.03 `SE_SIDM_LAHIRI`, true) | IMD, as reported | Status |
+|---|---|---|---|
+| Reference value | 23°15′00.658″ at 1956-03-21 0h **TT** (Swiss's stored initial value; Swiss's true value at 0h UT that day prints 23°15′00.80″) | 23°15′00″ at 0h on 21 March 1956, time scale not stated | Agree within 1″. Whether IMD's 0h is UT, IST or ephemeris time, and whether 23°15′00″ is mean or true, is not stated in the handoff |
+| Epoch of the 2026 monthly values | — | "Initial" value for each Saka month; time of day and time scale not stated | 0h UT assumed above. Any choice within the day changes the value by under 0.15″ |
+| Precession model | Swiss 2.10.03 default: `SEMOD_PREC_DEFAULT` = Vondrák 2011 in `swephexp.h` | "Variable/increasing"; model not named in the handoff | Unknown. Four points over 70 years cannot exclude a model difference that grows outside 1956 to 2026 |
+| Nutation | Included (true ayanamsa) | Not stated; the values match true, not mean | Indicated but not stated |
+| Printed precision | Engine uses full precision | Whole arcseconds | ±0.5″ from rounding alone |
+| Evidence | Engine's own model computed in a scratch session (not committed) | Reviewer transcription, not second-person checked | Neither side is an independent verification of the other |
+
+**No tolerance is set from this comparison.** If the conventions turn out to match to about 1″, the first row of the table below applies (Nakshatra about 2 s, Yoga about 4 s). That stays a hypothesis until IMD's method text is verified and checked by a second person. The things to establish, and their numerical effect, are:
 
 | Possible difference | Size of ayanamsa difference | Effect on a Nakshatra end (Moon about 13.2°/day) | Effect on a Yoga end (sum about 14.2°/day; ayanamsa counts twice) | Tithi / Karana |
 |---|---|---|---|---|
@@ -100,7 +111,7 @@ On these four points IMD's printed ayanamsa matches true Lahiri to within the 1�
 | Different precession model or epoch value, about 1′ | about 60″ | about 1.8 min | about 3.4 min | None |
 | A different ayanamsa family (for example Raman or Krishnamurti, about 1° to 1.5° away) | ≥ 3 600″ | hours | hours | None |
 
-**Proposed rule:** IMD Nakshatra/Yoga rows become oracles only after IMD's ayanamsa definition is captured verbatim and shown to fall in the first two rows (the revision 0.4 comparison points to the first row, pending verification). A mean/true difference must then be budgeted explicitly in the tolerance (section 5.9). Otherwise the rows are reported as method-difference comparisons, not pass/fail tests. Tithi and Karana rows are unaffected by any ayanamsa difference.
+**Proposed rule:** IMD Nakshatra/Yoga rows become oracles only after IMD's ayanamsa definition is captured verbatim and shown to fall in the first two rows (the revision 0.4 four-point comparison is consistent with the first row but does not establish it). A mean/true difference must then be budgeted explicitly in the tolerance (section 5.9). Otherwise the rows are reported as method-difference comparisons, not pass/fail tests. Tithi and Karana rows are unaffected by any ayanamsa difference.
 
 ## 4. Inputs
 
@@ -360,7 +371,7 @@ Every row is **PROPOSED ONLY**, and every owner status is **PENDING**.
 | PAN-D12 | Output contract and version | Separate `sabpuja-panchanga/1` document with its own metadata | Extend chart to `0.4.0` | — | **A**: chart `0.3.0` and metadata `/3` stay byte-identical | WP-B2 handoff section 3, 8 | PENDING |
 | PAN-D13 | Instants outside the SCI-03 envelope | Always report UTC; withhold local rendering (flagged) for instants before 1970-01-01 local or after 2100-12-31 local | Render with unverified offsets | Refuse the request | **A** | PAN-SPEC-12 | PENDING |
 | PAN-D14 | Reference hierarchy | IMD Rashtriya Panchang for Panchanga conventions and ending times; USNO/NASA for ayanamsa-free astronomical events and SUN-A sunrise; Swiss documentation for behaviour only | Use commercial Panchang websites | — | **A**; no commercial website as ground truth | SOURCE-REGISTER | PENDING |
-| PAN-D15 | Comparison tolerances | Provisional: phases within [min published − 60 s, max published + 60 s]; SUN-A ±120 s; IMD rows: the printed-minute window, widened by the section 3.1 ayanamsa budget once IMD's definition is known | Tighter, seconds-level | — | **Provisional A.** Fix only after the IMD method facts are captured (section 5.9), and always before any run | Fixture files; sections 3.1, 5.9; the ayanamsa comparison points to the ≤ 1″ budget row | PENDING |
+| PAN-D15 | Comparison tolerances | Provisional: phases within [min published − 60 s, max published + 60 s]; SUN-A ±120 s; IMD rows: the printed-minute window, widened by the section 3.1 ayanamsa budget once IMD's definition is known | Tighter, seconds-level | — | **Provisional A.** Fix only after the IMD method facts are captured (section 5.9), and always before any run | Fixture files; sections 3.1, 5.9; the four-point ayanamsa comparison is not used to set any tolerance | PENDING |
 | PAN-D16 | Names and localisation | Reuse the engine's English Nakshatra names; Yoga/Tithi/Karana English per Appendix A; Hindi pending the OD-08 reviewer | Adopt a published IMD spelling set once captured | — | **A now, B when IMD captured** | Appendix A; reviewer-mediated Karana spellings (Vanij, Sakuni, Chatuspada) | PENDING |
 | PAN-D17 | Sunset | Compute with the same convention as sunrise; display only | Omit | — | **A** (KUN-A01 names sunrise/sunset) | PRD 12.1 | PENDING |
 | PAN-D18 | Tithi numbering | Output both 1..30 and Paksha + day 1..15 | One only | — | **A** | Section 5.1 | PENDING |
@@ -406,7 +417,7 @@ For each recommendation, if the owner picks the alternative:
 
 These are targets for verified, individually sourced IMD rows, captured with the template's provenance fields. **None is verified yet.** Revision 0.4 holds 46 reviewer-mediated candidates; the last column shows how far they would go once promoted.
 
-**Promotion rule:** a candidate becomes a verified row only after exact-source reconfirmation on the official page, an independent second-person comparison, confirmation of the 24-hour-plus interpretation from IMD's own text, a record of IMD's reuse terms, and, for Nakshatra and Yoga, the section 3.1 assessment. Index-text-only candidates also need a direct page read.
+**Promotion rule:** every candidate carries status `REVIEWER_SOURCED_PENDING_VERIFICATION`, and none may be promoted directly to `VERIFIED_INDEPENDENT_PRIMARY_GOLDEN`. A candidate becomes a verified row only after exact-source reconfirmation on the official page, an independent second-person comparison, confirmation of the 24-hour-plus interpretation from IMD's own text, a record of IMD's reuse terms, and, for Nakshatra and Yoga, the section 3.1 assessment. Index-text-only candidates also need a direct page read.
 
 | Element | Minimum rows | Spread | Notes | Candidates held (revision 0.4) |
 |---|---|---|---|---|
@@ -422,6 +433,28 @@ These are targets for verified, individually sourced IMD rows, captured with the
 **24-hour-plus notation:** a printed time such as 27:41 on a civil date is read as 03:41 IST on the **next** civil date. This is a derived interpretation until IMD's own wording is confirmed. Fixtures keep the printed value and the date it was printed under, and add the converted ISO instant as a derived field.
 
 **Rights:** record IMD's reuse statement verbatim for each document. Copy individual facts only, never pages or tables wholesale.
+
+### 8.2 Reference coverage reconciliation (revision 0.4)
+
+| # | Category | Count | Notes |
+|---|---|---|---|
+| 1 | Direct published USNO/NASA records | 64 | 50 geocentric phase events (25 Tithi + Karana boundaries, 25 Karana-only boundaries), 12 USNO sunrise/sunset cases and 2 USNO negative cases. Values unchanged in revision 0.4 |
+| 2 | IMD candidates from official HTML opened by the reviewer | 30 | 2026-03-22, 03-23 (Chaitra page) and 2026-10-26, 10-28 (Kartika page) |
+| 3 | IMD candidates from official-domain index text only | 16 | 2026-07-14, 07-17 (Ashadha page). Direct page open timed out; needs direct reconfirmation |
+| 4 | IMD records verified and second-person checked | **0** | — |
+| 5 | Derived mathematical cases | 8 | PAN-DER-01..08. The 46 derived UTC minutes in the IMD template are conversions of candidates, not separate cases |
+| 6 | Outstanding independent-reference gaps | 9 | (a) any verified IMD row; (b) verified Nakshatra ends; (c) verified Yoga ends; (d) verified Karana names and indexing; (e) any SUN-B reference; (f) verified SUN-D Central Station times, including a solstice; (g) IMD's rounding rule; (h) IMD's own 24-hour-plus wording; (i) IMD's Vara statement and the Yoga name list |
+
+Proposed KUN-A01 tests (WP-B2 handoff section 11) and their references:
+
+| Test | Verified independent reference | IMD candidates now available | Oracle status |
+|---|---|---|---|
+| PAN-QA-01 rule oracles | Rule definitions; 50 phase events for the elongation boundaries | 7 Tithi, 6 Nakshatra, 7 Yoga, 14 Karana ends | Candidates only. Nakshatra and Yoga also need the section 3.1 assessment |
+| PAN-QA-02 name tables | None | Karana list (11 names), plus Tithi, Nakshatra, Yoga and Karana names in the daily rows | Candidates only; the Yoga list itself is not reported |
+| PAN-QA-04 phase events | 50 USNO/NASA | 2 phase-coincident Tithi ends and 2 coincident Karana ends (07-14 and 10-26) | USNO/NASA remain the reference |
+| PAN-QA-05 sunrise/sunset | 14 USNO (SUN-A, city coordinates) | 6 sunrise and 6 sunset at the Central Station (SUN-D) | Candidates only; never compared with city cases |
+| PAN-QA-06 IMD rows | None | All 46 | Not an approved engineering oracle until method compatibility, source precision and independent verification are established |
+| PAN-QA-03, -07 to -11 | Not reference-based | — | — |
 
 ## 9. Unresolved scientific questions
 

@@ -60,7 +60,7 @@
     "geocentric_endings": "Tithi, Nakshatra, Yoga and Karana ending times are geocentric moments in IST (as reported) and need no city correction."
   },
   "reviewer_mediated_evidence": {
-    "status": "CANDIDATES ONLY - NOT FIXTURES - NOT COUNTED AS VERIFIED REFERENCES. Transcribed by the ChatGPT PM/QA reviewer from official packolkata.imd.gov.in pages and handed over in PR #51 comment 6464388772 (2026-10-28), which states that the owner authorized this reviewer-mediated handoff. Claude did not retrieve any IMD page; the host remains blocked from this environment and was not accessed by any other route.",
+    "status": "CANDIDATES ONLY (status REVIEWER_SOURCED_PENDING_VERIFICATION; none may be promoted directly to VERIFIED_INDEPENDENT_PRIMARY_GOLDEN) - NOT FIXTURES - NOT COUNTED AS VERIFIED REFERENCES. Transcribed by the ChatGPT PM/QA reviewer from official packolkata.imd.gov.in pages and handed over in PR #51 comment 6464388772 (2026-10-28), which states that the owner authorized this reviewer-mediated handoff. Claude did not retrieve any IMD page; the host remains blocked from this environment and was not accessed by any other route.",
     "handoff_reference": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/51#issuecomment-6464388772",
     "promotion_rule": "A candidate moves into rows only after: exact-source reconfirmation on the official page; an independent second-person comparison; the 24-hour-plus interpretation confirmed from IMD's own text; IMD's reuse terms recorded; and, for Nakshatra and Yoga, the ayanamsa assessment in SCI-PAN-01 section 3.1",
     "retrieval_tiers": {
@@ -108,6 +108,8 @@
         "date_civil_as_printed": "2026-03-22",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "1 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "tithi",
         "printed_name": "Chaturthi",
         "printed_context": "Chaitra Sukla",
@@ -116,13 +118,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-03-22T15:47Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-02",
         "date_civil_as_printed": "2026-03-22",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "1 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "nakshatra",
         "printed_name": "Bharani",
         "printed_value": "h. 22-43",
@@ -130,13 +135,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-03-22T17:13Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-03",
         "date_civil_as_printed": "2026-03-22",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "1 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "yoga",
         "printed_name": "Vaidhriti",
         "printed_value": "h. 15-42",
@@ -145,13 +153,16 @@
         "derived_instant_utc_minute": "2026-03-22T10:12Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "consistency_note": "Yoga 27 ends; the next row (2026-03-23) ends Viskumbha, so the pair covers the Vaidhriti to Viskumbha wrap",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-04",
         "date_civil_as_printed": "2026-03-22",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "1 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Vanij",
         "printed_value": "h. 10-37",
@@ -160,13 +171,16 @@
         "derived_instant_utc_minute": "2026-03-22T05:07Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "implied_karana_number_under_candidate_rule": 7,
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-05",
         "date_civil_as_printed": "2026-03-22",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "1 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Vishti",
         "printed_value": "h. 21-17",
@@ -176,39 +190,48 @@
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "implied_karana_number_under_candidate_rule": 8,
         "consistency_note": "Same printed time as the Chaturthi end, as the 6-degree rule requires",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-06",
         "date_civil_as_printed": "2026-03-22",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "1 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "sunrise",
         "printed_value": "6:02 AM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
         "derived_instant_utc_minute": "2026-03-22T00:32Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-07",
         "date_civil_as_printed": "2026-03-22",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "1 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "sunset",
         "printed_value": "6:12 PM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
         "derived_instant_utc_minute": "2026-03-22T12:42Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-08",
         "date_civil_as_printed": "2026-03-23",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "2 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "tithi",
         "printed_name": "Panchami",
         "printed_context": "Chaitra Sukla",
@@ -217,13 +240,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-03-23T13:09Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-09",
         "date_civil_as_printed": "2026-03-23",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "2 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "nakshatra",
         "printed_name": "Krittika",
         "printed_value": "h. 20-50",
@@ -231,13 +257,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-03-23T15:20Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-10",
         "date_civil_as_printed": "2026-03-23",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "2 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "yoga",
         "printed_name": "Viskumbha",
         "printed_value": "h. 12-22",
@@ -245,13 +274,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-03-23T06:52Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-11",
         "date_civil_as_printed": "2026-03-23",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "2 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Bava",
         "printed_value": "h. 7-57",
@@ -260,13 +292,16 @@
         "derived_instant_utc_minute": "2026-03-23T02:27Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "implied_karana_number_under_candidate_rule": 9,
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-12",
         "date_civil_as_printed": "2026-03-23",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "2 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Balava",
         "printed_value": "h. 18-39",
@@ -276,13 +311,16 @@
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "implied_karana_number_under_candidate_rule": 10,
         "consistency_note": "Same printed time as the Panchami end",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-13",
         "date_civil_as_printed": "2026-03-23",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "2 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Kaulava",
         "printed_value": "h. 29-22",
@@ -292,13 +330,16 @@
         "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
         "implied_karana_number_under_candidate_rule": 11,
         "consistency_note": "24-hour-plus value",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-14",
         "date_civil_as_printed": "2026-03-23",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "2 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "sunrise",
         "printed_value": "h. 6-01",
         "time_standard_as_reported": "IST (UTC+05:30)",
@@ -306,26 +347,32 @@
         "derived_instant_utc_minute": "2026-03-23T00:31Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "consistency_note": "Printed in a different notation from the 2026-03-22 row",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-15",
         "date_civil_as_printed": "2026-03-23",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "2 Chaitra 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "sunset",
         "printed_value": "h. 18-12",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
         "derived_instant_utc_minute": "2026-03-23T12:42Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-16",
         "date_civil_as_printed": "2026-07-14",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "23 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "tithi",
         "printed_name": "Amavasya",
         "printed_context": "Shuddha Jyaishtha Krishna",
@@ -335,13 +382,16 @@
         "derived_instant_utc_minute": "2026-07-14T09:44Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "consistency_note": "USNO and NASA New Moon PAN-REF-PHASE-2026-27: 15:13 IST (09:43 UT). IMD candidate is 1 minute later; within the provisional phase window only if IMD rounds up or uses a slightly different model",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-17",
         "date_civil_as_printed": "2026-07-14",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "23 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "nakshatra",
         "printed_name": "Punarvasu",
         "printed_value": "h. 24-10",
@@ -350,13 +400,16 @@
         "derived_instant_utc_minute": "2026-07-14T18:40Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
         "consistency_note": "24-hour-plus value",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-18",
         "date_civil_as_printed": "2026-07-14",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "23 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "yoga",
         "printed_name": "Vyaghata",
         "printed_value": "h. 11-57",
@@ -364,13 +417,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-07-14T06:27Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-19",
         "date_civil_as_printed": "2026-07-14",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "23 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Naga",
         "printed_value": "h. 15-14",
@@ -380,13 +436,16 @@
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "implied_karana_number_under_candidate_rule": 60,
         "consistency_note": "Same printed time as the Amavasya end; Karana #60 ends at New Moon",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-20",
         "date_civil_as_printed": "2026-07-14",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "23 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Kinstughna",
         "printed_value": "h. 25-30",
@@ -396,39 +455,48 @@
         "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
         "implied_karana_number_under_candidate_rule": 1,
         "consistency_note": "Spelled Kinstughna in this row and Kimstughna on the names page. 24-hour-plus value",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-21",
         "date_civil_as_printed": "2026-07-14",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "23 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "sunrise",
         "printed_value": "5:23 AM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
         "derived_instant_utc_minute": "2026-07-13T23:53Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-22",
         "date_civil_as_printed": "2026-07-14",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "23 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "sunset",
         "printed_value": "6:49 PM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
         "derived_instant_utc_minute": "2026-07-14T13:19Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-23",
         "date_civil_as_printed": "2026-07-17",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "26 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "tithi",
         "printed_name": "Tritiya",
         "printed_context": "Ashadha Sukla",
@@ -437,13 +505,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-07-17T00:58Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-24",
         "date_civil_as_printed": "2026-07-17",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "26 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "tithi",
         "printed_name": "Chaturthi",
         "printed_context": "Ashadha Sukla",
@@ -453,13 +524,16 @@
         "derived_instant_utc_minute": "2026-07-17T23:13Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
         "consistency_note": "24-hour-plus value",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-25",
         "date_civil_as_printed": "2026-07-17",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "26 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "nakshatra",
         "printed_name": "Magha",
         "printed_value": "h. 18-35",
@@ -467,13 +541,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-07-17T13:05Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-26",
         "date_civil_as_printed": "2026-07-17",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "26 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "yoga",
         "printed_name": "Vyatipata",
         "printed_value": "h. 22-46",
@@ -481,13 +558,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-07-17T17:16Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-27",
         "date_civil_as_printed": "2026-07-17",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "26 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Gara",
         "printed_value": "h. 6-28",
@@ -497,13 +577,16 @@
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "implied_karana_number_under_candidate_rule": 6,
         "consistency_note": "Same printed time as the Tritiya end",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-28",
         "date_civil_as_printed": "2026-07-17",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "26 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Vanij",
         "printed_value": "h. 17-31",
@@ -512,13 +595,16 @@
         "derived_instant_utc_minute": "2026-07-17T12:01Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "implied_karana_number_under_candidate_rule": 7,
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-29",
         "date_civil_as_printed": "2026-07-17",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "26 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Vishti",
         "printed_value": "h. 28-43",
@@ -528,39 +614,48 @@
         "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
         "implied_karana_number_under_candidate_rule": 8,
         "consistency_note": "Same printed time as the Chaturthi end; 24-hour-plus value",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-30",
         "date_civil_as_printed": "2026-07-17",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "26 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "sunrise",
         "printed_value": "5:24 AM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
         "derived_instant_utc_minute": "2026-07-16T23:54Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-31",
         "date_civil_as_printed": "2026-07-17",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/ashadha",
         "retrieval_tier": "OFFICIAL_DOMAIN_INDEX_TEXT_ONLY",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "26 Ashadha 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "sunset",
         "printed_value": "6:48 PM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
         "derived_instant_utc_minute": "2026-07-17T13:18Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page after opening it directly (index-text-only tier)"
       },
       {
         "candidate_id": "PAN-CAND-IMD-32",
         "date_civil_as_printed": "2026-10-26",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "4 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "tithi",
         "printed_name": "Purnima",
         "printed_context": "Asvina Sukla",
@@ -570,13 +665,16 @@
         "derived_instant_utc_minute": "2026-10-26T04:12Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "consistency_note": "USNO and NASA Full Moon PAN-REF-PHASE-2026-41: 09:42 IST (04:12 UT). Same minute",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-33",
         "date_civil_as_printed": "2026-10-26",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "4 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "nakshatra",
         "printed_name": "Asvini",
         "printed_value": "h. 17-41",
@@ -584,13 +682,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-10-26T12:11Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-34",
         "date_civil_as_printed": "2026-10-26",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "4 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "yoga",
         "printed_name": "Vajra",
         "printed_value": "h. 14-17",
@@ -598,13 +699,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-10-26T08:47Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-35",
         "date_civil_as_printed": "2026-10-26",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "4 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Bava",
         "printed_value": "h. 9-42",
@@ -614,13 +718,16 @@
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "implied_karana_number_under_candidate_rule": 30,
         "consistency_note": "Same printed time as the Purnima end and the USNO/NASA Full Moon",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-36",
         "date_civil_as_printed": "2026-10-26",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "4 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Balava",
         "printed_value": "h. 20-24",
@@ -629,39 +736,48 @@
         "derived_instant_utc_minute": "2026-10-26T14:54Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "implied_karana_number_under_candidate_rule": 31,
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-37",
         "date_civil_as_printed": "2026-10-26",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "4 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "sunrise",
         "printed_value": "6:02 AM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
         "derived_instant_utc_minute": "2026-10-26T00:32Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-38",
         "date_civil_as_printed": "2026-10-26",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "4 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "sunset",
         "printed_value": "5:25 PM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
         "derived_instant_utc_minute": "2026-10-26T11:55Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-39",
         "date_civil_as_printed": "2026-10-28",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "6 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "tithi",
         "printed_name": "Tritiya",
         "printed_context": "Asvina Krishna",
@@ -671,13 +787,16 @@
         "derived_instant_utc_minute": "2026-10-28T19:37Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
         "consistency_note": "24-hour-plus value",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-40",
         "date_civil_as_printed": "2026-10-28",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "6 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "nakshatra",
         "printed_name": "Krittika",
         "printed_value": "h. 13-26",
@@ -685,13 +804,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-10-28T07:56Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-41",
         "date_civil_as_printed": "2026-10-28",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "6 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "yoga",
         "printed_name": "Vyatipata",
         "printed_value": "h. 7-19",
@@ -699,13 +821,16 @@
         "location": "geocentric",
         "derived_instant_utc_minute": "2026-10-28T01:49Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-42",
         "date_civil_as_printed": "2026-10-28",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "6 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "yoga",
         "printed_name": "Variyan",
         "printed_value": "h. 27-41",
@@ -714,13 +839,16 @@
         "derived_instant_utc_minute": "2026-10-28T22:11Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
         "consistency_note": "24-hour-plus value",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-43",
         "date_civil_as_printed": "2026-10-28",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "6 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Vanij",
         "printed_value": "h. 14-37",
@@ -729,13 +857,16 @@
         "derived_instant_utc_minute": "2026-10-28T09:07Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
         "implied_karana_number_under_candidate_rule": 35,
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-44",
         "date_civil_as_printed": "2026-10-28",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "6 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "karana",
         "printed_name": "Vishti",
         "printed_value": "h. 25-07",
@@ -745,33 +876,40 @@
         "derived_note": "DERIVED by Claude: IST minus 05:30, with the 24-hour-plus value read as the next civil date (interpretation not yet independently confirmed)",
         "implied_karana_number_under_candidate_rule": 36,
         "consistency_note": "Same printed time as the Krishna Tritiya end; 24-hour-plus value",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-45",
         "date_civil_as_printed": "2026-10-28",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "6 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "sunrise",
         "printed_value": "6:03 AM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
         "derived_instant_utc_minute": "2026-10-28T00:33Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       },
       {
         "candidate_id": "PAN-CAND-IMD-46",
         "date_civil_as_printed": "2026-10-28",
         "source_url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
         "retrieval_tier": "OFFICIAL_HTML_OPENED_BY_REVIEWER",
+        "publication": "Rashtriya Panchang, Positional Astronomy Centre, IMD; Saka 1948 (2026-27) daily page for the month in the URL, as reported by the reviewer",
+        "saka_date_derived": "6 Kartika 1948 Saka (DERIVED by Claude from the Indian national calendar; the handoff gives Gregorian dates only)",
         "element": "sunset",
         "printed_value": "5:24 PM",
         "time_standard_as_reported": "IST (UTC+05:30)",
         "location": "IMD Central Station (82 deg 30 min E, 23 deg 11 min N, as reported)",
         "derived_instant_utc_minute": "2026-10-28T11:54Z",
         "derived_note": "DERIVED by Claude: IST minus 05:30",
-        "status": "CANDIDATE_REVIEWER_MEDIATED_UNVERIFIED"
+        "status": "REVIEWER_SOURCED_PENDING_VERIFICATION",
+        "second_person_verification": "REQUIRED, NOT DONE: an independent person must compare this value with the official page"
       }
     ],
     "coverage": {

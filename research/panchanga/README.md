@@ -60,6 +60,8 @@ The PM/QA reviewer transcribed official IMD values and method facts. Claude stil
   The Swiss figures come from a scratch session and are not committed.
 - **Source register:** SRC-IMD-HANDOFF-6464388772 added.
 
+Owner-authorized final integration (same revision): every candidate carries status `REVIEWER_SOURCED_PENDING_VERIFICATION` and a second-person-check field. Each also has the publication and a derived Saka date. The ayanamsa comparison lists what remains unverified (epoch time scale, precession model, mean or true) and sets no tolerance. SCI-PAN-01 section 8.2 reconciles coverage in six counts and maps the candidates to the proposed KUN-A01 tests. All 46 values were checked field by field against the handoff comment: 0 mismatches.
+
 No decision status changed. WP-B2 stays BLOCKED.
 
 ## Known limits of this package
