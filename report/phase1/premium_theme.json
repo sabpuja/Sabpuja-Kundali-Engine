@@ -1,0 +1,56 @@
+{
+  "purpose": "Palettes for the Phase 2A premium report layout. OD-10 (formal report palette) is OPEN: 'baseline' maps the existing approved theme.json tokens; 'od10-candidate' is a proposal for owner review only and is not approved.",
+  "default_palette": "baseline",
+  "palettes": {
+    "baseline": {
+      "label": "Existing report tokens (theme.json, design-system tokens.css)",
+      "status": "current",
+      "source": "report/phase1/theme.json",
+      "brand_tokens": {
+        "page": "ivory",
+        "primary": "saffron",
+        "primary_text": "brown",
+        "accent": "gold",
+        "tint": "cream",
+        "rule": "border",
+        "ink": "text",
+        "muted": "muted",
+        "surface": "white"
+      }
+    },
+    "od10-candidate": {
+      "label": "Proposed maroon / ivory / gold treatment (OD-10 candidate, not approved)",
+      "status": "proposal",
+      "source": "Owner-supplied Sabpuja visual direction, KUN-RPT-002A",
+      "owner_tokens": {
+        "warm_ivory": "#FAF5EA",
+        "deep_maroon": "#681E30",
+        "antique_gold": "#BE9148",
+        "champagne_beige": "#E9D9BA",
+        "charcoal": "#2F2926"
+      },
+      "derived_tokens": {
+        "surface": "#FFFDF8",
+        "muted": "#6A5D55",
+        "tint_soft": "#F3EAD7"
+      },
+      "roles": {
+        "page": "#FAF5EA",
+        "primary": "#681E30",
+        "primary_text": "#681E30",
+        "accent": "#BE9148",
+        "tint": "#E9D9BA",
+        "tint_soft": "#F3EAD7",
+        "rule": "#E9D9BA",
+        "ink": "#2F2926",
+        "muted": "#6A5D55",
+        "surface": "#FFFDF8"
+      }
+    }
+  },
+  "role_rules": {
+    "small_text_roles": ["ink", "muted", "primary_text"],
+    "decorative_only_roles": ["accent", "tint", "tint_soft", "rule"],
+    "minimum_small_text_contrast": 4.5
+  }
+}
