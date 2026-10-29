@@ -54,6 +54,7 @@ FONTS = {
 }
 METADATA_SCHEMA = 'sabpuja-calculation-metadata/3'
 MAX_PDF_BYTES = 1024 * 1024  # same bound as the preview server
+MIN_TEXT = 8.0              # smallest type anywhere in the report, for legible A4 print
 W, H = A4
 M = 48                      # side margin
 CW = W - 2 * M
@@ -232,8 +233,8 @@ class Doc:
         else:
             self.c.drawString(x, y, text)
 
-    def kicker(self, x, y, text, color='primary_text', align='left', size=7.6):
-        self.text(x, y, text.upper(), size, 'Strong', color, align, tracking=0.9)
+    def kicker(self, x, y, text, color='primary_text', align='left', size=MIN_TEXT):
+        self.text(x, y, text.upper(), size, 'Strong', color, align, tracking=0.6)
 
     def wrap(self, x, y, text, width, size=9.5, leading=None, face='Body', color='ink', max_lines=None):
         leading = leading or size * 1.5
@@ -306,17 +307,17 @@ def _header(d, key):
     d.logo(M, H - 58, 88)
     number = PAGE_OF[key]
     title = PAGES[number - 1][1]
-    d.kicker(W - M, H - 44, f'Janma Kundali  ·  {title}', 'muted', 'right', 7.2)
+    d.kicker(W - M, H - 44, f'Janma Kundali  ·  {title}', 'muted', 'right')
     d.line(M, H - 70, W - M, H - 70, 'accent', 0.6)
     _footer(d, number)
 
 
 def _footer(d, number):
     d.line(M, FOOTER_Y + 14, W - M, FOOTER_Y + 14, 'accent', 0.5)
-    d.text(M, FOOTER_Y, 'Sabpuja  ·  Janma Kundali', 7.4, 'Medium', 'muted')
+    d.text(M, FOOTER_Y, 'Sabpuja  ·  Janma Kundali', MIN_TEXT, 'Medium', 'muted')
     if d.synthetic:
-        d.text(W / 2, FOOTER_Y, 'Sample report  ·  synthetic birth details', 7.4, 'Medium', 'muted', 'center')
-    d.text(W - M, FOOTER_Y, f'Page {number} of {len(PAGES)}', 7.4, 'Medium', 'muted', 'right')
+        d.text(W / 2, FOOTER_Y, 'Sample report  ·  synthetic birth details', MIN_TEXT, 'Medium', 'muted', 'center')
+    d.text(W - M, FOOTER_Y, f'Page {number} of {len(PAGES)}', MIN_TEXT, 'Medium', 'muted', 'right')
 
 
 def _title(d, key, title, intro):
@@ -351,7 +352,7 @@ def _note(d, x, y_top, w, title, body, size=8.8):
     h = 34 + len(lines) * size * 1.5
     d.rect(x, y_top - h, w, h, fill='tint_soft', radius=6)
     d.rect(x, y_top - h, 3, h, fill='accent')
-    d.kicker(x + 14, y_top - 17, title, 'primary_text', size=7.2)
+    d.kicker(x + 14, y_top - 17, title, 'primary_text')
     y = y_top - 32
     for line in lines:
         d.text(x + 14, y, line, size, 'Body', 'ink')
@@ -367,7 +368,7 @@ def _table(d, x, y_top, columns, rows, row_h=30, header_h=26, zebra=True):
     cx = x
     for title, width, align in columns:
         tx = cx + 10 if align == 'left' else (cx + width - 10 if align == 'right' else cx + width / 2)
-        d.kicker(tx, y_top - header_h + 9.5, title, 'ink', align, 7.0)
+        d.kicker(tx, y_top - header_h + 9.5, title, 'ink', align)
         cx += width
     y = y_top - header_h
     for i, row in enumerate(rows):
@@ -380,7 +381,7 @@ def _table(d, x, y_top, columns, rows, row_h=30, header_h=26, zebra=True):
                 cell(d, cx, base, width, align)
             else:
                 tx = cx + 10 if align == 'left' else (cx + width - 10 if align == 'right' else cx + width / 2)
-                size = d.fit(cell, 'Body', 9.6, width - 20, 7.5)
+                size = d.fit(cell, 'Body', 9.6, width - 20, MIN_TEXT)
                 if size is None:
                     raise layout.LayoutError('Table cell text too long')
                 d.text(tx, base, cell, size, 'Body', 'ink', align)
@@ -392,7 +393,7 @@ def _table(d, x, y_top, columns, rows, row_h=30, header_h=26, zebra=True):
     return y
 
 
-def _cell(text, face='Body', color='ink', size=9.6, minimum=7.5):
+def _cell(text, face='Body', color='ink', size=9.6, minimum=MIN_TEXT):
     def draw(d, x, base, width, align):
         tx = x + 10 if align == 'left' else (x + width - 10 if align == 'right' else x + width / 2)
         fit = d.fit(text, face, size, width - 20, minimum)
@@ -426,7 +427,7 @@ def _members_cell(tokens):
 def _graha_cell(name, abbr):
     def draw(d, x, base, width, align):
         d.rect(x + 10, base - 4.6, 22, 15, fill='tint', radius=3)
-        d.text(x + 21, base, abbr, 7.8, 'Strong', 'primary_text', 'center')
+        d.text(x + 21, base, abbr, MIN_TEXT, 'Strong', 'primary_text', 'center')
         d.text(x + 40, base, name, 9.8, 'Strong', 'ink')
     return draw
 
@@ -452,13 +453,17 @@ def _chart_tokens(chart, positions, mode):
     return houses
 
 
+def _detail_size(size):
+    return max(MIN_TEXT, size * 0.78)
+
+
 def _token_widths(d, tokens):
     def widths(size, with_detail):
         out = []
         for main, detail, _ in tokens:
             w = d.width(main, 'Strong', size)
             if with_detail and detail:
-                w += size * 0.18 + d.width(detail, 'Body', size * 0.78)
+                w += size * 0.18 + d.width(detail, 'Body', _detail_size(size))
             out.append(w)
         return out
     return widths
@@ -497,7 +502,7 @@ def draw_chart(d, x, y, size, lagna_rashi, houses, line_color='primary', emblem=
         if not tokens:
             continue
         placed = layout.layout_house(h, _token_widths(d, tokens), s,
-                                     sizes=(8.5, 8, 7.5, 7) if emblem else (12, 11.5, 11, 10.5, 10, 9.5, 9, 8.5, 8))
+                                     sizes=(8.5, 8) if emblem else (12, 11.5, 11, 10.5, 10, 9.5, 9, 8.5, 8))
         boxes = []
         for item in placed:
             main, detail, kind = tokens[item.index]
@@ -508,7 +513,7 @@ def draw_chart(d, x, y, size, lagna_rashi, houses, line_color='primary', emblem=
             color = 'primary_text' if kind == 'lagna' else 'ink'
             d.text(left, base, main, fs, 'Strong', color)
             if item.with_detail and detail:
-                d.text(left + d.width(main, 'Strong', fs) + fs * 0.18, base, detail, fs * 0.78, 'Body', 'muted')
+                d.text(left + d.width(main, 'Strong', fs) + fs * 0.18, base, detail, _detail_size(fs), 'Body', 'muted')
             boxes.append((left, top - item.height * s, left + item.width * s, top, main))
         placed_boxes[h] = boxes
     return placed_boxes
@@ -555,13 +560,13 @@ def _page_cover(d, response, positions):
         x = M + 12 + i * col + 18
         if i:
             d.line(M + 12 + i * col, top - h + 20, M + 12 + i * col, top - 20, 'rule', 0.7)
-        d.kicker(x, top - 30, label, 'primary_text', size=7.2)
+        d.kicker(x, top - 30, label, 'primary_text')
         y = d.fitted(x, top - 56, value, col - 32, 15, 'Head', 'ink', minimum=10.5, leading=13, max_lines=3)
         d.wrap(x, min(y, top - 76) - 2, sub, col - 32, 8.2, 11, 'Body', 'muted', max_lines=3)
     y = 104
     if d.synthetic:
         d.text(W / 2, y + 18, 'SAMPLE REPORT  ·  SYNTHETIC BIRTH DETAILS, NOT A REAL PERSON',
-               7.8, 'Strong', 'primary_text', 'center')
+               MIN_TEXT, 'Strong', 'primary_text', 'center')
     d.text(W / 2, y, 'A calculation summary of the birth chart. It is not a prediction or professional advice.',
            8.6, 'Body', 'muted', 'center')
     d.text(W / 2, 52, 'sabpuja.com', 8.4, 'Strong', 'primary_text', 'center')
@@ -589,10 +594,10 @@ def _page_overview(d, response, positions):
         yy = top - (i // 3) * (ch + gap) - ch
         _card(d, x, yy, cw, ch)
         d.rect(x, yy + ch - 3, cw, 3, fill='accent')
-        d.kicker(x + 14, yy + ch - 22, label, 'primary_text', size=7.0)
-        d.text(x + cw - 14, yy + ch - 22, f'p. {page}', 7.2, 'Medium', 'muted', 'right')
+        d.kicker(x + 14, yy + ch - 22, label, 'primary_text')
+        d.text(x + cw - 14, yy + ch - 22, f'p. {page}', MIN_TEXT, 'Medium', 'muted', 'right')
         d.fitted(x + 14, yy + ch - 47, value, cw - 28, 16, 'Head', 'ink', minimum=11, max_lines=1)
-        d.fitted(x + 14, yy + 15, sub, cw - 28, 8.4, 'Body', 'muted', minimum=7.2, max_lines=1)
+        d.fitted(x + 14, yy + 15, sub, cw - 28, 8.6, 'Body', 'muted', minimum=MIN_TEXT, max_lines=1)
     y = top - 2 * (ch + gap) - 22
     d.text(M, y, 'In this report', 15, 'Head', 'ink')
     y -= 12
@@ -653,17 +658,17 @@ def _page_guide(d, response, positions):
         yy = y - 18 - row * 17.5
         d.text(x, yy, f'{i + 1:>2}', 8.6, 'Strong', 'primary_text')
         d.text(x + 18, yy, sign, 9, 'Medium', 'ink')
-        d.text(x + 18 + d.width(sign, 'Medium', 9) + 5, yy, layout.SIGN_ENGLISH[i], 7.8, 'Body', 'muted')
+        d.text(x + 18 + d.width(sign, 'Medium', 9) + 5, yy, layout.SIGN_ENGLISH[i], MIN_TEXT, 'Body', 'muted')
     abbr = [('Asc', 'Lagna')] + [(DISPLAY[n][1], DISPLAY[n][0]) for n in GRAHAS]
     for i, (a, name) in enumerate(abbr):
         col, row = divmod(i, 5)
         x = M + 300 + col * 98
         yy = y - 18 - row * 21
         d.rect(x, yy - 4.6, 26, 15, fill='tint', radius=3)
-        d.text(x + 13, yy, a, 7.8, 'Strong', 'primary_text', 'center')
+        d.text(x + 13, yy, a, MIN_TEXT, 'Strong', 'primary_text', 'center')
         d.text(x + 32, yy, name, 9, 'Medium', 'ink')
     d.wrap(M + 300, y - 18 - 5 * 21 + 4, 'English sign names are conventional equivalents for the sidereal Rashis.',
-           W - M - (M + 300), 7.6, 10.5, 'Body', 'muted', max_lines=2)
+           W - M - (M + 300), MIN_TEXT, 10.5, 'Body', 'muted', max_lines=2)
 
 
 def _page_birth(d, response, positions):
@@ -699,8 +704,8 @@ def _page_birth(d, response, positions):
     ]
     half = CW / 2 - 8
     top = y
-    left = _kv_layout(d, rows, half - 32, 10.8, 7.6)
-    right = _kv_layout(d, rows2, half - 32, 10.2, 7.4)
+    left = _kv_layout(d, rows, half - 32, 10.8, MIN_TEXT)
+    right = _kv_layout(d, rows2, half - 32, 10.2, MIN_TEXT)
     height = 38 + max(sum(h for *_, h in left), sum(h for *_, h in right))
     for x, title, items in ((M, 'Birth record', left), (M + half + 16, 'Calculation context', right)):
         _card(d, x, top - height, half, height)
@@ -708,7 +713,7 @@ def _page_birth(d, response, positions):
         ry = top - 28
         for i, (label, lines, size, h) in enumerate(items):
             ry -= h
-            d.text(x + 16, ry + h - 13, label, 7.8, 'Medium', 'muted')
+            d.text(x + 16, ry + h - 13, label, MIN_TEXT, 'Medium', 'muted')
             yy = ry + h - 26
             for line in lines:
                 d.text(x + 16, yy, line, size, 'Strong', 'ink')
@@ -751,14 +756,14 @@ def _page_chart(d, response, positions, mode):
     # Key band.
     y = y0 - 30
     lag_label = 'Lagna (Asc)' if mode == 'd1' else 'D9 Lagna (Asc)'
-    d.kicker(M, y, lag_label, 'primary_text', size=7.2)
+    d.kicker(M, y, lag_label, 'primary_text')
     if mode == 'd1':
         lagna_value = f'{lagna}  ·  {positions["lagna"].dms()} within the Rashi  ·  house 1 (shaded)'
     else:
         lagna_value = f'{lagna}  ·  Rashi {layout.SIGNS.index(lagna) + 1}  ·  house 1 (shaded)'
     d.text(M + 110, y, lagna_value, 9.8, 'Strong', 'ink')
     y -= 22
-    d.kicker(M, y, 'Abbreviations', 'primary_text', size=7.2)
+    d.kicker(M, y, 'Abbreviations', 'primary_text')
     x = M + 110
     for name in GRAHAS:
         full, abbr = DISPLAY[name]
@@ -804,7 +809,7 @@ def _page_positions(d, response, positions):
     moon = chart['moon_nakshatra']
     _card(d, M, y - 52, CW, 52, 'surface')
     d.rect(M, y - 52, 3, 52, fill='accent')
-    d.kicker(M + 16, y - 18, 'Moon Nakshatra and Pada', 'primary_text', size=7.2)
+    d.kicker(M + 16, y - 18, 'Moon Nakshatra and Pada', 'primary_text')
     d.text(M + 16, y - 38, moon['name'], 14, 'Head', 'ink')
     d.text(M + 16 + d.width(moon['name'], 'Head', 14) + 12, y - 38, f'Pada {moon["pada"]}', 11, 'Strong', 'primary_text')
     d.wrap(M + 250, y - 22, 'Nakshatra is reported by the engine for the Moon only, so it is not shown for other grahas.',
@@ -887,7 +892,7 @@ def _page_method(d, response, positions):
         ('Sidereal zodiac', meta['conventions']['ayanamsa']['definition']),
         ('Lunar nodes', 'Mean node for Rahu; Ketu exactly opposite the unrounded Rahu longitude.'),
         ('Houses', 'Whole-sign houses for D1 and D9: house = Rashi count from the Lagna Rashi.'),
-        ('Classification', 'Rashi, Navamsa, Nakshatra, Pada and houses use unrounded longitudes; printed values are rounded for display only.'),
+        ('Precision', 'Absolute longitudes are printed to eight decimals. Positions within a Rashi are truncated to the arc-second. Rashi, Navamsa, Nakshatra, Pada and houses are classified from unrounded longitudes.'),
         ('Ephemeris', f'Swiss Ephemeris {swiss["library_version"]} via pyswisseph {swiss["python_binding_version"]}, '
                       f'local files {", ".join(f["name"] for f in eph["required_files"])} '
                       f'(source commit {eph["source_commit"][:12]}), checked by SHA-256 before calculation.'),
@@ -925,13 +930,13 @@ def _page_method(d, response, positions):
     # Licences sit at the foot of the page, above the footer rule.
     y = min(yy - 12, 128)
     d.line(M, y + 6, W - M, y + 6, 'accent', 0.6)
-    d.kicker(M, y - 8, 'Source and licences', 'primary_text', size=7.0)
+    d.kicker(M, y - 8, 'Source and licences', 'primary_text')
     d.wrap(M, y - 22,
            'Sabpuja Kundali Engine source: github.com/sabpuja/Sabpuja-Kundali-Engine (AGPL-3.0). Swiss Ephemeris is '
            'used under its AGPL licence option. Time zone data: IANA tz database (public domain) via the tzdata '
            'package (Apache-2.0). Place coordinates: GeoNames (CC BY 4.0), cross-checked with Natural Earth. '
            'Typefaces: Poppins and Inter (SIL Open Font License 1.1).',
-           CW, 7.8, 11, 'Body', 'muted', max_lines=5)
+           CW, MIN_TEXT, 11, 'Body', 'muted', max_lines=5)
 
 
 def _new_page(d):

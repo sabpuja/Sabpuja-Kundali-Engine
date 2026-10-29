@@ -437,6 +437,19 @@ class PremiumPDFTests(unittest.TestCase):
             self.assertIn('Poppins', names)
             self.assertIn('Inter', names)
 
+    def test_minimum_text_size(self):
+        for case, palette, _, _, pdf in all_rendered():
+            for number, page in enumerate(pdf, 1):
+                for span in spans(page):
+                    self.assertGreaterEqual(round(span['size'], 2), premium.MIN_TEXT, (case, number, span['text']))
+
+    def test_method_page_states_precision_rules(self):
+        _, _, pdf = rendered('s07-noon')
+        text = ' '.join(pdf[premium.PAGE_OF['method'] - 1].get_text().split())
+        self.assertIn('Absolute longitudes are printed to eight decimals', text)
+        self.assertIn('truncated to the arc-second', text)
+        self.assertNotIn('rounded for display', ' '.join(' '.join(p.get_text().split()) for p in pdf))
+
     def test_no_missing_glyphs(self):
         cmaps = premium._register_fonts()
         by_family = {'Inter': cmaps['SP2-Body'], 'Poppins': cmaps['SP2-Head']}
