@@ -35,3 +35,20 @@ QA must verify 8 pages, Poppins/Inter **embedded** (not generic fallbacks), no c
 Do **not** add a public `/api/report` endpoint, download button, or per-user birth data storage in this PR. Prepare such integration as a separately QA-reviewed change with private auth checks, per-IP rate limits, request-boundary validation, no request-body logs, bounded PDF CPU/memory and on-demand ephemeral response headers (`no-store`, attachment disposition, correct content type). Apply source/license/privacy signoff before any client uses a PDF.
 
 The owner-only HTTPS preview remains on the prior exact source and is unchanged. Original PR #1 HOLD remains active for production integration; C7 numerical scope is not altered by PDF generation. **Production NO-GO.**
+
+## Phase 2A premium layout (KUN-RPT-002A, draft)
+
+`premium_report.py` is a separate, versioned layout (`LAYOUT_ID = 'phase2a-premium'`). `generate_report.py` above is unchanged and remains the reproducible Phase 1 baseline and the renderer the preview server calls; switching the server needs a later, separately authorized change.
+
+```python
+from report.phase1.premium_report import generate
+pdf = generate(engine_response, synthetic=False, palette='baseline')  # or 'od10-candidate'
+```
+
+- **Ten A4 pages:** cover, overview and contents, reading guide, birth details, D1 chart, D9 chart, planetary positions, Navamsa placements, twelve-house directory, methodology and provenance.
+- **Only engine values.** The one derived display value is the position within the engine's own Rashi (`premium_layout.sign_position`): taken from the printed decimal, truncated to whole arc-seconds (never rounded into the next Rashi), and refused if the longitude does not lie in the engine's Rashi. The only tolerance is half a display unit at a boundary, where the engine's unrounded classification can print as the boundary value. Navamsa is never recalculated; D9 placements are checked against `d9.houses`.
+- **Requires** the complete engine response with `calculation_metadata` schema `/3`; the provenance page is built from it.
+- **Palettes:** `premium_theme.json`. `baseline` maps the existing `theme.json` tokens and is the default. `od10-candidate` (maroon / ivory / gold) is a **proposal for OD-10, not approved**.
+- **Fail closed:** unknown glyphs (for example Devanagari, which needs a shaping engine), text that cannot fit, chart labels that cannot be placed legibly, an altered logo file, or a PDF over 1 MiB all raise instead of producing a degraded PDF.
+- **Tests:** `tests/test_premium_report.py`, with 13 synthetic scenarios in `tests/fixtures/premium/` built by `tools/make_premium_scenarios.py`. Set `SABPUJA_TEST_EPHE_PATH` to also require the engine to reproduce every scenario exactly.
+- **Visual review:** `python report/phase1/tools/visual_review.py OUT_DIR` writes the sample PDFs, contact sheets, old/new and palette comparisons outside Git.
