@@ -6,6 +6,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var form = $("birth-form"), placeSel = $("place"), dateIn = $("birth-date"), timeIn = $("birth-time");
   var unknown = $("time-unknown"), submitBtn = $("submit"), downloadBtn = $("download-pdf");
+  var nameIn = $("full-name");
   var places = {};
   var pendingChoice = null; // set only while the server is asking which repeated hour
 
@@ -22,6 +23,8 @@
     BIRTH_DATE_INVALID: "This date does not exist. Please check the day and month.",
     PLACE_UNKNOWN: "Choose a birthplace from the list.",
     REQUEST_INVALID: "The form could not be sent correctly. Please reload the page and try again.",
+    DISPLAY_NAME_INVALID: "The name can use letters (English or Hindi), single spaces, apostrophes, hyphens and full stops.",
+    DISPLAY_NAME_TOO_LONG: "The name can be at most 80 characters.",
     INTERNAL_ERROR: "Something unexpected went wrong. No chart was produced."
   };
   // Server-side faults (HTTP 503) by category; the code is still shown as sent.
@@ -36,7 +39,56 @@
     else { el.textContent = ""; el.hidden = true; input.removeAttribute("aria-invalid"); }
   }
 
+  /* Report name (KUN-UX-NAME-001): the same rule as report/phase1/display_name.py, which the
+   * server applies again. Presentation only: the name is never sent to /api/chart, never
+   * stored (no cookie, storage or URL) and is shown only with textContent. */
+  var NAME = (function () {
+    function ranges(pairs) {
+      var set = {};
+      pairs.forEach(function (p) { for (var c = p[0]; c <= p[1]; c += 1) { set[c] = true; } });
+      return set;
+    }
+    var latin = [[0x41, 0x5A], [0x61, 0x7A], [0xC0, 0xD6], [0xD8, 0xF6], [0xF8, 0x107], [0x10A, 0x11B],
+                 [0x11E, 0x123], [0x128, 0x130], [0x136, 0x137], [0x139, 0x148], [0x14C, 0x15B], [0x15E, 0x165],
+                 [0x168, 0x17E], [0x18F, 0x18F], [0x218, 0x21B], [0x259, 0x259]];
+    var deva = [[0x901, 0x903], [0x905, 0x90D], [0x90F, 0x911], [0x913, 0x928], [0x92A, 0x933], [0x935, 0x939],
+                [0x93C, 0x945], [0x947, 0x949], [0x94B, 0x94D], [0x960, 0x963], [0x972, 0x972]];
+    var LETTERS = ranges(latin.concat(deva));
+    var SEPARATORS = { 0x20: true, 0x27: true, 0x2019: true, 0x2D: true, 0x2E: true };
+    var VIRAMA = 0x94D, ZWNJ = 0x200C, ZWJ = 0x200D;
+    var FORBIDDEN = /[\p{Cc}\p{Cs}\p{Co}\p{Cn}\p{Zl}\p{Zp}]|(?![\u200C\u200D])\p{Cf}/u;
+    var MARK = /\p{M}/u, OUTER = /^\p{Zs}+|\p{Zs}+$/gu;
+    function isDeva(cp) { return cp >= 0x900 && cp <= 0x97F; }
+    function isMark(cp) { return MARK.test(String.fromCodePoint(cp)); }
+    function visible(cps) { return cps.filter(function (cp) { return !isMark(cp) && cp !== ZWJ && cp !== ZWNJ; }).length; }
+    // Returns { name: string|null } or { error: code }.
+    function check(value) {
+      if (Array.from(value).length > 320) { return { error: "DISPLAY_NAME_TOO_LONG" }; }
+      if (FORBIDDEN.test(value)) { return { error: "DISPLAY_NAME_INVALID" }; }
+      var text = value.normalize("NFC").replace(OUTER, "");
+      if (!text) { return { name: null }; }
+      var cps = Array.from(text, function (ch) { return ch.codePointAt(0); });
+      if (visible(cps) > 80) { return { error: "DISPLAY_NAME_TOO_LONG" }; }
+      if (!LETTERS[cps[0]]) { return { error: "DISPLAY_NAME_INVALID" }; }
+      for (var i = 0; i < cps.length; i += 1) {
+        var cp = cps[i], prev = i ? cps[i - 1] : null, next = i + 1 < cps.length ? cps[i + 1] : null;
+        var ok;
+        if (!(LETTERS[cp] || SEPARATORS[cp] || cp === ZWJ || cp === ZWNJ)) { ok = false; }
+        else if (isMark(cp)) { ok = isDeva(cp) && prev !== null && isDeva(prev); }
+        else if (cp === ZWJ || cp === ZWNJ) { ok = prev === VIRAMA && next !== null && isDeva(next) && !isMark(next); }
+        else if (cp === 0x20) { ok = prev !== 0x20; }
+        else if (cp === 0x27 || cp === 0x2019 || cp === 0x2D) { ok = prev !== null && !SEPARATORS[prev] && next !== null && !SEPARATORS[next]; }
+        else if (cp === 0x2E) { ok = prev !== null && !SEPARATORS[prev] && (next === null || next === 0x20); }
+        else { ok = true; }
+        if (!ok) { return { error: "DISPLAY_NAME_INVALID" }; }
+      }
+      return { name: text };
+    }
+    return { check: check };
+  }());
+
   function clearErrors() {
+    setFieldError(nameIn, "name-error", "");
     setFieldError(placeSel, "place-error", "");
     setFieldError(dateIn, "date-error", "");
     setFieldError(timeIn, "time-error", "");
@@ -75,6 +127,8 @@
   function validate() {
     clearErrors();
     var ok = true;
+    var named = NAME.check(nameIn.value);
+    if (named.error) { setFieldError(nameIn, "name-error", MESSAGES[named.error]); ok = false; }
     if (!placeSel.value) { setFieldError(placeSel, "place-error", "Choose a birthplace."); ok = false; }
     if (!dateIn.value) { setFieldError(dateIn, "date-error", "Enter the date of birth."); ok = false; }
     else if (!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(dateIn.value)) { setFieldError(dateIn, "date-error", "Use the format YYYY-MM-DD."); ok = false; }
@@ -155,7 +209,7 @@
     tbody.appendChild(tr);
   }
 
-  function render(data) {
+  function render(data, name) {
     var chart = data.chart, input = data.input, meta = chart.calculation_metadata;
     // Both models are built before anything is drawn: either throws if the engine result is
     // inconsistent, and then no chart is shown (the result stays hidden).
@@ -164,7 +218,10 @@
     C.renderNorthIndian($("d9-chart"), d9Model, { id: "d9", title: "North Indian D9 Navamsa chart, D9 Lagna " });
 
     var p = input.place;
-    dl($("confirm-list"), [
+    // The name is set with textContent only, never parsed as markup.
+    $("result-name").textContent = name || "";
+    $("result-for").hidden = !name;
+    dl($("confirm-list"), (name ? [["Name on report", name, "display_name"]] : []).concat([
       ["Birthplace", p.name + ", " + p.region + ", " + p.country],
       ["Coordinates", p.latitude.toFixed(5) + "°, " + p.longitude.toFixed(5) + "°"],
       ["Timezone", p.timezone],
@@ -172,7 +229,9 @@
       ["Local time", input.local_time, "local_time"],
       ["UTC offset", input.utc_offset + (input.offset_resolution === "user_selected_repeated_hour" ? " (your choice of repeated hour)" : ""), "utc_offset"],
       ["Universal time", chart.birth.utc, "utc"]
-    ]);
+    ]));
+    var nameDd = $("confirm-list").querySelector("[data-field='display_name']");
+    if (nameDd) { nameDd.className = "name-text"; }
     dl($("key-list"), [
       ["Lagna (D1)", signLabel(chart.lagna.rashi), "lagna_rashi"],
       ["Moon sign", signLabel(chart.planets.moon.rashi), "moon_rashi"],
@@ -225,13 +284,16 @@
   /* Every submit, Clear and field edit starts a new generation and aborts the
    * request in flight. A response from an older generation is ignored, so a
    * late chart or error can never replace what the current fields describe. */
-  var generation = 0, inflight = null, pdfInflight = null, lastSuccessfulPayload = null;
+  var generation = 0, inflight = null, pdfInflight = null, lastSuccessfulPayload = null, lastSuccessfulName = null;
 
   function invalidate() {
     generation += 1;
     if (inflight) { inflight.abort(); inflight = null; }
     if (pdfInflight) { pdfInflight.abort(); pdfInflight = null; }
     lastSuccessfulPayload = null;
+    lastSuccessfulName = null;
+    $("result-name").textContent = "";
+    $("result-for").hidden = true;
     downloadBtn.disabled = true;
     // An aborted PDF request skips its own reset, so restore the label here.
     downloadBtn.textContent = "Download Kundali PDF";
@@ -255,6 +317,7 @@
     var mine = generation, controller = new AbortController();
     inflight = controller;
     var requestPayload = payload();
+    var requestName = NAME.check(nameIn.value).name; // validated above; held in memory only
     submitBtn.disabled = true;
     setStatus("Calculating with the local engine…");
     fetch("/api/chart", { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -263,7 +326,7 @@
       .then(function (res) {
         if (mine !== generation) { ignored(); return; }
         setStatus("");
-        if (res.status === 200) { hideAmbiguity(); render(res.body); lastSuccessfulPayload = requestPayload; setStatus("Chart calculated."); return; }
+        if (res.status === 200) { hideAmbiguity(); render(res.body, requestName); lastSuccessfulPayload = requestPayload; lastSuccessfulName = requestName; setStatus("Chart calculated."); return; }
         var e = res.body.error || {};
         if (e.code === "TIME_AMBIGUOUS_LOCAL" && e.choices) { showAmbiguity(e.choices); setStatus(MESSAGES.TIME_AMBIGUOUS_LOCAL); return; }
         hideAmbiguity();
@@ -282,6 +345,14 @@
       });
   }
 
+  // /api/report alone accepts the optional name; the chart request never carries it.
+  function reportPayload() {
+    var body = {};
+    Object.keys(lastSuccessfulPayload).forEach(function (k) { body[k] = lastSuccessfulPayload[k]; });
+    if (lastSuccessfulName) { body.display_name = lastSuccessfulName; }
+    return body;
+  }
+
   downloadBtn.addEventListener("click", function () {
     if (downloadBtn.disabled || !lastSuccessfulPayload || $("result").hidden) { return; }
     var mine = generation, controller = new AbortController();
@@ -291,7 +362,7 @@
     setStatus("Creating your Kundali PDF in memory...");
     fetch("/api/report", {
       method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/pdf" },
-      body: JSON.stringify(lastSuccessfulPayload), signal: controller.signal
+      body: JSON.stringify(reportPayload()), signal: controller.signal
     }).then(function (r) {
       if (!r.ok || !(r.headers.get("Content-Type") || "").startsWith("application/pdf")) {
         throw new Error("report refused");
@@ -331,6 +402,11 @@
     ["input", "change"].forEach(function (type) {
       el.addEventListener(type, function () { invalidate(); hideAmbiguity(); });
     });
+  });
+  // A name edit changes the report, so the shown result and any pending chart or PDF request
+  // are discarded too; it does not touch a repeated-hour choice, which depends on the time only.
+  ["input", "change"].forEach(function (type) {
+    nameIn.addEventListener(type, function () { invalidate(); });
   });
   unknown.addEventListener("change", function () {
     $("unknown-time-panel").hidden = !unknown.checked;

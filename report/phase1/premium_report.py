@@ -3,11 +3,16 @@
 The Phase 1 renderer (generate_report.py) stays unchanged as the reproducible baseline
 and is still what the preview server calls. This module is a separate, versioned layout:
 
-    generate(response, synthetic=False, palette='baseline') -> bytes
+    generate(response, synthetic=False, palette='baseline', display_name=None) -> bytes
 
 It computes no astronomy. Every value shown comes from the engine response; the only
 derived display values are degrees within the engine's own Rashi (premium_layout.sign_position),
 a calendar-formatted date, and label positions. Any disagreement raises before a page is drawn.
+
+display_name (KUN-UX-NAME-001) is an optional, separately validated presentation value: it
+is drawn on the cover ("Prepared for") and in the page-4 Birth record ("Name on report") and
+nowhere else. It is never read from the engine response and never written to the PDF
+metadata. Without a name the output is byte-identical to the renderer before this option.
 """
 from __future__ import annotations
 
@@ -31,10 +36,12 @@ from svglib.svglib import svg2rlg
 
 ROOT = Path(__file__).resolve().parent
 try:
+    from . import display_name as names
     from . import generate_report as phase1
     from . import premium_layout as layout
 except ImportError:  # loaded by path or run as a script
     sys.path.insert(0, str(ROOT))
+    import display_name as names
     import generate_report as phase1
     import premium_layout as layout
 
@@ -52,6 +59,14 @@ FONTS = {
     'Head': 'poppins-latin-600-normal.woff2',
     'HeadBold': 'poppins-latin-700-normal.woff2',
 }
+# Report-name faces (registered only when a name is drawn): for each brand face, the same
+# family and weight in its Latin, Latin Extended and Devanagari subsets. Inter has no
+# Devanagari, so Devanagari is always Poppins 600, from the same @fontsource 5.3.0 package.
+NAME_FONTS = {
+    'Head': ('poppins-latin-600-normal.woff2', 'poppins-latin-ext-600-normal.woff2'),
+    'Strong': ('inter-latin-600-normal.woff2', 'inter-latin-ext-600-normal.woff2'),
+}
+DEVANAGARI_FONT = 'poppins-devanagari-600-normal.woff2'
 METADATA_SCHEMA = 'sabpuja-calculation-metadata/3'
 MAX_PDF_BYTES = 1024 * 1024  # same bound as the preview server
 MIN_TEXT = 8.0              # smallest type anywhere in the report, for legible A4 print
@@ -123,6 +138,49 @@ def _register_fonts():
     return cmaps
 
 
+def _font_bytes(file, postscript_suffix):
+    """A name-run face as TrueType bytes. The subsets share PostScript names (Poppins-SemiBold
+    for latin, latin-ext and devanagari), and ReportLab treats fonts with one PostScript name
+    as one face, so each gets a distinct suffix; the glyphs and metrics are unchanged."""
+    path = FONT_DIR / file
+    if not path.is_file():
+        raise RuntimeError('Required approved brand font missing: ' + file)
+    font = FontToolsTTFont(str(path))
+    font.flavor = None
+    font.recalcTimestamp = False
+    for record in font['name'].names:
+        if record.nameID == 6:
+            record.string = record.toUnicode() + '-' + postscript_suffix
+    out = io.BytesIO()
+    font.save(out)
+    return font, out.getvalue()
+
+
+_NAME_FONT_CACHE = {}
+
+
+def _register_name_fonts():
+    """Latin Extended and Devanagari faces for the report name; fail closed, never substitute.
+
+    Returns {face: [(font name, cmap), ...]} in fallback order, and the Devanagari shaper.
+    """
+    if not _NAME_FONT_CACHE:
+        import uharfbuzz
+        chains = {}
+        for face, (_, ext_file) in NAME_FONTS.items():
+            ext_name = 'SP2N-' + face + 'Ext'
+            font, data = _font_bytes(ext_file, 'LatinExt')
+            if ext_name not in pdfmetrics.getRegisteredFontNames():
+                pdfmetrics.registerFont(TTFont(ext_name, io.BytesIO(data)))
+            chains[face] = ext_name, frozenset(font.getBestCmap())
+        font, data = _font_bytes(DEVANAGARI_FONT, 'Devanagari')
+        if 'SP2N-Deva' not in pdfmetrics.getRegisteredFontNames():
+            pdfmetrics.registerFont(TTFont('SP2N-Deva', io.BytesIO(data)))
+        hb_font = uharfbuzz.Font(uharfbuzz.Face(uharfbuzz.Blob(data)))
+        _NAME_FONT_CACHE.update(ext=chains, deva=(frozenset(font.getBestCmap()), font, hb_font))
+    return _NAME_FONT_CACHE
+
+
 def _logo_drawing():
     data = LOGO_PATH.read_bytes() if LOGO_PATH.is_file() else None
     if data is None:
@@ -137,6 +195,37 @@ def _logo_drawing():
 
 class MissingGlyphError(RuntimeError):
     pass
+
+
+class _CanvasPathPen:
+    """fontTools pen that appends a glyph outline to a ReportLab path at (x, y), scaled."""
+
+    def __init__(self, glyph_set, path, x, y, scale):
+        from fontTools.pens.basePen import BasePen
+
+        outer = self
+
+        class Pen(BasePen):
+            def _moveTo(self, pt):
+                outer.path.moveTo(*outer.map(pt))
+
+            def _lineTo(self, pt):
+                outer.path.lineTo(*outer.map(pt))
+
+            def _curveToOne(self, p1, p2, p3):
+                outer.path.curveTo(*outer.map(p1), *outer.map(p2), *outer.map(p3))
+
+            def _closePath(self):
+                outer.path.close()
+
+        self.path, self.x, self.y, self.scale = path, x, y, scale
+        self.pen = Pen(glyph_set)
+
+    def map(self, pt):
+        return self.x + pt[0] * self.scale, self.y + pt[1] * self.scale
+
+    def __getattr__(self, name):
+        return getattr(self.pen, name)
 
 
 # ---------------------------------------------------------------------------
@@ -196,6 +285,8 @@ class Doc:
         self.c, self.pal, self.cmaps, self.synthetic = c, pal, cmaps, synthetic
         self.page = 0
         self.chart_boxes = {}
+        self.name_boxes = []
+        self.name_drawn = []
 
     def _font(self, face, size, color):
         name = 'SP2-' + face
@@ -295,6 +386,148 @@ class Doc:
         self.c.scale(s, s)
         self.c.doForm('sabpuja_logo')
         self.c.restoreState()
+
+    # -- Report name (KUN-UX-NAME-001) ---------------------------------------------------
+    # A name is split into runs of one font each: the brand face's Latin subset, its Latin
+    # Extended subset, or Poppins Devanagari. Devanagari is shaped with HarfBuzz (conjuncts,
+    # reph, vowel-sign reordering), drawn as glyph outlines, and overlaid with the same
+    # words as invisible text in logical order, so copy, search and text extraction return
+    # exactly the Unicode that was typed. A character no face can draw raises; it is never
+    # dropped, replaced or transliterated.
+
+    def name_runs(self, text, face):
+        fonts = _register_name_fonts()
+        base = ('SP2-' + face, self.cmaps['SP2-' + face])
+        ext = fonts['ext'][face]
+        deva_cmap = fonts['deva'][0]
+        runs = []
+        for ch in text:
+            cp = ord(ch)
+            if names.is_devanagari(cp) or cp in (names.ZWJ, names.ZWNJ):
+                kind = 'deva'
+                if cp not in deva_cmap:
+                    raise MissingGlyphError('report name has a character the Devanagari face cannot draw')
+            elif cp == names.SPACE and runs:
+                kind = runs[-1][0]
+            elif cp in base[1]:
+                kind = base[0]
+            elif cp in ext[1]:
+                kind = ext[0]
+            else:
+                raise MissingGlyphError('report name has a character the brand faces cannot draw')
+            if runs and runs[-1][0] == kind:
+                runs[-1][1] += ch
+            else:
+                runs.append([kind, ch])
+        return [(kind, run) for kind, run in runs]
+
+    @staticmethod
+    def _shape(run, size):
+        import uharfbuzz
+        _, font, hb_font = _register_name_fonts()['deva']
+        buf = uharfbuzz.Buffer()
+        buf.add_str(run)
+        buf.guess_segment_properties()
+        uharfbuzz.shape(hb_font, buf, {})
+        scale = size / font['head'].unitsPerEm
+        glyphs, x = [], 0.0
+        for info, pos in zip(buf.glyph_infos, buf.glyph_positions):
+            glyphs.append((font.getGlyphName(info.codepoint), x + pos.x_offset * scale, pos.y_offset * scale))
+            x += pos.x_advance * scale
+        return glyphs, x, scale
+
+    def name_width(self, text, face, size):
+        total = 0.0
+        for kind, run in self.name_runs(text, face):
+            total += self._shape(run, size)[1] if kind == 'deva' else pdfmetrics.stringWidth(run, kind, size)
+        return total
+
+    def name_text(self, x, y, text, size, face='Head', color='ink', align='left'):
+        width = self.name_width(text, face, size)
+        if align == 'center':
+            x -= width / 2
+        elif align == 'right':
+            x -= width
+        c = self.c
+        for kind, run in self.name_runs(text, face):
+            if kind != 'deva':
+                c.setFont(kind, size)
+                c.setFillColor(self.pal[color])
+                c.drawString(x, y, run)
+                x += pdfmetrics.stringWidth(run, kind, size)
+                continue
+            glyphs, advance, scale = self._shape(run, size)
+            glyph_set = _register_name_fonts()['deva'][1].getGlyphSet()
+            c.setFillColor(self.pal[color])
+            path = c.beginPath()
+            for name, gx, gy in glyphs:
+                glyph_set[name].draw(_CanvasPathPen(glyph_set, path, x + gx, y + gy, scale))
+            c.drawPath(path, stroke=0, fill=1, fillMode=0)
+            # Invisible logical-order text over the outlines (render mode 3), horizontally
+            # scaled to the shaped width, for copy, search, screen readers and extraction.
+            plain = pdfmetrics.stringWidth(run, 'SP2N-Deva', size)
+            t = c.beginText(x, y)
+            t.setFont('SP2N-Deva', size)
+            t.setTextRenderMode(3)
+            # Character spacing spreads the difference, so the text keeps its true size.
+            spacing = (advance - plain) / len(run)
+            if abs(spacing) > 1e-6:
+                t.setCharSpace(spacing)
+            t.textOut(run)
+            # Render mode and character spacing are graphics-state text parameters that
+            # outlive BT/ET; restore both so no later text on the page is affected.
+            t.setTextRenderMode(0)
+            if abs(spacing) > 1e-6:
+                t.setCharSpace(0)
+            c.drawText(t)
+            self.name_drawn.append(run)
+            x += advance
+        self.name_boxes.append((self.page, x - width, y - size * 0.45, x, y + size))
+
+    def name_lines(self, text, face, width, size, minimum, max_lines):
+        """(lines, size): one line at the largest size from `size` down to `minimum`, else wrapped
+        at `minimum` on spaces (a word longer than a line breaks between clusters, never inside
+        a letter with its signs or a Devanagari conjunct). LayoutError beyond max_lines."""
+        fit = size
+        while fit >= minimum:
+            if self.name_width(text, face, fit) <= width:
+                return [text], fit
+            fit -= 0.25
+        lines, line = [], ''
+        for word in text.split(' '):
+            for piece in self._break_word(word, face, minimum, width):
+                trial = f'{line} {piece}' if line else piece
+                if self.name_width(trial, face, minimum) <= width:
+                    line = trial
+                else:
+                    lines.append(line)
+                    line = piece
+        lines.append(line)
+        if len(lines) > max_lines:
+            raise layout.LayoutError('Report name does not fit')
+        return lines, minimum
+
+    def _break_word(self, word, face, size, width):
+        if self.name_width(word, face, size) <= width:
+            return [word]
+        # Clusters: a letter with its signs, and consonants joined by a virama or joiner stay together.
+        clusters = []
+        for i, ch in enumerate(word):
+            cp, prev = ord(ch), (ord(word[i - 1]) if i else None)
+            joined = (names.is_mark(cp) or cp in (names.ZWJ, names.ZWNJ)
+                      or prev in (names.VIRAMA, names.ZWJ, names.ZWNJ))
+            if clusters and joined:
+                clusters[-1] += ch
+            else:
+                clusters.append(ch)
+        pieces, piece = [], ''
+        for cluster in clusters:
+            if piece and self.name_width(piece + cluster, face, size) > width:
+                pieces.append(piece)
+                piece = ''
+            piece += cluster
+        pieces.append(piece)
+        return pieces
 
 
 # ---------------------------------------------------------------------------
@@ -542,10 +775,21 @@ def _page_cover(d, response, positions):
     d.line(W / 2 - 70, H - 236, W / 2 - 10, H - 236, 'accent', 0.8)
     d.diamond(W / 2, H - 236, 3.2)
     d.line(W / 2 + 10, H - 236, W / 2 + 70, H - 236, 'accent', 0.8)
-    d.text(W / 2, H - 258, 'D1 Lagna and D9 Navamsa charts, planetary positions and houses',
+    subtitle_y, size = H - 258, 216
+    if d.display_name is not None:
+        # "Prepared for" and the name under the title; the subtitle and the emblem move down
+        # and the emblem shrinks, so the caption and the birth panel keep their places.
+        d.kicker(W / 2, H - 262, 'Prepared for', 'primary_text', 'center', 8.4)
+        lines, fs = d.name_lines(d.display_name, 'Head', CW - 40, 22, 11, 4)
+        y = H - 288
+        for line in lines:
+            d.name_text(W / 2, y, line, fs, 'Head', 'ink', 'center')
+            y -= fs * 1.25
+        subtitle_y = y + fs * 1.25 - 24
+        size = (subtitle_y - 18) - (H - 520)
+    d.text(W / 2, subtitle_y, 'D1 Lagna and D9 Navamsa charts, planetary positions and houses',
            10.5, 'Body', 'muted', 'center')
     # Emblem: this chart's own house and Rashi layout.
-    size = 216
     houses = {1: [('Asc', None, 'lagna')]}
     draw_chart(d, W / 2 - size / 2, H - 520, size, chart['lagna']['rashi'], houses, 'accent', emblem=True)
     d.text(W / 2, H - 546, f'Lagna  {chart["lagna"]["rashi"]}  ·  Moon Nakshatra  '
@@ -708,6 +952,9 @@ def _page_birth(d, response, positions):
     half = CW / 2 - 8
     top = y
     left = _kv_layout(d, rows, half - 32, 10.8, MIN_TEXT)
+    if d.display_name is not None:
+        lines, fs = d.name_lines(d.display_name, 'Strong', half - 32, 10.8, MIN_TEXT, 5)
+        left.insert(0, ('Name on report', lines, fs, 38 + 11 * (len(lines) - 1)))
     right = _kv_layout(d, rows2, half - 32, 10.2, MIN_TEXT)
     height = 38 + max(sum(h for *_, h in left), sum(h for *_, h in right))
     for x, title, items in ((M, 'Birth record', left), (M + half + 16, 'Calculation context', right)):
@@ -718,8 +965,12 @@ def _page_birth(d, response, positions):
             ry -= h
             d.text(x + 16, ry + h - 13, label, MIN_TEXT, 'Medium', 'muted')
             yy = ry + h - 26
+            is_name = d.display_name is not None and items is left and i == 0
             for line in lines:
-                d.text(x + 16, yy, line, size, 'Strong', 'ink')
+                if is_name:
+                    d.name_text(x + 16, yy, line, size, 'Strong', 'ink')
+                else:
+                    d.text(x + 16, yy, line, size, 'Strong', 'ink')
                 yy -= 11
             if i < len(items) - 1:
                 d.line(x + 16, ry + 1, x + half - 16, ry + 1, 'rule', 0.5)
@@ -948,13 +1199,21 @@ def _new_page(d):
         d.c.showPage()
 
 
-def generate(response: dict, synthetic: bool = False, palette: str | None = None) -> bytes:
-    """Searchable A4 PDF in memory. Writes no file, keeps no copy and makes no network request."""
-    return render(response, synthetic, palette)[0]
+def generate(response: dict, synthetic: bool = False, palette: str | None = None,
+             display_name: str | None = None) -> bytes:
+    """Searchable A4 PDF in memory. Writes no file, keeps no copy and makes no network request.
+
+    display_name is the optional report name, presentation only; None (the default) draws
+    the anonymous report. It must already be the output of display_name.normalize().
+    """
+    return render(response, synthetic, palette, display_name)[0]
 
 
-def render(response: dict, synthetic: bool = False, palette: str | None = None):
+def render(response: dict, synthetic: bool = False, palette: str | None = None,
+           display_name: str | None = None):
     """generate() plus an audit of where chart labels were drawn, for the report tests."""
+    if display_name is not None and names.normalize(display_name) != display_name:
+        raise ValueError('report name must be validated and normalized before rendering')
     response = copy.deepcopy(response)
     positions = validate(response)
     pal = Palette(palette or THEMES['default_palette'])
@@ -968,6 +1227,7 @@ def render(response: dict, synthetic: bool = False, palette: str | None = None):
     c.setCreator('Sabpuja Kundali report generator')
     c.setKeywords('')
     d = Doc(c, pal, cmaps, synthetic)
+    d.display_name = display_name
     c.beginForm('sabpuja_logo', 0, 0, drawing.width, drawing.height)
     # The logo is paths only; keep the renderer's default font from adding an unembedded Times-Roman.
     default_font = STATE_DEFAULTS['fontName']
@@ -988,7 +1248,10 @@ def render(response: dict, synthetic: bool = False, palette: str | None = None):
     data = memory.getvalue()
     if len(data) > MAX_PDF_BYTES:
         raise RuntimeError('controlled PDF size exceeded')
-    return data, {'charts': d.chart_boxes, 'palette': pal.name}
+    audit = {'charts': d.chart_boxes, 'palette': pal.name}
+    if display_name is not None:
+        audit.update(name_boxes=d.name_boxes, name_runs_drawn=d.name_drawn)
+    return data, audit
 
 
 if __name__ == '__main__':
@@ -998,6 +1261,9 @@ if __name__ == '__main__':
     parser.add_argument('output_pdf')
     parser.add_argument('--sample', action='store_true', help='mark the report as synthetic sample data')
     parser.add_argument('--palette', choices=sorted(THEMES['palettes']), default=THEMES['default_palette'])
+    parser.add_argument('--display-name', help='optional report name (synthetic names only in examples)')
     args = parser.parse_args()
     response = json.loads(Path(args.chart_json).read_text())
-    Path(args.output_pdf).write_bytes(generate(response, synthetic=args.sample, palette=args.palette))
+    name = names.normalize(args.display_name)
+    Path(args.output_pdf).write_bytes(generate(response, synthetic=args.sample, palette=args.palette,
+                                               display_name=name))

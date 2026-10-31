@@ -106,6 +106,11 @@ a repeated hour). One rule, `server.classify()`, decides the status:
 | Any other `ChartComputationError` | 503 | `computation` |
 | Anything untyped (a defect) | 500 `INTERNAL_ERROR`, fixed text | `internal` |
 
+`POST /api/report` alone also accepts an optional `display_name` (KUN-UX-NAME-001):
+a refused name is 422 `DISPLAY_NAME_INVALID` or `DISPLAY_NAME_TOO_LONG` (400
+`REQUEST_INVALID` if it is not a string), with a fixed message that never echoes
+the name. `/api/chart` still refuses the field (400), as it refuses any extra key.
+
 Input-refusal codes and their order are unchanged. Server-fault messages are
 fixed: they never contain the birth date, time, coordinates, a path or
 exception text, and no failure returns a partial chart. A 500 writes one line
@@ -125,12 +130,25 @@ node --test prototype/tests/browser/chart_model.test.cjs
 # Browser QA, desktop and mobile plus 14 widths from 280 to 1920 px, with screenshots
 # (Node 18+ and Playwright with Chromium)
 PROTOTYPE_PYTHON=.venv/bin/python node prototype/tests/browser/e2e.cjs --out ./prototype-shots
+# Optional report name: form, result, PDF request, edit/download race and privacy at 280/375/768/1440 px
+PROTOTYPE_PYTHON=.venv/bin/python node prototype/tests/browser/name_e2e.cjs --out ./name-shots
 ```
 
 Without `SABPUJA_TEST_EPHE_PATH`, the tests that compute charts are skipped and
 reported as unavailable. Browser QA exits 3 (unavailable) instead of passing.
 
 ## Privacy
+
+- **Optional report name (KUN-UX-NAME-001).** The "Full name (for Kundali report)"
+  field is presentation data only. The browser keeps it in memory, shows it with
+  `textContent` (never as markup), never sends it to `/api/chart`, and sends it
+  only in the `/api/report` body. The server validates it on its own
+  (`report/phase1/display_name.py`), removes it before the unchanged chart
+  handler runs, and passes it to the PDF renderer as a separate argument. It is
+  not written to a cookie, storage, the URL, a file, a log or the PDF metadata,
+  and the download keeps the generic name `Sabpuja-Janma-Kundali.pdf`. Editing
+  the name, like any other field, discards the shown result and any pending
+  request; Clear removes it.
 
 - No request is logged: the handler's log methods are no-ops, and the default
   HTTP error page is replaced by a fixed JSON body that never echoes the request.
@@ -173,7 +191,8 @@ the repository instead.
   The horizontal lockup is the header logo; the emblem replaces it only when
   the header is narrower than 18rem, and marks the footer.
 - **Fonts:** Latin and Latin Extended subsets of Inter 400/500/600 and Poppins
-  500/600/700 from `@fontsource/inter@5.3.0` and `@fontsource/poppins@5.3.0`
+  500/600/700, and the Poppins Devanagari subset 500/600/700 (for Hindi report
+  names; KUN-UX-NAME-001), from `@fontsource/inter@5.3.0` and `@fontsource/poppins@5.3.0`
   (npm integrity `sha512-RofMylZm…A3g==` and `sha512-cms1nM7U…CceQ==`), under
   the SIL Open Font License 1.1 (`static/fonts/OFL-*.txt`). `static/fonts.css`
   declares them with `font-display: swap` and the system sans-serif fallbacks

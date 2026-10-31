@@ -55,6 +55,9 @@ _STATIC.update({f"/static/fonts/{family}-{subset}-{weight}-normal.woff2":
                 (f"fonts/{family}-{subset}-{weight}-normal.woff2", "font/woff2")
                 for family, weights in (("inter", (400, 500, 600)), ("poppins", (500, 600, 700)))
                 for weight in weights for subset in ("latin", "latin-ext")})
+# Poppins Devanagari (same @fontsource/poppins 5.3.0 package) for Hindi report names.
+_STATIC.update({f"/static/fonts/poppins-devanagari-{weight}-normal.woff2":
+                (f"fonts/poppins-devanagari-{weight}-normal.woff2", "font/woff2") for weight in (500, 600, 700)})
 _SECURITY_HEADERS = {
     "Content-Security-Policy": ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; "
                                 "font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; "
@@ -255,6 +258,30 @@ def handle_chart(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[i
         return _error(status, code, message, category, **(exc.extra if isinstance(exc, FormError) else {}))
 
 
+def _split_display_name(raw: bytes) -> tuple[bytes, str | None]:
+    """Separate the optional report name from the birth details (KUN-UX-NAME-001).
+
+    Returns the request bytes for handle_chart and the validated name (or None). A request
+    without display_name is passed on byte for byte, so existing clients are unaffected. With
+    one, the name is validated on its own and the remaining fields are re-serialised for the
+    unchanged chart handler, which never sees the name. A body that is not one UTF-8 JSON
+    object is passed on as it is, and handle_chart refuses it exactly as before.
+    """
+    try:
+        body = json.loads(raw.decode("utf-8"), object_pairs_hook=_no_duplicates)
+    except (UnicodeDecodeError, ValueError, RecursionError):
+        return raw, None
+    if not isinstance(body, dict) or "display_name" not in body:
+        return raw, None
+    from report.phase1.display_name import DisplayNameError, normalize
+    try:
+        name = normalize(body.pop("display_name"))
+    except DisplayNameError as exc:
+        # Fixed messages only: the submitted name is never echoed or logged.
+        raise FormError(exc.status, exc.code, exc.message) from None
+    return json.dumps(body, ensure_ascii=False).encode("utf-8"), name
+
+
 def handle_report(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[int, dict | bytes]:
     """An in-memory PDF derived only from the authenticated engine request and response.
 
@@ -262,12 +289,22 @@ def handle_report(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[
     palette (OD-10). The palette is fixed here, never taken from the request. The Phase 1
     renderer (report.phase1.generate_report) stays in the source as the regression and
     rollback baseline; it is no longer called by this route.
+
+    The optional display_name is accepted by this route only (never by /api/chart). It is
+    validated separately, removed before the chart handler runs, and passed to the renderer
+    as a display-only argument. It is not stored, logged or echoed.
     """
+    try:
+        raw, display_name = _split_display_name(raw)
+    except FormError as exc:
+        return _error(exc.status, exc.code, exc.message, exc.category)
     status, response = handle_chart(raw, places, ephe_path)
     if status != 200:
         return status, response
     from report.phase1.premium_report import generate
-    pdf = generate(response, synthetic=False, palette=REPORT_PALETTE)
+    # Without a name the renderer is called exactly as before this feature.
+    named = {} if display_name is None else {"display_name": display_name}
+    pdf = generate(response, synthetic=False, palette=REPORT_PALETTE, **named)
     if len(pdf) > MAX_PDF_BYTES or not pdf.startswith(b"%PDF-"):
         raise RuntimeError("controlled PDF size exceeded")
     return 200, pdf
