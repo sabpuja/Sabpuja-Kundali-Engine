@@ -65,5 +65,5 @@ if [ "$UPSTREAM" = "--upstream-check" ]; then
   check "upstream timeout still logged" "$(printf '%s' "$LOG" | grep -c 'upstream timed out' | awk '{print ($1>0)?"yes":"no"}')" yes
 fi
 echo "gateway+engine log lines in window: $(printf '%s\n' "$LOG" | grep -c .)"
-echo "log line kinds (credential-free):"; printf '%s\n' "$LOG" | sed -E 's/^[0-9\/: ]+//; s/\*[0-9]+ //; s/, client:.*//; s/excess: [0-9.]+/excess: N/' | sort | uniq -c | sort -rn | head -8
+echo "log line kinds (credential-free):"; printf '%s\n' "$LOG" | sed -E 's/^[0-9\/: ]+//; s/\*[0-9]+ //; s/, client:.*//; s/excess: [0-9.]+/excess: N/; s/user "[^"]*"/user "<redacted>"/g' | sort | uniq -c | sort -rn | head -8
 [ $fail = 0 ] && echo AUTH_LOG_PRIVACY_PASS || { echo AUTH_LOG_PRIVACY_FAIL; exit 1; }
