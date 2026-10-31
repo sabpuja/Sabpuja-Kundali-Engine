@@ -1,10 +1,10 @@
 {
-  "purpose": "Palettes for the Phase 2A premium report layout. OD-10 (formal report palette) is OPEN: 'baseline' maps the existing approved theme.json tokens; 'od10-candidate' is a proposal for owner review only and is not approved.",
+  "purpose": "Palettes for the Phase 2A premium report layout. OD-10 (formal report palette) is DECIDED: the owner approved the existing saffron Foundation design, 'baseline', which maps the approved theme.json tokens and is the only palette the preview server renders. 'od10-candidate' (maroon) was not selected; it is kept in development source for historical comparison only and must never appear in customer-facing output.",
   "default_palette": "baseline",
   "palettes": {
     "baseline": {
-      "label": "Existing report tokens (theme.json, design-system tokens.css)",
-      "status": "current",
+      "label": "Saffron Foundation tokens (theme.json, design-system tokens.css), owner-approved for OD-10",
+      "status": "approved",
       "source": "report/phase1/theme.json",
       "brand_tokens": {
         "page": "ivory",
@@ -19,8 +19,8 @@
       }
     },
     "od10-candidate": {
-      "label": "Proposed maroon / ivory / gold treatment (OD-10 candidate, not approved)",
-      "status": "proposal",
+      "label": "Maroon / ivory / gold treatment (OD-10 candidate, not selected; historical comparison only)",
+      "status": "not-selected",
       "source": "Owner-supplied Sabpuja visual direction, KUN-RPT-002A",
       "owner_tokens": {
         "warm_ivory": "#FAF5EA",

@@ -28,6 +28,9 @@ HOST = "127.0.0.1"
 MAX_BODY_BYTES = 4096
 MAX_PDF_BYTES = 1024 * 1024
 _PDF_RENDER_SLOT = threading.BoundedSemaphore(1)
+# OD-10: the owner approved the saffron Foundation design (report/phase1/premium_theme.json
+# 'baseline', which maps theme.json). The only palette the /api/report route renders.
+REPORT_PALETTE = "baseline"
 # ChartComputationError codes meaning the pinned Swiss runtime itself is unusable on
 # this server (engine.swiss_runtime and the Moshier refusal), reported as "resources".
 # Every other ChartComputationError is a server-side calculation failure.
@@ -253,13 +256,19 @@ def handle_chart(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[i
 
 
 def handle_report(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[int, dict | bytes]:
-    """An in-memory PDF derived only from the authenticated engine request and response."""
+    """An in-memory PDF derived only from the authenticated engine request and response.
+
+    Renders the ten-page Phase 2A premium layout in the owner-approved saffron Foundation
+    palette (OD-10). The palette is fixed here, never taken from the request. The Phase 1
+    renderer (report.phase1.generate_report) stays in the source as the regression and
+    rollback baseline; it is no longer called by this route.
+    """
     status, response = handle_chart(raw, places, ephe_path)
     if status != 200:
         return status, response
-    from report.phase1.generate_report import generate
-    pdf = generate(response)
-    if len(pdf) > MAX_PDF_BYTES:
+    from report.phase1.premium_report import generate
+    pdf = generate(response, synthetic=False, palette=REPORT_PALETTE)
+    if len(pdf) > MAX_PDF_BYTES or not pdf.startswith(b"%PDF-"):
         raise RuntimeError("controlled PDF size exceeded")
     return 200, pdf
 

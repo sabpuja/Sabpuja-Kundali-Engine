@@ -113,6 +113,9 @@ def _register_fonts():
         cmaps[font_name] = frozenset(font.getBestCmap())
         if font_name not in pdfmetrics.getRegisteredFontNames():
             font.flavor = None
+            # Keep the approved file's head.modified: fontTools would stamp the current time,
+            # and the embedded subsets (so the PDF bytes) would then change on every start.
+            font.recalcTimestamp = False
             out = io.BytesIO()
             font.save(out)
             out.seek(0)

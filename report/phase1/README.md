@@ -38,17 +38,17 @@ The owner-only HTTPS preview remains on the prior exact source and is unchanged.
 
 ## Phase 2A premium layout (KUN-RPT-002A, draft)
 
-`premium_report.py` is a separate, versioned layout (`LAYOUT_ID = 'phase2a-premium'`). `generate_report.py` above is unchanged and remains the reproducible Phase 1 baseline and the renderer the preview server calls; switching the server needs a later, separately authorized change.
+`premium_report.py` is a separate, versioned layout (`LAYOUT_ID = 'phase2a-premium'`). Since KUN-RPT-002B it is the renderer behind the private preview's `POST /api/report` (`prototype/kundali_prototype/server.py`, `handle_report`), always with the `baseline` palette. `generate_report.py` above is unchanged and remains the reproducible Phase 1 baseline for regression tests and rollback; it is no longer called by the server.
 
 ```python
 from report.phase1.premium_report import generate
-pdf = generate(engine_response, synthetic=False, palette='baseline')  # or 'od10-candidate'
+pdf = generate(engine_response, synthetic=False, palette='baseline')
 ```
 
 - **Ten A4 pages:** cover, overview and contents, reading guide, birth details, D1 chart, D9 chart, planetary positions, Navamsa placements, twelve-house directory, methodology and provenance.
 - **Only engine values.** The one derived display value is the position within the engine's own Rashi (`premium_layout.sign_position`): taken from the printed decimal, truncated to whole arc-seconds (never rounded into the next Rashi), and refused if the longitude does not lie in the engine's Rashi. The only tolerance is half a display unit at a boundary, where the engine's unrounded classification can print as the boundary value. Navamsa is never recalculated; D9 placements are checked against `d9.houses`.
 - **Requires** the complete engine response with `calculation_metadata` schema `/3`; the provenance page is built from it.
-- **Palettes:** `premium_theme.json`. `baseline` maps the existing `theme.json` tokens and is the default. `od10-candidate` (maroon / ivory / gold) is a **proposal for OD-10, not approved**.
+- **Palettes:** `premium_theme.json`. **OD-10 is decided: the owner approved the saffron Foundation design.** `baseline` maps the existing `theme.json` tokens, is the default and is the only palette the server renders; the request cannot choose a palette. `od10-candidate` (maroon / ivory / gold) was not selected and is kept only for historical comparison in development tools; it must never appear in customer-facing output.
 - **Fail closed:** unknown glyphs (for example Devanagari, which needs a shaping engine), text that cannot fit, chart labels that cannot be placed legibly, an altered logo file, or a PDF over 1 MiB all raise instead of producing a degraded PDF.
 - **Tests:** `tests/test_premium_report.py`, with 13 synthetic scenarios in `tests/fixtures/premium/` built by `tools/make_premium_scenarios.py`. Set `SABPUJA_TEST_EPHE_PATH` to also require the engine to reproduce every scenario exactly.
 - **Visual review:** `python report/phase1/tools/visual_review.py OUT_DIR` writes the sample PDFs, contact sheets, old/new and palette comparisons outside Git.

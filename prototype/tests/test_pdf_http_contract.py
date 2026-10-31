@@ -85,9 +85,9 @@ class PDFHTTPContract(unittest.TestCase):
             server._PDF_RENDER_SLOT.release()
 
     def test_oversized_generated_pdf_is_refused(self):
-        from report.phase1 import generate_report
+        from report.phase1 import premium_report
         with patch.object(server,"handle_chart",return_value=(200,{'input':{},'chart':{}})):
-            with patch.object(generate_report,"generate",return_value=b'%PDF-'+b'x'*(server.MAX_PDF_BYTES+1)):
+            with patch.object(premium_report,"generate",return_value=b'%PDF-'+b'x'*(server.MAX_PDF_BYTES+1)):
                 with self.assertRaises(RuntimeError):
                     server.handle_report(b'{}',{},'/synthetic-only')
 

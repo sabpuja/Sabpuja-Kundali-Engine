@@ -20,6 +20,21 @@ const auth='Basic '+Buffer.from(username+':'+pass).toString('base64');
   check('oversize 413',await fetchCode(base+'/api/chart',{method:'POST',headers:{Authorization:auth,Origin:allowedOrigin,'Content-Type':'application/json'},body:'x'.repeat(5000)})===413);
   const body=JSON.stringify({place_id:'in-new-delhi',birth_date:'1990-05-15',birth_time:'10:30'});
   const headers={Authorization:auth,Origin:allowedOrigin,'Content-Type':'application/json'};
+  // PDF route: same gateway authentication, Origin and size protections as the chart route.
+  check('report missing auth 401',await fetchCode(base+'/api/report',{method:'POST',headers:{Origin:allowedOrigin,'Content-Type':'application/json'},body})===401);
+  check('report wrong auth 401',await fetchCode(base+'/api/report',{method:'POST',headers:{...headers,Authorization:'Basic '+Buffer.from(username+':incorrect').toString('base64')},body})===401);
+  check('report bad Origin 403',await fetchCode(base+'/api/report',{method:'POST',headers:{...headers,Origin:'https://another.example'},body})===403);
+  check('report oversize 413',await fetchCode(base+'/api/report',{method:'POST',headers,body:'x'.repeat(5000)})===413);
+  await new Promise(r=>setTimeout(r,2500));
+  const pdf=await fetch(base+'/api/report',{method:'POST',headers,body,signal:AbortSignal.timeout(30000)});
+  const pdfBytes=Buffer.from(await pdf.arrayBuffer());
+  check('report 200 ten-page PDF attachment',pdf.status===200&&pdf.headers.get('content-type')==='application/pdf'
+    &&pdf.headers.get('content-disposition')==='attachment; filename="Sabpuja-Janma-Kundali.pdf"'
+    &&pdf.headers.get('cache-control')?.includes('no-store')&&pdfBytes.subarray(0,5).toString()==='%PDF-'
+    &&(pdfBytes.toString('latin1').match(/\/Type \/Page[^s]/g)||[]).length===10,pdf.status);
+  const reportBurst=await Promise.all(Array.from({length:6},()=>fetchCode(base+'/api/report',{method:'POST',headers,body,signal:AbortSignal.timeout(30000)}).catch(()=>0)));
+  check('report rate limit 429',reportBurst.includes(429),JSON.stringify(reportBurst.reduce((a,v)=>(a[v]=(a[v]||0)+1,a),{})));
+  await new Promise(r=>setTimeout(r,4000));
   const burst=await Promise.all(Array.from({length:18},()=>fetchCode(base+'/api/chart',{method:'POST',headers,body}).catch(()=>0)));
   check('chart rate limit 429',burst.includes(429),JSON.stringify(burst.reduce((a,v)=>(a[v]=(a[v]||0)+1,a),{})));
   // Forged client-address headers from an untrusted caller must not open a new throttling bucket.
