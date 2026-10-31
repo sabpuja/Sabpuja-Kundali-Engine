@@ -126,7 +126,8 @@ class Routes(Base):
                 self.assertNotIn(b"href", data)
         _, css = self.request("GET", "/static/fonts.css")
         fonts = re.findall(rb"url\((/static/fonts/[a-z0-9-]+\.woff2)\)", css)
-        self.assertEqual(len(fonts), 12)
+        # 12 Latin and Latin Extended files plus Poppins Devanagari 500/600/700 (KUN-UX-NAME-001).
+        self.assertEqual(len(fonts), 15)
         for path in fonts:
             with self.subTest(path.decode()):
                 resp, data = self.request("GET", path.decode())

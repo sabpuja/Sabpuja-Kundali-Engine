@@ -3,3 +3,4 @@ svglib==1.6.0
 fonttools[woff]==4.63.0
 brotli==1.2.0
 PyMuPDF==1.26.7
+uharfbuzz==0.57.0
