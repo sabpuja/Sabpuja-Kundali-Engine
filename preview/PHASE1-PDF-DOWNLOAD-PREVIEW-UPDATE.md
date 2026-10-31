@@ -2,6 +2,9 @@
 
 **Status: prepared, NOT DEPLOYED.** This integration branch is stacked on the reviewed Phase 1 PDF generator PR #45, which is stacked on owner-only preview PR #44. No code PR, GitHub Action, Shopify update, new public website, or production release is authorized here.
 
+
+> **KUN-RPT-002B update (draft, NOT DEPLOYED):** `POST /api/report` now renders the ten-page Phase 2A premium report (`report/phase1/premium_report.py`) in the owner-approved saffron Foundation palette (`baseline`, OD-10). The palette is fixed in `server.REPORT_PALETTE` and is never read from the request; the maroon candidate is never served. The endpoint contract, headers, filename, `REPORT_BUSY`/`REPORT_UNAVAILABLE` behaviour, 1 MiB limit and in-memory rendering are unchanged. The eight-page Phase 1 generator stays in the source for regression tests; rollback is redeploying the reviewed PR #53 image. References below to an 8-page PDF describe the Phase 1 release.
+
 ## MVP scope
 
 - Existing D1/D9 authenticated owner-only calculation stays on the canonical schema 0.3.0 and original pinned Swiss engine. No mathematical changes.

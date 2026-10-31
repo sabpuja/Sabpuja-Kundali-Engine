@@ -258,6 +258,19 @@ class PremiumPDFTests(unittest.TestCase):
                 self.assertIn(title, contents)
             self.assertEqual(audit['palette'], palette)
 
+    def test_same_bytes_across_processes(self):
+        # Embedded fonts must not carry the conversion time, so a checksum is reproducible.
+        import subprocess
+        code = ('import hashlib, json, sys; sys.path[:0] = [sys.argv[1]]; import premium_report as p; '
+                'print(hashlib.sha256(p.generate(json.load(open(sys.argv[2])), synthetic=True)).hexdigest())')
+        args = [sys.executable, '-c', code, str(PHASE), str(SCENARIO_DIR / 's11-afternoon.json')]
+        first = subprocess.run(args, capture_output=True, text=True, check=True).stdout
+        import time
+        time.sleep(1.1)
+        second = subprocess.run(args, capture_output=True, text=True, check=True).stdout
+        self.assertRegex(first, r'^[0-9a-f]{64}\n$')
+        self.assertEqual(first, second)
+
     def test_same_input_same_bytes(self):
         a = premium.generate(SCENARIOS['s01-first-supported-date'], synthetic=True)
         b = premium.generate(SCENARIOS['s01-first-supported-date'], synthetic=True)
@@ -525,8 +538,9 @@ class PremiumPDFTests(unittest.TestCase):
         theme = premium.phase1.THEME['colors']
         self.assertEqual((base['page'], base['primary'], base['accent'], base['ink']),
                          (theme['ivory'], theme['saffron'], theme['gold'], theme['text']))
-        self.assertEqual(premium.THEMES['default_palette'], 'baseline', 'OD-10 is open: candidate must stay opt-in')
-        self.assertEqual(premium.THEMES['palettes']['od10-candidate']['status'], 'proposal')
+        self.assertEqual(premium.THEMES['default_palette'], 'baseline', 'OD-10: the owner approved the saffron baseline')
+        self.assertEqual(premium.THEMES['palettes']['baseline']['status'], 'approved')
+        self.assertEqual(premium.THEMES['palettes']['od10-candidate']['status'], 'not-selected')
         self.assertEqual(theme['saffron'], '#D35400', 'Phase 1 theme.json must stay unchanged')
         with self.assertRaises(ValueError):
             premium.Palette('maroon')
@@ -710,10 +724,13 @@ class PremiumPDFTests(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertEqual(response, SCENARIOS[case['id']], case['id'])
 
-    def test_phase1_renderer_still_the_server_default(self):
+    def test_server_renders_premium_saffron_and_phase1_kept_for_rollback(self):
+        # KUN-RPT-002B: the preview route renders this layout in the approved saffron palette only.
         server_src = (REPO / 'prototype/kundali_prototype/server.py').read_text()
-        self.assertIn('from report.phase1.generate_report import generate', server_src)
-        self.assertNotIn('premium_report', server_src)
+        self.assertIn('from report.phase1.premium_report import generate', server_src)
+        self.assertIn('REPORT_PALETTE = "baseline"', server_src)
+        self.assertNotIn('from report.phase1.generate_report import', server_src)
+        self.assertNotIn('od10', server_src)
         pdf = fitz.open(stream=premium.phase1.generate(PHASE1_FIXTURE, synthetic=True), filetype='pdf')
         self.assertEqual(len(pdf), 8)
 

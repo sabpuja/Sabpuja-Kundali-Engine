@@ -38,6 +38,11 @@ const base=process.env.QA_ORIGIN||'http://sabpuja-kundali-preview:8080';
       const blob=fs.readFileSync(await download.path());
       assert.equal(blob.slice(0,5).toString(),'%PDF-');
       assert.ok(blob.length>10000&&blob.length<1048576,blob.length);
+      // KUN-RPT-002B: the ten-page Phase 2A premium report, not the eight-page Phase 1 layout.
+      const raw=blob.toString('latin1');
+      assert.equal((raw.match(/\/Type \/Page[^s]/g)||[]).length,10,'premium report has ten pages');
+      assert.ok(raw.includes('/Title (Sabpuja Janma Kundali)')&&raw.includes('/Subject (Vedic birth chart: D1 and D9)'),'premium report metadata');
+      if(process.env.QA_RESULTS){fs.mkdirSync(process.env.QA_RESULTS,{recursive:true});fs.writeFileSync(`${process.env.QA_RESULTS}/download-${width}.pdf`,blob);}
       await page.locator('#birth-date').fill('1990-05-16');
       assert.equal(await page.locator('#download-pdf').isDisabled(),true);
       assert.equal(await page.locator('#result').isHidden(),true);
