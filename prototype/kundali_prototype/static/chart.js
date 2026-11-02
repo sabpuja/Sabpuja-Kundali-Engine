@@ -147,17 +147,23 @@
     return node;
   }
 
-  /* opts.id prefixes the title and desc ids; opts.title names the chart. D1 by default. */
+  /* opts.id prefixes the title and desc ids; opts.title names the chart. D1 by default.
+   * opts.labels (KUN-I18N-001, optional) gives display text in another language: lagna (the
+   * Lagna abbreviation), abbr(key), name(key), sign(rashi), house(number, sign, grahas) and
+   * empty. Display only: the model (houses, signs, grahas) is the same in every language. */
   function renderNorthIndian(svg, model, opts) {
     opts = opts || { id: "d1", title: "North Indian D1 chart, Lagna " };
+    var L = opts.labels || null;
+    var sign = function (s) { return L ? L.sign(s) : s; };
     var doc = svg.ownerDocument;
     while (svg.firstChild) { svg.removeChild(svg.firstChild); }
     svg.setAttribute("viewBox", "-4 -4 " + (SIZE + 8) + " " + (SIZE + 8));
     var summary = model.houses.map(function (h) {
-      return "House " + h.house + ", " + h.sign + ": " +
-        (h.grahas.length ? h.grahas.map(function (g) { return g.name; }).join(", ") : "empty");
+      var names = h.grahas.length ? h.grahas.map(function (g) { return L ? L.name(g.key) : g.name; }).join(", ")
+                                  : (L ? L.empty : "empty");
+      return L ? L.house(h.house, sign(h.sign), names) : "House " + h.house + ", " + h.sign + ": " + names;
     }).join(". ");
-    svg.appendChild(el(doc, "title", { id: opts.id + "-title" }, opts.title + model.lagnaSign));
+    svg.appendChild(el(doc, "title", { id: opts.id + "-title" }, opts.title + sign(model.lagnaSign)));
     svg.appendChild(el(doc, "desc", { id: opts.id + "-desc" }, summary + "."));
     model.houses.forEach(function (h) {
       var geo = HOUSES[h.house];
@@ -167,8 +173,8 @@
                                          "class": "house-shape" }));
       g.appendChild(el(doc, "text", { x: geo.sign[0], y: geo.sign[1], "class": "sign-number",
                                       "data-role": "sign-number" }, String(h.signNumber)));
-      var labels = h.grahas.map(function (gr) { return { text: gr.abbr, key: gr.key, cls: "graha" }; });
-      if (h.isLagna) { labels.unshift({ text: "Asc", key: "lagna", cls: "graha graha--lagna" }); }
+      var labels = h.grahas.map(function (gr) { return { text: L ? L.abbr(gr.key) : gr.abbr, key: gr.key, cls: "graha" }; });
+      if (h.isLagna) { labels.unshift({ text: L ? L.lagna : "Asc", key: "lagna", cls: "graha graha--lagna" }); }
       var lay = layoutLabels(labels, geo.box);
       lay.items.forEach(function (it) {
         g.appendChild(el(doc, "text", { x: it.x.toFixed(1), y: it.y.toFixed(1), "class": it.label.cls,

@@ -13,6 +13,15 @@ display_name (KUN-UX-NAME-001) is an optional, separately validated presentation
 is drawn on the cover ("Prepared for") and in the page-4 Birth record ("Name on report") and
 nowhere else. It is never read from the engine response and never written to the PDF
 metadata. Without a name the output is byte-identical to the renderer before this option.
+
+locale (KUN-I18N-001) is a separate presentation parameter: 'en' (default) or 'hi'. Every
+sentence comes from report_i18n.json and every term from the shared terminology register
+(report_locale.py). With locale 'en' the output is byte-identical to the renderer before this
+option. In Hindi, Devanagari runs are shaped with HarfBuzz and drawn as glyph outlines (one
+form per glyph, reused), with the same words as invisible logical-order text on top, so copy,
+search and extraction return the catalog Unicode. Latin runs (digits, codes, proper names)
+keep the brand Latin faces. Values, longitudes, houses and statuses are the same engine values
+in both languages.
 """
 from __future__ import annotations
 
@@ -39,11 +48,13 @@ try:
     from . import display_name as names
     from . import generate_report as phase1
     from . import premium_layout as layout
+    from . import report_locale as loc
 except ImportError:  # loaded by path or run as a script
     sys.path.insert(0, str(ROOT))
     import display_name as names
     import generate_report as phase1
     import premium_layout as layout
+    import report_locale as loc
 
 LAYOUT_ID = 'phase2a-premium'
 THEMES = json.loads((ROOT / 'premium_theme.json').read_text())
@@ -67,6 +78,9 @@ NAME_FONTS = {
     'Strong': ('inter-latin-600-normal.woff2', 'inter-latin-ext-600-normal.woff2'),
 }
 DEVANAGARI_FONT = 'poppins-devanagari-600-normal.woff2'
+# Hindi report (KUN-I18N-001): the Poppins Devanagari weight drawn for each brand face. Inter
+# has no Devanagari, so Inter roles take the Poppins Devanagari face of the same weight.
+DEVANAGARI_WEIGHTS = {'Body': 400, 'Medium': 500, 'Strong': 600, 'Head': 600, 'HeadBold': 700}
 METADATA_SCHEMA = 'sabpuja-calculation-metadata/3'
 MAX_PDF_BYTES = 1024 * 1024  # same bound as the preview server
 MIN_TEXT = 8.0              # smallest type anywhere in the report, for legible A4 print
@@ -75,25 +89,20 @@ M = 48                      # side margin
 CW = W - 2 * M
 FOOTER_Y = 34
 GRAHAS = list(phase1.NAMES)  # sun ... ketu_mean, engine keys in canonical order
-DISPLAY = {
-    'sun': ('Sun', 'Su'), 'moon': ('Moon', 'Mo'), 'mars': ('Mars', 'Ma'),
-    'mercury': ('Mercury', 'Me'), 'jupiter': ('Jupiter', 'Ju'), 'venus': ('Venus', 'Ve'),
-    'saturn': ('Saturn', 'Sa'), 'rahu_mean': ('Rahu', 'Ra'), 'ketu_mean': ('Ketu', 'Ke'),
-}
+# English chart names and abbreviations, from the shared terminology register.
+DISPLAY = {key: (loc.TERMS['graha'][key]['en'], loc.TERMS['graha'][key]['en_abbr']) for key in GRAHAS}
 MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
           'August', 'September', 'October', 'November', 'December']
-PAGES = [
-    ('cover', 'Cover', ''),
-    ('overview', 'Overview', 'Key placements at a glance and the contents of this report'),
-    ('guide', 'Reading guide', 'Terms, abbreviations and how longitudes are written'),
-    ('birth', 'Birth details', 'Birth record, time conversion and calculation context'),
-    ('d1', 'D1 Lagna chart', 'North Indian birth chart with whole-sign houses'),
-    ('d9', 'D9 Navamsa chart', 'North Indian Navamsa chart from the engine D9 data'),
-    ('positions', 'Planetary positions', 'Rashi, house and exact sidereal longitude of each graha'),
-    ('navamsa', 'Navamsa placements', 'D9 Rashi and D9 house of each graha'),
-    ('houses', 'House directory', 'All twelve houses with their D1 and D9 Rashis and grahas'),
-    ('method', 'Methodology', 'Conventions, provenance, validation status and licences'),
-]
+PAGE_KEYS = ['cover', 'overview', 'guide', 'birth', 'd1', 'd9', 'positions', 'navamsa', 'houses', 'method']
+
+
+def pages(locale='en'):
+    """(key, title, description) of the ten sections in one locale, from the catalog."""
+    tr = loc.Translator(locale)
+    return [(key, tr.t(f'page.{key}.title'), tr.t(f'page.{key}.desc')) for key in PAGE_KEYS]
+
+
+PAGES = pages('en')
 PAGE_OF = {key: i + 1 for i, (key, _, _) in enumerate(PAGES)}
 
 
@@ -179,6 +188,51 @@ def _register_name_fonts():
         hb_font = uharfbuzz.Font(uharfbuzz.Face(uharfbuzz.Blob(data)))
         _NAME_FONT_CACHE.update(ext=chains, deva=(frozenset(font.getBestCmap()), font, hb_font))
     return _NAME_FONT_CACHE
+
+
+_DEVA_FACES = {}
+_SHAPED = {}
+
+
+def _deva_face(weight):
+    """A Poppins Devanagari weight for the Hindi report: ReportLab font name (for the invisible
+    text layer), cmap, fontTools font, glyph set and HarfBuzz font. 600 is the face already
+    registered for report names. Fail closed: a missing file raises, nothing is substituted."""
+    if weight not in _DEVA_FACES:
+        if weight == 600:
+            cmap, font, hb_font = _register_name_fonts()['deva']
+            name = 'SP2N-Deva'
+        else:
+            import uharfbuzz
+            font, data = _font_bytes(f'poppins-devanagari-{weight}-normal.woff2', 'Devanagari')
+            name = f'SP2H-Deva{weight}'
+            if name not in pdfmetrics.getRegisteredFontNames():
+                pdfmetrics.registerFont(TTFont(name, io.BytesIO(data)))
+            cmap = frozenset(font.getBestCmap())
+            hb_font = uharfbuzz.Font(uharfbuzz.Face(uharfbuzz.Blob(data)))
+        head = font['head']
+        _DEVA_FACES[weight] = {'name': name, 'cmap': cmap, 'font': font, 'hb': hb_font,
+                               'glyphs': font.getGlyphSet(), 'upem': head.unitsPerEm,
+                               'bbox': (head.xMin, head.yMin, head.xMax, head.yMax)}
+    return _DEVA_FACES[weight]
+
+
+def _shape_units(weight, run):
+    """HarfBuzz shaping of one Devanagari run in font units: ((glyph, x, y), ...), advance."""
+    key = (weight, run)
+    if key not in _SHAPED:
+        import uharfbuzz
+        face = _deva_face(weight)
+        buf = uharfbuzz.Buffer()
+        buf.add_str(run)
+        buf.guess_segment_properties()
+        uharfbuzz.shape(face['hb'], buf, {})
+        glyphs, x = [], 0
+        for info, pos in zip(buf.glyph_infos, buf.glyph_positions):
+            glyphs.append((face['font'].getGlyphName(info.codepoint), x + pos.x_offset, pos.y_offset))
+            x += pos.x_advance
+        _SHAPED[key] = (tuple(glyphs), x)
+    return _SHAPED[key]
 
 
 def _logo_drawing():
@@ -281,12 +335,27 @@ def _date_text(value):
 # Drawing primitives with a glyph guard: every string is checked against the font's cmap.
 
 class Doc:
-    def __init__(self, c, pal, cmaps, synthetic):
+    def __init__(self, c, pal, cmaps, synthetic, locale='en'):
         self.c, self.pal, self.cmaps, self.synthetic = c, pal, cmaps, synthetic
         self.page = 0
         self.chart_boxes = {}
         self.name_boxes = []
         self.name_drawn = []
+        self.tr = loc.Translator(locale)
+        self.locale = self.tr.locale
+        self.hindi = self.tr.hindi
+        self.glyph_forms = set()
+        self.deva_runs = []
+        self.drawn = []      # Hindi only: (page, text, size) of every string drawn, for the tests
+
+    def t(self, key, **values):
+        return self.tr.t(key, **values)
+
+    def date_text(self, value):
+        """The local date as '5 September 2038' in the report language (digits stay Latin)."""
+        _date_text(value)
+        year, month, day = (int(p) for p in value.split('-'))
+        return self.t('date.format', day=day, month=self.tr.month(month - 1), year=year)
 
     def _font(self, face, size, color):
         name = 'SP2-' + face
@@ -295,16 +364,159 @@ class Doc:
         return name
 
     def check(self, text, face):
+        if self.hindi:
+            self.runs(str(text), face)
+            return
         cmap = self.cmaps['SP2-' + face]
         missing = {ch for ch in str(text) if ord(ch) not in cmap}
         if missing:
             raise MissingGlyphError(f'{face} has no glyph for {sorted(missing)!r}')
 
     def width(self, text, face, size):
+        if self.hindi:
+            return self._mixed_width(str(text), face, size)
         return pdfmetrics.stringWidth(str(text), 'SP2-' + face, size)
+
+    def split(self, text, face, size, width):
+        """Lines of at most `width` points, broken at spaces."""
+        if not self.hindi:
+            return simpleSplit(str(text), 'SP2-' + face, size, width)
+        lines, line = [], ''
+        for word in str(text).split(' '):
+            trial = f'{line} {word}' if line else word
+            if not line or self.width(trial, face, size) <= width:
+                line = trial
+            else:
+                lines.append(line)
+                line = word
+            if self.width(line, face, size) > width:
+                raise layout.LayoutError('A word is wider than its line')
+        lines.append(line)
+        return lines
+
+    # -- Hindi text (KUN-I18N-001) -------------------------------------------------------
+    # A string is split into runs of one face: the brand face's Latin subset (digits, codes,
+    # proper names, punctuation), its Latin Extended subset for report names, or the Poppins
+    # Devanagari weight of the role. Devanagari runs are shaped with HarfBuzz, drawn as glyph
+    # outlines, and overlaid with the same text as invisible logical-order text.
+
+    def runs(self, text, face):
+        base = ('SP2-' + face, self.cmaps['SP2-' + face])
+        ext = _register_name_fonts()['ext'].get(face) if face in NAME_FONTS else None
+        weight = DEVANAGARI_WEIGHTS[face]
+        deva = _deva_face(weight)
+        out = []
+        for ch in text:
+            cp = ord(ch)
+            if names.is_devanagari(cp) or cp in (names.ZWJ, names.ZWNJ):
+                if cp not in deva['cmap']:
+                    raise MissingGlyphError(f'Devanagari {weight} has no glyph for {ch!r}')
+                kind = ('deva', weight)
+            elif cp == names.SPACE and out:
+                kind = out[-1][0]
+            elif cp in base[1]:
+                kind = base[0]
+            elif ext is not None and cp in ext[1]:
+                kind = ext[0]
+            else:
+                raise MissingGlyphError(f'{face} has no glyph for {ch!r}')
+            if out and out[-1][0] == kind:
+                out[-1][1] += ch
+            else:
+                out.append([kind, ch])
+        return [(kind, run) for kind, run in out]
+
+    def _mixed_width(self, text, face, size):
+        total = 0.0
+        for kind, run in self.runs(text, face):
+            if isinstance(kind, tuple):
+                total += _shape_units(kind[1], run)[1] * size / _deva_face(kind[1])['upem']
+            else:
+                total += pdfmetrics.stringWidth(run, kind, size)
+        return total
+
+    def _glyph_form(self, weight, glyph):
+        name = f'g{weight}_' + ''.join(ch if ch.isalnum() else '_' for ch in glyph)
+        if name not in self.glyph_forms:
+            face = _deva_face(weight)
+            c = self.c
+            x0, y0, x1, y1 = face['bbox']
+            c.beginForm(name, x0, y0, x1, y1)
+            path = c.beginPath()
+            face['glyphs'][glyph].draw(_CanvasPathPen(face['glyphs'], path, 0, 0, 1))
+            c.drawPath(path, stroke=0, fill=1, fillMode=0)
+            c.endForm()
+            self.glyph_forms.add(name)
+        return name
+
+    def _mixed_text(self, x, y, text, size, face, color, align):
+        width = self._mixed_width(text, face, size)
+        if align == 'right':
+            x -= width
+        elif align == 'center':
+            x -= width / 2
+        c = self.c
+        for kind, run in self.runs(text, face):
+            if not isinstance(kind, tuple):
+                c.setFont(kind, size)
+                c.setFillColor(self.pal[color])
+                c.drawString(x, y, run)
+                x += pdfmetrics.stringWidth(run, kind, size)
+                continue
+            weight = kind[1]
+            deva = _deva_face(weight)
+            glyphs, advance = _shape_units(weight, run)
+            scale = size / deva['upem']
+            glyf = deva['font']['glyf']
+            forms = [(self._glyph_form(weight, g), gx, gy) for g, gx, gy in glyphs
+                     if glyf[g].numberOfContours != 0]
+            c.setFillColor(self.pal[color])
+            # One scaled coordinate system per run; each glyph form is placed by a relative move.
+            c.saveState()
+            c.transform(scale, 0, 0, scale, x, y)
+            px = py = 0
+            for form, gx, gy in forms:
+                c.translate(gx - px, gy - py)
+                px, py = gx, gy
+                c.doForm(form)
+            c.restoreState()
+            # Invisible logical-order text (render mode 3) over the outlines, spaced to the
+            # shaped width, for copy, search, screen readers and extraction.
+            plain = pdfmetrics.stringWidth(run, deva['name'], size)
+            shaped = advance * scale
+            t = c.beginText(x, y)
+            t.setFont(deva['name'], size)
+            t.setTextRenderMode(3)
+            # One spacing for the run, the largest that keeps every character box (each one is
+            # its unshaped advance wide) inside the shaped width, so the text layer never
+            # reaches into the next run however the shaping contracts the conjuncts.
+            spacing = 0.0
+            if len(run) > 1:
+                spacing = (shaped - plain) / (len(run) - 1)
+                end = 0.0
+                for i, ch in enumerate(run):
+                    end += pdfmetrics.stringWidth(ch, deva['name'], size)
+                    if i:
+                        spacing = min(spacing, (shaped - end) / i)
+            t.setFillColor(self.pal[color])
+            if abs(spacing) > 1e-6:
+                t.setCharSpace(spacing)
+            t.textOut(run)
+            t.setTextRenderMode(0)
+            if abs(spacing) > 1e-6:
+                t.setCharSpace(0)
+            c.drawText(t)
+            self.deva_runs.append((self.page, run))
+            x += shaped
+        return width
 
     def text(self, x, y, text, size=10, face='Body', color='ink', align='left', tracking=0):
         text = str(text)
+        if self.hindi:
+            # Letter-spacing is not applied in Hindi: tracking breaks the Devanagari headline.
+            self._mixed_text(x, y, text, size, face, color, align)
+            self.drawn.append((self.page, text, size))
+            return
         self.check(text, face)
         name = self._font(face, size, color)
         if tracking:
@@ -332,7 +544,7 @@ class Doc:
 
     def wrap(self, x, y, text, width, size=9.5, leading=None, face='Body', color='ink', max_lines=None):
         leading = leading or size * 1.5
-        lines = simpleSplit(str(text), 'SP2-' + face, size, width)
+        lines = self.split(text, face, size, width)
         if max_lines is not None and len(lines) > max_lines:
             raise layout.LayoutError('Text exceeds its box')
         for line in lines:
@@ -437,12 +649,22 @@ class Doc:
         return glyphs, x, scale
 
     def name_width(self, text, face, size):
+        if self.hindi:
+            return self.width(text, face, size)
         total = 0.0
         for kind, run in self.name_runs(text, face):
             total += self._shape(run, size)[1] if kind == 'deva' else pdfmetrics.stringWidth(run, kind, size)
         return total
 
     def name_text(self, x, y, text, size, face='Head', color='ink', align='left'):
+        if self.hindi:
+            width = self.width(text, face, size)
+            left = x - (width / 2 if align == 'center' else width if align == 'right' else 0)
+            before = len(self.deva_runs)
+            self._mixed_text(x, y, text, size, face, color, align)
+            self.name_drawn.extend(run for _, run in self.deva_runs[before:])
+            self.name_boxes.append((self.page, left, y - size * 0.45, left + width, y + size))
+            return
         width = self.name_width(text, face, size)
         if align == 'center':
             x -= width / 2
@@ -542,23 +764,23 @@ def _header(d, key):
     _background(d)
     d.logo(M, H - 58, 88)
     number = PAGE_OF[key]
-    title = PAGES[number - 1][1]
-    d.kicker(W - M, H - 44, f'Janma Kundali  ·  {title}', 'muted', 'right')
+    title = d.t(f'page.{key}.title')
+    d.kicker(W - M, H - 44, d.t('header.kicker', title=title), 'muted', 'right')
     d.line(M, H - 70, W - M, H - 70, 'accent', 0.6)
     _footer(d, number)
 
 
 def _footer(d, number):
     d.line(M, FOOTER_Y + 14, W - M, FOOTER_Y + 14, 'accent', 0.5)
-    d.text(M, FOOTER_Y, 'Sabpuja  ·  Janma Kundali', MIN_TEXT, 'Medium', 'muted')
+    d.text(M, FOOTER_Y, d.t('footer.brand'), MIN_TEXT, 'Medium', 'muted')
     if d.synthetic:
-        d.text(W / 2, FOOTER_Y, 'Sample report  ·  synthetic birth details', MIN_TEXT, 'Medium', 'muted', 'center')
-    d.text(W - M, FOOTER_Y, f'Page {number} of {len(PAGES)}', MIN_TEXT, 'Medium', 'muted', 'right')
+        d.text(W / 2, FOOTER_Y, d.t('footer.sample'), MIN_TEXT, 'Medium', 'muted', 'center')
+    d.text(W - M, FOOTER_Y, d.t('footer.page', number=number, total=len(PAGES)), MIN_TEXT, 'Medium', 'muted', 'right')
 
 
 def _title(d, key, title, intro):
     number = PAGE_OF[key]
-    d.kicker(M, H - 104, f'Section {number - 1:02d}', 'primary_text')
+    d.kicker(M, H - 104, d.t('title.section', number=number - 1), 'primary_text')
     d.text(M, H - 132, title, 23, 'Head', 'ink')
     d.diamond(M + d.width(title, 'Head', 23) + 12, H - 124, 3.2)
     return d.wrap(M, H - 154, intro, CW * 0.86, 9.6, 14.5, 'Body', 'muted') - 8
@@ -572,7 +794,7 @@ def _kv_layout(d, rows, width, size, minimum, max_lines=3):
         if fit is not None:
             lines, fs = [value], fit
         else:
-            lines, fs = simpleSplit(value, 'SP2-Strong', minimum, width), minimum
+            lines, fs = d.split(value, 'Strong', minimum, width), minimum
             if len(lines) > max_lines:
                 raise layout.LayoutError('Birth detail value too long')
         out.append((label, lines, fs, 38 + 11 * (len(lines) - 1)))
@@ -584,7 +806,7 @@ def _card(d, x, y, w, h, fill='surface'):
 
 
 def _note(d, x, y_top, w, title, body, size=8.8):
-    lines = simpleSplit(body, 'SP2-Body', size, w - 28)
+    lines = d.split(body, 'Body', size, w - 28)
     h = 34 + len(lines) * size * 1.5
     d.rect(x, y_top - h, w, h, fill='tint_soft', radius=6)
     d.rect(x, y_top - h, 3, h, fill='accent')
@@ -672,20 +894,20 @@ def _rashi_cell(rashi, face='Body', color='ink'):
     number = layout.SIGNS.index(rashi) + 1
     def draw(d, x, base, width, align):
         d.text(x + 10, base, f'{number:>2}', 8.2, 'Strong', 'muted')
-        d.text(x + 26, base, rashi, 9.6, face, color)
+        d.text(x + 26, base, d.tr.rashi(rashi), 9.6, face, color)
     return draw
 
 
 # ---------------------------------------------------------------------------
 # North Indian chart.
 
-def _chart_tokens(chart, positions, mode):
+def _chart_tokens(chart, positions, mode, tr):
     key = 'whole_sign_house' if mode == 'd1' else 'navamsa_whole_sign_house'
     houses = {h: [] for h in range(1, 13)}
-    houses[1].append(('Asc', positions['lagna'].short() if mode == 'd1' else None, 'lagna'))
+    houses[1].append((tr.lagna()[1], positions['lagna'].short() if mode == 'd1' else None, 'lagna'))
     for name in GRAHAS:
         body = chart['planets'][name]
-        houses[body[key]].append((DISPLAY[name][1], positions[name].short() if mode == 'd1' else None, 'graha'))
+        houses[body[key]].append((tr.graha(name)[1], positions[name].short() if mode == 'd1' else None, 'graha'))
     return houses
 
 
@@ -770,8 +992,8 @@ def _page_cover(d, response, positions):
     for cx, cy in ((20, 20), (W - 20, 20), (20, H - 25), (W - 20, H - 25)):
         d.diamond(cx, cy, 4.5)
     d.logo(W / 2 - 84, H - 120, 168)
-    d.kicker(W / 2, H - 162, 'Vedic birth chart', 'primary_text', 'center', 8.4)
-    d.text(W / 2, H - 214, 'Janma Kundali', 46, 'HeadBold', 'primary', 'center')
+    d.kicker(W / 2, H - 162, d.t('cover.kicker'), 'primary_text', 'center', 8.4)
+    d.text(W / 2, H - 214, d.t('cover.title'), 46, 'HeadBold', 'primary', 'center')
     d.line(W / 2 - 70, H - 236, W / 2 - 10, H - 236, 'accent', 0.8)
     d.diamond(W / 2, H - 236, 3.2)
     d.line(W / 2 + 10, H - 236, W / 2 + 70, H - 236, 'accent', 0.8)
@@ -779,7 +1001,7 @@ def _page_cover(d, response, positions):
     if d.display_name is not None:
         # "Prepared for" and the name under the title; the subtitle and the emblem move down
         # and the emblem shrinks, so the caption and the birth panel keep their places.
-        d.kicker(W / 2, H - 262, 'Prepared for', 'primary_text', 'center', 8.4)
+        d.kicker(W / 2, H - 262, d.t('cover.prepared_for'), 'primary_text', 'center', 8.4)
         lines, fs = d.name_lines(d.display_name, 'Head', CW - 40, 22, 11, 4)
         y = H - 288
         for line in lines:
@@ -787,21 +1009,23 @@ def _page_cover(d, response, positions):
             y -= fs * 1.25
         subtitle_y = y + fs * 1.25 - 24
         size = (subtitle_y - 18) - (H - 520)
-    d.text(W / 2, subtitle_y, 'D1 Lagna and D9 Navamsa charts, planetary positions and houses',
-           10.5, 'Body', 'muted', 'center')
+    d.text(W / 2, subtitle_y, d.t('cover.subtitle'), 10.5, 'Body', 'muted', 'center')
     # Emblem: this chart's own house and Rashi layout.
-    houses = {1: [('Asc', None, 'lagna')]}
+    houses = {1: [(d.tr.lagna()[1], None, 'lagna')]}
     draw_chart(d, W / 2 - size / 2, H - 520, size, chart['lagna']['rashi'], houses, 'accent', emblem=True)
-    d.text(W / 2, H - 546, f'Lagna  {chart["lagna"]["rashi"]}  ·  Moon Nakshatra  '
-           f'{chart["moon_nakshatra"]["name"]}', 9, 'Medium', 'muted', 'center')
+    d.text(W / 2, H - 546, d.t('cover.caption', lagna=d.tr.rashi(chart['lagna']['rashi']),
+                               nakshatra=d.tr.nakshatra(chart['moon_nakshatra']['name'])),
+           9, 'Medium', 'muted', 'center')
     # Birth panel.
     top, h = 262, 128
     d.rect(M + 12, top - h, CW - 24, h, fill='surface', stroke='accent', width=0.7, radius=8)
     col = (CW - 24) / 3
+    place_name, region, country = d.tr.place(place)
     fields = [
-        ('Birthplace', place['name'], f'{place["region"]}, {place["country"]}'),
-        ('Date of birth', _date_text(info['local_date']), 'Local civil date'),
-        ('Time of birth', info['local_time'], f'UTC{info["utc_offset"]}  ·  {chart["birth"]["timezone"]}'),
+        (d.t('cover.birthplace'), place_name, d.t('cover.region', region=region, country=country)),
+        (d.t('cover.date'), d.date_text(info['local_date']), d.t('cover.date_sub')),
+        (d.t('cover.time'), info['local_time'], d.t('cover.time_sub', offset=info['utc_offset'],
+                                                       zone=chart['birth']['timezone'])),
     ]
     for i, (label, value, sub) in enumerate(fields):
         x = M + 12 + i * col + 18
@@ -812,27 +1036,24 @@ def _page_cover(d, response, positions):
         d.wrap(x, min(y, top - 76) - 2, sub, col - 32, 8.2, 11, 'Body', 'muted', max_lines=3)
     y = 104
     if d.synthetic:
-        d.text(W / 2, y + 18, 'SAMPLE REPORT  ·  SYNTHETIC BIRTH DETAILS, NOT A REAL PERSON',
-               MIN_TEXT, 'Strong', 'primary_text', 'center')
-    d.text(W / 2, y, 'A calculation summary of the birth chart. It is not a prediction or professional advice.',
-           8.6, 'Body', 'muted', 'center')
-    d.text(W / 2, 52, 'sabpuja.com', 8.4, 'Strong', 'primary_text', 'center')
+        d.text(W / 2, y + 18, d.t('cover.sample'), MIN_TEXT, 'Strong', 'primary_text', 'center')
+    d.text(W / 2, y, d.t('cover.disclaimer'), 8.6, 'Body', 'muted', 'center')
+    d.text(W / 2, 52, d.t('cover.site'), 8.4, 'Strong', 'primary_text', 'center')
 
 
 def _page_overview(d, response, positions):
     chart = response['chart']
     _header(d, 'overview')
-    y = _title(d, 'overview', 'Your Kundali at a glance',
-               'The main placements calculated for this birth, followed by a guide to every section. '
-               'Each value below is repeated with its full precision on the page shown.')
+    y = _title(d, 'overview', d.t('overview.title'), d.t('overview.intro'))
     pl = chart['planets']
+    tr = d.tr
     cards = [
-        ('D1 Lagna', chart['lagna']['rashi'], f'{positions["lagna"].dms()} within the Rashi', PAGE_OF['positions']),
-        ('Moon Rashi', pl['moon']['rashi'], f'{positions["moon"].dms()}  ·  D1 house {pl["moon"]["whole_sign_house"]}', PAGE_OF['positions']),
-        ('Moon Nakshatra', chart['moon_nakshatra']['name'], f'Pada {chart["moon_nakshatra"]["pada"]} of 4', PAGE_OF['positions']),
-        ('Sun Rashi', pl['sun']['rashi'], f'{positions["sun"].dms()}  ·  D1 house {pl["sun"]["whole_sign_house"]}', PAGE_OF['positions']),
-        ('D9 Lagna', chart['d9']['lagna_rashi'], 'Navamsa house 1', PAGE_OF['d9']),
-        ('Calculation', 'Lahiri sidereal', 'Whole-sign houses  ·  mean Rahu', PAGE_OF['method']),
+        (d.t('overview.d1_lagna'), tr.rashi(chart['lagna']['rashi']), d.t('overview.within', dms=positions['lagna'].dms()), PAGE_OF['positions']),
+        (d.t('overview.moon_rashi'), tr.rashi(pl['moon']['rashi']), d.t('overview.dms_house', dms=positions['moon'].dms(), house=pl['moon']['whole_sign_house']), PAGE_OF['positions']),
+        (d.t('overview.moon_nakshatra'), tr.nakshatra(chart['moon_nakshatra']['name']), d.t('overview.pada_of', pada=chart['moon_nakshatra']['pada']), PAGE_OF['positions']),
+        (d.t('overview.sun_rashi'), tr.rashi(pl['sun']['rashi']), d.t('overview.dms_house', dms=positions['sun'].dms(), house=pl['sun']['whole_sign_house']), PAGE_OF['positions']),
+        (d.t('overview.d9_lagna'), tr.rashi(chart['d9']['lagna_rashi']), d.t('overview.navamsa_house1'), PAGE_OF['d9']),
+        (d.t('overview.calculation'), d.t('overview.lahiri'), d.t('overview.method_sub'), PAGE_OF['method']),
     ]
     cw, ch, gap = (CW - 2 * 12) / 3, 84, 12
     top = y - 6
@@ -842,14 +1063,14 @@ def _page_overview(d, response, positions):
         _card(d, x, yy, cw, ch)
         d.rect(x, yy + ch - 3, cw, 3, fill='accent')
         d.kicker(x + 14, yy + ch - 22, label, 'primary_text')
-        d.text(x + cw - 14, yy + ch - 22, f'p. {page}', MIN_TEXT, 'Medium', 'muted', 'right')
+        d.text(x + cw - 14, yy + ch - 22, d.t('overview.page_ref', page=page), MIN_TEXT, 'Medium', 'muted', 'right')
         d.fitted(x + 14, yy + ch - 47, value, cw - 28, 16, 'Head', 'ink', minimum=11, max_lines=1)
         d.fitted(x + 14, yy + 15, sub, cw - 28, 8.6, 'Body', 'muted', minimum=MIN_TEXT, max_lines=1)
     y = top - 2 * (ch + gap) - 22
-    d.text(M, y, 'In this report', 15, 'Head', 'ink')
+    d.text(M, y, d.t('overview.contents'), 15, 'Head', 'ink')
     y -= 12
     d.line(M, y, W - M, y, 'accent', 0.8)
-    for key, title, desc in PAGES[1:]:
+    for key, title, desc in pages(d.locale)[1:]:
         n = PAGE_OF[key]
         y -= 34
         d.text(M, y + 4, f'{n - 1:02d}', 12, 'Head', 'primary_text')
@@ -866,18 +1087,9 @@ def _page_overview(d, response, positions):
 def _page_guide(d, response, positions):
     chart = response['chart']
     _header(d, 'guide')
-    y = _title(d, 'guide', 'How to read this report',
-               'A short reference for the terms used on the following pages. These are definitions of how '
-               'the report is laid out, not interpretations of the chart.')
-    terms = [
-        ('Rashi', 'One of the twelve 30° signs of the sidereal zodiac, counted from Mesha (1) to Meena (12).'),
-        ('Graha', 'A body placed in the chart: Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, and the lunar nodes Rahu and Ketu.'),
-        ('Lagna', 'The Rashi rising on the eastern horizon at the birth time and place. It is house 1 and is marked Asc.'),
-        ('D1 chart', 'The Rashi chart. Each graha is shown in the Rashi it occupies; houses are counted from the Lagna.'),
-        ('D9 chart', 'The Navamsa divisional chart: each Rashi is divided into nine parts of 3°20′. Placements come from the engine.'),
-        ('Whole-sign house', 'A house is one whole Rashi. House 1 is the Lagna Rashi, house 2 the next Rashi, and so on.'),
-        ('Nakshatra and Pada', 'One of 27 equal lunar mansions of 13°20′, each in four Padas. Shown here for the Moon.'),
-    ]
+    y = _title(d, 'guide', d.t('guide.title'), d.t('guide.intro'))
+    terms = [(d.t(f'guide.term.{k}'), d.t(f'guide.def.{k}'))
+             for k in ('rashi', 'graha', 'lagna', 'd1', 'd9', 'whole_sign', 'nakshatra')]
     tw = 118
     for term, text in terms:
         d.text(M, y, term, 9.8, 'Strong', 'primary_text')
@@ -887,15 +1099,12 @@ def _page_guide(d, response, positions):
         y = rule - 16
     y -= 8
     sun, pos = chart['planets']['sun'], positions['sun']
-    example = (f'An absolute sidereal longitude counts from 0° Mesha around the full 360° circle. '
-               f'The sign-relative form names the Rashi and the distance into it. In this chart the Sun is at '
-               f'{sun["longitude_deg"]:.8f}° absolute, which is {pos.dms()} within {sun["rashi"]} '
-               f'(Rashi {pos.rashi_number}, which begins at {30 * (pos.rashi_number - 1)}°). Within-sign values are '
-               f'truncated to whole arc-seconds, never rounded up, so a graha is never shown past the edge of its Rashi.')
-    y = _note(d, M, y, CW, 'Absolute and sign-relative longitude', example) - 22
+    example = d.t('guide.example', longitude=sun['longitude_deg'], dms=pos.dms(), rashi=d.tr.rashi(sun['rashi']),
+                  number=pos.rashi_number, start=30 * (pos.rashi_number - 1))
+    y = _note(d, M, y, CW, d.t('guide.example_title'), example) - 22
     # Rashi reference and abbreviations side by side.
-    d.text(M, y, 'Rashis', 12, 'Head', 'ink')
-    d.text(M + 300, y, 'Chart abbreviations', 12, 'Head', 'ink')
+    d.text(M, y, d.t('guide.rashis'), 12, 'Head', 'ink')
+    d.text(M + 300, y, d.t('guide.abbreviations'), 12, 'Head', 'ink')
     y -= 10
     d.line(M, y, M + 280, y, 'accent', 0.8)
     d.line(M + 300, y, W - M, y, 'accent', 0.8)
@@ -904,9 +1113,12 @@ def _page_guide(d, response, positions):
         x = M + col * 140
         yy = y - 18 - row * 17.5
         d.text(x, yy, f'{i + 1:>2}', 8.6, 'Strong', 'primary_text')
-        d.text(x + 18, yy, sign, 9, 'Medium', 'ink')
-        d.text(x + 18 + d.width(sign, 'Medium', 9) + 5, yy, layout.SIGN_ENGLISH[i], MIN_TEXT, 'Body', 'muted')
-    abbr = [('Asc', 'Lagna')] + [(DISPLAY[n][1], DISPLAY[n][0]) for n in GRAHAS]
+        shown = d.tr.rashi(sign)
+        d.text(x + 18, yy, shown, 9, 'Medium', 'ink')
+        if not d.hindi:
+            # Hindi readers get the Rashi names only; the English equivalents are an English reading aid.
+            d.text(x + 18 + d.width(shown, 'Medium', 9) + 5, yy, layout.SIGN_ENGLISH[i], MIN_TEXT, 'Body', 'muted')
+    abbr = [(d.tr.lagna()[1], d.t('guide.lagna_name'))] + [d.tr.graha(n)[::-1] for n in GRAHAS]
     for i, (a, name) in enumerate(abbr):
         col, row = divmod(i, 5)
         x = M + 300 + col * 98
@@ -914,7 +1126,7 @@ def _page_guide(d, response, positions):
         d.rect(x, yy - 4.6, 26, 15, fill='tint', radius=3)
         d.text(x + 13, yy, a, MIN_TEXT, 'Strong', 'primary_text', 'center')
         d.text(x + 32, yy, name, 9, 'Medium', 'ink')
-    d.wrap(M + 300, y - 18 - 5 * 21 + 4, 'English sign names are conventional equivalents for the sidereal Rashis.',
+    d.wrap(M + 300, y - 18 - 5 * 21 + 4, d.t('guide.sign_note'),
            W - M - (M + 300), MIN_TEXT, 10.5, 'Body', 'muted', max_lines=2)
 
 
@@ -922,42 +1134,43 @@ def _page_birth(d, response, positions):
     chart, info = response['chart'], response['input']
     place, birth, meta = info['place'], chart['birth'], chart['calculation_metadata']
     _header(d, 'birth')
-    y = _title(d, 'birth', 'Birth details',
-               'The birth record exactly as the chart was calculated. Please check these values against the '
-               'birth record before reading the charts: every placement depends on them.')
+    tr = d.tr
+    y = _title(d, 'birth', d.t('birth.title'), d.t('birth.intro'))
     utc = birth['utc'].replace('T', '  ').replace('Z', '  UTC')
+    place_name, region, country = tr.place(place)
     rows = [
-        ('Birthplace', place['name']),
-        ('Region and country', f'{place["region"]}, {place["country"]}'),
-        ('Latitude', layout.coordinate(birth['latitude'], 'N', 'S')),
-        ('Longitude', layout.coordinate(birth['longitude'], 'E', 'W')),
-        ('Local date', f'{_date_text(info["local_date"])}  ({info["local_date"]})'),
-        ('Local time', info['local_time']),
-        ('Time zone (IANA)', birth['timezone']),
-        ('UTC offset applied', 'UTC' + info['utc_offset']),
-        ('Exact UTC instant', utc),
+        (d.t('birth.place'), place_name),
+        (d.t('birth.region'), d.t('cover.region', region=region, country=country)),
+        (d.t('birth.latitude'), layout.coordinate(birth['latitude'], tr.hemisphere('N'), tr.hemisphere('S'))),
+        (d.t('birth.longitude'), layout.coordinate(birth['longitude'], tr.hemisphere('E'), tr.hemisphere('W'))),
+        (d.t('birth.local_date'), d.t('birth.local_date_value', date=d.date_text(info['local_date']), iso=info['local_date'])),
+        (d.t('birth.local_time'), info['local_time']),
+        (d.t('birth.zone'), birth['timezone']),
+        (d.t('birth.offset'), 'UTC' + info['utc_offset']),
+        (d.t('birth.utc'), utc),
     ]
     conv = meta['conventions']
+    ayanamsa = conv['ayanamsa']['name']
     rows2 = [
-        ('Zodiac', 'Sidereal'),
-        ('Ayanamsa', f'{conv["ayanamsa"]["name"]} (Chitrapaksha)' if conv['ayanamsa']['name'] == 'Lahiri' else conv['ayanamsa']['name']),
-        ('Positions', 'Geocentric, apparent'),
-        ('Lunar nodes', 'Mean Rahu; Ketu exactly opposite'),
-        ('Houses', 'Whole-sign, D1 and D9'),
-        ('Ephemeris', f'Swiss Ephemeris {meta["swiss_ephemeris"]["library_version"]}, local files'),
-        ('Ephemeris data', 'Verified by SHA-256 before calculation' if meta['ephemeris_data'].get('verified_before_calculation') else 'Not verified'),
-        ('Time zone data', f'tzdata {meta["timezone_data"]["package_version"]} (IANA {meta["timezone_data"]["iana_version"]})'),
-        ('Place source', place.get('source', 'Not supplied')),
+        (d.t('birth.zodiac'), d.t('birth.zodiac_value')),
+        (d.t('birth.ayanamsa'), d.t('birth.ayanamsa_lahiri', name=tr.ayanamsa(ayanamsa)) if ayanamsa == 'Lahiri' else tr.ayanamsa(ayanamsa)),
+        (d.t('birth.positions'), d.t('birth.positions_value')),
+        (d.t('birth.nodes'), d.t('birth.nodes_value')),
+        (d.t('birth.houses'), d.t('birth.houses_value')),
+        (d.t('birth.ephemeris'), d.t('birth.ephemeris_value', version=meta['swiss_ephemeris']['library_version'])),
+        (d.t('birth.ephemeris_data'), d.t('birth.verified') if meta['ephemeris_data'].get('verified_before_calculation') else d.t('birth.not_verified')),
+        (d.t('birth.tz_data'), d.t('birth.tz_value', package=meta['timezone_data']['package_version'], iana=meta['timezone_data']['iana_version'])),
+        (d.t('birth.place_source'), tr.place_source(place['source']) if 'source' in place else d.t('birth.not_supplied')),
     ]
     half = CW / 2 - 8
     top = y
     left = _kv_layout(d, rows, half - 32, 10.8, MIN_TEXT)
     if d.display_name is not None:
         lines, fs = d.name_lines(d.display_name, 'Strong', half - 32, 10.8, MIN_TEXT, 5)
-        left.insert(0, ('Name on report', lines, fs, 38 + 11 * (len(lines) - 1)))
+        left.insert(0, (d.t('birth.name'), lines, fs, 38 + 11 * (len(lines) - 1)))
     right = _kv_layout(d, rows2, half - 32, 10.2, MIN_TEXT)
     height = 38 + max(sum(h for *_, h in left), sum(h for *_, h in right))
-    for x, title, items in ((M, 'Birth record', left), (M + half + 16, 'Calculation context', right)):
+    for x, title, items in ((M, d.t('birth.record'), left), (M + half + 16, d.t('birth.context'), right)):
         _card(d, x, top - height, half, height)
         d.kicker(x + 16, top - 22, title, 'primary_text')
         ry = top - 28
@@ -976,15 +1189,12 @@ def _page_birth(d, response, positions):
                 d.line(x + 16, ry + 1, x + half - 16, ry + 1, 'rule', 0.5)
     y = top - height - 24
     resolution = info.get('offset_resolution')
-    offset_text = ('The local time occurs once at this place, so exactly one UTC offset applies.' if resolution == 'unique'
-                   else 'The local time occurs twice at this place; the occurrence chosen with the request was used.'
-                   if resolution == 'user_selected_repeated_hour' else 'The UTC offset was supplied with the request.')
-    y = _note(d, M, y, CW, 'How the time was converted',
-              f'The local civil time is read in the IANA time zone {birth["timezone"]}. {offset_text} '
-              'No time, place or time zone is guessed: an unknown or impossible birth time is refused instead '
-              'of being charted. Coordinates are the reference point of the chosen city.') - 14
-    d.wrap(M, y, 'Technical details of the method, data versions and validation status are on page '
-           f'{PAGE_OF["method"]}.', CW, 8.4, 12, 'Body', 'muted')
+    offset_text = (d.t('birth.offset_unique') if resolution == 'unique'
+                   else d.t('birth.offset_repeated')
+                   if resolution == 'user_selected_repeated_hour' else d.t('birth.offset_supplied'))
+    y = _note(d, M, y, CW, d.t('birth.conversion_title'),
+              d.t('birth.conversion', zone=birth['timezone'], offset_text=offset_text)) - 14
+    d.wrap(M, y, d.t('birth.method_ref', page=PAGE_OF['method']), CW, 8.4, 12, 'Body', 'muted')
 
 
 def _page_chart(d, response, positions, mode):
@@ -993,34 +1203,30 @@ def _page_chart(d, response, positions, mode):
     _header(d, key)
     if mode == 'd1':
         lagna = chart['lagna']['rashi']
-        y = _title(d, key, 'D1 Lagna chart',
-                   'The birth chart in North Indian form. The top diamond is house 1, the Lagna; houses follow '
-                   'counter-clockwise. Numbers give the Rashi in each house.')
+        y = _title(d, key, d.t('chart.d1_title'), d.t('chart.d1_intro'))
     else:
         lagna = chart['d9']['lagna_rashi']
-        y = _title(d, key, 'D9 Navamsa chart',
-                   'The Navamsa chart in the same North Indian form. House 1 is the D9 Lagna; every graha is '
-                   'placed in the D9 house reported by the engine.')
+        y = _title(d, key, d.t('chart.d9_title'), d.t('chart.d9_intro'))
     size = 404
     x0 = (W - size) / 2
     y0 = y - 14 - size
-    tokens = _chart_tokens(chart, positions, mode)
+    tokens = _chart_tokens(chart, positions, mode, d.tr)
     d.chart_boxes[mode] = {'origin': (x0, y0), 'size': size, 'lagna': lagna,
                            'labels': draw_chart(d, x0, y0, size, lagna, tokens)}
     # Key band.
     y = y0 - 30
-    lag_label = 'Lagna (Asc)' if mode == 'd1' else 'D9 Lagna (Asc)'
+    lag_label = d.t('chart.d1_lagna_label') if mode == 'd1' else d.t('chart.d9_lagna_label')
     d.kicker(M, y, lag_label, 'primary_text')
     if mode == 'd1':
-        lagna_value = f'{lagna}  ·  {positions["lagna"].dms()} within the Rashi  ·  house 1 (shaded)'
+        lagna_value = d.t('chart.d1_lagna_value', rashi=d.tr.rashi(lagna), dms=positions['lagna'].dms())
     else:
-        lagna_value = f'{lagna}  ·  Rashi {layout.SIGNS.index(lagna) + 1}  ·  house 1 (shaded)'
+        lagna_value = d.t('chart.d9_lagna_value', rashi=d.tr.rashi(lagna), number=layout.SIGNS.index(lagna) + 1)
     d.text(M + 110, y, lagna_value, 9.8, 'Strong', 'ink')
     y -= 22
-    d.kicker(M, y, 'Abbreviations', 'primary_text')
+    d.kicker(M, y, d.t('chart.abbreviations'), 'primary_text')
     x = M + 110
     for name in GRAHAS:
-        full, abbr = DISPLAY[name]
+        full, abbr = d.tr.graha(name)
         item = d.width(abbr, 'Strong', 8.6) + 4 + d.width(full, 'Body', 8.6) + 13
         if x + item > W - M:
             y -= 15
@@ -1030,32 +1236,26 @@ def _page_chart(d, response, positions, mode):
         x += item
     y -= 26
     if mode == 'd1':
-        body = ('Small figures beside each graha are whole degrees within its Rashi, truncated. Exact values, to the '
-                f'arc-second and as absolute longitude, are in Planetary positions on page {PAGE_OF["positions"]}. '
-                f'The Rashi and house of every graha are as calculated by the Sabpuja engine.')
+        body = d.t('chart.d1_note', page=PAGE_OF['positions'])
     else:
-        body = ('The D9 chart shows Navamsa Rashis and houses only; degrees are not shown because the engine reports '
-                f'D9 placements, not D9 longitudes. The table on page {PAGE_OF["navamsa"]} lists the same placements, '
-                'and each graha in this chart was checked against the engine D9 house list before drawing.')
-    _note(d, M, y, CW, 'Reading this chart', body)
+        body = d.t('chart.d9_note', page=PAGE_OF['navamsa'])
+    _note(d, M, y, CW, d.t('chart.note_title'), body)
 
 
 def _page_positions(d, response, positions):
     chart = response['chart']
     pl = chart['planets']
     _header(d, 'positions')
-    y = _title(d, 'positions', 'Planetary positions',
-               'Each graha with its D1 Rashi, whole-sign house and position. The within-Rashi column is the '
-               'readable form; the sidereal longitude is the engine value at its full printed precision.')
-    columns = [('Graha', 116, 'left'), ('D1 Rashi', 104, 'left'), ('House', 52, 'center'),
-               ('Within Rashi', 92, 'right'), ('Sidereal longitude', 135, 'right')]
+    y = _title(d, 'positions', d.t('positions.title'), d.t('positions.intro'))
+    columns = [(d.t('col.graha'), 116, 'left'), (d.t('col.d1_rashi'), 104, 'left'), (d.t('col.house'), 52, 'center'),
+               (d.t('col.within'), 92, 'right'), (d.t('col.longitude'), 135, 'right')]
     lag = chart['lagna']
-    rows = [[_graha_cell('Lagna', 'Asc'), _rashi_cell(lag['rashi'], 'Strong', 'primary_text'),
+    rows = [[_graha_cell(*d.tr.lagna()), _rashi_cell(lag['rashi'], 'Strong', 'primary_text'),
              _cell('1', 'Strong', 'primary_text'), _cell(positions['lagna'].dms(), 'Medium'),
              _cell(f'{lag["longitude_deg"]:.8f}°', 'Body', 'muted', 9.2)]]
     for name in GRAHAS:
         body = pl[name]
-        rows.append([_graha_cell(*DISPLAY[name]), _rashi_cell(body['rashi']),
+        rows.append([_graha_cell(*d.tr.graha(name)), _rashi_cell(body['rashi']),
                      _cell(str(body['whole_sign_house']), 'Strong', 'primary_text'),
                      _cell(positions[name].dms(), 'Medium'),
                      _cell(f'{body["longitude_deg"]:.8f}°', 'Body', 'muted', 9.2)])
@@ -1063,95 +1263,83 @@ def _page_positions(d, response, positions):
     moon = chart['moon_nakshatra']
     _card(d, M, y - 52, CW, 52, 'surface')
     d.rect(M, y - 52, 3, 52, fill='accent')
-    d.kicker(M + 16, y - 18, 'Moon Nakshatra and Pada', 'primary_text')
-    d.text(M + 16, y - 38, moon['name'], 14, 'Head', 'ink')
-    d.text(M + 16 + d.width(moon['name'], 'Head', 14) + 12, y - 38, f'Pada {moon["pada"]}', 11, 'Strong', 'primary_text')
-    d.wrap(M + 250, y - 22, 'Nakshatra is reported by the engine for the Moon only, so it is not shown for other grahas.',
-           CW - 266, 8.2, 11.5, 'Body', 'muted', max_lines=3)
+    d.kicker(M + 16, y - 18, d.t('positions.moon_title'), 'primary_text')
+    moon_name = d.tr.nakshatra(moon['name'])
+    d.text(M + 16, y - 38, moon_name, 14, 'Head', 'ink')
+    d.text(M + 16 + d.width(moon_name, 'Head', 14) + 12, y - 38, d.t('positions.pada', pada=moon['pada']), 11, 'Strong', 'primary_text')
+    d.wrap(M + 250, y - 22, d.t('positions.moon_only'), CW - 266, 8.2, 11.5, 'Body', 'muted', max_lines=3)
     y -= 72
-    _note(d, M, y, CW, 'Notes on these values',
-          'Within-Rashi values are the sidereal longitude minus the start of the engine-reported Rashi, truncated to '
-          'whole arc-seconds. Rahu is the mean lunar node; Ketu is exactly opposite the unrounded Rahu. Retrograde '
-          'motion, dignity and strength are not calculated in this edition and are not shown.')
+    _note(d, M, y, CW, d.t('positions.notes_title'), d.t('positions.notes'))
 
 
 def _page_navamsa(d, response, positions):
     chart = response['chart']
     pl = chart['planets']
     _header(d, 'navamsa')
-    y = _title(d, 'navamsa', 'Navamsa placements',
-               'The D9 Rashi and D9 whole-sign house of each graha, as returned by the engine. The D1 Rashi is '
-               'repeated for comparison.')
-    columns = [('Graha', 140, 'left'), ('D1 Rashi', 125, 'left'), ('D9 Rashi', 125, 'left'), ('D9 house', 109, 'center')]
+    y = _title(d, 'navamsa', d.t('navamsa.title'), d.t('navamsa.intro'))
+    columns = [(d.t('col.graha'), 140, 'left'), (d.t('col.d1_rashi'), 125, 'left'), (d.t('col.d9_rashi'), 125, 'left'),
+               (d.t('col.d9_house'), 109, 'center')]
     l9 = chart['d9']['lagna_rashi']
-    rows = [[_graha_cell('Lagna', 'Asc'), _rashi_cell(chart['lagna']['rashi']),
+    rows = [[_graha_cell(*d.tr.lagna()), _rashi_cell(chart['lagna']['rashi']),
              _rashi_cell(l9, 'Strong', 'primary_text'), _cell('1', 'Strong', 'primary_text')]]
     for name in GRAHAS:
         body = pl[name]
-        rows.append([_graha_cell(*DISPLAY[name]), _rashi_cell(body['rashi']),
+        rows.append([_graha_cell(*d.tr.graha(name)), _rashi_cell(body['rashi']),
                      _rashi_cell(body['navamsa_rashi'], 'Strong'),
                      _cell(str(body['navamsa_whole_sign_house']), 'Strong', 'primary_text')])
     y = _table(d, M, y - 4, columns, rows, row_h=38, header_h=28) - 24
-    _note(d, M, y, CW, 'About the D9 placements',
-          f'The D9 Lagna is {l9}, so D9 house 1 is {l9} and the houses continue in Rashi order. Each graha\'s D9 '
-          'Rashi and house in this table were checked against the engine D9 house list before the report was '
-          f'drawn. The chart on page {PAGE_OF["d9"]} shows the same placements.')
+    _note(d, M, y, CW, d.t('navamsa.note_title'), d.t('navamsa.note', lagna=d.tr.rashi(l9), page=PAGE_OF['d9']))
 
 
 def _page_houses(d, response, positions):
     chart = response['chart']
     pl = chart['planets']
     _header(d, 'houses')
-    y = _title(d, 'houses', 'Twelve-house directory',
-               'One row per house position. The D1 columns repeat the D1 chart and the D9 columns the D9 chart, '
-               'so the Rashi and the grahas of any house can be read in one line.')
+    y = _title(d, 'houses', d.t('houses.title'), d.t('houses.intro'))
+    abbr = {name: d.tr.graha(name)[1] for name in GRAHAS}
+    lagna_abbr = d.tr.lagna()[1]
     l1 = layout.SIGNS.index(chart['lagna']['rashi'])
     l9 = layout.SIGNS.index(chart['d9']['lagna_rashi'])
     d1 = {h: [] for h in range(1, 13)}
     d9 = {h: [] for h in range(1, 13)}
     for name in GRAHAS:
-        d1[pl[name]['whole_sign_house']].append(DISPLAY[name][1])
-        d9[pl[name]['navamsa_whole_sign_house']].append(DISPLAY[name][1])
+        d1[pl[name]['whole_sign_house']].append(abbr[name])
+        d9[pl[name]['navamsa_whole_sign_house']].append(abbr[name])
     # Same membership as the engine's own D9 list (already enforced in validation).
     for row in chart['d9']['houses']:
-        if sorted(DISPLAY[n][1] for n in row['grahas']) != sorted(d9[row['house']]):
+        if sorted(abbr[n] for n in row['grahas']) != sorted(d9[row['house']]):
             raise layout.ReportDataError('D9 house directory disagrees with engine D9 houses')
-    columns = [('House', 52, 'center'), ('D1 Rashi', 106, 'left'), ('D1 grahas', 128, 'left'),
-               ('D9 Rashi', 106, 'left'), ('D9 grahas', 107, 'left')]
+    columns = [(d.t('col.house'), 52, 'center'), (d.t('col.d1_rashi'), 106, 'left'), (d.t('col.d1_grahas'), 128, 'left'),
+               (d.t('col.d9_rashi'), 106, 'left'), (d.t('col.d9_grahas'), 107, 'left')]
     rows = []
     for h in range(1, 13):
-        g1 = (['Asc'] if h == 1 else []) + d1[h]
-        g9 = (['Asc'] if h == 1 else []) + d9[h]
+        g1 = ([lagna_abbr] if h == 1 else []) + d1[h]
+        g9 = ([lagna_abbr] if h == 1 else []) + d9[h]
         rows.append([_cell(str(h), 'Head', 'primary_text', 11), _rashi_cell(layout.SIGNS[(l1 + h - 1) % 12]),
                      _members_cell(g1), _rashi_cell(layout.SIGNS[(l9 + h - 1) % 12]), _members_cell(g9)])
     y = _table(d, M, y - 4, columns, rows, row_h=34, header_h=28) - 22
-    _note(d, M, y, CW, 'Reading key',
-          'House numbers count from each chart\'s own Lagna: D1 house 1 is the D1 Lagna Rashi and D9 house 1 the D9 '
-          'Lagna Rashi, so the same house number usually holds different Rashis in the two charts. Each Rashi is shown '
-          'with its number (1 Mesha to 12 Meena). A dash means no graha occupies that house. Abbreviations are listed '
-          f'on page {PAGE_OF["guide"]}. This directory describes placements only; it does not interpret them.')
+    _note(d, M, y, CW, d.t('houses.key_title'), d.t('houses.key', page=PAGE_OF['guide']))
 
 
 def _page_method(d, response, positions):
     chart = response['chart']
     meta = chart['calculation_metadata']
     _header(d, 'method')
-    y = _title(d, 'method', 'Methodology and provenance',
-               'How the positions in this report were calculated, where the data comes from, and what the '
-               'report does and does not claim.')
+    y = _title(d, 'method', d.t('method.title'), d.t('method.intro'))
     eph = meta['ephemeris_data']
     swiss = meta['swiss_ephemeris']
     tz = meta['timezone_data']
     rows = [
-        ('Sidereal zodiac', meta['conventions']['ayanamsa']['definition']),
-        ('Lunar nodes', 'Mean node for Rahu; Ketu exactly opposite the unrounded Rahu longitude.'),
-        ('Houses', 'Whole-sign houses for D1 and D9: house = Rashi count from the Lagna Rashi.'),
-        ('Precision', 'Absolute longitudes are printed to eight decimals. Positions within a Rashi are truncated to the arc-second. Rashi, Navamsa, Nakshatra, Pada and houses are classified from unrounded longitudes.'),
-        ('Ephemeris', f'Swiss Ephemeris {swiss["library_version"]} via pyswisseph {swiss["python_binding_version"]}, '
-                      f'local files {", ".join(f["name"] for f in eph["required_files"])} '
-                      f'(source commit {eph["source_commit"][:12]}), checked by SHA-256 before calculation.'),
-        ('Time zones', f'IANA time zone database {tz["iana_version"]} from tzdata {tz["package_version"]}, checked by SHA-256.'),
-        ('Engine output', f'Chart schema {chart["schema_version"]}; {meta["metadata_schema"]}.'),
+        (d.t('method.zodiac'), d.tr.engine_text('ayanamsa_definition', meta['conventions']['ayanamsa']['definition'])),
+        (d.t('method.nodes'), d.t('method.nodes_value')),
+        (d.t('method.houses'), d.t('method.houses_value')),
+        (d.t('method.precision'), d.t('method.precision_value')),
+        (d.t('method.ephemeris'), d.t('method.ephemeris_value', library=swiss['library_version'],
+                                      binding=swiss['python_binding_version'],
+                                      files=', '.join(f['name'] for f in eph['required_files']),
+                                      commit=eph['source_commit'][:12])),
+        (d.t('method.zones'), d.t('method.zones_value', iana=tz['iana_version'], package=tz['package_version'])),
+        (d.t('method.output'), d.t('method.output_value', schema=chart['schema_version'], metadata=meta['metadata_schema'])),
     ]
     tw = 112
     for label, text in rows:
@@ -1163,17 +1351,14 @@ def _page_method(d, response, positions):
     y -= 10
     status = chart['validation_status']
     boundary = meta['validation'].get('claim_boundary', '')
-    y = _note(d, M, y, CW, f'Validation status: {status}',
-              'The engine\'s calculations are checked by its own conformance tests against Swiss Ephemeris. They '
-              'have not yet been certified against an independent set of golden reference charts. ' +
-              (f'Engine claim boundary: {boundary}.' if boundary else '')) - 18
+    y = _note(d, M, y, CW, d.t('method.status_title', status=status),
+              d.t('method.status') +
+              (d.t('method.boundary', boundary=d.tr.engine_text('claim_boundary', boundary)) if boundary else '')) - 18
     half = CW / 2 - 10
-    d.text(M, y, 'Included in this report', 11, 'Head', 'ink')
-    d.text(M + half + 20, y, 'Not included in this edition', 11, 'Head', 'ink')
-    inc = ['D1 Lagna and D9 Navamsa charts', 'Sidereal longitudes of nine grahas and the Lagna',
-           'D1 and D9 whole-sign houses', 'Moon Nakshatra and Pada', 'Birth time conversion and data provenance']
-    exc = ['Panchanga, Vimshottari Dasha and other timing', 'Other divisional charts, Yogas, Doshas and strengths',
-           'Retrograde status and dignities', 'Interpretations, predictions and remedies', 'Hindi edition']
+    d.text(M, y, d.t('method.included'), 11, 'Head', 'ink')
+    d.text(M + half + 20, y, d.t('method.excluded'), 11, 'Head', 'ink')
+    inc = [d.t(f'method.inc{i}') for i in range(1, 6)]
+    exc = [d.t(f'method.exc{i}') for i in range(1, 6)]
     yy = y - 18
     for a, b in zip(inc, exc):
         d.diamond(M + 3, yy + 3, 2.4)
@@ -1184,13 +1369,8 @@ def _page_method(d, response, positions):
     # Licences sit at the foot of the page, above the footer rule.
     y = min(yy - 12, 128)
     d.line(M, y + 6, W - M, y + 6, 'accent', 0.6)
-    d.kicker(M, y - 8, 'Source and licences', 'primary_text')
-    d.wrap(M, y - 22,
-           'Sabpuja Kundali Engine source: github.com/sabpuja/Sabpuja-Kundali-Engine (AGPL-3.0). Swiss Ephemeris is '
-           'used under its AGPL licence option. Time zone data: IANA tz database (public domain) via the tzdata '
-           'package (Apache-2.0). Place coordinates: GeoNames (CC BY 4.0), cross-checked with Natural Earth. '
-           'Typefaces: Poppins and Inter (SIL Open Font License 1.1).',
-           CW, MIN_TEXT, 11, 'Body', 'muted', max_lines=5)
+    d.kicker(M, y - 8, d.t('method.licences_title'), 'primary_text')
+    d.wrap(M, y - 22, d.t('method.licences'), CW, MIN_TEXT, 11, 'Body', 'muted', max_lines=5)
 
 
 def _new_page(d):
@@ -1200,18 +1380,20 @@ def _new_page(d):
 
 
 def generate(response: dict, synthetic: bool = False, palette: str | None = None,
-             display_name: str | None = None) -> bytes:
+             display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE) -> bytes:
     """Searchable A4 PDF in memory. Writes no file, keeps no copy and makes no network request.
 
     display_name is the optional report name, presentation only; None (the default) draws
     the anonymous report. It must already be the output of display_name.normalize().
+    locale is 'en' (default, byte-identical to the renderer before KUN-I18N-001) or 'hi'.
     """
-    return render(response, synthetic, palette, display_name)[0]
+    return render(response, synthetic, palette, display_name, locale)[0]
 
 
 def render(response: dict, synthetic: bool = False, palette: str | None = None,
-           display_name: str | None = None):
+           display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE):
     """generate() plus an audit of where chart labels were drawn, for the report tests."""
+    locale = loc.validate_locale(locale)
     if display_name is not None and names.normalize(display_name) != display_name:
         raise ValueError('report name must be validated and normalized before rendering')
     response = copy.deepcopy(response)
@@ -1220,13 +1402,16 @@ def render(response: dict, synthetic: bool = False, palette: str | None = None,
     cmaps = _register_fonts()
     drawing = _logo_drawing()
     memory = io.BytesIO()
-    c = canvas.Canvas(memory, pagesize=A4, pageCompression=1, invariant=1, initialFontName='SP2-Body')
-    c.setTitle('Sabpuja Janma Kundali')
+    # The document language is declared only for Hindi; the English call is unchanged.
+    lang = {} if locale == loc.DEFAULT_LOCALE else {'lang': locale}
+    c = canvas.Canvas(memory, pagesize=A4, pageCompression=1, invariant=1, initialFontName='SP2-Body', **lang)
+    tr = loc.Translator(locale)
+    c.setTitle(tr.t('meta.title'))
     c.setAuthor('Sabpuja')
-    c.setSubject('Vedic birth chart: D1 and D9')
+    c.setSubject(tr.t('meta.subject'))
     c.setCreator('Sabpuja Kundali report generator')
     c.setKeywords('')
-    d = Doc(c, pal, cmaps, synthetic)
+    d = Doc(c, pal, cmaps, synthetic, locale)
     d.display_name = display_name
     c.beginForm('sabpuja_logo', 0, 0, drawing.width, drawing.height)
     # The logo is paths only; keep the renderer's default font from adding an unembedded Times-Roman.
@@ -1249,6 +1434,8 @@ def render(response: dict, synthetic: bool = False, palette: str | None = None,
     if len(data) > MAX_PDF_BYTES:
         raise RuntimeError('controlled PDF size exceeded')
     audit = {'charts': d.chart_boxes, 'palette': pal.name}
+    if locale != loc.DEFAULT_LOCALE:
+        audit.update(locale=locale, devanagari_runs=d.deva_runs, glyph_forms=len(d.glyph_forms), texts=d.drawn)
     if display_name is not None:
         audit.update(name_boxes=d.name_boxes, name_runs_drawn=d.name_drawn)
     return data, audit
@@ -1262,8 +1449,9 @@ if __name__ == '__main__':
     parser.add_argument('--sample', action='store_true', help='mark the report as synthetic sample data')
     parser.add_argument('--palette', choices=sorted(THEMES['palettes']), default=THEMES['default_palette'])
     parser.add_argument('--display-name', help='optional report name (synthetic names only in examples)')
+    parser.add_argument('--locale', choices=loc.LOCALES, default=loc.DEFAULT_LOCALE)
     args = parser.parse_args()
     response = json.loads(Path(args.chart_json).read_text())
     name = names.normalize(args.display_name)
     Path(args.output_pdf).write_bytes(generate(response, synthetic=args.sample, palette=args.palette,
-                                               display_name=name))
+                                               display_name=name, locale=args.locale))
