@@ -29,9 +29,14 @@ KUN-I18N-003. **Current state: every human and owner layer is PENDING; customer 
    40-hex commit; `customer_release` PENDING or APPROVED only.
 3. **A decided human or owner layer** (ACCEPTED, REVISED, REJECTED) needs: reviewer name,
    qualification and independence statement; ISO decision date; the exact reviewed commit (40
-   hex) and both catalog SHA-256 values; and `evidence` `{"path", "sha256"}` naming a signed sheet
-   committed under `signed/` in this package whose SHA-256 matches. URLs, free text, paths outside
-   `signed/` and mismatched hashes fail. REVISED and REJECTED need the replacement wording or reason.
+   hex) and both catalog SHA-256 values; and `evidence` `{"path", "sha256", "commit"}` naming a
+   signed sheet under `signed/` in this package and the commit that holds it. **KUN-I18N-003C:**
+   the file must be a regular file with no symlink on its path, resolved inside `signed/`; the
+   commit must exist and be in the history of the checked-out HEAD; the file's git blob at that
+   commit, at HEAD, in the index and in the working tree must be identical, and its SHA-256 the
+   stated one. Untracked, staged-only, modified, deleted, replaced, symlinked or escaping files,
+   URLs and free text fail; without the git object database a decided record fails closed. The
+   same applies to the release record. REVISED and REJECTED need the replacement wording or reason.
 4. **No AI signs** a human layer, an owner layer or the release (Claude, ChatGPT, GPT, OpenAI,
    Anthropic, Gemini, Copilot, "AI", "assistant", "bot", "LLM", "language model").
 5. **Stale decisions fail:** a decision is valid only for the catalog bytes it names. When a
@@ -55,6 +60,14 @@ KUN-I18N-003. **Current state: every human and owner layer is PENDING; customer 
 10. In this tree every required layer and the release are PENDING and no release candidate is named
     (tests assert this), and both catalogs keep their "pending independent human Hindi editorial
     review" status line.
+
+Signed-evidence cases (`SignedEvidenceInGit`, KUN-I18N-003C, same synthetic repository): QA's
+untracked-file bypass (every evidence reference replaced by a never-committed file with its true
+hash); staged but not committed; tracked but modified (with the old and the new hash); deleted
+(working tree, and staged deletion); replaced in a later commit; symlink to a file inside and to a
+file outside `signed/`; absolute path, `..` escape, wrong directory, directory path; blob missing
+from the named commit; commit outside this checkout's history; nonexistent commit; decided
+evidence without git; positive control with the committed blob.
 
 Exact-commit cases (`ExactCommitBinding`, against a throwaway synthetic git repository in a
 temporary directory holding byte-identical copies of the catalogs): all-zero, all-`f` and real-but-
@@ -100,11 +113,12 @@ remains an independent check by whoever accepts the release.
 ## How a decision is recorded
 
 When the signed decision sheet comes back, the developer (in a separate exact-SHA commit) commits
-the signed sheet under `signed/` (it is then listed in `EVIDENCE-MANIFEST.md`) and copies each
-decision into the JSON exactly as signed: `status` (ACCEPTED / REVISED / REJECTED), `reviewer`
+the signed sheet under `signed/` (it is then listed in `EVIDENCE-MANIFEST.md`) and, in a later
+commit, copies each decision into the JSON exactly as signed, with `evidence.commit` set to the
+commit that added the sheet: `status` (ACCEPTED / REVISED / REJECTED), `reviewer`
 `{name, qualification, independence, organisation?}`, `decision_date`, `reviewed_commit`,
 `reviewed_ui_catalog_sha256`, `reviewed_pdf_catalog_sha256`, `evidence`
-`{"path": "docs/i18n/review/kun-i18n-003/signed/<file>", "sha256": "<hash>"}`, `decision_text`
+`{"path": "docs/i18n/review/kun-i18n-003/signed/<file>", "sha256": "<hash>", "commit": "<commit that added it>"}`, `decision_text`
 (replacement wording or reason), and updates `test_no_human_or_owner_decision_is_recorded_yet` in
 the same commit. Each `reviewed_commit` is the register's `reviewed_source.commit`, which
 is the exact commit the reviewer was given. To release, the owner names the release candidate in

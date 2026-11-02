@@ -28,7 +28,7 @@ owner-copy patches are files under `patches/` and are **not applied**.
 | `1f0379ce389b96897876bf0bc8663ef54f8f730cf395d085fe5b9d40d064c433` | `CHANGE-B-SCHEMA-WORDING.md` |
 | `412356996918908afa18af0aab5405d9d973a5310474cf797b02a57910ca1227` | `DECISION-SHEET.csv` |
 | `ac0acd932a73427e412952cd94dd8d44736979bfb1748d1df036cf5f8b0f42ea` | `DECISION-SHEET.md` |
-| `7821fae6b374d57a2da845e5e85fcb25eb0ab412951090097ec2dcb1b6ad4d9b` | `EDITORIAL-ACCEPTANCE-REGISTER.md` |
+| `d6d66f432b65fc15f1f5dd3b1989f7fb1f61e135df6142538a4acf0e3f5ecb99` | `EDITORIAL-ACCEPTANCE-REGISTER.md` |
 | `8db067ac9e4734625647a615735f6ae947100bec7ef87b8c17d26e9cba58ddba` | `LOCATIONS.md` |
 | `a19ec7a367c5c0eacbd398e1c9d264df1a1aacf0086438fc09a2a5031d307839` | `README.md` |
 | `c31b604616ec5008a170749204147f989d2d7045abb6fe749639dccc7901226d` | `REVIEW-PACKET.md` |
@@ -60,7 +60,7 @@ owner-copy patches are files under `patches/` and are **not applied**.
 | `35bc27b3d3082c9cb677e17746d53f3a0d17738641c3129e1acee5c19e7c15ee` | `assets/screens/i18n-hi-form-280.png` |
 | `fdd2d47f6132998d75a5732fa78ea9356436d3e0baa58fc8b9ac06bfbcd4787f` | `assets/screens/i18n-hi-form-375.png` |
 | `1cae86ece38b489b11085cc789fa455071f8c8cdc80cc106112f52d15cfe0792` | `assets/screens/i18n-hi-form-768.png` |
-| `e6eb4dfdf3e69ffb59e229f573737c5583ca5f6d31cda753e0df64fc82c61d5f` | `editorial-acceptance-register.json` |
+| `f292c93d9495499c8e922eee681f372cb9bc8e763e642362a8c9dfe8e5cbc2d1` | `editorial-acceptance-register.json` |
 | `384b9a863e4b531418e38d858eaf735b94ce1e5da032342306e30d582f416e4d` | `locations.py` |
 | `b2f55fc5c1f728a0566379a91581b77366533aa0c9749518b9eaff67a7f14326` | `patches/change-a-english-page10.patch` |
 | `8998a9b0e06c8b4566b6cb7a64d28e7a07467e7b16d62b636c4f3afc2368af32` | `patches/change-b-schema-wording.patch` |

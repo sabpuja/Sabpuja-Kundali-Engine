@@ -8,7 +8,8 @@ decides nothing, it refuses a register in which
 * a layer the canonical matrix below requires is missing, NOT_APPLICABLE or has an unknown status,
   or a layer it does not require is anything but NOT_APPLICABLE;
 * a decided human or owner layer is unattributed, signed by an AI, lacks the exact reviewed commit
-  and catalog SHA-256, or cites evidence that is not a committed signed file with a matching hash;
+  and catalog SHA-256, or cites evidence that is not the committed git blob of a signed file under
+  signed/ (untracked, staged, modified, deleted, replaced and symlinked files fail; KUN-I18N-003C);
 * a decision was made against catalog bytes that have since changed (stale);
 * customer release is anything but PENDING or APPROVED, or is APPROVED without every required
   layer of every item positively ACCEPTED against the current catalogs and a signed owner release;
@@ -90,10 +91,30 @@ def current_blobs(root=ROOT):
 class GitObjects:
     """Read-only lookups in the git object database of `root` (absent in a `git archive` run)."""
 
-    def __init__(self, root):
+    def __init__(self, root, frozen=False):
         self.root = Path(root).resolve()
+        self._cache = {}
+        self._frozen = frozen
+
+    def frozen(self):
+        """A view that also caches HEAD, index and toplevel lookups: one validation sees one state."""
+        view = GitObjects(self.root, frozen=True)
+        view._cache = dict(self._cache)
+        return view
 
     def _git(self, *args):
+        # Lookups of full SHAs are immutable and cached; anything naming HEAD or the index is not.
+        immutable = all('HEAD' not in a for a in args) and args[0] in ('cat-file', 'rev-parse', 'merge-base') \
+            and '--show-toplevel' not in args
+        immutable = immutable or self._frozen
+        if immutable and args in self._cache:
+            return self._cache[args]
+        result = self._git_uncached(*args)
+        if immutable:
+            self._cache[args] = result
+        return result
+
+    def _git_uncached(self, *args):
         env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
         res = subprocess.run(['git', '-C', str(self.root), *args], capture_output=True, text=True, env=env)
         return res.stdout.strip() if res.returncode == 0 else None
@@ -116,26 +137,64 @@ class GitObjects:
     def is_ancestor(self, older, newer):
         return self._git('merge-base', '--is-ancestor', older, newer) is not None
 
+    def index_blob(self, path):
+        """The blob staged for `path` in the index, or None when untracked."""
+        out = self._git('ls-files', '--stage', '--', path)
+        return out.split()[1] if out and len(out.split()) >= 4 and '\n' not in out else None
+
 
 def _text(value):
     return value.strip() if isinstance(value, str) else ''
 
 
-def _evidence_problems(where, evidence, root):
-    """Evidence must be a committed signed file under signed/ whose SHA-256 is stated and matches."""
+def _evidence_problems(where, evidence, root, git):
+    """Evidence is a signed file committed in git (KUN-I18N-003C), never merely present on disk.
+
+    `{"path", "sha256", "commit"}`: `path` is a regular file (no symlink anywhere on the way)
+    resolved inside signed/; `commit` is the commit that holds the signed file, in the history of
+    the checked-out HEAD; the file's blob at that commit, at HEAD, in the index and in the working
+    tree are one and the same, and its SHA-256 is the stated one. Untracked, staged-only, modified,
+    deleted, replaced and symlinked files fail, and without the git object database a decided
+    record fails closed."""
     if not isinstance(evidence, dict):
-        return [f'{where}: evidence must be {{"path", "sha256"}} of a committed signed file']
-    path, digest = _text(evidence.get('path')), _text(evidence.get('sha256'))
-    if not path.startswith(SIGNED_DIR) or '..' in Path(path).parts:
+        return [f'{where}: evidence must be {{"path", "sha256", "commit"}} of a signed file committed in git']
+    path, digest, commit = (_text(evidence.get(k)) for k in ('path', 'sha256', 'commit'))
+    if not path.startswith(SIGNED_DIR) or '..' in Path(path).parts or path.endswith('/') or '\\' in path:
         return [f'{where}: evidence path must be inside {SIGNED_DIR}']
     if not HEX64.match(digest):
         return [f'{where}: evidence sha256 missing or malformed']
+    if not HEX40.match(commit):
+        return [f'{where}: evidence commit must be the full 40-hex SHA of the commit holding the signed file']
+    root = Path(root)
     file = root / path
+    walk = root
+    for part in Path(path).parts:
+        walk = walk / part
+        if walk.is_symlink():
+            return [f'{where}: evidence path goes through a symlink ({walk.relative_to(root).as_posix()})']
     if not file.is_file():
         return [f'{where}: evidence file {path} is not in this tree']
+    if not file.resolve().is_relative_to((root / SIGNED_DIR).resolve()):
+        return [f'{where}: evidence path must be inside {SIGNED_DIR}']
     if sha256(file) != digest:
         return [f'{where}: evidence file hash does not match']
-    return []
+    if not git.available():
+        return [f'{where}: evidence cannot be verified without the git object database (use a clone)']
+    if not git.is_commit(commit):
+        return [f'{where}: evidence commit {commit} is not in the git object database']
+    if not git.is_ancestor(commit, 'HEAD'):
+        return [f'{where}: evidence commit {commit} is not in the history of this checkout']
+    committed = git.blob(commit, path)
+    if committed is None:
+        return [f'{where}: evidence file is not in evidence commit {commit}']
+    problems = []
+    if git.blob('HEAD', path) != committed:
+        problems.append(f'{where}: evidence file was removed or replaced after evidence commit {commit}')
+    if git.index_blob(path) != committed:
+        problems.append(f'{where}: evidence file is not tracked as committed (untracked, staged or removed)')
+    if blob_id(file) != committed:
+        problems.append(f'{where}: evidence file differs from its committed blob (modified)')
+    return problems
 
 
 def _person_problems(where, person):
@@ -177,7 +236,7 @@ def _snapshot_problems(where, snap, catalogs, blobs, git, require_git):
     return problems
 
 
-def _decision_problems(where, entry, catalogs, root):
+def _decision_problems(where, entry, catalogs, root, git):
     problems = _person_problems(where, entry.get('reviewer'))
     try:
         date.fromisoformat(entry.get('decision_date') or '')
@@ -190,7 +249,7 @@ def _decision_problems(where, entry, catalogs, root):
         problems.append(f'{where}: reviewed catalog SHA-256 values missing')
     elif reviewed != catalogs:
         problems.append(f'{where}: stale, the catalogs changed after this decision; the reviewer must re-confirm')
-    problems += _evidence_problems(where, entry.get('evidence'), root)
+    problems += _evidence_problems(where, entry.get('evidence'), root, git)
     if entry['status'] in ('REVISED', 'REJECTED') and not _text(entry.get('decision_text')):
         problems.append(f'{where}: {entry["status"]} needs the replacement wording or the reason')
     return problems
@@ -204,7 +263,7 @@ def register_problems(register, catalogs=None, root=ROOT, git=None, blobs=None):
     signed file or decision is ever written into this repository."""
     catalogs = catalogs or current_catalogs()
     blobs = blobs or current_blobs(root if (Path(root) / UI_PATH).is_file() else ROOT)
-    git = git or GitObjects(root)
+    git = (git or GitObjects(root)).frozen()
     problems = []
     src = register.get('reviewed_source', {}) or {}
     items = {item.get('id'): item for item in register.get('items', [])}
@@ -235,7 +294,7 @@ def register_problems(register, catalogs=None, root=ROOT, git=None, blobs=None):
             if status not in GATED_STATUSES:
                 problems.append(f'{where}: required layer has status {status!r}')
             elif status in DECISIONS:
-                problems += _decision_problems(where, entry, catalogs, root)
+                problems += _decision_problems(where, entry, catalogs, root, git)
                 if _text(entry.get('reviewed_commit')) != _text(src.get('commit')):
                     problems.append(f'{where}: reviewed_commit is not the register\'s reviewed_source commit')
     release = register.get('customer_release', {}) or {}
@@ -258,7 +317,7 @@ def register_problems(register, catalogs=None, root=ROOT, git=None, blobs=None):
             problems.append('customer_release: date must be YYYY-MM-DD')
         if not HEX40.match(_text(release.get('commit'))):
             problems.append('customer_release: commit must be a full 40-hex SHA')
-        problems += _evidence_problems('customer_release', release.get('evidence'), root)
+        problems += _evidence_problems('customer_release', release.get('evidence'), root, git)
         candidate = release.get('release_candidate')
         problems += _snapshot_problems('customer_release.release_candidate', candidate, catalogs, blobs, git,
                                        require_git=True)
@@ -354,13 +413,14 @@ class SyntheticGitRepo(unittest.TestCase):
         for rel, src in ((UI_PATH, UI_CATALOG), (PDF_PATH, PDF_CATALOG)):
             (cls.root / rel).parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(src, cls.root / rel)
+        cls.source = commit('synthetic reviewed source')
         signed = cls.root / cls.SIGNED
         signed.parent.mkdir(parents=True)
         signed.write_text('stand-in for a signed sheet, in a temporary directory only\n')
         cls.digest = sha256(signed)
-        cls.source = commit('synthetic reviewed source')
         (cls.root / 'release-notes.txt').write_text('synthetic later commit\n')
-        cls.candidate = commit('synthetic release candidate')
+        cls.candidate = commit('synthetic release candidate, holding the stand-in signed sheet')
+        cls.run_git = staticmethod(git)
         with open(cls.root / PDF_PATH, 'ab') as fh:
             fh.write(b'\n')
         cls.changed = commit('synthetic catalog change')
@@ -383,9 +443,12 @@ class SyntheticGitRepo(unittest.TestCase):
         entry = {'status': status, 'reviewer': {'name': name, 'qualification': 'test', 'independence': 'test'},
                  'decision_date': '2026-11-03', 'reviewed_commit': self.source[0],
                  'reviewed_ui_catalog_sha256': self.catalogs[0], 'reviewed_pdf_catalog_sha256': self.catalogs[1],
-                 'evidence': {'path': self.SIGNED, 'sha256': self.digest}, 'decision_text': None}
+                 'evidence': self.evidence(), 'decision_text': None}
         entry.update(over)
         return entry
+
+    def evidence(self, path=None, digest=None, commit=None):
+        return {'path': path or self.SIGNED, 'sha256': digest or self.digest, 'commit': commit or self.candidate[0]}
 
     def pending(self):
         reg = copy.deepcopy(REGISTER)
@@ -400,7 +463,7 @@ class SyntheticGitRepo(unittest.TestCase):
         reg['customer_release'] = {'status': 'APPROVED', 'approved_by': {'name': 'Test Owner', 'qualification': 'owner',
                                    'independence': 'owner'}, 'date': '2026-11-04',
                                    'commit': self.candidate[0], 'release_candidate': self.snapshot(self.candidate),
-                                   'evidence': {'path': self.SIGNED, 'sha256': self.digest}, 'note': None}
+                                   'evidence': self.evidence(), 'note': None}
         return reg
 
     def assertRefused(self, reg, fragment):
@@ -509,9 +572,10 @@ class AdversarialRegisters(SyntheticGitRepo):
         cases = [('not a dict', 'evidence must be'),
                  ({'path': 'https://example.invalid/sheet.pdf', 'sha256': '0' * 64}, f'inside {SIGNED_DIR}'),
                  ({'path': SIGNED_DIR + '../REVIEW-PACKET.md', 'sha256': '0' * 64}, f'inside {SIGNED_DIR}'),
-                 ({'path': SIGNED_DIR + 'missing.pdf', 'sha256': '0' * 64}, 'is not in this tree'),
-                 ({'path': self.SIGNED, 'sha256': '0' * 64}, 'hash does not match'),
-                 ({'path': self.SIGNED, 'sha256': 'abc'}, 'sha256 missing or malformed')]
+                 (self.evidence(path=SIGNED_DIR + 'missing.pdf'), 'is not in this tree'),
+                 (self.evidence(digest='0' * 64), 'hash does not match'),
+                 (self.evidence(digest='abc'), 'sha256 missing or malformed'),
+                 ({'path': self.SIGNED, 'sha256': self.digest}, 'evidence commit must be the full 40-hex SHA')]
         for evidence, fragment in cases:
             with self.subTest(evidence=evidence):
                 reg = self.fully_accepted()
@@ -665,6 +729,118 @@ class ExactCommitBinding(SyntheticGitRepo):
         self.assertEqual(self.problems(reg), [])
         self.assertTrue(self.git.is_ancestor(self.source[0], self.candidate[0]))
         self.assertNotEqual(self.source[0], self.candidate[0])  # the candidate may differ from the source
+
+
+
+class SignedEvidenceInGit(SyntheticGitRepo):
+    """KUN-I18N-003C: a signed file only on disk is not evidence; it must be the committed blob.
+    Each test changes the synthetic repository and restores it."""
+
+    def all_evidence(self, reg, evidence):
+        for item in reg['items']:
+            for layer in REQUIRED[item['id']]:
+                item[layer]['evidence'] = dict(evidence)
+        reg['customer_release']['evidence'] = dict(evidence)
+        return reg
+
+    def scratch(self, rel, text):
+        path = self.root / rel
+        path.write_text(text)
+        self.addCleanup(lambda: path.unlink() if path.exists() or path.is_symlink() else None)
+        return path
+
+    def test_untracked_signed_file_is_refused(self):
+        """QA reproduction: every evidence reference replaced by a never-committed file with its true hash."""
+        rel = SIGNED_DIR + 'never-committed-approval.txt'
+        path = self.scratch(rel, 'never committed\n')
+        reg = self.all_evidence(self.fully_accepted(), self.evidence(path=rel, digest=sha256(path)))
+        problems = self.problems(reg)
+        self.assertIn(f'1/human_hindi_language: evidence file is not in evidence commit {self.candidate[0]}', problems)
+        self.assertIn(f'customer_release: evidence file is not in evidence commit {self.candidate[0]}', problems)
+
+    def test_staged_but_not_committed_is_refused(self):
+        rel = SIGNED_DIR + 'staged-only.txt'
+        path = self.scratch(rel, 'staged only\n')
+        self.run_git('add', rel)
+        self.addCleanup(self.run_git, 'rm', '-q', '--cached', rel)
+        reg = self.fully_accepted()
+        reg['items'][0][L]['evidence'] = self.evidence(path=rel, digest=sha256(path))
+        self.assertRefused(reg, 'evidence file is not in evidence commit')
+
+    def test_tracked_but_modified_is_refused(self):
+        path = self.root / self.SIGNED
+        original = path.read_bytes()
+        self.addCleanup(path.write_bytes, original)
+        path.write_text('altered after signing\n')
+        reg = self.fully_accepted()
+        reg['items'][0][L]['evidence'] = self.evidence(digest=sha256(path))  # hash of the altered bytes
+        self.assertRefused(reg, '1/human_hindi_language: evidence file differs from its committed blob (modified)')
+        reg['items'][0][L]['evidence'] = self.evidence()  # the signed hash no longer matches the file
+        self.assertRefused(reg, '1/human_hindi_language: evidence file hash does not match')
+
+    def test_deleted_is_refused(self):
+        path = self.root / self.SIGNED
+        self.addCleanup(self.run_git, 'checkout', '-q', 'HEAD', '--', self.SIGNED)
+        path.unlink()
+        self.assertRefused(self.fully_accepted(), f'evidence file {self.SIGNED} is not in this tree')
+        self.run_git('rm', '-q', '--cached', self.SIGNED)
+        self.addCleanup(self.run_git, 'reset', '-q', 'HEAD', '--', self.SIGNED)
+        self.assertRefused(self.fully_accepted(), f'evidence file {self.SIGNED} is not in this tree')
+
+    def test_replaced_after_the_evidence_commit_is_refused(self):
+        path = self.root / self.SIGNED
+        original = path.read_bytes()
+        self.run_git('checkout', '-q', '-b', 'replaced', self.candidate[0])
+        path.write_text('replaced in a later commit\n')
+        self.run_git('commit', '-q', '--no-gpg-sign', '-am', 'synthetic replacement of the signed sheet')
+        self.addCleanup(self.run_git, 'checkout', '-q', self.candidate[0])
+        reg = self.fully_accepted()
+        reg['items'][0][L]['evidence'] = self.evidence(digest=sha256(path))
+        self.assertRefused(reg, 'evidence file was removed or replaced after evidence commit')
+        self.assertTrue(original)
+
+    def test_symlinks_and_escapes_are_refused(self):
+        outside = self.root / 'outside.txt'
+        outside.write_text('outside the signed directory\n')
+        self.addCleanup(outside.unlink)
+        for name, target in (('link-inside.txt', self.root / self.SIGNED), ('link-outside.txt', outside)):
+            with self.subTest(name=name):
+                rel = SIGNED_DIR + name
+                (self.root / rel).symlink_to(target)
+                self.addCleanup((self.root / rel).unlink)
+                reg = self.fully_accepted()
+                reg['items'][0][L]['evidence'] = self.evidence(path=rel, digest=sha256(target))
+                self.assertRefused(reg, 'evidence path goes through a symlink')
+        for rel in ('/etc/hostname', SIGNED_DIR + '../../REVIEW-PACKET.md', 'signed/x.txt', SIGNED_DIR):
+            with self.subTest(path=rel):
+                reg = self.fully_accepted()
+                reg['items'][0][L]['evidence'] = self.evidence(path=rel)
+                self.assertRefused(reg, f'evidence path must be inside {SIGNED_DIR}')
+
+    def test_blob_missing_from_the_named_commit(self):
+        reg = self.fully_accepted()  # the sheet was added after the reviewed source commit
+        reg['items'][0][L]['evidence'] = self.evidence(commit=self.source[0])
+        self.assertRefused(reg, f'evidence file is not in evidence commit {self.source[0]}')
+        reg = self.fully_accepted()  # a commit holding the file, outside this checkout's history
+        reg['items'][0][L]['evidence'] = self.evidence(commit=self.unrelated[0])
+        self.assertRefused(reg, f'evidence commit {self.unrelated[0]} is not in the history of this checkout')
+        reg = self.fully_accepted()
+        reg['items'][0][L]['evidence'] = self.evidence(commit='f' * 40)
+        self.assertRefused(reg, f'evidence commit {"f" * 40} is not in the git object database')
+
+    def test_decided_evidence_without_git_fails_closed(self):
+        no_git_root = Path(tempfile.mkdtemp(dir=self.root.parent))
+        self.addCleanup(shutil.rmtree, no_git_root)
+        (no_git_root / self.SIGNED).parent.mkdir(parents=True)
+        shutil.copyfile(self.root / self.SIGNED, no_git_root / self.SIGNED)
+        problems = register_problems(self.fully_accepted(), self.catalogs, no_git_root, GitObjects(no_git_root))
+        self.assertIn('1/human_hindi_language: evidence cannot be verified without the git object database (use a clone)',
+                      problems)
+
+    def test_positive_control_uses_committed_evidence(self):
+        self.assertEqual(self.git.blob(self.candidate[0], self.SIGNED), blob_id(self.root / self.SIGNED))
+        self.assertEqual(self.git.index_blob(self.SIGNED), blob_id(self.root / self.SIGNED))
+        self.assertEqual(self.problems(self.fully_accepted()), [])
 
 
 if __name__ == '__main__':
