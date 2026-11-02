@@ -26,6 +26,13 @@ category is `BOUNDARY-INDETERMINATE` when its reference longitude lies within
 the frozen `binding_vs_swetest` = 1e-9° of a relevant edge. No public accuracy
 claim follows from any of this.
 
+A result is `FAIL` or `METHOD-MISMATCH` only when its inputs are verified: the
+pinned ephemeris files match the manifest, the matrix and frozen-spec pins
+match, `SE_EPHE_PATH` is unset, and the fixture's committed receipt is present
+and hash-valid. A missing or unverified input makes the affected comparison
+`BLOCKED` with reason codes (never `PASS`); missing paths, binaries and receipts
+are reported as codes, not tracebacks (DR-10).
+
 ## Files
 
 | Path | Role |
