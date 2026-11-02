@@ -8,8 +8,12 @@
 
 ## Application unchanged (Task 4)
 
-The packet commits add files under `docs/i18n/review/kun-i18n-003/` and one test,
-`report/phase1/tests/test_editorial_register.py`. Nothing else changes: `src`, `prototype/kundali_prototype`
+The packet commits add files under `docs/i18n/review/kun-i18n-003/` and two tests,
+`report/phase1/tests/test_editorial_register.py` (register gate) and
+`report/phase1/tests/test_review_packet_assets.py` (this manifest: every package file listed, committed and
+matching its hash; every referenced asset present; the three sample PDFs equal to the current renderer's output
+from the synthetic fixture `s11-afternoon`). The three sample PDFs are committed with `git add -f`, because the
+root `.gitignore` ignores `*.pdf`; `.gitignore` itself is unchanged. Nothing else changes: `src`, `prototype/kundali_prototype`
 (including both catalogs, `index.html`, `server.py`), `report/phase1` source, `preview` (Docker, gateway, security
 configuration), `tests`, `machine`, `data`, `docs/DECISIONS.md`, `docs/api-contract.md` and `docs/i18n/TERMINOLOGY.md`
 have identical git tree/blob objects at the base and the head (`evidence/01-unchanged-application.txt`, rerun on the
@@ -20,14 +24,14 @@ owner-copy patches are files under `patches/` and are **not applied**.
 
 | SHA-256 | File |
 |---|---|
-| `0cdf5d75bbaf88cd1d6e76661c5b51b0972d4d80791975fec844588c221bfe7d` | `CHANGE-A-ENGLISH-PAGE10.md` |
-| `145073dca2d2ea8e2a9528b449f31a80e6c132ea0dadc88d9b519025d43ffc2a` | `CHANGE-B-SCHEMA-WORDING.md` |
+| `af06371265c7e41f487907c5eff22b06a8fdb5d491361c1e572abfdfcd18b81b` | `CHANGE-A-ENGLISH-PAGE10.md` |
+| `ac7219dd2bf2176a3e581f0a84e0ecaa3986dc0ccc6b90ddead5f744e87102e7` | `CHANGE-B-SCHEMA-WORDING.md` |
 | `412356996918908afa18af0aab5405d9d973a5310474cf797b02a57910ca1227` | `DECISION-SHEET.csv` |
 | `ac0acd932a73427e412952cd94dd8d44736979bfb1748d1df036cf5f8b0f42ea` | `DECISION-SHEET.md` |
-| `8fe0394512cb41fbb3c0a280480dea4073d93c5606bc2db44626fc2e2505c131` | `EDITORIAL-ACCEPTANCE-REGISTER.md` |
+| `06fac34a249e0fe8ea7e8dccc216ca50aa0505fbbd13223bee12690cb5f63609` | `EDITORIAL-ACCEPTANCE-REGISTER.md` |
 | `8db067ac9e4734625647a615735f6ae947100bec7ef87b8c17d26e9cba58ddba` | `LOCATIONS.md` |
-| `bee1d0b50bbe36df69e0bf974cf372abba69c8ac3bfacef88b2c1c49047c2773` | `README.md` |
-| `238c61569aeb0a24f5be8593ed1880bd72b0d62fdd6eb209a386418c43d99de0` | `REVIEW-PACKET.md` |
+| `a19ec7a367c5c0eacbd398e1c9d264df1a1aacf0086438fc09a2a5031d307839` | `README.md` |
+| `c31b604616ec5008a170749204147f989d2d7045abb6fe749639dccc7901226d` | `REVIEW-PACKET.md` |
 | `732231a491cd70c4f9719001fef0bde1d63e39602f4e112eeef248a9ad32a66d` | `assets/en-hi-page-01.png` |
 | `912c7b85e9241a9061f53ffc0ec714b4c217630faceff44288f79e944e5166d4` | `assets/en-hi-page-02.png` |
 | `b5d5574356f9b202aac3f4c099a9404527af08a8bc3312628e07e8ce9625ecae` | `assets/en-hi-page-03.png` |
@@ -56,10 +60,11 @@ owner-copy patches are files under `patches/` and are **not applied**.
 | `35bc27b3d3082c9cb677e17746d53f3a0d17738641c3129e1acee5c19e7c15ee` | `assets/screens/i18n-hi-form-280.png` |
 | `fdd2d47f6132998d75a5732fa78ea9356436d3e0baa58fc8b9ac06bfbcd4787f` | `assets/screens/i18n-hi-form-375.png` |
 | `1cae86ece38b489b11085cc789fa455071f8c8cdc80cc106112f52d15cfe0792` | `assets/screens/i18n-hi-form-768.png` |
-| `7bd27d1b90b3e279a3936e7afc0b929895c972e12565a687d330fa7f2343195c` | `editorial-acceptance-register.json` |
+| `95e95a9756079c7bdbd058e5c535ecd00dbd8ad6acc215153edc549fa15079fa` | `editorial-acceptance-register.json` |
 | `384b9a863e4b531418e38d858eaf735b94ce1e5da032342306e30d582f416e4d` | `locations.py` |
 | `b2f55fc5c1f728a0566379a91581b77366533aa0c9749518b9eaff67a7f14326` | `patches/change-a-english-page10.patch` |
 | `8998a9b0e06c8b4566b6cb7a64d28e7a07467e7b16d62b636c4f3afc2368af32` | `patches/change-b-schema-wording.patch` |
+| `fe25194ec9c3f00f1dcb13fb226160862c3a6a8b605b618a548d2979b54699ae` | `refresh_manifest.py` |
 
 ## Developer evidence outside the repository (shared project folder `kun-i18n-003/`)
 
@@ -73,6 +78,7 @@ owner-copy patches are files under `patches/` and are **not applied**.
 | `evidence/05-register-negative-cases.txt` | 12 invalid registers caught, valid control passes |
 | `evidence/10-change-b-pdf-bytes.txt`, `11-change-a-pdf-bytes.txt` | measured PDF impact of each patch |
 | `evidence/12-patch-tests/` | full suites with Change A alone, Change B alone, both |
+| `evidence/20-qa-round2/` | QA round 2 (review 5734501764): asset guard failing before the fix and passing after, the QA bypass register refused, suites, unchanged-application proof on the corrected head |
 | `SHA256SUMS` | hash of every evidence file |
 
 ## Unresolved approvals

@@ -17,28 +17,54 @@ KUN-I18N-003. **Current state: every human and owner layer is PENDING; customer 
 
 ## Rules enforced by the tests
 
-1. A human layer leaves PENDING only with: reviewer name, qualification, independence statement,
-   decision date (ISO), the exact reviewed commit (40 hex) and both catalog SHA-256 values,
-   and the signed decision sheet as evidence. REVISE needs the replacement wording.
-2. A human layer can never carry an AI name (Claude, ChatGPT, GPT, OpenAI, Anthropic, Gemini,
-   Copilot, "AI", "assistant", "bot", "LLM").
-3. An approval is valid only for the catalog bytes it names. If a catalog changes after a review
-   (for example when an approved REVISE or Change A/B is applied), the test fails until the
-   reviewer re-confirms against the new hashes.
-4. `reviewed_source` must match the catalogs in the same tree, so the packet cannot drift from the code.
-5. `customer_release` must stay PENDING while any applicable human or owner layer is PENDING,
-   or REJECTED without a replacement.
-6. Both catalogs keep their "pending independent human Hindi editorial review" status line.
+`register_problems()` in the test is the gate. It only refuses; it never records or decides.
+
+1. **Canonical required-layer matrix**, fixed in the test (the register's own `review_layers`
+   field cannot relax it): Hindi language for items 1, 3, 7, 8–18, C1–C4, C6; Jyotish for items
+   1–7 and C5; owner copy for item 13 (Change A) and item 15 (Change B). A required layer may only
+   be PENDING, ACCEPTED, REVISED or REJECTED; `NOT_APPLICABLE` or any other status on a required
+   layer fails. A layer the matrix does not require must be `NOT_APPLICABLE`.
+2. **Other statuses are closed sets:** developer CORRECTED / NO_CHANGE (and must say it is not a
+   review); engineering PASS with an AI verifier labelled "not a human language review" and a
+   40-hex commit; `customer_release` PENDING or APPROVED only.
+3. **A decided human or owner layer** (ACCEPTED, REVISED, REJECTED) needs: reviewer name,
+   qualification and independence statement; ISO decision date; the exact reviewed commit (40
+   hex) and both catalog SHA-256 values; and `evidence` `{"path", "sha256"}` naming a signed sheet
+   committed under `signed/` in this package whose SHA-256 matches. URLs, free text, paths outside
+   `signed/` and mismatched hashes fail. REVISED and REJECTED need the replacement wording or reason.
+4. **No AI signs** a human layer, an owner layer or the release (Claude, ChatGPT, GPT, OpenAI,
+   Anthropic, Gemini, Copilot, "AI", "assistant", "bot", "LLM", "language model").
+5. **Stale decisions fail:** a decision is valid only for the catalog bytes it names. When a
+   catalog changes (an approved REVISE, Change A or B), the reviewer must re-confirm.
+6. **`reviewed_source`** must equal the catalogs in the same tree.
+7. **Release:** `customer_release` APPROVED requires every required layer of every item to be
+   **ACCEPTED** (current, signed); REVISED and REJECTED are decisions, never approvals, even with a
+   reason or replacement. It also needs a non-AI owner name, ISO date, 40-hex commit and a signed
+   release record under `signed/` with matching hash.
+8. In this tree every required layer and the release are PENDING (a test asserts this), and both
+   catalogs keep their "pending independent human Hindi editorial review" status line.
+
+Adversarial registers the tests refuse (built in memory; nothing is written to the repository):
+all layers `NOT_APPLICABLE` with release APPROVED; one required layer `NOT_APPLICABLE` (Jyotish on
+item 1, owner on item 15); `review_layers` edited to drop the owner on item 13; unknown layer and
+release statuses; REJECTED or REVISED with text plus release APPROVED; REJECTED without a reason;
+forged or unverifiable evidence (free text, URL, `..` escape, missing file, wrong or malformed
+hash); stale catalog hash; AI signer on a layer or on the release; unattributed or untraceable
+decisions; release without a signed record or commit; a missing item; `reviewed_source` drift;
+developer or AI QA posing as review. Control: a complete, fully signed in-memory register passes.
 
 ## How a decision is recorded
 
-When the signed decision sheet comes back, the developer (in a separate exact-SHA commit) copies
-each decision into the JSON exactly as signed: `status` (ACCEPTED / REVISED / REJECTED),
-`reviewer` `{name, qualification, independence, organisation?}`, `decision_date`,
-`reviewed_commit`, `reviewed_ui_catalog_sha256`, `reviewed_pdf_catalog_sha256`,
-`evidence` (where the signed sheet is kept and its SHA-256), `decision_text` (replacement wording
-or reason). REVISE wording is then applied in another commit, all affected tests are rerun, and
-the reviewer re-confirms the new catalog hashes. Nothing is ever entered on a reviewer's behalf.
+When the signed decision sheet comes back, the developer (in a separate exact-SHA commit) commits
+the signed sheet under `signed/` (it is then listed in `EVIDENCE-MANIFEST.md`) and copies each
+decision into the JSON exactly as signed: `status` (ACCEPTED / REVISED / REJECTED), `reviewer`
+`{name, qualification, independence, organisation?}`, `decision_date`, `reviewed_commit`,
+`reviewed_ui_catalog_sha256`, `reviewed_pdf_catalog_sha256`, `evidence`
+`{"path": "docs/i18n/review/kun-i18n-003/signed/<file>", "sha256": "<hash>"}`, `decision_text`
+(replacement wording or reason), and updates `test_no_human_or_owner_decision_is_recorded_yet` in
+the same commit. REVISE wording is then applied in another commit, all affected tests are rerun,
+and the reviewer re-confirms against the new catalog hashes. Nothing is ever entered on a
+reviewer's behalf.
 
 ## State at KUN-I18N-003 (reviewed source `c9f147b`)
 

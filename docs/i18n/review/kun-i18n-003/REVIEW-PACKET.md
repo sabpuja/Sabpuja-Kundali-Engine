@@ -241,5 +241,5 @@ Developer recommendation: **REVISE** at the reviewer's discretion; the reviewer 
 ## KUN-I18N-002 developer corrections (also to be accepted)
 
 A1 high-latitude note "60° उत्तर या दक्षिण से अधिक"; A2 धारणा for "assumption"; A3 page 6 word order;
-A4 ellipsis; दिनांक plural; चंद्र पात. Before/after images: `assets/hi-before-after-page-03/06/07*.png`.
+A4 ellipsis; दिनांक plural; चंद्र पात. Before/after images: `assets/hi-before-after-page-03-zoom.png`, `assets/hi-before-after-page-06-zoom.png`, `assets/hi-before-after-page-07-zoom.png`.
 These are listed on the decision sheet as rows C1–C6.
