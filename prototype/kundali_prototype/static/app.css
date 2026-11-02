@@ -304,3 +304,29 @@ tr.row--lagna { background: var(--sp-color-gold-tint); }
 .status-label { font-weight: 600; color: var(--sp-color-brown); }
 
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+/* KUN-I18N-001: English / Hindi language switch and Hindi typography.
+ * A two-option segmented control (aria-pressed buttons), 44 px touch targets, Foundations
+ * saffron for the selected option. Hindi keeps the Poppins + Inter pair: Inter has no
+ * Devanagari, so Devanagari text falls through to the self-hosted Poppins Devanagari faces
+ * (fonts.css), and Latin digits and codes stay in Inter. */
+.lang-switch {
+  display: inline-flex; border: 1px solid var(--sp-color-saffron-700); border-radius: var(--sp-radius-pill);
+  background: var(--sp-color-white); overflow: hidden;
+}
+.lang-option {
+  min-height: var(--sp-control-min-height); min-width: 4.25rem; padding: 0 var(--sp-space-3);
+  border: 0; background: transparent; color: var(--sp-color-saffron-800);
+  font: 600 var(--sp-text-small)/1.2 var(--sp-font-body); font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  cursor: pointer;
+}
+.lang-option + .lang-option { border-left: 1px solid var(--sp-color-saffron-700); }
+.lang-option[aria-pressed="true"] { background: var(--sp-color-saffron-700); color: var(--sp-color-white); }
+.lang-option:disabled { cursor: default; color: var(--sp-color-text-muted); }
+.lang-option:focus-visible { outline-offset: -4px; outline-color: var(--sp-color-brown-deep); }
+html[lang="hi"] {
+  --sp-font-body: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+html[lang="hi"] body { line-height: 1.7; }
+html[lang="hi"] h1, html[lang="hi"] h2, html[lang="hi"] h3, html[lang="hi"] h4 { line-height: 1.35; }
+html[lang="hi"] .badge, html[lang="hi"] .help, html[lang="hi"] .footnote, html[lang="hi"] .legend { line-height: 1.6; }

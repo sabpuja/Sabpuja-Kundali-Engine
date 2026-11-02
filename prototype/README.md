@@ -4,10 +4,10 @@
 front end and a `127.0.0.1`-only HTTP wrapper around the hardened engine in
 `src/sabpuja_kundali` (Gate 1 plus the Gate 3C hardening; integrated in Gate 3D). It adds no astronomy: every position comes from
 `sabpuja_kundali.engine.calculate` with the pinned Swiss Ephemeris data. It is
-English only and stores nothing.
+in English and Hindi (KUN-I18N-001; the Hindi text is a developer draft pending
+independent language review) and stores nothing.
 
-It is not the DATA-01 gazetteer, not the KUN-F11 public API, not PDF, Hindi or
-Shopify work. Gate 3E adds the D9 whole-sign houses (proposed chart schema
+It is not the DATA-01 gazetteer, not the KUN-F11 public API, not Shopify work. Gate 3E adds the D9 whole-sign houses (proposed chart schema
 `0.3.0`, pending owner approval) and a North Indian D9 chart.
 
 ## What it does
@@ -132,6 +132,8 @@ node --test prototype/tests/browser/chart_model.test.cjs
 PROTOTYPE_PYTHON=.venv/bin/python node prototype/tests/browser/e2e.cjs --out ./prototype-shots
 # Optional report name: form, result, PDF request, edit/download race and privacy at 280/375/768/1440 px
 PROTOTYPE_PYTHON=.venv/bin/python node prototype/tests/browser/name_e2e.cjs --out ./name-shots
+# English/Hindi: switch, keyboard, validation, results, PDF language, stale-download cancel, privacy at 280/375/768/1440 px
+PROTOTYPE_PYTHON=.venv/bin/python node prototype/tests/browser/i18n_e2e.cjs --out ./i18n-shots
 ```
 
 Without `SABPUJA_TEST_EPHE_PATH`, the tests that compute charts are skipped and
@@ -191,12 +193,32 @@ the repository instead.
   The horizontal lockup is the header logo; the emblem replaces it only when
   the header is narrower than 18rem, and marks the footer.
 - **Fonts:** Latin and Latin Extended subsets of Inter 400/500/600 and Poppins
-  500/600/700, and the Poppins Devanagari subset 500/600/700 (for Hindi report
-  names; KUN-UX-NAME-001), from `@fontsource/inter@5.3.0` and `@fontsource/poppins@5.3.0`
+  500/600/700, and the Poppins Devanagari subset 400/500/600/700 (500/600/700
+  for Hindi names, KUN-UX-NAME-001; 400 for Hindi body text, KUN-I18N-001, woff2
+  SHA-256 `6b986471df6084ba6f89749100b2731200a722d3de0e00f48e1967f21eb2adc0`), from `@fontsource/inter@5.3.0` and `@fontsource/poppins@5.3.0`
   (npm integrity `sha512-RofMylZm…A3g==` and `sha512-cms1nM7U…CceQ==`), under
   the SIL Open Font License 1.1 (`static/fonts/OFL-*.txt`). `static/fonts.css`
   declares them with `font-display: swap` and the system sans-serif fallbacks
   from the design tokens.
+
+## Language (KUN-I18N-001)
+
+- A segmented **English / हिंदी** switch in the header (a `role="group"` of two
+  `aria-pressed` buttons, 44 px targets, keyboard and screen-reader announced).
+  English is the default. The choice lives in page memory only: no storage,
+  cookie, URL or analytics.
+- Every label, message, result, chart label and explanation comes from
+  `static/i18n.json` (catalog plus terminology register, shared with the PDF).
+  Switching re-renders the page from the chart already in memory: nothing is
+  recalculated, the birth details stay in the form, and the numbers do not change.
+- `/api/report` accepts an optional `report_locale` of exactly `"en"` or `"hi"`
+  (default English). It is validated and removed before the name split and the
+  unchanged chart handler; other values are refused with a fixed message
+  (`422 REPORT_LOCALE_UNSUPPORTED`, or `400 REQUEST_INVALID` for a non-string).
+  `/api/chart` still refuses the key. A request without it is passed on byte for
+  byte, and the English PDF is unchanged.
+- Changing language while a PDF is being prepared cancels that download; the
+  stale response is discarded and the page asks for a new download.
 
 ## Birthplace fixture
 
