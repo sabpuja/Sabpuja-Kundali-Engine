@@ -27,7 +27,11 @@ applies cleanly with or without Change B, in either order). It changes:
 4. `docs/i18n/review/kun-i18n-003/editorial-acceptance-register.json`: `reviewed_source`
    PDF catalog hash updated to the new catalog bytes.
 
-After `git apply`, run `PYTHONPATH=src:prototype python docs/i18n/review/kun-i18n-003/refresh_manifest.py`: the patch changes `editorial-acceptance-register.json`, so the packet manifest must be refreshed in the same commit, or `test_review_packet_assets.py` fails (by design). This regenerates `assets/sample-en-anonymous.pdf` (page 10 changes) and updates its SHA-256 in `REVIEW-PACKET.md`; regenerate `assets/en-hi-page-10.png` too before asking for review.
+After `git apply`, run `PYTHONPATH=src:prototype python docs/i18n/review/kun-i18n-003/refresh_manifest.py`: the patch changes `editorial-acceptance-register.json`, so the packet manifest must be refreshed in the same commit, or `test_review_packet_assets.py` fails (by design). The patch updates only the register's catalog SHA-256, so
+`test_editorial_register.py` also fails on the patched tree until the source is re-pinned
+(KUN-I18N-003B, by design): commit the approved change as `X`, then in a follow-up commit run
+`refresh_manifest.py --pin-source X` (commit, tree, SHA-256 and blob IDs read from git) and rerun
+the suites. Any decision recorded before the change is then stale and must be re-confirmed. This regenerates `assets/sample-en-anonymous.pdf` (page 10 changes) and updates its SHA-256 in `REVIEW-PACKET.md`; regenerate `assets/en-hi-page-10.png` too before asking for review.
 
 The patch does **not** fill in the owner decision; that must be the owner's own recorded approval.
 

@@ -11,7 +11,17 @@ decides nothing, it refuses a register in which
   and catalog SHA-256, or cites evidence that is not a committed signed file with a matching hash;
 * a decision was made against catalog bytes that have since changed (stale);
 * customer release is anything but PENDING or APPROVED, or is APPROVED without every required
-  layer of every item positively ACCEPTED against the current catalogs and a signed owner release.
+  layer of every item positively ACCEPTED against the current catalogs and a signed owner release;
+* a git SHA is only well formed rather than the exact object (KUN-I18N-003B): every decision's
+  `reviewed_commit` must equal `reviewed_source.commit`; `reviewed_source` (commit, tree, catalog
+  SHA-256 and git blob IDs) must match the catalogs in this tree and, where the git object database
+  is present, the commit, its tree and the catalog blobs inside it; a release must name an explicit
+  `release_candidate` (commit, tree, catalog hashes and blobs) that exists in git, contains the
+  reviewed source and carries the reviewed catalog bytes, and `customer_release.commit` must equal it.
+
+In a `git archive` run there is no object database: the catalogs are still bound by blob ID, and
+a register with any decided layer or an approved release is refused as unverifiable there, so that
+provenance is never assumed. No release SHA is hard-coded; the candidate is whatever the owner names.
 
 The gate checks evidence paths, SHA-256 values and metadata only. It does not and cannot
 authenticate a handwritten or electronic signature or a reviewer's identity; those remain
@@ -24,7 +34,10 @@ forged registers in memory; nothing here records or fabricates a review.
 import copy
 import hashlib
 import json
+import os
 import re
+import shutil
+import subprocess
 import tempfile
 import unittest
 from datetime import date
@@ -37,6 +50,7 @@ REGISTER = json.loads(REGISTER_PATH.read_text(encoding='utf-8'))
 UI_CATALOG = ROOT / 'prototype/kundali_prototype/static/i18n.json'
 PDF_CATALOG = ROOT / 'report/phase1/report_i18n.json'
 SIGNED_DIR = 'docs/i18n/review/kun-i18n-003/signed/'
+UI_PATH, PDF_PATH = 'prototype/kundali_prototype/static/i18n.json', 'report/phase1/report_i18n.json'
 
 L, J, O = 'human_hindi_language', 'human_jyotish_terminology', 'owner_copy'
 GATED = (L, J, O)
@@ -61,6 +75,46 @@ def sha256(path):
 
 def current_catalogs():
     return sha256(UI_CATALOG), sha256(PDF_CATALOG)
+
+
+def blob_id(path):
+    """The git blob ID of a file's bytes, computable without a git object database."""
+    data = path.read_bytes()
+    return hashlib.sha1(b'blob %d\0' % len(data) + data).hexdigest()
+
+
+def current_blobs(root=ROOT):
+    return blob_id(root / UI_PATH), blob_id(root / PDF_PATH)
+
+
+class GitObjects:
+    """Read-only lookups in the git object database of `root` (absent in a `git archive` run)."""
+
+    def __init__(self, root):
+        self.root = Path(root).resolve()
+
+    def _git(self, *args):
+        env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+        res = subprocess.run(['git', '-C', str(self.root), *args], capture_output=True, text=True, env=env)
+        return res.stdout.strip() if res.returncode == 0 else None
+
+    def available(self):
+        if shutil.which('git') is None:
+            return False
+        top = self._git('rev-parse', '--show-toplevel')
+        return top is not None and Path(top).resolve() == self.root
+
+    def is_commit(self, sha):
+        return HEX40.match(sha or '') is not None and self._git('cat-file', '-t', sha) == 'commit'
+
+    def tree(self, commit):
+        return self._git('rev-parse', '--verify', '-q', f'{commit}^{{tree}}')
+
+    def blob(self, commit, path):
+        return self._git('rev-parse', '--verify', '-q', f'{commit}:{path}')
+
+    def is_ancestor(self, older, newer):
+        return self._git('merge-base', '--is-ancestor', older, newer) is not None
 
 
 def _text(value):
@@ -94,6 +148,35 @@ def _person_problems(where, person):
     return problems
 
 
+def _snapshot_problems(where, snap, catalogs, blobs, git, require_git):
+    """A named source revision: commit, tree, both catalog SHA-256 and git blob IDs, bound to the
+    catalogs in this tree and, when the object database is present, to the git objects themselves."""
+    if not isinstance(snap, dict):
+        return [f'{where}: missing']
+    fields = ('commit', 'tree', 'ui_catalog_blob', 'pdf_catalog_blob')
+    bad = [f for f in fields if not HEX40.match(_text(snap.get(f)))]
+    bad += [f for f in ('ui_catalog_sha256', 'pdf_catalog_sha256') if not HEX64.match(_text(snap.get(f)))]
+    if bad:
+        return [f'{where}: {", ".join(bad)} missing or malformed']
+    problems = []
+    if (snap['ui_catalog_sha256'], snap['pdf_catalog_sha256']) != catalogs:
+        problems.append(f'{where} does not match the catalogs in this tree')
+    if (snap['ui_catalog_blob'], snap['pdf_catalog_blob']) != blobs:
+        problems.append(f'{where}: catalog blob IDs do not match the catalogs in this tree')
+    if git.available():
+        if not git.is_commit(snap['commit']):
+            problems.append(f'{where}: commit {snap["commit"]} is not in the git object database')
+        else:
+            if git.tree(snap['commit']) != snap['tree']:
+                problems.append(f'{where}: tree does not match commit {snap["commit"]}')
+            if (git.blob(snap['commit'], UI_PATH), git.blob(snap['commit'], PDF_PATH)) != \
+                    (snap['ui_catalog_blob'], snap['pdf_catalog_blob']):
+                problems.append(f'{where}: the catalogs at commit {snap["commit"]} differ from the named blobs')
+    elif require_git:
+        problems.append(f'{where}: provenance cannot be verified without the git object database (use a clone)')
+    return problems
+
+
 def _decision_problems(where, entry, catalogs, root):
     problems = _person_problems(where, entry.get('reviewer'))
     try:
@@ -113,13 +196,17 @@ def _decision_problems(where, entry, catalogs, root):
     return problems
 
 
-def register_problems(register, catalogs=None, root=ROOT):
+def register_problems(register, catalogs=None, root=ROOT, git=None, blobs=None):
     """Every reason this register is not an honest, traceable record (empty when sound).
 
-    `root` is where evidence paths resolve: this tree in normal use, a temporary directory in the
-    adversarial tests so that no stand-in signed file is ever written into the repository."""
+    `root` is where evidence paths resolve and `git` the object database consulted: this tree in
+    normal use; a temporary synthetic git repository in the adversarial tests, so that no stand-in
+    signed file or decision is ever written into this repository."""
     catalogs = catalogs or current_catalogs()
+    blobs = blobs or current_blobs(root if (Path(root) / UI_PATH).is_file() else ROOT)
+    git = git or GitObjects(root)
     problems = []
+    src = register.get('reviewed_source', {}) or {}
     items = {item.get('id'): item for item in register.get('items', [])}
     if list(items) != list(REQUIRED):
         problems.append(f'items must be exactly {list(REQUIRED)}')
@@ -149,11 +236,14 @@ def register_problems(register, catalogs=None, root=ROOT):
                 problems.append(f'{where}: required layer has status {status!r}')
             elif status in DECISIONS:
                 problems += _decision_problems(where, entry, catalogs, root)
-    src = register.get('reviewed_source', {})
-    if (src.get('ui_catalog_sha256'), src.get('pdf_catalog_sha256')) != catalogs:
-        problems.append('reviewed_source does not match the catalogs in this tree')
-    release = register.get('customer_release', {})
+                if _text(entry.get('reviewed_commit')) != _text(src.get('commit')):
+                    problems.append(f'{where}: reviewed_commit is not the register\'s reviewed_source commit')
+    release = register.get('customer_release', {}) or {}
     status = release.get('status')
+    decided = status == 'APPROVED' or any(isinstance((items.get(iid) or {}).get(layer), dict)
+                                          and items[iid][layer].get('status') in DECISIONS
+                                          for iid in REQUIRED for layer in GATED)
+    problems += _snapshot_problems('reviewed_source', src, catalogs, blobs, git, require_git=decided)
     if status not in RELEASE_STATUSES:
         problems.append(f'customer_release has status {status!r}')
     elif status == 'APPROVED':
@@ -169,6 +259,19 @@ def register_problems(register, catalogs=None, root=ROOT):
         if not HEX40.match(_text(release.get('commit'))):
             problems.append('customer_release: commit must be a full 40-hex SHA')
         problems += _evidence_problems('customer_release', release.get('evidence'), root)
+        candidate = release.get('release_candidate')
+        problems += _snapshot_problems('customer_release.release_candidate', candidate, catalogs, blobs, git,
+                                       require_git=True)
+        if isinstance(candidate, dict):
+            if _text(release.get('commit')) != _text(candidate.get('commit')):
+                problems.append('customer_release: commit is not the named release candidate')
+            if git.available() and git.is_commit(_text(candidate.get('commit'))) \
+                    and git.is_commit(_text(src.get('commit'))) \
+                    and not git.is_ancestor(src['commit'], candidate['commit']):
+                problems.append('customer_release: release candidate does not contain the reviewed source commit')
+    elif release.get('release_candidate') is not None:
+        problems += _snapshot_problems('customer_release.release_candidate', release['release_candidate'],
+                                       catalogs, blobs, git, require_git=False)
     return problems
 
 
@@ -194,58 +297,126 @@ class RegisterInThisTree(unittest.TestCase):
                 self.assertEqual(item[layer]['status'], 'PENDING', (item['id'], layer))
         self.assertEqual(REGISTER['customer_release']['status'], 'PENDING')
 
+    def test_reviewed_source_is_the_exact_git_commit_tree_and_catalog_blobs(self):
+        """KUN-I18N-003B: the reviewed source is checked against git objects, not only its format."""
+        git, src = GitObjects(ROOT), REGISTER['reviewed_source']
+        self.assertEqual((src['ui_catalog_blob'], src['pdf_catalog_blob']), current_blobs())
+        if not git.available():
+            self.skipTest('git archive: catalogs bound by blob ID above; commit and tree need a clone')
+        self.assertTrue(git.is_commit(src['commit']))
+        self.assertEqual(git.tree(src['commit']), src['tree'])
+        self.assertEqual(git.blob(src['commit'], UI_PATH), src['ui_catalog_blob'])
+        self.assertEqual(git.blob(src['commit'], PDF_PATH), src['pdf_catalog_blob'])
+        self.assertTrue(git.is_ancestor(src['commit'], 'HEAD'))
+
+    def test_no_release_candidate_is_named_yet(self):
+        self.assertIsNone(REGISTER['customer_release']['release_candidate'])
+        self.assertIsNone(REGISTER['customer_release']['commit'])
+
     def test_catalogs_still_declare_the_pending_human_review(self):
         for path in (UI_CATALOG, PDF_CATALOG):
             status = json.loads(path.read_text(encoding='utf-8'))['status']
             self.assertIn('pending independent human Hindi editorial review', status)
 
 
-class AdversarialRegisters(unittest.TestCase):
-    """Forged registers, built in memory only, that the gate must refuse."""
+class SyntheticGitRepo(unittest.TestCase):
+    """Shared fixture: a synthetic git repository and in-memory registers bound to it."""
 
     SIGNED = 'docs/i18n/review/kun-i18n-003/signed/_test-only-signed-sheet.txt'
 
-    def setUp(self):
-        self.catalogs = current_catalogs()
+    @classmethod
+    def setUpClass(cls):
+        """A throwaway synthetic git repository in a temporary directory: the two catalogs copied
+        byte for byte (so their SHA-256 and blob IDs are the real ones), a stand-in signed sheet,
+        a 'reviewed source' commit, a later 'release candidate' commit, a commit that changes a
+        catalog and an unrelated root commit. Real git objects, never this repository's history."""
+        if shutil.which('git') is None:
+            raise unittest.SkipTest('git is required for the provenance tests')
         tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(tmp.cleanup)
-        self.root = Path(tmp.name)
-        signed = self.root / self.SIGNED
+        cls.addClassCleanup(tmp.cleanup)
+        cls.root = Path(tmp.name)
+        cls.catalogs, cls.blobs = current_catalogs(), current_blobs()
+        env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+        env.update(GIT_AUTHOR_NAME='synthetic', GIT_AUTHOR_EMAIL='synthetic@example.invalid',
+                   GIT_COMMITTER_NAME='synthetic', GIT_COMMITTER_EMAIL='synthetic@example.invalid',
+                   GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM='1')
+
+        def git(*args):
+            return subprocess.run(['git', '-C', str(cls.root), *args], check=True, capture_output=True,
+                                  text=True, env=env).stdout.strip()
+
+        def commit(message):
+            git('add', '-A')
+            git('commit', '-q', '--no-gpg-sign', '-m', message)
+            return git('rev-parse', 'HEAD'), git('rev-parse', 'HEAD^{tree}')
+
+        git('init', '-q', '-b', 'synthetic')
+        for rel, src in ((UI_PATH, UI_CATALOG), (PDF_PATH, PDF_CATALOG)):
+            (cls.root / rel).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(src, cls.root / rel)
+        signed = cls.root / cls.SIGNED
         signed.parent.mkdir(parents=True)
         signed.write_text('stand-in for a signed sheet, in a temporary directory only\n')
-        self.digest = sha256(signed)
+        cls.digest = sha256(signed)
+        cls.source = commit('synthetic reviewed source')
+        (cls.root / 'release-notes.txt').write_text('synthetic later commit\n')
+        cls.candidate = commit('synthetic release candidate')
+        with open(cls.root / PDF_PATH, 'ab') as fh:
+            fh.write(b'\n')
+        cls.changed = commit('synthetic catalog change')
+        git('checkout', '-q', cls.candidate[0])  # working files back to the reviewed bytes
+        git('checkout', '-q', '--orphan', 'unrelated')
+        (cls.root / 'unrelated.txt').write_text('unrelated history\n')
+        cls.unrelated = commit('synthetic unrelated root with the same catalogs')
+        git('checkout', '-q', cls.candidate[0])
+        cls.git = GitObjects(cls.root)
 
-    def problems(self, reg):
-        return register_problems(reg, self.catalogs, self.root)
+    def problems(self, reg, catalogs=None):
+        return register_problems(reg, catalogs or self.catalogs, self.root, self.git)
+
+    def snapshot(self, commit_tree):
+        return {'commit': commit_tree[0], 'tree': commit_tree[1],
+                'ui_catalog_blob': self.blobs[0], 'pdf_catalog_blob': self.blobs[1],
+                'ui_catalog_sha256': self.catalogs[0], 'pdf_catalog_sha256': self.catalogs[1]}
 
     def decision(self, status='ACCEPTED', name='Test Reviewer', **over):
         entry = {'status': status, 'reviewer': {'name': name, 'qualification': 'test', 'independence': 'test'},
-                 'decision_date': '2026-11-03', 'reviewed_commit': 'c9f147bad9b50c5eb85585b0e3e952e49fb5ac40',
+                 'decision_date': '2026-11-03', 'reviewed_commit': self.source[0],
                  'reviewed_ui_catalog_sha256': self.catalogs[0], 'reviewed_pdf_catalog_sha256': self.catalogs[1],
                  'evidence': {'path': self.SIGNED, 'sha256': self.digest}, 'decision_text': None}
         entry.update(over)
         return entry
 
-    def fully_accepted(self):
+    def pending(self):
         reg = copy.deepcopy(REGISTER)
+        reg['reviewed_source'].update(self.snapshot(self.source))
+        return reg
+
+    def fully_accepted(self):
+        reg = self.pending()
         for item in reg['items']:
             for layer in REQUIRED[item['id']]:
                 item[layer] = self.decision()
         reg['customer_release'] = {'status': 'APPROVED', 'approved_by': {'name': 'Test Owner', 'qualification': 'owner',
                                    'independence': 'owner'}, 'date': '2026-11-04',
-                                   'commit': 'c9f147bad9b50c5eb85585b0e3e952e49fb5ac40',
-                                   'evidence': {'path': self.SIGNED, 'sha256': self.digest}}
+                                   'commit': self.candidate[0], 'release_candidate': self.snapshot(self.candidate),
+                                   'evidence': {'path': self.SIGNED, 'sha256': self.digest}, 'note': None}
         return reg
 
     def assertRefused(self, reg, fragment):
         problems = self.problems(reg)
         self.assertTrue(any(fragment in p for p in problems), problems[:8])
 
+
+
+class AdversarialRegisters(SyntheticGitRepo):
+    """Forged registers, built in memory only, that the gate must refuse."""
+
     def test_control_complete_signed_register_passes(self):
         self.assertEqual(self.problems(self.fully_accepted()), [])
 
     def test_all_not_applicable_with_release_approved(self):
-        reg = copy.deepcopy(REGISTER)
+        reg = self.pending()
         for item in reg['items']:
             for layer in GATED:
                 item[layer] = {'status': 'NOT_APPLICABLE'}
@@ -314,10 +485,10 @@ class AdversarialRegisters(unittest.TestCase):
         reg = self.fully_accepted()
         reg['items'][1][J]['status'] = 'APPROVED'
         self.assertRefused(reg, "2/human_jyotish_terminology: required layer has status 'APPROVED'")
-        reg = copy.deepcopy(REGISTER)
+        reg = self.pending()
         reg['customer_release']['status'] = 'RELEASED'
         self.assertRefused(reg, "customer_release has status 'RELEASED'")
-        reg = copy.deepcopy(REGISTER)
+        reg = self.pending()
         reg['items'][1][L] = {'status': 'PENDING'}  # item 2 has no language layer
         self.assertRefused(reg, '2/human_hindi_language: not a required layer')
 
@@ -330,7 +501,7 @@ class AdversarialRegisters(unittest.TestCase):
             self.assertEqual(self.problems(reg), [])  # a recorded decision, release pending
 
     def test_rejected_or_revised_without_text(self):
-        reg = copy.deepcopy(REGISTER)
+        reg = self.pending()
         reg['items'][0][L] = self.decision(status='REJECTED')
         self.assertRefused(reg, 'REJECTED needs the replacement wording or the reason')
 
@@ -360,7 +531,7 @@ class AdversarialRegisters(unittest.TestCase):
     def test_catalog_change_after_review_makes_every_decision_stale(self):
         reg = self.fully_accepted()
         changed = (self.catalogs[0], 'f' * 64)  # as if the PDF catalog changed after the reviews
-        problems = register_problems(reg, changed, self.root)
+        problems = self.problems(reg, changed)
         self.assertTrue(any('stale' in p for p in problems))
         self.assertIn('reviewed_source does not match the catalogs in this tree', problems)
 
@@ -392,20 +563,108 @@ class AdversarialRegisters(unittest.TestCase):
         self.assertRefused(reg, 'customer_release: commit')
 
     def test_missing_item_and_source_drift(self):
-        reg = copy.deepcopy(REGISTER)
+        reg = self.pending()
         reg['items'].pop()
         self.assertRefused(reg, 'items must be exactly')
-        reg = copy.deepcopy(REGISTER)
+        reg = self.pending()
         reg['reviewed_source']['pdf_catalog_sha256'] = '1' * 64
         self.assertRefused(reg, 'reviewed_source does not match')
 
     def test_developer_or_ai_qa_cannot_pose_as_review(self):
-        reg = copy.deepcopy(REGISTER)
+        reg = self.pending()
         reg['items'][0]['developer_correction']['by'] = 'Claude (reviewed)'
         self.assertRefused(reg, 'developer layer')
-        reg = copy.deepcopy(REGISTER)
+        reg = self.pending()
         reg['items'][0]['engineering_rendering_verification']['verifier'] = 'ChatGPT, Hindi review'
         self.assertRefused(reg, 'engineering layer')
+
+
+class ExactCommitBinding(SyntheticGitRepo):
+    """KUN-I18N-003B: well-formed but wrong SHAs, checked against real (synthetic) git objects."""
+
+    def test_all_zero_or_wrong_review_sha(self):
+        for sha in ('0' * 40, 'f' * 40, None):
+            with self.subTest(sha=sha):
+                reg = self.fully_accepted()
+                reg['items'][0][L]['reviewed_commit'] = sha
+                self.assertRefused(reg, "1/human_hindi_language: reviewed_commit is not the register's reviewed_source")
+        for name, commit in (('release candidate', 'candidate'), ('catalog change', 'changed'),
+                             ('unrelated root', 'unrelated')):
+            with self.subTest(real_but_wrong=name):  # a real commit, just not the reviewed source
+                reg = self.fully_accepted()
+                reg['items'][12][O]['reviewed_commit'] = getattr(self, commit)[0]
+                self.assertRefused(reg, "13/owner_copy: reviewed_commit is not the register's reviewed_source")
+
+    def test_wrong_final_release_sha(self):
+        for sha, fragment in (('f' * 40, 'commit is not the named release candidate'),
+                              ('0' * 40, 'commit is not the named release candidate')):
+            with self.subTest(sha=sha):
+                reg = self.fully_accepted()
+                reg['customer_release']['commit'] = sha
+                self.assertRefused(reg, fragment)
+        reg = self.fully_accepted()
+        reg['customer_release']['commit'] = self.source[0]  # the reviewed source, not the named candidate
+        self.assertRefused(reg, 'commit is not the named release candidate')
+
+    def test_release_candidate_must_be_named_and_real(self):
+        reg = self.fully_accepted()
+        reg['customer_release']['release_candidate'] = None
+        self.assertRefused(reg, 'customer_release.release_candidate: missing')
+        for sha in ('f' * 40, '0' * 40):
+            with self.subTest(sha=sha):
+                reg = self.fully_accepted()
+                reg['customer_release']['release_candidate']['commit'] = sha
+                reg['customer_release']['commit'] = sha
+                self.assertRefused(reg, f'commit {sha} is not in the git object database')
+
+    def test_release_candidate_tree_catalogs_and_history(self):
+        reg = self.fully_accepted()
+        reg['customer_release']['release_candidate']['tree'] = self.source[1]
+        self.assertRefused(reg, 'release_candidate: tree does not match commit')
+        reg = self.fully_accepted()  # a real later commit whose PDF catalog is not the reviewed bytes
+        reg['customer_release']['release_candidate'].update(commit=self.changed[0], tree=self.changed[1])
+        reg['customer_release']['commit'] = self.changed[0]
+        self.assertRefused(reg, f'the catalogs at commit {self.changed[0]} differ from the named blobs')
+        reg = self.fully_accepted()  # same catalogs, but history that does not contain the review
+        reg['customer_release']['release_candidate'].update(commit=self.unrelated[0], tree=self.unrelated[1])
+        reg['customer_release']['commit'] = self.unrelated[0]
+        self.assertRefused(reg, 'release candidate does not contain the reviewed source commit')
+        reg = self.fully_accepted()
+        reg['customer_release']['release_candidate']['pdf_catalog_sha256'] = '0' * 64
+        self.assertRefused(reg, 'release_candidate does not match the catalogs in this tree')
+
+    def test_tampered_reviewed_source(self):
+        cases = (({'commit': '0' * 40}, 'is not in the git object database'),
+                 ({'commit': self.candidate[0]}, 'reviewed_source: tree does not match commit'),
+                 ({'tree': self.candidate[1]}, 'reviewed_source: tree does not match commit'),
+                 ({'commit': self.changed[0], 'tree': self.changed[1]}, 'differ from the named blobs'),
+                 ({'pdf_catalog_blob': '0' * 40}, 'catalog blob IDs do not match'),
+                 ({'ui_catalog_blob': None}, 'ui_catalog_blob missing or malformed'),
+                 ({'tree': 'abc'}, 'tree missing or malformed'))
+        for change, fragment in cases:
+            with self.subTest(change=change):
+                reg = self.fully_accepted()
+                reg['reviewed_source'].update(change)
+                for item in reg['items']:  # decisions follow the tampered commit, so only provenance can fail
+                    for layer in REQUIRED[item['id']]:
+                        item[layer]['reviewed_commit'] = reg['reviewed_source']['commit']
+                self.assertRefused(reg, fragment)
+
+    def test_without_git_objects_a_decided_register_is_unverifiable(self):
+        no_git = GitObjects(Path(tempfile.mkdtemp(dir=self.root.parent)))
+        self.addCleanup(shutil.rmtree, no_git.root)
+        self.assertFalse(no_git.available())
+        self.assertEqual(register_problems(self.pending(), self.catalogs, self.root, no_git), [])
+        problems = register_problems(self.fully_accepted(), self.catalogs, self.root, no_git)
+        self.assertIn('reviewed_source: provenance cannot be verified without the git object database (use a clone)',
+                      problems)
+        self.assertTrue(any(p.startswith('customer_release.release_candidate: provenance cannot') for p in problems))
+
+    def test_positive_control_is_bound_to_real_objects(self):
+        reg = self.fully_accepted()
+        self.assertEqual(self.problems(reg), [])
+        self.assertTrue(self.git.is_ancestor(self.source[0], self.candidate[0]))
+        self.assertNotEqual(self.source[0], self.candidate[0])  # the candidate may differ from the source
 
 
 if __name__ == '__main__':

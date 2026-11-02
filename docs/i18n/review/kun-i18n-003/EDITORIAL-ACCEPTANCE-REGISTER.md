@@ -41,8 +41,29 @@ KUN-I18N-003. **Current state: every human and owner layer is PENDING; customer 
    **ACCEPTED** (current, signed); REVISED and REJECTED are decisions, never approvals, even with a
    reason or replacement. It also needs a non-AI owner name, ISO date, 40-hex commit and a signed
    release record under `signed/` with matching hash.
-8. In this tree every required layer and the release are PENDING (a test asserts this), and both
-   catalogs keep their "pending independent human Hindi editorial review" status line.
+8. **Exact git identity, not SHA format (KUN-I18N-003B).** Every decision's `reviewed_commit`
+   must equal `reviewed_source.commit`. `reviewed_source` names the commit, its tree and the git
+   blob IDs of both catalogs; the blob IDs must equal the catalogs in this tree, and where the git
+   object database is present the commit must exist, have that tree and contain those blobs. An
+   APPROVED release must name an explicit `release_candidate` (commit, tree, catalog SHA-256 and
+   blob IDs) that exists in git, has that tree, carries the reviewed catalog bytes and contains the
+   reviewed source commit in its history; `customer_release.commit` must equal it. No future release
+   SHA is hard-coded: the owner names the candidate when releasing.
+9. **`git archive` mode:** with no object database the catalogs are still bound by blob ID, but a
+   register with any decided layer or an approved release is refused as unverifiable; run the
+   check in a clone. The canonical register (all PENDING) passes in both modes.
+10. In this tree every required layer and the release are PENDING and no release candidate is named
+    (tests assert this), and both catalogs keep their "pending independent human Hindi editorial
+    review" status line.
+
+Exact-commit cases (`ExactCommitBinding`, against a throwaway synthetic git repository in a
+temporary directory holding byte-identical copies of the catalogs): all-zero, all-`f` and real-but-
+wrong review SHAs (a later commit, a catalog-change commit, an unrelated root); wrong final release
+SHA (all-zero, all-`f`, the reviewed source instead of the named candidate); missing or nonexistent
+release candidate; candidate with the wrong tree, with changed catalogs, with history that does not
+contain the review, with a wrong catalog hash; tampered `reviewed_source` commit, tree, blob IDs or
+malformed fields; a decided register without the git object database; positive control bound to
+real objects, with a candidate distinct from the reviewed source.
 
 Adversarial registers the tests refuse (built in memory; nothing is written to the repository):
 all layers `NOT_APPLICABLE` with release APPROVED; one required layer `NOT_APPLICABLE` (Jyotish on
@@ -85,7 +106,10 @@ decision into the JSON exactly as signed: `status` (ACCEPTED / REVISED / REJECTE
 `reviewed_ui_catalog_sha256`, `reviewed_pdf_catalog_sha256`, `evidence`
 `{"path": "docs/i18n/review/kun-i18n-003/signed/<file>", "sha256": "<hash>"}`, `decision_text`
 (replacement wording or reason), and updates `test_no_human_or_owner_decision_is_recorded_yet` in
-the same commit. REVISE wording is then applied in another commit, all affected tests are rerun,
+the same commit. Each `reviewed_commit` is the register's `reviewed_source.commit`, which
+is the exact commit the reviewer was given. To release, the owner names the release candidate in
+`customer_release.release_candidate` (filled from git with `refresh_manifest.py --release-candidate
+<commit>`, which records facts and no decision) and the same SHA in `customer_release.commit`. REVISE wording is then applied in another commit, all affected tests are rerun,
 and the reviewer re-confirms against the new catalog hashes. Nothing is ever entered on a
 reviewer's behalf.
 

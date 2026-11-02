@@ -28,7 +28,11 @@ Change A, in either order). It changes the two files above and adds
 "owner-approved" in any English UI string or in `index.html`, no स्वीकृत in any Hindi UI string), and
 updates the register's `reviewed_source` web catalog hash.
 
-After `git apply`, run `PYTHONPATH=src:prototype python docs/i18n/review/kun-i18n-003/refresh_manifest.py`: the patch changes `editorial-acceptance-register.json`, so the packet manifest must be refreshed in the same commit, or `test_review_packet_assets.py` fails (by design). The sample PDFs do not change; only the register row of the manifest does.
+After `git apply`, run `PYTHONPATH=src:prototype python docs/i18n/review/kun-i18n-003/refresh_manifest.py`: the patch changes `editorial-acceptance-register.json`, so the packet manifest must be refreshed in the same commit, or `test_review_packet_assets.py` fails (by design). The patch updates only the register's catalog SHA-256, so
+`test_editorial_register.py` also fails on the patched tree until the source is re-pinned
+(KUN-I18N-003B, by design): commit the approved change as `X`, then in a follow-up commit run
+`refresh_manifest.py --pin-source X` (commit, tree, SHA-256 and blob IDs read from git) and rerun
+the suites. Any decision recorded before the change is then stale and must be re-confirmed. The sample PDFs do not change; only the register row of the manifest does.
 
 ## Measured impact (scratch copy at the packet commit)
 

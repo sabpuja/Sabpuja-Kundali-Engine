@@ -6,11 +6,14 @@
     "A human or owner layer may leave PENDING only with a real, named human reviewer, their qualification and independence, an ISO decision date, the exact commit and catalog SHA-256 values reviewed, and evidence {path, sha256} of a signed sheet committed under docs/i18n/review/kun-i18n-003/signed/.",
     "AI assistants (Claude, ChatGPT or any other) never fill a human or owner layer or the release. Developer corrections and AI QA are recorded only in their own layers.",
     "A decision is valid only for the catalog bytes it names; any later catalog change makes it stale until the reviewer re-confirms.",
-    "customer_release is PENDING or APPROVED. APPROVED requires every required layer of every item ACCEPTED (REVISED and REJECTED are never approvals) and a signed, attributed owner release record."
+    "customer_release is PENDING or APPROVED. APPROVED requires every required layer of every item ACCEPTED (REVISED and REJECTED are never approvals) and a signed, attributed owner release record.",
+    "Exact git identity, not SHA format: every decision's reviewed_commit equals reviewed_source.commit; reviewed_source commit, tree and catalog blob IDs are checked against the git object database (blob IDs alone in a git archive, where any decided register is refused as unverifiable); an approved release names an explicit release_candidate {commit, tree, catalog hashes and blobs} that exists in git, contains the reviewed source and carries the reviewed catalogs, and customer_release.commit equals it."
   ],
   "reviewed_source": {
     "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
     "tree": "85e38f1dbafc0eef4dc24f87c5910b118261fb73",
+    "ui_catalog_blob": "f8b8059fa2bcfc87b20f1f891032aeaac29b9c8b",
+    "pdf_catalog_blob": "d59fbb4599a383212205a7860d4e4e756d586ad8",
     "ui_catalog": "prototype/kundali_prototype/static/i18n.json",
     "ui_catalog_sha256": "5cf9e5fcb4234dd971fa1c512c6c6da6567918d38a0c7e61c9e6d8cd496b17f1",
     "pdf_catalog": "report/phase1/report_i18n.json",
@@ -881,6 +884,7 @@
     "approved_by": null,
     "date": null,
     "commit": null,
+    "release_candidate": null,
     "note": "Owner decision after all applicable layers are complete. Production is NO-GO; PR #1 HOLD."
   }
 }
