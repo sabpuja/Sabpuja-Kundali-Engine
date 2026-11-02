@@ -62,6 +62,36 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+_SUMS_LINE = __import__("re").compile(r"([0-9a-f]{64})  (GOLD-[A-Z][0-9]{2}[ab]?\.txt)")
+
+
+def load_receipt_sums(path: Path) -> tuple[bytes | None, dict, list[str]]:
+    """Read receipts/SHA256SUMS fail-closed: (raw bytes or None, {name: sha256}, reason codes).
+
+    Any reason code means the hash list is unusable and every chart comparison is BLOCKED.
+    """
+    try:
+        raw = path.read_bytes()
+    except FileNotFoundError:
+        return None, {}, ["RECEIPT_SUMS_MISSING"]
+    except OSError:
+        return None, {}, ["RECEIPT_SUMS_UNREADABLE"]
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return raw, {}, ["RECEIPT_SUMS_NOT_UTF8"]
+    sums, bad = {}, []
+    for line in text.splitlines():
+        m = _SUMS_LINE.fullmatch(line)
+        if m is None or m.group(2) in sums:
+            bad.append(line)
+            continue
+        sums[m.group(2)] = m.group(1)
+    if bad or not sums:
+        return raw, {}, ["RECEIPT_SUMS_MALFORMED"]
+    return raw, sums, []
+
+
 def frozen_tolerances() -> tuple[dict, str]:
     """The QA-frozen KUN-01-SWISS-01 tolerances (spec.json, pinned by tests/swiss_conformance/inputs.py)."""
     raw = SPEC.read_bytes()
@@ -256,12 +286,13 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
     tol, spec_sha = frozen_tolerances()
     matrix_bytes = (HERE / "matrix.json").read_bytes()
     pins = json.loads(PINS.read_text(encoding="utf-8"))
-    sums_bytes = (sr.RECEIPTS / "SHA256SUMS").read_bytes()
+    sums_bytes, sums, sums_errors = load_receipt_sums(sr.RECEIPTS / "SHA256SUMS")
     run_blocks = []
     input_blocks = []   # failures that make every chart comparison undecidable
     if sha256_bytes(matrix_bytes) != pins["matrix_sha256"]:
         input_blocks.append("MATRIX_SHA256_MISMATCH")
-    if sha256_bytes(sums_bytes) != pins["receipts_sha256sums_sha256"]:
+    input_blocks += sums_errors   # the hash list is missing, unreadable, not UTF-8 or malformed
+    if sums_bytes is not None and sha256_bytes(sums_bytes) != pins["receipts_sha256sums_sha256"]:
         input_blocks.append("RECEIPT_SUMS_SHA256_MISMATCH")   # the hash list itself is untrusted
     if spec_sha != pins["swiss_spec_sha256"]:
         input_blocks.append("FROZEN_SPEC_SHA256_MISMATCH")
@@ -275,7 +306,6 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
         input_blocks.append("EPHEMERIS_UNVERIFIED:" + getattr(exc, "code", type(exc).__name__))
     run_blocks += input_blocks
     inputs_ok = not input_blocks
-    sums = dict(line.split("  ")[::-1] for line in sums_bytes.decode().splitlines() if line)
     matrix = json.loads(matrix_bytes)
     live = None
     if swetest and not (Path(swetest).is_file() and os.access(swetest, os.X_OK)):
@@ -421,7 +451,7 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
         "environment": {"git": git_state(), "python": platform.python_version(), "platform": platform.platform(),
                         "pyswisseph": version("pyswisseph"), "swiss_library": swisseph.version,
                         "tzdata": version("tzdata"), "ephemeris_verified": ephe_ok,
-                        "matrix_sha256": sha256_bytes(matrix_bytes), "receipts_sha256sums_sha256": sha256_bytes(sums_bytes),
+                        "matrix_sha256": sha256_bytes(matrix_bytes), "receipts_sha256sums_sha256": sha256_bytes(sums_bytes) if sums_bytes is not None else None,
                         "frozen_spec_sha256": spec_sha, "frozen_tolerances_deg": tol, "live_swetest": live},
         "run_blocking_reasons": run_blocks, "verdict_verified_layers": verdict,
         "fixture_counts": counts, "layer_counts": dict(sorted(layer_counts.items())), "results": results,

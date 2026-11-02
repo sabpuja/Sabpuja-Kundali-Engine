@@ -488,6 +488,49 @@ class InputReadinessTest(unittest.TestCase):
             t02 = next(r for r in report["results"] if r["id"] == "GOLD-T02")
             self.assertIn("RECEIPT_HASH_MISMATCH", t02["layers"][-1]["reason"])
 
+    def test_receipt_sums_loader_fails_closed(self):
+        import tempfile
+        good = (sr.RECEIPTS / "SHA256SUMS").read_bytes()
+        raw, sums, errors = gold.load_receipt_sums(sr.RECEIPTS / "SHA256SUMS")
+        self.assertEqual((raw, errors, len(sums)), (good, [], 50))
+        d = Path(tempfile.mkdtemp())
+        lines = good.decode().splitlines()
+        cases = {
+            "missing": None,
+            "not-utf8": b"\xff\xfe\x00",
+            "empty": b"",
+            "malformed-row": ("\n".join(lines[:5] + ["not a sha256 line"] + lines[5:]) + "\n").encode(),
+            "short-hash": ("\n".join([lines[0][1:]] + lines[1:]) + "\n").encode(),
+            "one-space": ("\n".join([lines[0].replace("  ", " ")] + lines[1:]) + "\n").encode(),
+            "duplicate-name": ("\n".join(lines + [lines[0]]) + "\n").encode(),
+        }
+        expected = {"missing": "RECEIPT_SUMS_MISSING", "not-utf8": "RECEIPT_SUMS_NOT_UTF8"}
+        for name, data in cases.items():
+            path = d / name
+            if data is not None:
+                path.write_bytes(data)
+            _, sums, errors = gold.load_receipt_sums(path)
+            self.assertEqual((errors, sums), ([expected.get(name, "RECEIPT_SUMS_MALFORMED")], {}), name)
+
+    @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
+    def test_missing_unreadable_or_malformed_receipt_sums_file_is_blocked(self):
+        from unittest import mock
+        for mode, reason in (("missing", "RECEIPT_SUMS_MISSING"), ("not-utf8", "RECEIPT_SUMS_NOT_UTF8"),
+                             ("malformed-row", "RECEIPT_SUMS_MALFORMED")):
+            copy_dir = self._receipt_copy()
+            sums = copy_dir / "SHA256SUMS"
+            if mode == "missing":
+                sums.unlink()
+            elif mode == "not-utf8":
+                sums.write_bytes(b"\xff\xfe\x00")
+            else:
+                lines = sums.read_text(encoding="utf-8").splitlines()
+                sums.write_text("\n".join(lines[:3] + ["GOLD-T04.txt " + "0" * 64] + lines[4:]) + "\n", encoding="utf-8")
+            with mock.patch.object(sr, "RECEIPTS", copy_dir):
+                code, report = _quiet_main(["--ephe", EPHE])
+            self.assertEqual(code, 2, mode)
+            self.assert_blocked_not_fail(report, reason)
+
     @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
     def test_real_mismatches_with_verified_inputs_still_fail(self):
         from unittest import mock
