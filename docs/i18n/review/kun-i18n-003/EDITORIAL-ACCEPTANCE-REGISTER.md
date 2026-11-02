@@ -106,9 +106,39 @@ developer or AI QA posing as review. Control: a complete, fully signed in-memory
 | 13 | Partial approval followed by customer release | `test_partial_approval_then_release` |
 | 14 | Valid fully attributed synthetic control passes | `test_control_complete_signed_register_passes`; optional layers not demanded: `test_optional_layer_is_not_a_missing_mandatory_approval` |
 
-**Limit of the gate.** It verifies evidence paths, SHA-256 values and metadata. It does not and
-cannot authenticate a handwritten or electronic signature or confirm who a reviewer is; that
-remains an independent check by whoever accepts the release.
+### KUN-I18N-003C signed-evidence cases
+
+| # | Case | Test |
+|---|---|---|
+| 1 | Untracked evidence with a valid hash (QA reproduction) | `SignedEvidenceInGit.test_untracked_signed_file_is_refused` |
+| 2 | Staged-only evidence | `test_staged_but_not_committed_is_refused` |
+| 3 | Tracked evidence modified after commit | `test_tracked_but_modified_is_refused` |
+| 4 | Deleted evidence (working tree, staged deletion, dropped in the approval record) | `test_deleted_is_refused`, `ApprovalRecordCommit.test_approval_record_that_drops_its_evidence` |
+| 5 | Symlink to a file outside (and inside) `signed/` | `test_symlinks_and_escapes_are_refused` |
+| 6 | Relative path traversal, absolute path, wrong directory | `test_symlinks_and_escapes_are_refused`, `AdversarialRegisters.test_forged_or_unverifiable_evidence` |
+| 7 | Git blob mismatch | `ApprovalRecordCommit.test_git_blob_mismatch` |
+| 8 | Valid SHA-256 but no blob in the named commit | `test_blob_missing_from_the_named_commit` |
+| 9 | Evidence from an incorrect commit (unrelated history, nonexistent, replaced later) | `test_blob_missing_from_the_named_commit`, `test_replaced_after_the_evidence_commit_is_refused`, `ApprovalRecordCommit.test_approval_record_with_a_forged_evidence_commit` |
+| 10 | Correctly committed signed evidence | `test_positive_control_uses_committed_evidence` |
+| 11 | Genuine approval-record commit with valid evidence | `ApprovalRecordCommit.test_genuine_approval_record_commit_with_committed_evidence` |
+| 12 | Objectless archive with a decided approval fails closed | `ApprovalRecordCommit.test_objectless_archive_with_decided_approval_fails_closed`, `SignedEvidenceInGit.test_decided_evidence_without_git_fails_closed` |
+
+### Trust boundary: what the gate proves and what it does not
+
+**Proves (mechanically, from git objects):** the register as committed at the approval-record
+revision (`committed_register_problems(revision)`, which reads the register from git rather than the
+working tree) names, for every decision, the exact reviewed source commit, whose tree and catalog
+blobs it checks; each evidence file is a regular file in `signed/`, committed at the named evidence
+commit in the history of the approval-record revision, unchanged since, identical in the index and
+working tree, with the stated SHA-256; a release names a candidate commit that exists, contains the
+reviewed source and carries the reviewed catalogs. Source review, evidence and release candidate
+are separate commits, and no register names its own commit: the approval-record revision is
+supplied by whoever validates (for a release, the owner's release candidate or a later commit).
+
+**Does not prove:** who signed. The gate cannot authenticate a handwritten or electronic signature,
+confirm a reviewer's identity, qualification or independence, or tell a genuine sheet from a forged
+one that was committed. Those remain independent human checks by whoever accepts the release
+(for example, the owner confirming the reviewer directly). Git authorship is not used as identity.
 
 ## How a decision is recorded
 

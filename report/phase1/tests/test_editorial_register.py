@@ -91,16 +91,30 @@ def current_blobs(root=ROOT):
 class GitObjects:
     """Read-only lookups in the git object database of `root` (absent in a `git archive` run)."""
 
-    def __init__(self, root, frozen=False):
+    def __init__(self, root, frozen=False, revision='HEAD'):
         self.root = Path(root).resolve()
         self._cache = {}
         self._frozen = frozen
+        self.revision = revision  # the approval-record revision evidence is validated against
 
-    def frozen(self):
+    def frozen(self, revision=None):
         """A view that also caches HEAD, index and toplevel lookups: one validation sees one state."""
-        view = GitObjects(self.root, frozen=True)
+        view = GitObjects(self.root, frozen=True, revision=revision or self.revision)
         view._cache = dict(self._cache)
         return view
+
+    def read(self, rev, path):
+        """The committed bytes of `path` at `rev`, or None (cached for full SHAs or a frozen view)."""
+        key = ('read', rev, path)
+        if key in self._cache:
+            return self._cache[key]
+        env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+        res = subprocess.run(['git', '-C', str(self.root), 'cat-file', 'blob', f'{rev}:{path}'],
+                             capture_output=True, env=env)
+        result = res.stdout if res.returncode == 0 else None
+        if self._frozen or HEX40.match(rev):
+            self._cache[key] = result
+        return result
 
     def _git(self, *args):
         # Lookups of full SHAs are immutable and cached; anything naming HEAD or the index is not.
@@ -182,14 +196,17 @@ def _evidence_problems(where, evidence, root, git):
         return [f'{where}: evidence cannot be verified without the git object database (use a clone)']
     if not git.is_commit(commit):
         return [f'{where}: evidence commit {commit} is not in the git object database']
-    if not git.is_ancestor(commit, 'HEAD'):
-        return [f'{where}: evidence commit {commit} is not in the history of this checkout']
+    revision = git.revision
+    if not git.is_ancestor(commit, revision):
+        return [f'{where}: evidence commit {commit} is not in the history of the approval-record revision']
     committed = git.blob(commit, path)
     if committed is None:
         return [f'{where}: evidence file is not in evidence commit {commit}']
     problems = []
-    if git.blob('HEAD', path) != committed:
+    if git.blob(revision, path) != committed:
         problems.append(f'{where}: evidence file was removed or replaced after evidence commit {commit}')
+    if hashlib.sha256(git.read(commit, path) or b'').hexdigest() != digest:
+        problems.append(f'{where}: the committed evidence bytes do not have the stated SHA-256')
     if git.index_blob(path) != committed:
         problems.append(f'{where}: evidence file is not tracked as committed (untracked, staged or removed)')
     if blob_id(file) != committed:
@@ -255,7 +272,7 @@ def _decision_problems(where, entry, catalogs, root, git):
     return problems
 
 
-def register_problems(register, catalogs=None, root=ROOT, git=None, blobs=None):
+def register_problems(register, catalogs=None, root=ROOT, git=None, blobs=None, revision='HEAD'):
     """Every reason this register is not an honest, traceable record (empty when sound).
 
     `root` is where evidence paths resolve and `git` the object database consulted: this tree in
@@ -263,7 +280,7 @@ def register_problems(register, catalogs=None, root=ROOT, git=None, blobs=None):
     signed file or decision is ever written into this repository."""
     catalogs = catalogs or current_catalogs()
     blobs = blobs or current_blobs(root if (Path(root) / UI_PATH).is_file() else ROOT)
-    git = (git or GitObjects(root)).frozen()
+    git = (git or GitObjects(root)).frozen(revision)
     problems = []
     src = register.get('reviewed_source', {}) or {}
     items = {item.get('id'): item for item in register.get('items', [])}
@@ -333,6 +350,36 @@ def register_problems(register, catalogs=None, root=ROOT, git=None, blobs=None):
                                        catalogs, blobs, git, require_git=False)
     return problems
 
+
+
+REGISTER_REL = 'docs/i18n/review/kun-i18n-003/editorial-acceptance-register.json'
+
+
+def committed_register_problems(revision, root=ROOT, git=None):
+    """Validate the register exactly as committed at `revision`, the approval-record commit.
+
+    The register is read from git, not from the working tree; evidence must be in the history of
+    `revision` and unchanged at it; the catalogs at `revision` must be the catalogs being checked.
+    No register ever names its own commit: `revision` is supplied by whoever validates (for a
+    release, the owner's release candidate or a later commit)."""
+    git = git or GitObjects(root)
+    if not git.available():
+        return [f'approval record {revision}: cannot be verified without the git object database (use a clone)']
+    full = git._git('rev-parse', '--verify', '-q', f'{revision}^{{commit}}')
+    if full is None:
+        return [f'approval record {revision}: not a commit in the git object database']
+    raw = git.read(full, REGISTER_REL)
+    if raw is None:
+        return [f'approval record {full}: has no {REGISTER_REL}']
+    problems = []
+    blobs = current_blobs(root if (Path(root) / UI_PATH).is_file() else ROOT)
+    if (git.blob(full, UI_PATH), git.blob(full, PDF_PATH)) != blobs:
+        problems.append(f'approval record {full}: its catalogs are not the catalogs being checked')
+    try:
+        register = json.loads(raw.decode('utf-8'))
+    except (UnicodeDecodeError, ValueError):
+        return problems + [f'approval record {full}: register is not valid JSON']
+    return problems + register_problems(register, root=root, git=git, blobs=blobs, revision=full)
 
 class RegisterInThisTree(unittest.TestCase):
     def test_register_is_sound(self):
@@ -823,7 +870,7 @@ class SignedEvidenceInGit(SyntheticGitRepo):
         self.assertRefused(reg, f'evidence file is not in evidence commit {self.source[0]}')
         reg = self.fully_accepted()  # a commit holding the file, outside this checkout's history
         reg['items'][0][L]['evidence'] = self.evidence(commit=self.unrelated[0])
-        self.assertRefused(reg, f'evidence commit {self.unrelated[0]} is not in the history of this checkout')
+        self.assertRefused(reg, f'evidence commit {self.unrelated[0]} is not in the history of the approval-record revision')
         reg = self.fully_accepted()
         reg['items'][0][L]['evidence'] = self.evidence(commit='f' * 40)
         self.assertRefused(reg, f'evidence commit {"f" * 40} is not in the git object database')
@@ -841,6 +888,80 @@ class SignedEvidenceInGit(SyntheticGitRepo):
         self.assertEqual(self.git.blob(self.candidate[0], self.SIGNED), blob_id(self.root / self.SIGNED))
         self.assertEqual(self.git.index_blob(self.SIGNED), blob_id(self.root / self.SIGNED))
         self.assertEqual(self.problems(self.fully_accepted()), [])
+
+
+
+class ApprovalRecordCommit(SyntheticGitRepo):
+    """KUN-I18N-003C: the register is validated as committed at the approval-record revision, and
+    the evidence it cites is checked against that revision; no register names its own commit."""
+
+    def record(self, register, branch, extra=None):
+        """Commit `register` (and optional changes) on a synthetic branch from the candidate."""
+        self.run_git('checkout', '-q', '-b', branch, self.candidate[0])
+        self.addCleanup(self.run_git, 'checkout', '-q', '-f', self.candidate[0])
+        path = self.root / REGISTER_REL
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(register, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+        if extra:
+            extra()
+        self.run_git('add', '-A')
+        self.run_git('commit', '-q', '--no-gpg-sign', '-m', f'synthetic approval record ({branch})')
+        return self.run_git('rev-parse', 'HEAD')
+
+    def test_genuine_approval_record_commit_with_committed_evidence(self):
+        register = self.fully_accepted()
+        revision = self.record(register, 'approval-record')
+        self.assertEqual(committed_register_problems(revision, self.root, self.git), [])
+        self.assertNotIn(revision, json.dumps(register))  # no self-reference
+        self.assertTrue(self.git.is_ancestor(register['items'][0][L]['evidence']['commit'], revision))
+
+    def test_approval_record_that_drops_its_evidence(self):
+        revision = self.record(self.fully_accepted(), 'record-without-evidence',
+                               extra=lambda: self.run_git('rm', '-q', self.SIGNED))
+        problems = committed_register_problems(revision, self.root, self.git)
+        self.assertTrue(any('evidence file' in p for p in problems), problems[:4])
+
+    def test_approval_record_with_a_forged_evidence_commit(self):
+        register = self.fully_accepted()
+        register['items'][0][L]['evidence']['commit'] = self.unrelated[0]
+        revision = self.record(register, 'record-wrong-evidence-commit')
+        self.assertIn(f'1/human_hindi_language: evidence commit {self.unrelated[0]} is not in the history of '
+                      'the approval-record revision', committed_register_problems(revision, self.root, self.git))
+
+    def test_revision_without_register_or_not_a_commit(self):
+        self.assertIn(f'approval record {self.source[0]}: has no {REGISTER_REL}',
+                      committed_register_problems(self.source[0], self.root, self.git))
+        self.assertIn(f'approval record {"f" * 40}: not a commit in the git object database',
+                      committed_register_problems('f' * 40, self.root, self.git))
+
+    def test_objectless_archive_with_decided_approval_fails_closed(self):
+        archive = Path(tempfile.mkdtemp(dir=self.root.parent))
+        self.addCleanup(shutil.rmtree, archive)
+        revision = self.record(self.fully_accepted(), 'record-for-archive')
+        tar = subprocess.run(['git', '-C', str(self.root), 'archive', revision], capture_output=True, check=True)
+        subprocess.run(['tar', '-x', '-C', str(archive)], input=tar.stdout, check=True)
+        no_git = GitObjects(archive)
+        self.assertFalse(no_git.available())
+        self.assertEqual(committed_register_problems(revision, archive, no_git),
+                         [f'approval record {revision}: cannot be verified without the git object database (use a clone)'])
+        register = json.loads((archive / REGISTER_REL).read_text(encoding='utf-8'))
+        problems = register_problems(register, self.catalogs, archive, no_git)
+        self.assertIn('reviewed_source: provenance cannot be verified without the git object database (use a clone)',
+                      problems)
+        self.assertIn('1/human_hindi_language: evidence cannot be verified without the git object database (use a clone)',
+                      problems)
+
+    def test_git_blob_mismatch(self):
+        """The working file has the stated hash but is not the blob committed at the evidence commit."""
+        path = self.root / self.SIGNED
+        original = path.read_bytes()
+        self.addCleanup(path.write_bytes, original)
+        path.write_text('bytes that git does not hold\n')
+        reg = self.fully_accepted()
+        reg['items'][0][L]['evidence'] = self.evidence(digest=sha256(path))
+        problems = self.problems(reg)
+        self.assertIn('1/human_hindi_language: evidence file differs from its committed blob (modified)', problems)
+        self.assertIn('1/human_hindi_language: the committed evidence bytes do not have the stated SHA-256', problems)
 
 
 if __name__ == '__main__':
