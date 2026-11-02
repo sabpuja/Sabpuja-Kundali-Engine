@@ -18,6 +18,13 @@ into layers that are never mixed:
 
 With --swetest the committed receipts are re-captured live and must be byte
 identical; otherwise the run is BLOCKED (reference not reproduced).
+
+Input readiness (QA review 5737049196): a result is FAIL or METHOD-MISMATCH only
+when the scientific inputs were verified (pinned ephemeris files against the
+manifest, matrix/spec pins, no SE_EPHE_PATH) and the fixture's committed receipt
+is present and hash-valid. When an input is missing or unverified, the affected
+comparison is BLOCKED with a reason code, never FAIL and never PASS. Missing or
+invalid paths are reported as reason codes, not tracebacks.
 Exit: 0 every verified layer PASS/QUALIFIED; 1 any FAIL or METHOD-MISMATCH; 2 otherwise (BLOCKED or
 BOUNDARY-INDETERMINATE present). ASTRO and LAGNA-F are reported but excluded from the exit code,
 since their BLOCKED status is a standing owner decision, not a run defect.
@@ -251,28 +258,42 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
     pins = json.loads(PINS.read_text(encoding="utf-8"))
     sums_bytes = (sr.RECEIPTS / "SHA256SUMS").read_bytes()
     run_blocks = []
+    input_blocks = []   # failures that make every chart comparison undecidable
     if sha256_bytes(matrix_bytes) != pins["matrix_sha256"]:
-        run_blocks.append("MATRIX_SHA256_MISMATCH")
+        input_blocks.append("MATRIX_SHA256_MISMATCH")
     if sha256_bytes(sums_bytes) != pins["receipts_sha256sums_sha256"]:
         run_blocks.append("RECEIPT_SUMS_SHA256_MISMATCH")
     if spec_sha != pins["swiss_spec_sha256"]:
-        run_blocks.append("FROZEN_SPEC_SHA256_MISMATCH")
+        input_blocks.append("FROZEN_SPEC_SHA256_MISMATCH")
     if os.environ.get("SE_EPHE_PATH"):
-        run_blocks.append("SE_EPHE_PATH_SET")
+        input_blocks.append("SE_EPHE_PATH_SET")
     try:
         verify_ephemeris_dir(ephe, load_manifest())
         ephe_ok = True
     except Exception as exc:  # recorded as a code only
         ephe_ok = False
-        run_blocks.append("EPHEMERIS_UNVERIFIED:" + getattr(exc, "code", type(exc).__name__))
+        input_blocks.append("EPHEMERIS_UNVERIFIED:" + getattr(exc, "code", type(exc).__name__))
+    run_blocks += input_blocks
+    inputs_ok = not input_blocks
     sums = dict(line.split("  ")[::-1] for line in sums_bytes.decode().splitlines() if line)
     matrix = json.loads(matrix_bytes)
     live = None
-    if swetest:
+    if swetest and not (Path(swetest).is_file() and os.access(swetest, os.X_OK)):
+        run_blocks.append("SWETEST_BINARY_MISSING")
+    elif swetest and not ephe_ok:
+        run_blocks.append("SWETEST_NOT_RERUN (ephemeris unverified)")
+    elif swetest:
         from tests.swiss_conformance import inputs as sc_inputs  # receipt validation is reused unchanged
-        rec = json.loads(Path(receipt).read_text()) if receipt and Path(receipt).is_file() else None
-        source, errors = sc_inputs.validate_receipt(rec, sha256_bytes(Path(swetest).read_bytes())) if rec else (None, ["SWETEST_BUILD_RECEIPT_MISSING"])
-        live = {"swetest_sha256": sha256_bytes(Path(swetest).read_bytes()), "source": source, "receipt_errors": errors,
+        binary_sha = sha256_bytes(Path(swetest).read_bytes())
+        if not receipt or not Path(receipt).is_file():
+            rec, source, errors = None, None, ["SWETEST_BUILD_RECEIPT_MISSING"]
+        else:
+            try:
+                rec = json.loads(Path(receipt).read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError, ValueError):
+                rec = None
+            source, errors = sc_inputs.validate_receipt(rec, binary_sha)
+        live = {"swetest_sha256": binary_sha, "source": source, "receipt_errors": errors,
                 "receipt": rec, "reproduced": 0, "not_reproduced": []}
         run_blocks += errors
     else:
@@ -287,37 +308,57 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
             err = None
         except engine.EXPECTED_ERRORS as exc:
             out, err = None, exc.code
+        except Exception as exc:  # an unexpected engine exception is a result, not a runner crash
+            out, err = None, "UNEXPECTED_EXCEPTION:" + type(exc).__name__
+        # A mismatch is a calculation defect only when the pinned inputs were verified.
+        unverified = BLOCKED if not inputs_ok else FAIL
         if fx["expect"]["kind"] == "refusal":
-            res["layers"].append({"layer": "REFUSAL", "expected": fx["expect"]["code"], "actual": err or "CHART",
-                                  "classification": PASS if err == fx["expect"]["code"] else FAIL,
-                                  "basis": fx["expect"]["basis"] + "; docs/api-contract.md P5 order"})
+            ok = err == fx["expect"]["code"]
+            layer = {"layer": "REFUSAL", "expected": fx["expect"]["code"], "actual": err or "CHART",
+                     "classification": PASS if ok else unverified,
+                     "basis": fx["expect"]["basis"] + "; docs/api-contract.md P5 order"}
+            if not ok and not inputs_ok:
+                layer["reason"] = ["INPUT_UNVERIFIED"] + input_blocks
+            res["layers"].append(layer)
             res["classification"] = res["layers"][0]["classification"]
             results.append(res)
             continue
         name = fx["id"] + ".txt"
-        text = (sr.RECEIPTS / name).read_text(encoding="utf-8")
-        res["reference"] = {"receipt": f"tests/sci_gold/receipts/{name}", "sha256": sr.sha256_text(text),
-                            "sha256_listed": sums.get(name), "source": "official swetest 2.10.03, aloistr/swisseph@c69c14a"}
         blocked = []
-        if sums.get(name) != sr.sha256_text(text):
+        try:
+            text = (sr.RECEIPTS / name).read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            text = None
+            blocked.append("RECEIPT_FILE_MISSING")
+        res["reference"] = {"receipt": f"tests/sci_gold/receipts/{name}",
+                            "sha256": sr.sha256_text(text) if text is not None else None,
+                            "sha256_listed": sums.get(name), "source": "official swetest 2.10.03, aloistr/swisseph@c69c14a"}
+        if text is not None and sums.get(name) != sr.sha256_text(text):
             blocked.append("RECEIPT_HASH_MISMATCH")
-        if live is not None:
-            again = sr.capture(fx, swetest, ephe)
+        if live is not None and text is not None:
+            try:
+                again = sr.capture(fx, swetest, ephe)
+            except (OSError, subprocess.SubprocessError):
+                again = None
             if again == text:
                 live["reproduced"] += 1
             else:
                 live["not_reproduced"].append(fx["id"])
                 blocked.append("RECEIPT_NOT_REPRODUCED")
-        try:
-            ref = sr.parse(text)
-        except sr.ReceiptError as exc:
-            blocked.append("RECEIPT_INVALID:" + str(exc))
-            ref = None
+        ref = None
+        if text is not None:
+            try:
+                ref = sr.parse(text)
+            except sr.ReceiptError as exc:
+                blocked.append("RECEIPT_INVALID:" + str(exc))
         if err is not None:
-            res["layers"].append({"layer": "ENGINE", "expected": "chart", "actual": err, "classification": FAIL})
+            layer = {"layer": "ENGINE", "expected": "chart", "actual": err, "classification": unverified}
+            if not inputs_ok:
+                layer["reason"] = ["INPUT_UNVERIFIED"] + input_blocks
+            res["layers"].append(layer)
         if ref is None or blocked:
             res["layers"].append({"layer": "REFERENCE", "classification": BLOCKED, "reason": blocked})
-        if err is None and ref is not None:
+        if err is None and ref is not None and not blocked:
             exp = reference_chart(ref)
             res["reference"].update({"jd_ut": ref["header"]["jd_double"], "ayanamsa_dms": ref["ayanamsa_text"]})
             res["layers"].append(time_layer(fx, out, tzdir))
@@ -337,6 +378,13 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
             res["d1_north_indian_expected"] = exp["d1_north_indian"]
         verified = [l["classification"] for l in res["layers"] if l["layer"] not in ("ASTRO", "LAGNA-F")]
         cls = worst(verified)
+        if not inputs_ok or ((blocked or ref is None) and err is None):
+            # Comparisons against unverified inputs or reference are undecidable, whatever they show.
+            # Only a mismatch with verified inputs and a valid reference is a FAIL or METHOD-MISMATCH;
+            # an engine refusal of a chart fixture with verified inputs stays FAIL without a reference.
+            cls = BLOCKED
+            res["notes"].append("BLOCKED: comparison not decidable; reasons " +
+                                ", ".join((["INPUT_UNVERIFIED"] + input_blocks) if not inputs_ok else blocked))
         if cls in (PASS, SWISS_PASS) and fx["time_reference"]["expected_utc"] >= "2027-06-28":
             cls = QUAL
             res["notes"].append("QUALIFIED: after the pinned 2027-06-28 leap-second list expiry; civil time, "

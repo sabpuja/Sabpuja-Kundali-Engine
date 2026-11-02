@@ -12,6 +12,7 @@ from pathlib import Path
 import ast
 import copy
 import hashlib
+import io
 import json
 import os
 import subprocess
@@ -300,6 +301,129 @@ class RealDataRunTest(unittest.TestCase):
         out = subprocess.run([sys.executable, str(HERE / "design" / "build_matrix.py")], capture_output=True, env=env,
                              check=True, timeout=600)
         self.assertEqual(out.stdout, (HERE / "matrix.json").read_bytes())
+
+
+def _quiet_main(argv):
+    """Run the CLI with stdout captured; return (exit code, report dict)."""
+    import contextlib
+    import glob
+    import tempfile
+    out_dir = tempfile.mkdtemp()
+    with contextlib.redirect_stdout(io.StringIO()):
+        code = gold.main(list(argv) + ["--report-dir", out_dir])
+    (path,) = glob.glob(os.path.join(out_dir, "sci-gold-*.json"))
+    return code, json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+class InputReadinessTest(unittest.TestCase):
+    """QA review 5737049196: missing/unverified inputs are BLOCKED, never FAIL; real mismatches still FAIL."""
+
+    def setUp(self):
+        self._env = {k: os.environ.pop(k) for k in ("SE_EPHE_PATH", "SABPUJA_TEST_EPHE_PATH") if k in os.environ}
+
+    def tearDown(self):
+        os.environ.update(self._env)
+
+    def assert_blocked_not_fail(self, report, reason_prefix):
+        counts = report["fixture_counts"]
+        self.assertNotIn("FAIL", counts)
+        self.assertNotIn("METHOD-MISMATCH", counts)
+        self.assertEqual(counts, {"BLOCKED": 50, "PASS": 18})
+        self.assertEqual(report["verdict_verified_layers"], "BLOCKED")
+        self.assertTrue(any(r.startswith(reason_prefix) for r in report["run_blocking_reasons"]), report["run_blocking_reasons"])
+        for r in report["results"]:
+            if r["expect"]["kind"] == "chart":
+                self.assertTrue(r["notes"] and r["notes"][-1].startswith("BLOCKED: comparison not decidable"))
+
+    def test_missing_ephe_argument_is_structured_blocked(self):
+        code, report = _quiet_main([])
+        self.assertEqual(code, 2)
+        self.assert_blocked_not_fail(report, "EPHEMERIS_UNVERIFIED:EPHEMERIS_PATH_MISSING")
+
+    def test_empty_ephemeris_directory_is_blocked(self):
+        import tempfile
+        code, report = _quiet_main(["--ephe", tempfile.mkdtemp()])
+        self.assertEqual(code, 2)
+        self.assert_blocked_not_fail(report, "EPHEMERIS_UNVERIFIED:EPHEMERIS_FILE_MISSING")
+
+    def test_invalid_pinned_files_are_blocked(self):
+        import tempfile
+        sys.path.insert(0, str(REPO / "src"))
+        from sabpuja_kundali.ephemeris import load_manifest
+        bad = Path(tempfile.mkdtemp())
+        for entry in load_manifest()["files"]:
+            (bad / entry["name"]).write_bytes(b"not the pinned file")
+        code, report = _quiet_main(["--ephe", str(bad)])
+        self.assertEqual(code, 2)
+        self.assert_blocked_not_fail(report, "EPHEMERIS_UNVERIFIED:EPHEMERIS_FILE_MISMATCH")
+
+    def test_corrupt_manifest_is_blocked(self):
+        import tempfile
+        from unittest import mock
+        sys.path.insert(0, str(REPO / "src"))
+        from sabpuja_kundali import engine, ephemeris  # import engine first so its own binding is patched below
+        corrupt = ephemeris.EphemerisDataError("EPHEMERIS_MANIFEST_INVALID", "corrupt (test)")
+        with mock.patch.object(ephemeris, "load_manifest", side_effect=corrupt), \
+                mock.patch.object(engine, "load_ephemeris_manifest", side_effect=corrupt):
+            code, report = _quiet_main(["--ephe", EPHE or tempfile.mkdtemp()])
+        self.assertEqual(code, 2)
+        self.assert_blocked_not_fail(report, "EPHEMERIS_UNVERIFIED:EPHEMERIS_MANIFEST_INVALID")
+
+    def test_missing_swetest_binary_is_structured(self):
+        import tempfile
+        code, report = _quiet_main(["--ephe", EPHE or tempfile.mkdtemp(), "--swetest", "/nonexistent/swetest"])
+        self.assertEqual(code, 2)
+        self.assertIn("SWETEST_BINARY_MISSING", report["run_blocking_reasons"])
+        self.assertNotIn("FAIL", report["fixture_counts"])
+
+    @unittest.skipUnless(EPHE and SWETEST, "SABPUJA_TEST_EPHE_PATH and SABPUJA_TEST_SWETEST not set")
+    def test_missing_or_corrupt_swetest_build_receipt_is_blocked(self):
+        import tempfile
+        corrupt = Path(tempfile.mkdtemp()) / "receipt.json"
+        corrupt.write_text("{not json", encoding="utf-8")
+        for receipt, reason in ((None, "SWETEST_BUILD_RECEIPT_MISSING"), (str(corrupt), "SWETEST_BUILD_RECEIPT_INVALID")):
+            report = gold.run_all(EPHE, SWETEST, receipt)
+            self.assertIn(reason, report["run_blocking_reasons"])
+            self.assertEqual(report["verdict_verified_layers"], "BLOCKED")
+            self.assertNotIn("FAIL", report["fixture_counts"])
+
+    @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
+    def test_missing_committed_receipt_blocks_only_that_fixture(self):
+        import shutil
+        import tempfile
+        from unittest import mock
+        copy_dir = Path(tempfile.mkdtemp()) / "receipts"
+        shutil.copytree(sr.RECEIPTS, copy_dir)
+        (copy_dir / "GOLD-T01.txt").unlink()
+        with mock.patch.object(sr, "RECEIPTS", copy_dir):
+            report = gold.run_all(EPHE, None, None)
+        by_id = {r["id"]: r for r in report["results"]}
+        self.assertEqual(by_id["GOLD-T01"]["classification"], "BLOCKED")
+        self.assertIn("RECEIPT_FILE_MISSING", by_id["GOLD-T01"]["layers"][-1]["reason"])
+        self.assertEqual(report["fixture_counts"], {"BLOCKED": 1, "PASS": 48, "QUALIFIED": 18, "BOUNDARY-INDETERMINATE": 1})
+
+    @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
+    def test_real_mismatch_with_verified_inputs_still_fails(self):
+        from unittest import mock
+        sys.path.insert(0, str(REPO / "src"))
+        from sabpuja_kundali import engine
+        real = engine.calculate
+
+        def wrong_d9(payload, ephe):
+            out = real(payload, ephe)
+            if payload == next(f["input"] for f in MATRIX["fixtures"] if f["id"] == "GOLD-T03"):
+                p = out["planets"]["venus"]
+                p["navamsa_rashi"] = rr.RASHIS[(rr.RASHIS.index(p["navamsa_rashi"]) + 1) % 12]
+            if payload == next(f["input"] for f in MATRIX["fixtures"] if f["id"] == "GOLD-T04"):
+                raise engine.ChartComputationError("SWISS_CALC_FAILED", "injected (test)")
+            return out
+
+        with mock.patch.object(engine, "calculate", side_effect=wrong_d9):
+            report = gold.run_all(EPHE, None, None)
+        by_id = {r["id"]: r for r in report["results"]}
+        self.assertEqual(by_id["GOLD-T03"]["classification"], "FAIL")
+        self.assertEqual(by_id["GOLD-T04"]["classification"], "FAIL")
+        self.assertEqual(report["verdict_verified_layers"], "FAIL")
 
 
 if __name__ == "__main__":

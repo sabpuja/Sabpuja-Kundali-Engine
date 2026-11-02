@@ -40,7 +40,7 @@ claim follows from any of this.
 | `PINS.json` | SHA-256 of `matrix.json`, `receipts/SHA256SUMS` and the frozen `tests/swiss_conformance/spec.json` |
 | `run.py` | Comparison runner: per fixture the receipt and hash, exact input, expected, actual, difference, tolerance, classification and basis; JSON, CSV and Markdown |
 | `pdf_fidelity.py` | Premium PDF vs engine and vs reference (D1/D9 chart cells by the isolated geometry, positions and Navamsa tables); English/Hindi parity |
-| `test_sci_gold.py` | 22 unit/integration tests (in the normal `tests` discovery) |
+| `test_sci_gold.py` | 30 unit/integration tests (in the normal `tests` discovery), incl. `InputReadinessTest` for missing/unverified inputs |
 | `INVENTORY.md` | Existing QA infrastructure and reuse decisions |
 | `DISCREPANCY-REGISTER.md` | Every mismatch and finding, with disposition |
 | `BLOCKERS.md` | Scientific decision and tolerance blockers |
