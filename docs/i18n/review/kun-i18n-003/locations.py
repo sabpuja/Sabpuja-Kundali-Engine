@@ -1,0 +1,123 @@
+"""KUN-I18N-003 reviewer packet: where each reviewed Hindi term appears (documentation tool).
+
+    PYTHONPATH=src:prototype python docs/i18n/review/kun-i18n-003/locations.py > docs/i18n/review/kun-i18n-003/LOCATIONS.md
+
+Reads the two catalogs and renders the Hindi report for all 13 synthetic fixture scenarios
+(anonymous and with the synthetic Devanagari name), then lists, for each term of the 18 review
+items, every catalog key that contains it (with the web section or PDF page it belongs to) and
+every Hindi PDF page whose extracted text contains it. Read-only: changes nothing.
+"""
+import json
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[4]
+sys.path[:0] = [str(ROOT), str(ROOT / 'src'), str(ROOT / 'prototype'), str(ROOT / 'report/phase1/tests')]
+import fitz  # noqa: E402
+from report.phase1 import premium_report as premium  # noqa: E402
+from report.phase1 import report_locale as loc  # noqa: E402
+import test_premium_name as fixtures  # noqa: E402
+
+SYNTHETIC_NAME = 'क्षत्रिय प्रियंका सिद्धार्थ'
+WEB_SECTION = [
+    (('meta', 'skip', 'lang', 'header', 'link', 'notice'), 'Header and preview notice'),
+    (('form', 'name', 'place', 'date', 'time', 'unknown', 'ambiguity', 'submit', 'clear', 'val'), 'Birth details form'),
+    (('error', 'msg', 'fault'), 'Error panel (refusal messages)'),
+    (('status',), 'Status line (live region)'),
+    (('result', 'download', 'edit', 'nav', 'confirm', 'fact', 'key'), 'Result: heading, confirmed details, key placements'),
+    (('d1', 'd1table', 'th', 'svg', 'row'), 'Result: D1 / D9 charts and tables'),
+    (('d9', 'd9table'), 'Result: D9 chart and table'),
+    (('method', 'm', 'claim', 'limit'), 'Result: Method and transparency'),
+    (('footer',), 'Footer'),
+]
+PDF_PAGE_OF_PREFIX = {
+    'meta': 'PDF metadata', 'page': 'p. 2 contents list and each page header', 'header': 'every page header',
+    'footer': 'every page footer', 'title': 'every page', 'cover': 'p. 1', 'date': 'p. 1, 4',
+    'overview': 'p. 2', 'guide': 'p. 3', 'birth': 'p. 4', 'chart': 'p. 5-6', 'positions': 'p. 7',
+    'col': 'p. 7-9 tables', 'navamsa': 'p. 8', 'houses': 'p. 9', 'method': 'p. 10',
+}
+ITEMS = {
+    1: ['जातक', 'के लिए तैयार'],
+    2: ['चरण'],
+    3: ['पूर्ण-राशि', 'पूर्ण भोगांश', 'पूर्ण निरयन भोगांश'],
+    4: ['मध्यम पात', 'मध्यम राहु', 'मध्यम चंद्र पात', 'चंद्र पात'],
+    5: ['स्पष्ट अयनांश', 'अयनांश'],
+    6: ['गुरु', 'बृहस्पति'],
+    7: ['<abbr>'],
+    8: ['दिनांक'],
+    10: ['ट्रॉम्सो', 'ट्रोम्स', 'यूनाइटेड किंगडम', 'लंदन', 'इंग्लैंड', 'नॉर्वे'],
+    13: ['अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध)'],
+    14: ['राशियों की ये क्रम संख्याएँ'],
+    15: ['स्वीकृत चार्ट स्कीमा'],
+    17: ['कोई कुंडली नहीं बनाई गई।'],
+}
+ABBR = [loc.TERMS['graha'][g]['hi_abbr'] for g in premium.GRAHAS]
+
+
+def web_section(key):
+    head = key.split('.')[0]
+    for prefixes, name in WEB_SECTION:
+        if head in prefixes:
+            return name
+    return 'web page'
+
+
+def catalog_hits(term):
+    hits = []
+    for key, entry in loc.REGISTER['ui'].items():
+        if term in entry['hi']:
+            hits.append(f'web `ui.{key}` ({web_section(key)})')
+    for key, entry in loc.STRINGS.items():
+        if term in entry['hi']:
+            head = key.split('.')[0]
+            where = ('p. 5' if key.startswith('chart.d1') else 'p. 6' if key.startswith('chart.d9') else
+                     PDF_PAGE_OF_PREFIX.get(head, 'PDF'))
+            hits.append(f'PDF `{key}` ({where})')
+    for key, entry in loc.ENGINE_TEXT.items():
+        if term in entry['hi']:
+            hits.append(f'engine sentence `{key}` (web method section; PDF p. 4/10 when sent)')
+    for group in ('graha', 'rashi'):
+        for key, entry in loc.TERMS[group].items():
+            if term in entry.get('hi', ''):
+                hits.append(f'term `{group}.{key}` short name (web tables; PDF p. 2-10)')
+            elif term in entry.get('hi_long', ''):
+                hits.append(f'term `{group}.{key}` long name (web chart house descriptions, the accessible text of each chart house)')
+    for key, entry in loc.TERMS['place'].items():
+        if any(term in v for v in entry['hi']):
+            hits.append(f'place `{key}` (web place list; PDF p. 1, 4 when chosen)')
+    return hits
+
+
+def main():
+    pages, abbr_pages = {}, set()
+    for case, data in fixtures.SCENARIOS.items():
+        for name in (None, SYNTHETIC_NAME):
+            raw, audit = premium.render(data, synthetic=True, palette='baseline', display_name=name, locale='hi')
+            pdf = fitz.open(stream=raw, filetype='pdf')
+            for i, page in enumerate(pdf, 1):
+                pages.setdefault(i, []).append(' '.join(page.get_text().split()))
+            # Abbreviations are short drawn strings; take them from the renderer's own record of
+            # what it drew (extraction may join a label to its degree figure).
+            abbr_pages |= {page for page, text, *_ in audit['texts'] if text.strip() in ABBR}
+    print('# KUN-I18N-003 term locations (generated by `locations.py`; do not edit by hand)\n')
+    print('Hindi PDF pages: union over the 13 synthetic fixture scenarios, anonymous and with the synthetic')
+    print('Devanagari name, rendered from this commit. Web locations: the catalog key and the page section it fills.\n')
+    for item, terms in ITEMS.items():
+        print(f'## Item {item}\n')
+        for term in terms:
+            if term == '<abbr>':
+                found = sorted(abbr_pages)
+                print(f'- chart abbreviations {" ".join(ABBR)} (drawn as labels): PDF pages {", ".join(map(str, found))}; '
+                      'web D1/D9 charts, legends `ui.d1.legend`, `ui.d9.legend`')
+                continue
+            found = sorted(i for i, texts in pages.items() if any(term in t for t in texts))
+            hits = catalog_hits(term)
+            print(f'- **{term}**: PDF pages {", ".join(map(str, found)) or "none in the fixtures"}')
+            for h in hits:
+                print(f'  - {h}')
+        print()
+
+
+if __name__ == '__main__':
+    main()

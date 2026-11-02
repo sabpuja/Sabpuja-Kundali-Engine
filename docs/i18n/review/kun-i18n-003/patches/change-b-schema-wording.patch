@@ -1,0 +1,49 @@
+diff --git a/prototype/kundali_prototype/static/i18n.json b/prototype/kundali_prototype/static/i18n.json
+index f8b8059..92ac48a 100644
+--- a/prototype/kundali_prototype/static/i18n.json
++++ b/prototype/kundali_prototype/static/i18n.json
+@@ -165,7 +165,7 @@
+     "d9table.caption": {"en": "D9 Navamsa sign and D9 whole-sign house of the D9 Lagna and each graha", "hi": "D9 लग्न और प्रत्येक ग्रह की D9 नवांश राशि और D9 पूर्ण-राशि भाव"},
+     "th.d9rashi": {"en": "D9 Rashi", "hi": "D9 राशि"},
+     "th.d9house": {"en": "D9 House", "hi": "D9 भाव"},
+-    "d9.footnote": {"en": "D9 signs come from the unrounded sidereal longitudes in 3°20′ divisions; D9 houses are counted from the D9 Lagna sign, so a D9 house number is not a D1 house number. The D9 house fields use the owner-approved chart schema 0.3.0.", "hi": "D9 राशियाँ बिना पूर्णांकन वाले निरयन भोगांशों के 3°20′ के विभागों से निकलती हैं; D9 भाव D9 लग्न राशि से गिने जाते हैं, इसलिए D9 भाव संख्या D1 भाव संख्या नहीं है। D9 भाव के फ़ील्ड स्वीकृत चार्ट स्कीमा 0.3.0 के अनुसार हैं।"},
++    "d9.footnote": {"en": "D9 signs come from the unrounded sidereal longitudes in 3°20′ divisions; D9 houses are counted from the D9 Lagna sign, so a D9 house number is not a D1 house number. The D9 house fields use chart schema 0.3.0.", "hi": "D9 राशियाँ बिना पूर्णांकन वाले निरयन भोगांशों के 3°20′ के विभागों से निकलती हैं; D9 भाव D9 लग्न राशि से गिने जाते हैं, इसलिए D9 भाव संख्या D1 भाव संख्या नहीं है। D9 भाव के फ़ील्ड चार्ट स्कीमा 0.3.0 के अनुसार हैं।"},
+     "method.heading": {"en": "Method and transparency", "hi": "गणना पद्धति और पारदर्शिता"},
+     "method.limits": {"en": "What this private preview does not calculate", "hi": "यह निजी पूर्वावलोकन किनकी गणना नहीं करता"},
+     "limit.1": {"en": "Births before 1970-01-01: historical clock records are not yet verified, so these are refused.", "hi": "1970-01-01 से पहले के जन्म: ऐतिहासिक घड़ी-रिकॉर्ड अभी सत्यापित नहीं हैं, इसलिए इन्हें अस्वीकार किया जाता है।"},
+diff --git a/prototype/kundali_prototype/static/index.html b/prototype/kundali_prototype/static/index.html
+index cd5aede..4631b8d 100644
+--- a/prototype/kundali_prototype/static/index.html
++++ b/prototype/kundali_prototype/static/index.html
+@@ -163,7 +163,7 @@
+               <tbody></tbody>
+             </table>
+           </div>
+-          <p class="footnote" data-i18n="d9.footnote">D9 signs come from the unrounded sidereal longitudes in 3°20′ divisions; D9 houses are counted from the D9 Lagna sign, so a D9 house number is not a D1 house number. The D9 house fields use the owner-approved chart schema 0.3.0.</p>
++          <p class="footnote" data-i18n="d9.footnote">D9 signs come from the unrounded sidereal longitudes in 3°20′ divisions; D9 houses are counted from the D9 Lagna sign, so a D9 house number is not a D1 house number. The D9 house fields use chart schema 0.3.0.</p>
+         </article>
+ 
+         <article class="card method-card" aria-labelledby="method-heading">
+diff --git a/report/phase1/tests/test_hindi_editorial.py b/report/phase1/tests/test_hindi_editorial.py
+index 4bb232e..52081a2 100644
+--- a/report/phase1/tests/test_hindi_editorial.py
++++ b/report/phase1/tests/test_hindi_editorial.py
+@@ -146,3 +146,18 @@ class TerminologyRegister(unittest.TestCase):
+ 
+ if __name__ == '__main__':
+     unittest.main()
++
++
++class ChangeBNeutralSchemaWording(unittest.TestCase):
++    """Owner-approved Change B (KUN-I18N-003 spec): the customer D9 footnote names the schema
++    version only. Schema 0.3.0 itself and its engineering approvals are unchanged."""
++
++    def test_footnote_names_schema_without_approval_wording(self):
++        entry = UI['d9.footnote']
++        self.assertTrue(entry['en'].endswith('The D9 house fields use chart schema 0.3.0.'))
++        self.assertTrue(entry['hi'].endswith('D9 भाव के फ़ील्ड चार्ट स्कीमा 0.3.0 के अनुसार हैं।'))
++        html = (ROOT / 'prototype/kundali_prototype/static/index.html').read_text(encoding='utf-8')
++        self.assertNotIn('owner-approved chart schema', html)
++        for key, entry in UI.items():
++            self.assertNotIn('owner-approved', entry['en'], key)
++            self.assertNotIn('स्वीकृत', entry['hi'], key)

@@ -1,0 +1,885 @@
+{
+  "register": "sabpuja-kundali-hindi-editorial-acceptance",
+  "version": 1,
+  "rules": [
+    "A human layer may leave PENDING only with a real, named human reviewer, their qualification, a decision date, the signed decision sheet as evidence, and the exact commit and catalog SHA-256 values they reviewed.",
+    "AI assistants (Claude, ChatGPT or any other) never fill a human layer. Developer corrections and AI QA are recorded only in their own layers.",
+    "An approval is valid only for the catalog bytes it names; any later catalog change makes it stale until the reviewer re-confirms.",
+    "customer_release stays PENDING until every applicable human and owner layer is decided and no item is REJECTED without a replacement."
+  ],
+  "reviewed_source": {
+    "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+    "tree": "85e38f1dbafc0eef4dc24f87c5910b118261fb73",
+    "ui_catalog": "prototype/kundali_prototype/static/i18n.json",
+    "ui_catalog_sha256": "5cf9e5fcb4234dd971fa1c512c6c6da6567918d38a0c7e61c9e6d8cd496b17f1",
+    "pdf_catalog": "report/phase1/report_i18n.json",
+    "pdf_catalog_sha256": "324b19ec2269b578f026b4b1dbebbd73d9b3b2f3d4879e2cca9dedb325ac0145"
+  },
+  "layers": [
+    "developer_correction",
+    "engineering_rendering_verification",
+    "human_hindi_language",
+    "human_jyotish_terminology",
+    "owner_copy"
+  ],
+  "items": [
+    {
+      "id": "1",
+      "title": "\"Prepared for\": जातक / \"… के लिए तैयार\"",
+      "review_layers": "L+J",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "2",
+      "title": "Pada: चरण",
+      "review_layers": "J",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "NOT_APPLICABLE"
+      },
+      "human_jyotish_terminology": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "3",
+      "title": "Whole-sign house: पूर्ण-राशि भाव; absolute longitude: पूर्ण भोगांश",
+      "review_layers": "J+L",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "4",
+      "title": "Mean node / mean Rahu / lunar nodes: मध्यम पात, मध्यम राहु, चंद्र पात",
+      "review_layers": "J",
+      "developer_correction": {
+        "status": "CORRECTED",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": "lunar nodes unified to चंद्र पात; web nodes value matches PDF p. 4"
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "NOT_APPLICABLE"
+      },
+      "human_jyotish_terminology": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "5",
+      "title": "True ayanamsha: स्पष्ट अयनांश",
+      "review_layers": "J",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "NOT_APPLICABLE"
+      },
+      "human_jyotish_terminology": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "6",
+      "title": "Jupiter: गुरु, गुरु (बृहस्पति)",
+      "review_layers": "J",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "NOT_APPLICABLE"
+      },
+      "human_jyotish_terminology": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "7",
+      "title": "Chart abbreviations सू चं मं बु गु शु श रा के; Lagna label लग्न",
+      "review_layers": "J+L",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "8",
+      "title": "Date of birth: जन्म दिनांक",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "CORRECTED",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": "masculine plural स्थानीय दिनांक"
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "9",
+      "title": "Nukta, chandrabindu, anusvara policy",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "CORRECTED",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": "ellipsis character in two status messages"
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "10",
+      "title": "Place transliterations",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "11",
+      "title": "Latin script kept for names and codes",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "12",
+      "title": "International digits",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "13",
+      "title": "Page 10 not-included line (Hindi: अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध); English: Change A)",
+      "review_layers": "L+Owner",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      }
+    },
+    {
+      "id": "14",
+      "title": "Hindi reading-guide sign note",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "15",
+      "title": "\"owner-approved chart schema\" / स्वीकृत चार्ट स्कीमा (Change B)",
+      "review_layers": "L+Owner",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      }
+    },
+    {
+      "id": "16",
+      "title": "Native date and time pickers follow the browser locale",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "17",
+      "title": "Fallback refusal message",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "NO_CHANGE",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": null
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "18",
+      "title": "Register and tone of all text",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "CORRECTED",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": "objective defects A1-A3 corrected"
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "C1",
+      "title": "KUN-I18N-002 A1: high-latitude note उत्तर या दक्षिण",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "CORRECTED",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": "corrected"
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "C2",
+      "title": "KUN-I18N-002 A2: धारणा for \"assumption\"",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "CORRECTED",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": "corrected"
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "C3",
+      "title": "KUN-I18N-002 A3: page 6 D9 note word order",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "CORRECTED",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": "corrected"
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "C4",
+      "title": "KUN-I18N-002: दिनांक masculine plural",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "CORRECTED",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": "corrected"
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "C5",
+      "title": "KUN-I18N-002: चंद्र पात on pages 3 and 7",
+      "review_layers": "J",
+      "developer_correction": {
+        "status": "CORRECTED",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": "corrected"
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "NOT_APPLICABLE"
+      },
+      "human_jyotish_terminology": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    },
+    {
+      "id": "C6",
+      "title": "KUN-I18N-002: ellipsis character",
+      "review_layers": "L",
+      "developer_correction": {
+        "status": "CORRECTED",
+        "by": "Claude (developer; a correction, not a review)",
+        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "note": "corrected"
+      },
+      "engineering_rendering_verification": {
+        "status": "PASS",
+        "verifier": "ChatGPT, Project Manager and independent engineering QA (AI reviewer, not a human language review)",
+        "date": "2026-11-02",
+        "verified_commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
+        "evidence": "PR #60 review 5733977880 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS): rendering, extraction, shaping, layout, browser 280/375/768/1440, privacy"
+      },
+      "human_hindi_language": {
+        "status": "PENDING",
+        "reviewer": null,
+        "decision_date": null,
+        "reviewed_commit": null,
+        "reviewed_ui_catalog_sha256": null,
+        "reviewed_pdf_catalog_sha256": null,
+        "evidence": null,
+        "decision_text": null
+      },
+      "human_jyotish_terminology": {
+        "status": "NOT_APPLICABLE"
+      },
+      "owner_copy": {
+        "status": "NOT_APPLICABLE"
+      }
+    }
+  ],
+  "customer_release": {
+    "status": "PENDING",
+    "approved_by": null,
+    "date": null,
+    "commit": null,
+    "note": "Owner decision after all applicable layers are complete. Production is NO-GO; PR #1 HOLD."
+  }
+}
