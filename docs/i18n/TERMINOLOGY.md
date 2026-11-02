@@ -1,6 +1,8 @@
-# KUN-I18N-001 terminology register (English / Hindi)
+# Terminology register (English / Hindi), KUN-I18N-001 and KUN-I18N-002
 
 **Status: developer draft. Pending independent human Hindi editorial review. Not owner-approved.**
+The KUN-I18N-002 corrections below are developer corrections of objective defects; they are not a
+human linguistic review, and the human editorial gate at the end of this page is still open.
 Engineering acceptance (rendering, extraction, shaping, layout, privacy) is separate from Hindi
 editorial acceptance; nothing here claims a linguistic review has taken place.
 
@@ -37,6 +39,8 @@ from the catalog.
 | Longitude | longitude | भोगांश | |
 | Ayanamsa | ayanamsa | अयनांश | |
 | Mean node | mean node | मध्यम पात | review item |
+| Mean Rahu | mean Rahu | मध्यम राहु | review item; same convention as मध्यम पात |
+| Lunar nodes | lunar nodes | चंद्र पात | one form everywhere (KUN-I18N-002) |
 | Date of birth | date of birth | जन्म दिनांक | तिथि avoided: it is the Panchanga lunar day |
 | Time of birth | time of birth | जन्म समय | |
 | Birthplace | birthplace | जन्म स्थान | |
@@ -147,30 +151,59 @@ Shown in Hindi only when the engine sends exactly this English text.
 |---|---|---|
 | ayanamsa_definition | Lahiri (Chitrapaksha), Swiss Ephemeris SE_SIDM_LAHIRI (mode 1), IAE 1985 definition, true ayanamsha, Swiss default precession; no SIDBIT options | लाहिड़ी (चित्रापक्ष), Swiss Ephemeris SE_SIDM_LAHIRI (मोड 1), IAE 1985 की परिभाषा, स्पष्ट अयनांश, Swiss का डिफ़ॉल्ट अयन-चलन मॉडल; कोई SIDBIT विकल्प नहीं |
 | claim_boundary | Swiss-on-Swiss integration conformance only; not independent astronomical validation, mathematical verification or historical clock verification | केवल Swiss-पर-Swiss एकीकरण अनुरूपता जाँच; यह स्वतंत्र खगोलीय सत्यापन, गणितीय सत्यापन या ऐतिहासिक घड़ी सत्यापन नहीं है |
-| ut1_assumption | civil UTC is treated as UT1 (an assumption, not a measured UT1 correction) | नागरिक UTC को UT1 माना गया है (यह एक मान्यता है, मापा गया UT1 संशोधन नहीं) |
+| ut1_assumption | civil UTC is treated as UT1 (an assumption, not a measured UT1 correction) | नागरिक UTC को UT1 माना गया है (यह एक धारणा है, मापा गया UT1 संशोधन नहीं) |
 | disclosure.FUTURE_CIVIL_TIME_PROJECTED | The birth instant is after the pinned IERS leap-second list expiry (2027-06-28): civil-time rules, leap seconds, UT1-UTC and Delta T are projections, not records. | जन्म का क्षण निर्धारित IERS लीप-सेकंड सूची की समाप्ति (2027-06-28) के बाद का है: नागरिक समय के नियम, लीप सेकंड, UT1-UTC और Delta T अनुमान हैं, दर्ज रिकॉर्ड नहीं। |
-| disclosure.HIGH_LATITUDE_TIME_SENSITIVITY | Absolute latitude above 60 deg: ascendant sensitivity to birth-time uncertainty can be greater for some dates and sidereal times, but is not uniformly greater. An accurate recorded birth time is important. Descriptive only; calculation and acceptance are unchanged. | अक्षांश 60° से अधिक: जन्म समय की अनिश्चितता के प्रति लग्न की संवेदनशीलता कुछ दिनांकों और नाक्षत्र समयों पर अधिक हो सकती है, पर हर स्थिति में समान रूप से अधिक नहीं होती। जन्म का सही दर्ज समय महत्वपूर्ण है। यह केवल जानकारी है; गणना और स्वीकृति में कोई बदलाव नहीं। |
+| disclosure.HIGH_LATITUDE_TIME_SENSITIVITY | Absolute latitude above 60 deg: ascendant sensitivity to birth-time uncertainty can be greater for some dates and sidereal times, but is not uniformly greater. An accurate recorded birth time is important. Descriptive only; calculation and acceptance are unchanged. | अक्षांश 60° उत्तर या दक्षिण से अधिक: जन्म समय की अनिश्चितता के प्रति लग्न की संवेदनशीलता कुछ दिनांकों और नाक्षत्र समयों पर अधिक हो सकती है, पर हर स्थिति में समान रूप से अधिक नहीं होती। जन्म का सही दर्ज समय महत्वपूर्ण है। यह केवल जानकारी है; गणना और स्वीकृति में कोई बदलाव नहीं। |
 
-## Open items for the independent Hindi language review
+## Item dispositions (KUN-I18N-002)
 
-These are developer choices, not reviewed decisions. Each needs a native Hindi editor's
-acceptance or a replacement before customer use.
+The 18 open items from KUN-I18N-001, each re-checked for terminology, grammar, readability and
+consistency across the web interface and all ten PDF pages. Dispositions:
 
-1. **जातक** for the cover's "Prepared for" (alternative: "… के लिए तैयार").
-2. **चरण** for Nakshatra Pada (alternative: पद).
-3. **पूर्ण-राशि भाव** for whole-sign house.
-4. **मध्यम पात** / **मध्यम राहु** for the mean node.
-5. **स्पष्ट अयनांश** wording in the ayanamsa definition sentence.
-6. **गुरु** as the short name with **गुरु (बृहस्पति)** as the long form.
-7. Chart abbreviations **सू चं मं बु गु शु श रा के**, especially **श** (Saturn) beside **शु** (Venus), and the full word **लग्न** as the Ascendant label.
-8. **जन्म दिनांक** instead of **तिथि** for the calendar date of birth.
-9. Nukta (फ़, ज़, ड़) and chandrabindu/anusvara use throughout, against the Kendriya Hindi Nideshalaya standard.
-10. Place transliterations, in particular **ट्रॉम्सो** and **ट्रोम्स** (Tromsø, Troms) and **यूनाइटेड किंगडम**.
-11. Latin script kept for proper names, data sets, licences, codes, hashes and the engine status code (`UNVERIFIED_GOLDEN_CHARTS`).
-12. International digits rather than Devanagari numerals.
-13. The methodology "not included" line: the Hindi report lists "अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध)" while the English report still says "Hindi edition", because changing the English text would break the PR #58 byte identity. **Owner decision needed** on whether the English wording should change in a later, separately approved task.
-14. The Hindi reading guide replaces the English note on Western sign names with a note that the Rashi numbers match the chart.
-15. Interface phrase **स्वीकृत चार्ट स्कीमा 0.3.0** (the English says "owner-approved chart schema").
-16. Native date and time pickers follow the browser's own locale and are not controlled by the page language.
-17. The server's English refusal messages for codes without a catalog entry are not shown in Hindi; the Hindi page shows the generic "कोई कुंडली नहीं बनाई गई।" with the code.
-18. Register and tone of all interface and report sentences (formal आप forms, सीमित पूर्वावलोकन, प्रोटोटाइप), and that nothing reads as machine translation.
+- **CORRECTED**: an objective defect (grammar, fidelity to the English, the same English term
+  translated two ways, typography) fixed by the developer and covered by a test in
+  `report/phase1/tests/test_hindi_editorial.py`. Still subject to the human gate below.
+- **KEPT**: the developer found no objective defect; the choice stays as drafted. A qualified
+  reviewer still has to accept it.
+- **REVIEWER**: a terminology or style choice a qualified Hindi/Jyotish reviewer must make; the
+  existing wording is unchanged until then.
+- **OWNER**: an owner decision, outside the Hindi editorial work.
+
+| # | Item | Existing wording | Proposed / applied | Disposition | Rationale and where it appears |
+|---|---|---|---|---|---|
+| 1 | "Prepared for" | PDF cover label: जातक. Web result heading: "{name} के लिए तैयार" | Recommend जातक on both surfaces (web: "जातक: {name}"); alternative "{name} के लिए तैयार की गई कुंडली" | REVIEWER | The same English label is the only phrase translated two different ways across the two surfaces (pinned as a known exception in the tests). जातक is the classical term for the native; the web fragment "… के लिए तैयार" can read as "ready for …". Web result heading; PDF page 1 (shown only with a name). |
+| 2 | Nakshatra Pada | चरण | चरण (unchanged) | KEPT | चरण is the usual Panchanga term for a quarter of a Nakshatra; पद is avoided and test-enforced. Used identically in the web key placements and on PDF pages 2, 3, 7 and 10. |
+| 3 | Whole-sign house | पूर्ण-राशि भाव | Unchanged. Reviewer to consider "राशि भाव" / "संपूर्ण राशि भाव" | REVIEWER | Consistent on the web and on pages 2, 3, 4, 5, 7, 8 and 10. Note the collision with पूर्ण भोगांश (absolute longitude, page 3 and 10): पूर्ण means "whole" in one and "absolute" in the other. A reviewer may prefer निरपेक्ष भोगांश or "0° मेष से भोगांश" for absolute longitude. |
+| 4 | Mean node | मध्यम पात (mean node), मध्यम राहु (mean Rahu); lunar nodes as both चंद्र पात and चंद्रमा के पात; web nodes value with an extra "(180°)" | Lunar nodes: चंद्र पात everywhere (page 3 graha definition, page 7 notes). Web nodes value: "मध्यम राहु; केतु ठीक सामने", identical to the PDF | CORRECTED (consistency); terms themselves REVIEWER | The mapping mean node → मध्यम पात and mean Rahu → मध्यम राहु is consistent and follows the English. The English "lunar nodes" had two Hindi forms, and the same English "Mean Rahu; Ketu exactly opposite" had two Hindi forms (web vs page 4). मध्यम (mean) pairs with स्पष्ट (true) as in Jyotish usage. |
+| 5 | True ayanamsha | "स्पष्ट अयनांश" in the ayanamsa definition sentence | Unchanged | REVIEWER | स्पष्ट (true, corrected) is the counterpart of मध्यम (mean); in Swiss Ephemeris "true ayanamsha" means including nutation. A reviewer should confirm that a Jyotish reader will not read स्पष्ट as "clear/explicit". Web method section; PDF page 4 and 10. |
+| 6 | Jupiter | गुरु; long form गुरु (बृहस्पति) | Unchanged | KEPT | गुरु is the common name in Kundali practice, बृहस्पति given once in the long form (page 5 abbreviation list). Same on web and PDF. |
+| 7 | Chart abbreviations and Lagna label | सू चं मं बु गु शु श रा के; Lagna label लग्न | Unchanged | REVIEWER | These are the conventional Hindi Kundali abbreviations. श (Saturn) beside शु (Venus) is the traditional pair and is drawn at the report minimum text size on the page 5 and 6 charts, but a reviewer should confirm customers will not confuse them. Abbreviation legends on the web, page 3, page 5 and page 6 list every one. |
+| 8 | Date of birth | जन्म दिनांक; plural "स्थानीय दिनांकें" in two web strings | "स्थानीय दिनांक" (masculine plural) in the date help text and the limits list | CORRECTED (grammar); term itself KEPT | दिनांक is masculine in standard Hindi, so its plural is दिनांक (oblique दिनांकों), not the feminine दिनांकें. तिथि stays avoided (a Panchanga lunar day). |
+| 9 | Nukta, chandrabindu, anusvara | Mixed "..." and "…" in Hindi status messages | "…" in both Hindi status messages | CORRECTED (typography); spelling KEPT | Whole-catalog audit: no word-final anusvara where chandrabindu is required (हैं, नहीं, यहाँ, स्थितियाँ are correct), nukta used consistently for ज़/फ़ in loanwords (नज़र, अंग्रेज़ी, फ़ाइल, तेज़ी, साफ़) and not for क़/ख़/ग़ (तरीका), as the Kendriya Hindi Nideshalaya standard allows. Reviewer to confirm the policy. |
+| 10 | Place transliterations | ट्रॉम्सो, ट्रोम्स, यूनाइटेड किंगडम, बेंगलुरु | Unchanged | REVIEWER | Usual Hindi press spellings; Tromsø is pronounced closer to "ट्रुम्से" locally. Test-coverage places only. Web place list; PDF pages 1 and 4. |
+| 11 | Latin script kept | Proper names, codes, `km`, `UTC`, status code | Unchanged | KEPT | Engineering convention; the stray-Latin tests allow only the listed names and codes. A reviewer should confirm `km` and `UTC` are acceptable to customers. |
+| 12 | International digits | 0-9 | Unchanged | KEPT | Engine values must be shown exactly as calculated; the tests compare every number between the English and Hindi PDFs. Devanagari numerals would need a separate owner decision. |
+| 13 | English "Hindi edition" | English page 10 lists "Hindi edition" as not included | Separate proposal: `docs/i18n/KUN-I18N-002-ENGLISH-PAGE10-PROPOSAL.md` | OWNER | Changing the English text changes every pinned English PDF hash. Not changed here. |
+| 14 | Hindi reading-guide sign note | "राशियों की ये क्रम संख्याएँ ही दोनों कुंडलियों में हर भाव पर लिखी गई हैं।" | Unchanged | REVIEWER | The English note about Western sign names does not apply to a Hindi reader, so the Hindi note explains the Rashi numbers instead. This is an intentional difference of content; a reviewer should accept it. Page 3. |
+| 15 | "owner-approved chart schema 0.3.0" | स्वीकृत चार्ट स्कीमा 0.3.0 | Unchanged. Suggest either "परियोजना स्वामी द्वारा अनुमोदित चार्ट स्कीमा 0.3.0" or dropping "approved" in both languages | REVIEWER and OWNER | The Hindi drops "owner", so स्वीकृत alone reads as generally approved. The English sentence itself is customer-facing internal process wording, so the owner may prefer to drop it in both languages. Web D9 footnote only. |
+| 16 | Native date and time pickers | Follow the browser locale | Unchanged | KEPT | Browser behaviour, not page text. Typed values and validation messages are in the page language. |
+| 17 | Server messages without a catalog entry | "कोई कुंडली नहीं बनाई गई।" plus the code | Unchanged | KEPT | Every code the server sends today has a catalog entry; the fallback only covers future codes and never shows English. |
+| 18 | Register and tone | Formal आप forms throughout (करें, चुनें, देखें); no तुम forms | Corrections listed under "Additional corrections" | CORRECTED (listed defects); overall tone REVIEWER | Whole-catalog read-through. Remaining style suggestions for the reviewer: houses key (page 9) "एक ही भाव संख्या में दोनों कुंडलियों में" could read "एक ही भाव संख्या पर …"; the web D9 legend has a comma between subject and predicate; "80 अक्षर" in the name help counts consonants and independent vowels, not syllables, so a reviewer may prefer "80 वर्ण" with a note. |
+
+### Additional corrections found during the review
+
+| # | Key | Existing wording | Corrected wording | Defect |
+|---|---|---|---|---|
+| A1 | `engine_text.disclosure.HIGH_LATITUDE_TIME_SENSITIVITY` | अक्षांश 60° से अधिक: | अक्षांश 60° उत्तर या दक्षिण से अधिक: | Fidelity: the English says *absolute* latitude, so the sentence applies in both hemispheres; matches the web limit "66° उत्तर या दक्षिण". |
+| A2 | `engine_text.ut1_assumption` | (यह एक मान्यता है, …) | (यह एक धारणा है, …) | Wrong sense: मान्यता means recognition, belief or accreditation and can read as "approved"; धारणा is "assumption". |
+| A3 | `chart.d9_note` (page 6) | … और इस कुंडली का हर ग्रह बनाने से पहले इंजन की D9 भाव सूची से जाँचा गया। | … और कुंडली बनाने से पहले इसके हर ग्रह को इंजन की D9 भाव सूची से जाँचा गया। | Ambiguity: "हर ग्रह बनाने से पहले" reads as "before making each graha". |
+| A4 | `ui.download.preparing`, `ui.status.pdf_creating` | ... | … | Typography: the other Hindi status messages use the ellipsis character. |
+| A5 | `report_locale.Translator.engine_text` (internal exception, never shown) | "Engine text has no reviewed Hindi form" | "Engine text has no catalogued Hindi form" | The Hindi text is not reviewed; internal wording must not imply that it is. |
+
+## Human editorial gate (open)
+
+**PENDING: independent human Hindi / Jyotish editorial review. Not performed. Not owner-approved.**
+Before any customer release, a qualified reviewer must accept or replace every item above,
+including the CORRECTED ones, and in particular decide items 1, 3, 4, 5, 7, 10, 14, 15 and 18.
+Nothing in this register, in the catalogs or in the tests claims that a human linguistic review
+has taken place.
