@@ -403,27 +403,163 @@ class InputReadinessTest(unittest.TestCase):
         self.assertEqual(report["fixture_counts"], {"BLOCKED": 1, "PASS": 48, "QUALIFIED": 18, "BOUNDARY-INDETERMINATE": 1})
 
     @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
-    def test_real_mismatch_with_verified_inputs_still_fails(self):
+    def test_missing_individual_se1_file_is_blocked(self):
+        import shutil
+        import tempfile
+        sys.path.insert(0, str(REPO / "src"))
+        from sabpuja_kundali.ephemeris import load_manifest
+        names = [e["name"] for e in load_manifest()["files"] if e.get("required")]
+        self.assertGreaterEqual(len(names), 2)
+        partial = Path(tempfile.mkdtemp())
+        shutil.copy(Path(EPHE) / names[0], partial / names[0])   # every other required file is absent
+        code, report = _quiet_main(["--ephe", str(partial)])
+        self.assertEqual(code, 2)
+        self.assert_blocked_not_fail(report, "EPHEMERIS_UNVERIFIED:EPHEMERIS_FILE_MISSING")
+
+    @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
+    def test_same_size_wrong_checksum_is_blocked(self):
+        import shutil
+        import tempfile
+        sys.path.insert(0, str(REPO / "src"))
+        from sabpuja_kundali.ephemeris import load_manifest
+        names = [e["name"] for e in load_manifest()["files"] if e.get("required")]
+        flipped = Path(tempfile.mkdtemp())
+        for n in names:
+            shutil.copy(Path(EPHE) / n, flipped / n)
+        data = bytearray((flipped / names[-1]).read_bytes())
+        data[len(data) // 2] ^= 0x01                                 # same size, one bit different
+        (flipped / names[-1]).write_bytes(bytes(data))
+        code, report = _quiet_main(["--ephe", str(flipped)])
+        self.assertEqual(code, 2)
+        self.assert_blocked_not_fail(report, "EPHEMERIS_UNVERIFIED:EPHEMERIS_FILE_MISMATCH")
+
+    @unittest.skipUnless(EPHE and SWETEST and RECEIPT, "pinned ephemeris, swetest and its build receipt not set")
+    def test_mismatched_build_receipt_blocks_live_reproduction(self):
+        import tempfile
+        rec = json.loads(Path(RECEIPT).read_text(encoding="utf-8"))
+        rec["swetest_sha256"] = "0" * 64
+        wrong = Path(tempfile.mkdtemp()) / "receipt.json"
+        wrong.write_text(json.dumps(rec), encoding="utf-8")
+        code, report = _quiet_main(["--ephe", EPHE, "--swetest", SWETEST, "--receipt", str(wrong)])
+        self.assertEqual(code, 2)
+        live = report["environment"]["live_swetest"]
+        self.assertIn("SWETEST_BUILD_RECEIPT_MISMATCH", live["receipt_errors"])
+        self.assertEqual((live["reproduction"], live["reproduced"]), ("BLOCKED", 0))
+        self.assertEqual(report["verdict_verified_layers"], "BLOCKED")
+        self.assertNotIn("FAIL", report["fixture_counts"])
+
+    def _receipt_copy(self):
+        import shutil
+        import tempfile
+        copy_dir = Path(tempfile.mkdtemp()) / "receipts"
+        shutil.copytree(sr.RECEIPTS, copy_dir)
+        return copy_dir
+
+    @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
+    def test_tampered_reference_receipt_blocks_that_fixture(self):
+        from unittest import mock
+        copy_dir = self._receipt_copy()
+        path = copy_dir / "GOLD-T01.txt"
+        text = path.read_text(encoding="utf-8")
+        i = next(i for i, ch in enumerate(text) if ch.isdigit() and i > text.index("## RUN A"))
+        path.write_text(text[:i] + str((int(text[i]) + 1) % 10) + text[i + 1:], encoding="utf-8")
+        with mock.patch.object(sr, "RECEIPTS", copy_dir):
+            report = gold.run_all(EPHE, None, None)
+        t01 = next(r for r in report["results"] if r["id"] == "GOLD-T01")
+        self.assertEqual(t01["classification"], "BLOCKED")
+        self.assertIn("RECEIPT_HASH_MISMATCH", t01["layers"][-1]["reason"])
+        self.assertEqual(report["fixture_counts"], {"BLOCKED": 1, "PASS": 48, "QUALIFIED": 18, "BOUNDARY-INDETERMINATE": 1})
+
+    @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
+    def test_incorrect_or_missing_receipt_hash_blocks_every_chart(self):
+        from unittest import mock
+        for mode in ("wrong", "missing"):
+            copy_dir = self._receipt_copy()
+            lines = (copy_dir / "SHA256SUMS").read_text(encoding="utf-8").splitlines()
+            j = next(k for k, line in enumerate(lines) if line.endswith("GOLD-T02.txt"))
+            if mode == "wrong":
+                lines[j] = ("f" if lines[j][0] != "f" else "e") + lines[j][1:]
+            else:
+                del lines[j]
+            (copy_dir / "SHA256SUMS").write_text("\n".join(lines) + "\n", encoding="utf-8")
+            with mock.patch.object(sr, "RECEIPTS", copy_dir):
+                report = gold.run_all(EPHE, None, None)
+            self.assert_blocked_not_fail(report, "RECEIPT_SUMS_SHA256_MISMATCH")
+            t02 = next(r for r in report["results"] if r["id"] == "GOLD-T02")
+            self.assertIn("RECEIPT_HASH_MISMATCH", t02["layers"][-1]["reason"])
+
+    @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
+    def test_real_mismatches_with_verified_inputs_still_fail(self):
         from unittest import mock
         sys.path.insert(0, str(REPO / "src"))
         from sabpuja_kundali import engine
         real = engine.calculate
+        inputs = {f["id"]: f["input"] for f in MATRIX["fixtures"]}
 
-        def wrong_d9(payload, ephe):
+        def injected(payload, ephe):
             out = real(payload, ephe)
-            if payload == next(f["input"] for f in MATRIX["fixtures"] if f["id"] == "GOLD-T03"):
+            if payload == inputs["GOLD-T01"]:                  # longitude beyond the frozen 1e-8 deg tolerance
+                out["planets"]["moon"]["longitude_deg"] = round((out["planets"]["moon"]["longitude_deg"] + 1e-6) % 360, 8)
+            if payload == inputs["GOLD-T02"]:                  # wrong D9 whole-sign house
+                p = out["planets"]["saturn"]
+                p["navamsa_whole_sign_house"] = p["navamsa_whole_sign_house"] % 12 + 1
+            if payload == inputs["GOLD-T03"]:                  # wrong D9 sign
                 p = out["planets"]["venus"]
                 p["navamsa_rashi"] = rr.RASHIS[(rr.RASHIS.index(p["navamsa_rashi"]) + 1) % 12]
-            if payload == next(f["input"] for f in MATRIX["fixtures"] if f["id"] == "GOLD-T04"):
+            if payload == inputs["GOLD-T05"]:                  # method incompatibility (ayanamsha mode)
+                out["calculation_metadata"]["conventions"]["ayanamsa"]["swiss_mode_number"] = 3
+            if payload == inputs["GOLD-T04"]:                  # engine refusal with verified inputs
                 raise engine.ChartComputationError("SWISS_CALC_FAILED", "injected (test)")
             return out
 
-        with mock.patch.object(engine, "calculate", side_effect=wrong_d9):
-            report = gold.run_all(EPHE, None, None)
+        with mock.patch.object(engine, "calculate", side_effect=injected):
+            code, report = _quiet_main(["--ephe", EPHE])
         by_id = {r["id"]: r for r in report["results"]}
-        self.assertEqual(by_id["GOLD-T03"]["classification"], "FAIL")
-        self.assertEqual(by_id["GOLD-T04"]["classification"], "FAIL")
+        layers = lambda fid: {(l["layer"], l["classification"]) for l in by_id[fid]["layers"]}
+        self.assertIn(("SWISS", "SWISS-CONFORMANCE FAIL"), layers("GOLD-T01"))
+        self.assertTrue(any(l["layer"] == "RULES" and l["classification"] == "FAIL" and "navamsa_whole_sign_house" in l["field"]
+                            for l in by_id["GOLD-T02"]["layers"]))
+        self.assertEqual(by_id["GOLD-T01"]["classification"], "SWISS-CONFORMANCE FAIL")
+        for fid in ("GOLD-T02", "GOLD-T03", "GOLD-T04"):
+            self.assertEqual(by_id[fid]["classification"], "FAIL", fid)
+        self.assertEqual(by_id["GOLD-T05"]["classification"], "METHOD-MISMATCH")
         self.assertEqual(report["verdict_verified_layers"], "FAIL")
+        self.assertEqual(code, 1)
+
+    @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
+    def test_a_lone_swiss_longitude_mismatch_fails_the_run(self):
+        from unittest import mock
+        sys.path.insert(0, str(REPO / "src"))
+        from sabpuja_kundali import engine
+        real = engine.calculate
+        target = next(f["input"] for f in MATRIX["fixtures"] if f["id"] == "GOLD-T01")
+
+        def injected(payload, ephe):
+            out = real(payload, ephe)
+            if payload == target:
+                out["planets"]["mars"]["longitude_deg"] = round((out["planets"]["mars"]["longitude_deg"] + 2e-8) % 360, 8)
+            return out
+
+        with mock.patch.object(engine, "calculate", side_effect=injected):
+            code, report = _quiet_main(["--ephe", EPHE])
+        self.assertEqual(report["fixture_counts"].get("SWISS-CONFORMANCE FAIL"), 1)
+        self.assertEqual(report["verdict_verified_layers"], "FAIL")
+        self.assertEqual(code, 1)
+
+    @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
+    def test_verified_run_keeps_boundary_qualified_and_blocked_layers(self):
+        code, report = _quiet_main(["--ephe", EPHE])
+        self.assertEqual(code, 2)
+        self.assertEqual(report["verdict_verified_layers"], "BOUNDARY-INDETERMINATE")
+        self.assertEqual(report["fixture_counts"], {"PASS": 49, "QUALIFIED": 18, "BOUNDARY-INDETERMINATE": 1})
+        e01 = next(r for r in report["results"] if r["id"] == "GOLD-E01")
+        self.assertEqual(e01["classification"], "BOUNDARY-INDETERMINATE")
+        self.assertEqual(sum(1 for l in e01["layers"] if l["classification"] == "BOUNDARY-INDETERMINATE"), 6)
+        self.assertNotIn("FAIL", {l["classification"] for l in e01["layers"]})
+        for r in report["results"]:
+            if r["expect"]["kind"] == "chart":
+                by_layer = {l["layer"]: l["classification"] for l in r["layers"]}
+                self.assertEqual((by_layer["ASTRO"], by_layer["LAGNA-F"]), ("BLOCKED", "BLOCKED"))
 
 
 if __name__ == "__main__":

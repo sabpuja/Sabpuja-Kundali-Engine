@@ -25,7 +25,7 @@ manifest, matrix/spec pins, no SE_EPHE_PATH) and the fixture's committed receipt
 is present and hash-valid. When an input is missing or unverified, the affected
 comparison is BLOCKED with a reason code, never FAIL and never PASS. Missing or
 invalid paths are reported as reason codes, not tracebacks.
-Exit: 0 every verified layer PASS/QUALIFIED; 1 any FAIL or METHOD-MISMATCH; 2 otherwise (BLOCKED or
+Exit: 0 every verified layer PASS/QUALIFIED; 1 any FAIL, SWISS-CONFORMANCE FAIL or METHOD-MISMATCH; 2 otherwise (BLOCKED or
 BOUNDARY-INDETERMINATE present). ASTRO and LAGNA-F are reported but excluded from the exit code,
 since their BLOCKED status is a standing owner decision, not a run defect.
 """
@@ -262,7 +262,7 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
     if sha256_bytes(matrix_bytes) != pins["matrix_sha256"]:
         input_blocks.append("MATRIX_SHA256_MISMATCH")
     if sha256_bytes(sums_bytes) != pins["receipts_sha256sums_sha256"]:
-        run_blocks.append("RECEIPT_SUMS_SHA256_MISMATCH")
+        input_blocks.append("RECEIPT_SUMS_SHA256_MISMATCH")   # the hash list itself is untrusted
     if spec_sha != pins["swiss_spec_sha256"]:
         input_blocks.append("FROZEN_SPEC_SHA256_MISMATCH")
     if os.environ.get("SE_EPHE_PATH"):
@@ -294,7 +294,8 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
                 rec = None
             source, errors = sc_inputs.validate_receipt(rec, binary_sha)
         live = {"swetest_sha256": binary_sha, "source": source, "receipt_errors": errors,
-                "receipt": rec, "reproduced": 0, "not_reproduced": []}
+                "receipt": rec, "reproduced": 0, "not_reproduced": [],
+                "reproduction": BLOCKED if errors else "RUN"}
         run_blocks += errors
     else:
         run_blocks.append("SWETEST_NOT_RERUN (committed receipts only)")
@@ -335,7 +336,8 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
                             "sha256_listed": sums.get(name), "source": "official swetest 2.10.03, aloistr/swisseph@c69c14a"}
         if text is not None and sums.get(name) != sr.sha256_text(text):
             blocked.append("RECEIPT_HASH_MISMATCH")
-        if live is not None and text is not None:
+        if live is not None and text is not None and not live["receipt_errors"]:
+            # Only a binary with a valid official build receipt may reproduce reference evidence.
             try:
                 again = sr.capture(fx, swetest, ephe)
             except (OSError, subprocess.SubprocessError):
@@ -401,8 +403,8 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
             layer_counts[key] = layer_counts.get(key, 0) + 1
     fx_cls = [r["classification"] for r in results]
     if run_blocks or any(c == BLOCKED for c in fx_cls):
-        verdict = BLOCKED if not any(c in (FAIL, MM) for c in fx_cls) else FAIL
-    elif any(c in (FAIL, MM) for c in fx_cls):
+        verdict = BLOCKED if not any(c in (FAIL, SWISS_FAIL, MM) for c in fx_cls) else FAIL
+    elif any(c in (FAIL, SWISS_FAIL, MM) for c in fx_cls):
         verdict = FAIL
     elif any(c == BI for c in fx_cls):
         verdict = BI
