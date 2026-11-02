@@ -1,0 +1,2147 @@
+{
+ "schema": "sabpuja-sci-gold-matrix/1",
+ "task": "KUN-SCI-GOLD-001",
+ "status": "PREDECLARED before the first comparison run; all records synthetic, none a real birth",
+ "baseline": "PR #58 fde3ec670618a02f2b913e9bbbedd1521d3840c7",
+ "built_with": "tests/sci_gold/design/build_matrix.py (pyswisseph 2.10.3.2 design-time search only)",
+ "fixtures": [
+  {
+   "id": "GOLD-T01",
+   "group": "typical",
+   "purpose": "typical chart, Asia/Kolkata place in-new-delhi",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1975-03-14T06:10:00+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "1975-03-14T00:40:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-T02",
+   "group": "typical",
+   "purpose": "typical chart, Asia/Kolkata place in-mumbai",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1983-07-22T23:45:00+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 19.07283,
+    "longitude": 72.88261
+   },
+   "place": {
+    "key": "in-mumbai",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "1983-07-22T18:15:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-T03",
+   "group": "typical",
+   "purpose": "typical chart, Asia/Kolkata place in-kolkata",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1991-11-05T12:00:00+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 22.56263,
+    "longitude": 88.36304
+   },
+   "place": {
+    "key": "in-kolkata",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "1991-11-05T06:30:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-T04",
+   "group": "typical",
+   "purpose": "typical chart, Asia/Kolkata place in-chennai",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1999-02-28T04:20:00+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 13.08784,
+    "longitude": 80.27847
+   },
+   "place": {
+    "key": "in-chennai",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "1999-02-27T22:50:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-T05",
+   "group": "typical",
+   "purpose": "typical chart, Asia/Kolkata place in-bengaluru",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2004-08-15T18:30:00+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 12.97194,
+    "longitude": 77.59369
+   },
+   "place": {
+    "key": "in-bengaluru",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2004-08-15T13:00:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-T06",
+   "group": "typical",
+   "purpose": "typical chart, Asia/Kolkata place in-hyderabad",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2012-02-29T09:05:00+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 17.38405,
+    "longitude": 78.45636
+   },
+   "place": {
+    "key": "in-hyderabad",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2012-02-29T03:35:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-T07",
+   "group": "typical",
+   "purpose": "typical chart, Asia/Kolkata place in-jaipur",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-10-02T15:15:15+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 26.91962,
+    "longitude": 75.78781
+   },
+   "place": {
+    "key": "in-jaipur",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2026-10-02T09:45:15Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-T08",
+   "group": "typical",
+   "purpose": "typical chart, Asia/Kolkata place in-lucknow",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2047-01-26T07:07:07+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 26.83928,
+    "longitude": 80.92313
+   },
+   "place": {
+    "key": "in-lucknow",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2047-01-26T01:37:07Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-T09",
+   "group": "typical",
+   "purpose": "typical chart, Asia/Kolkata place in-varanasi",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2069-09-09T21:40:00+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 25.31668,
+    "longitude": 83.01041
+   },
+   "place": {
+    "key": "in-varanasi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2069-09-09T16:10:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-T10",
+   "group": "typical",
+   "purpose": "typical chart, Asia/Kolkata place in-guwahati",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2099-12-31T11:11:00+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 26.1844,
+    "longitude": 91.7458
+   },
+   "place": {
+    "key": "in-guwahati",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2099-12-31T05:41:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-M01",
+   "group": "midnight",
+   "purpose": "one second before local midnight, year end",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2001-12-31T23:59:59+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2001-12-31T18:29:59Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-M02",
+   "group": "midnight",
+   "purpose": "local midnight, new year; UTC is 2001-12-31T18:30Z",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2002-01-01T00:00:00+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2001-12-31T18:30:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-M03",
+   "group": "midnight",
+   "purpose": "one microsecond after midnight on 29 February",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2024-02-29T00:00:00.000001+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 13.08784,
+    "longitude": 80.27847
+   },
+   "place": {
+    "key": "in-chennai",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2024-02-28T18:30:00.000001Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-M04",
+   "group": "midnight",
+   "purpose": "first local instant accepted by the historical-clock gate",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1970-01-01T00:00:00+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 22.56263,
+    "longitude": 88.36304
+   },
+   "place": {
+    "key": "in-kolkata",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "1969-12-31T18:30:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-M05",
+   "group": "midnight",
+   "purpose": "last local instant of the supported window",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2100-12-31T23:59:59.999999+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 26.1844,
+    "longitude": 91.7458
+   },
+   "place": {
+    "key": "in-guwahati",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2100-12-31T18:29:59.999999Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-B01a",
+   "group": "boundary",
+   "purpose": "Moon crosses 0 deg (Meena -> Mesha, 0/360 wrap, Revati 4 -> Ashwini 1); 2 s before the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2031-01-01T22:40:17+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 19.07283,
+    "longitude": 72.88261
+   },
+   "place": {
+    "key": "in-mumbai",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2031-01-01T17:10:17Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "moon"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "moon sidereal longitude crosses 0.0 deg",
+    "offset_seconds": -2,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B01b",
+   "group": "boundary",
+   "purpose": "Moon crosses 0 deg (Meena -> Mesha, 0/360 wrap, Revati 4 -> Ashwini 1); 2 s after the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2031-01-01T22:40:21+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 19.07283,
+    "longitude": 72.88261
+   },
+   "place": {
+    "key": "in-mumbai",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2031-01-01T17:10:21Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "moon"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "moon sidereal longitude crosses 0.0 deg",
+    "offset_seconds": 2,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B02a",
+   "group": "boundary",
+   "purpose": "Moon crosses 13 deg 20 min (Ashwini 4 -> Bharani 1; D9 Karka -> Simha); 2 s before the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1997-05-06T10:38:04+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 17.38405,
+    "longitude": 78.45636
+   },
+   "place": {
+    "key": "in-hyderabad",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "1997-05-06T05:08:04Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "moon"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "moon sidereal longitude crosses 13.333333333333334 deg",
+    "offset_seconds": -2,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B02b",
+   "group": "boundary",
+   "purpose": "Moon crosses 13 deg 20 min (Ashwini 4 -> Bharani 1; D9 Karka -> Simha); 2 s after the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1997-05-06T10:38:08+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 17.38405,
+    "longitude": 78.45636
+   },
+   "place": {
+    "key": "in-hyderabad",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "1997-05-06T05:08:08Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "moon"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "moon sidereal longitude crosses 13.333333333333334 deg",
+    "offset_seconds": 2,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B03a",
+   "group": "boundary",
+   "purpose": "Moon crosses 3 deg 20 min (Pada 1 -> 2 inside Ashwini; D9 Mesha -> Vrishabha); 2 s before the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2058-08-09T19:30:31+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 26.83928,
+    "longitude": 80.92313
+   },
+   "place": {
+    "key": "in-lucknow",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2058-08-09T14:00:31Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "moon"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "moon sidereal longitude crosses 3.3333333333333335 deg",
+    "offset_seconds": -2,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B03b",
+   "group": "boundary",
+   "purpose": "Moon crosses 3 deg 20 min (Pada 1 -> 2 inside Ashwini; D9 Mesha -> Vrishabha); 2 s after the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2058-08-09T19:30:35+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 26.83928,
+    "longitude": 80.92313
+   },
+   "place": {
+    "key": "in-lucknow",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2058-08-09T14:00:35Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "moon"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "moon sidereal longitude crosses 3.3333333333333335 deg",
+    "offset_seconds": 2,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B04a",
+   "group": "boundary",
+   "purpose": "Sun crosses 0 deg (Mesha sankranti); 60 s before the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-04-14T09:31:39+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 25.31668,
+    "longitude": 83.01041
+   },
+   "place": {
+    "key": "in-varanasi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2026-04-14T04:01:39Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "sun"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "sun sidereal longitude crosses 0.0 deg",
+    "offset_seconds": -60,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B04b",
+   "group": "boundary",
+   "purpose": "Sun crosses 0 deg (Mesha sankranti); 60 s after the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-04-14T09:33:39+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 25.31668,
+    "longitude": 83.01041
+   },
+   "place": {
+    "key": "in-varanasi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2026-04-14T04:03:39Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "sun"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "sun sidereal longitude crosses 0.0 deg",
+    "offset_seconds": 60,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B05a",
+   "group": "boundary",
+   "purpose": "Sun crosses 120 deg (Karka -> Simha); 60 s before the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2077-08-17T09:48:39+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 12.97194,
+    "longitude": 77.59369
+   },
+   "place": {
+    "key": "in-bengaluru",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2077-08-17T04:18:39Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "sun"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "sun sidereal longitude crosses 120.0 deg",
+    "offset_seconds": -60,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B05b",
+   "group": "boundary",
+   "purpose": "Sun crosses 120 deg (Karka -> Simha); 60 s after the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2077-08-17T09:50:39+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 12.97194,
+    "longitude": 77.59369
+   },
+   "place": {
+    "key": "in-bengaluru",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2077-08-17T04:20:39Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "sun"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "sun sidereal longitude crosses 120.0 deg",
+    "offset_seconds": 60,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B06a",
+   "group": "boundary",
+   "purpose": "Lagna crosses 90 deg (Mithuna -> Karka): every D1 house changes; 2 s before the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2005-06-10T08:00:54+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2005-06-10T02:30:54Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "lagna"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "lagna sidereal longitude crosses 90.0 deg",
+    "offset_seconds": -2,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B06b",
+   "group": "boundary",
+   "purpose": "Lagna crosses 90 deg (Mithuna -> Karka): every D1 house changes; 2 s after the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2005-06-10T08:00:58+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2005-06-10T02:30:58Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "lagna"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "lagna sidereal longitude crosses 90.0 deg",
+    "offset_seconds": 2,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B07a",
+   "group": "boundary",
+   "purpose": "Lagna crosses 196 deg 40 min (a D9 edge inside Tula): every D9 house changes, D1 does not; 1 s before the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2016-09-03T10:05:33+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 13.08784,
+    "longitude": 80.27847
+   },
+   "place": {
+    "key": "in-chennai",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2016-09-03T04:35:33Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "lagna"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "lagna sidereal longitude crosses 196.66666666666666 deg",
+    "offset_seconds": -1,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B07b",
+   "group": "boundary",
+   "purpose": "Lagna crosses 196 deg 40 min (a D9 edge inside Tula): every D9 house changes, D1 does not; 1 s after the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2016-09-03T10:05:35+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 13.08784,
+    "longitude": 80.27847
+   },
+   "place": {
+    "key": "in-chennai",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2016-09-03T04:35:35Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "lagna"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "lagna sidereal longitude crosses 196.66666666666666 deg",
+    "offset_seconds": 1,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B08a",
+   "group": "boundary",
+   "purpose": "Mean Rahu crosses 30 deg (Vrishabha -> Mesha, retrograde node); Ketu crosses 210 deg; 600 s before the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2040-11-17T01:01:39+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 22.56263,
+    "longitude": 88.36304
+   },
+   "place": {
+    "key": "in-kolkata",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2040-11-16T19:31:39Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "rahu_mean",
+    "ketu_mean"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "rahu_mean sidereal longitude crosses 30.0 deg",
+    "offset_seconds": -600,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B08b",
+   "group": "boundary",
+   "purpose": "Mean Rahu crosses 30 deg (Vrishabha -> Mesha, retrograde node); Ketu crosses 210 deg; 600 s after the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2040-11-17T01:21:39+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 22.56263,
+    "longitude": 88.36304
+   },
+   "place": {
+    "key": "in-kolkata",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2040-11-16T19:51:39Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "rahu_mean",
+    "ketu_mean"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "rahu_mean sidereal longitude crosses 30.0 deg",
+    "offset_seconds": 600,
+    "direction": null
+   }
+  },
+  {
+   "id": "GOLD-B09a",
+   "group": "boundary",
+   "purpose": "Mercury retrograde crosses a Rashi edge backwards (300 deg); 300 s before the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2027-02-24T04:35:23+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 26.91962,
+    "longitude": 75.78781
+   },
+   "place": {
+    "key": "in-jaipur",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2027-02-23T23:05:23Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "mercury"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "mercury sidereal longitude crosses 300.0 deg",
+    "offset_seconds": -300,
+    "direction": "backward"
+   }
+  },
+  {
+   "id": "GOLD-B09b",
+   "group": "boundary",
+   "purpose": "Mercury retrograde crosses a Rashi edge backwards (300 deg); 300 s after the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2027-02-24T04:45:23+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 26.91962,
+    "longitude": 75.78781
+   },
+   "place": {
+    "key": "in-jaipur",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2027-02-23T23:15:23Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "mercury"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "mercury sidereal longitude crosses 300.0 deg",
+    "offset_seconds": 300,
+    "direction": "backward"
+   }
+  },
+  {
+   "id": "GOLD-B10a",
+   "group": "boundary",
+   "purpose": "Mars retrograde crosses a Rashi edge backwards (330 deg); 300 s before the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2035-09-10T10:40:44+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 26.1844,
+    "longitude": 91.7458
+   },
+   "place": {
+    "key": "in-guwahati",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2035-09-10T05:10:44Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "mars"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "mars sidereal longitude crosses 330.0 deg",
+    "offset_seconds": -300,
+    "direction": "backward"
+   }
+  },
+  {
+   "id": "GOLD-B10b",
+   "group": "boundary",
+   "purpose": "Mars retrograde crosses a Rashi edge backwards (330 deg); 300 s after the crossing",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2035-09-10T10:50:44+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 26.1844,
+    "longitude": 91.7458
+   },
+   "place": {
+    "key": "in-guwahati",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2035-09-10T05:20:44Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "mars"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "mars sidereal longitude crosses 330.0 deg",
+    "offset_seconds": 300,
+    "direction": "backward"
+   }
+  },
+  {
+   "id": "GOLD-E01",
+   "group": "boundary-exact",
+   "purpose": "moon within ~1 microsecond of the 120.0 deg edge (expected to be undecidable at the frozen tolerance)",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2008-01-24T09:31:02.327269+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2008-01-24T04:01:02.327269Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ]
+    ]
+   },
+   "focus": [
+    "moon"
+   ],
+   "design": {
+    "selected_with": "pinned pyswisseph 2.10.3.2 design-time search; NOT a reference value",
+    "target": "moon sidereal longitude crosses 120.0 deg",
+    "offset_seconds": 0
+   }
+  },
+  {
+   "id": "GOLD-Z01",
+   "group": "timezone",
+   "purpose": "Kathmandu, last standard minute before the 1986 change to +05:45",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1985-12-31T23:59:00+05:30",
+    "timezone": "Asia/Kathmandu",
+    "latitude": 27.7,
+    "longitude": 85.3
+   },
+   "place": {
+    "key": "syn-kathmandu",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "1985-12-31T18:29:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kathmandu\t5:41:16 -\tLMT\t1920 / 5:30\t-\t%z\t1986 / 5:45\t-\t%z: the clock jumps from 1986-01-01T00:00 +05:30 to 00:15 +05:45"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-Z02",
+   "group": "timezone",
+   "purpose": "Kathmandu, first minute after the 1986 change",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1986-01-01T00:15:00+05:45",
+    "timezone": "Asia/Kathmandu",
+    "latitude": 27.7,
+    "longitude": 85.3
+   },
+   "place": {
+    "key": "syn-kathmandu",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "1985-12-31T18:30:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kathmandu\t5:41:16 -\tLMT\t1920 / 5:30\t-\t%z\t1986 / 5:45\t-\t%z: the clock jumps from 1986-01-01T00:00 +05:30 to 00:15 +05:45"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-Z03",
+   "group": "timezone",
+   "purpose": "Dhaka 2009 daylight time (+07)",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2009-08-01T12:00:00+07:00",
+    "timezone": "Asia/Dhaka",
+    "latitude": 23.8,
+    "longitude": 90.4
+   },
+   "place": {
+    "key": "syn-dhaka",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2009-08-01T05:00:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Rule\tDhaka\t2009\tonly\t-\tJun\t19\t23:00\t1:00\t- ; Rule\tDhaka\t2009\tonly\t-\tDec\t31\t24:00\t0\t- ; Zone Asia/Dhaka 6:00 Dhaka %z: 2009-06-19 23:00 +06 -> 2009-06-20 00:00 +07"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-Z04",
+   "group": "timezone",
+   "purpose": "New York, repeated hour 2026-11-01 01:30, first (EDT) instance",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-11-01T01:30:00-04:00",
+    "timezone": "America/New_York",
+    "latitude": 40.7,
+    "longitude": -74.0
+   },
+   "place": {
+    "key": "syn-new-york",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2026-11-01T05:30:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "northamerica",
+      "Rule\tUS\t2007\tmax\t-\tMar\tSun>=8\t2:00\t1:00\tD ; Rule\tUS\t2007\tmax\t-\tNov\tSun>=1\t2:00\t0\tS ; Zone America/New_York -5:00 US E%sT"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-Z05",
+   "group": "timezone",
+   "purpose": "New York, repeated hour 2026-11-01 01:30, second (EST) instance",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-11-01T01:30:00-05:00",
+    "timezone": "America/New_York",
+    "latitude": 40.7,
+    "longitude": -74.0
+   },
+   "place": {
+    "key": "syn-new-york",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2026-11-01T06:30:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "northamerica",
+      "Rule\tUS\t2007\tmax\t-\tMar\tSun>=8\t2:00\t1:00\tD ; Rule\tUS\t2007\tmax\t-\tNov\tSun>=1\t2:00\t0\tS ; Zone America/New_York -5:00 US E%sT"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-Z06",
+   "group": "timezone",
+   "purpose": "London, repeated hour 2026-10-25 01:30 BST instance",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-10-25T01:30:00+01:00",
+    "timezone": "Europe/London",
+    "latitude": 51.50853,
+    "longitude": -0.12574
+   },
+   "place": {
+    "key": "gb-london",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2026-10-25T00:30:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "europe",
+      "Rule\tEU\t1981\tmax\t-\tMar\tlastSun\t 1:00u\t1:00\tS ; Rule\tEU\t1996\tmax\t-\tOct\tlastSun\t 1:00u\t0\t- ; Zone Europe/London 0:00 EU GMT/BST (since 1996)"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-Z07",
+   "group": "timezone",
+   "purpose": "London, repeated hour 2026-10-25 01:30 GMT instance",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-10-25T01:30:00+00:00",
+    "timezone": "Europe/London",
+    "latitude": 51.50853,
+    "longitude": -0.12574
+   },
+   "place": {
+    "key": "gb-london",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2026-10-25T01:30:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "europe",
+      "Rule\tEU\t1981\tmax\t-\tMar\tlastSun\t 1:00u\t1:00\tS ; Rule\tEU\t1996\tmax\t-\tOct\tlastSun\t 1:00u\t0\t- ; Zone Europe/London 0:00 EU GMT/BST (since 1996)"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-Z08",
+   "group": "timezone",
+   "purpose": "Sydney (southern hemisphere), repeated hour 2026-04-05 02:30 AEDT instance",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-04-05T02:30:00+11:00",
+    "timezone": "Australia/Sydney",
+    "latitude": -33.87,
+    "longitude": 151.21
+   },
+   "place": {
+    "key": "syn-sydney",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2026-04-04T15:30:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "australasia",
+      "Rule\tAN\t2008\tmax\t-\tApr\tSun>=1\t2:00s\t0\tS ; Rule\tAN\t2008\tmax\t-\tOct\tSun>=1\t2:00s\t1:00\tD ; Zone Australia/Sydney 10:00 AN AE%sT (since 1971)"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-Z09",
+   "group": "timezone",
+   "purpose": "Sydney, repeated hour 2026-04-05 02:30 AEST instance",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-04-05T02:30:00+10:00",
+    "timezone": "Australia/Sydney",
+    "latitude": -33.87,
+    "longitude": 151.21
+   },
+   "place": {
+    "key": "syn-sydney",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2026-04-04T16:30:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "australasia",
+      "Rule\tAN\t2008\tmax\t-\tApr\tSun>=1\t2:00s\t0\tS ; Rule\tAN\t2008\tmax\t-\tOct\tSun>=1\t2:00s\t1:00\tD ; Zone Australia/Sydney 10:00 AN AE%sT (since 1971)"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-Z10",
+   "group": "timezone",
+   "purpose": "Asia/Calcutta (IANA backward link to Asia/Kolkata) gives the same UTC and chart as GOLD-T03",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1991-11-05T12:00:00+05:30",
+    "timezone": "Asia/Calcutta",
+    "latitude": 22.56263,
+    "longitude": 88.36304
+   },
+   "place": {
+    "key": "in-kolkata",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "1991-11-05T06:30:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "asia",
+      "Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1854 Jun 28 # Kolkata ... final line '\t\t\t5:30\t-\tIST' (no rule since 1945 Oct 15): UTC = local - 05:30"
+     ],
+     [
+      "backward",
+      "Link\tAsia/Kolkata\t\tAsia/Calcutta"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-L01",
+   "group": "timezone",
+   "purpose": "southern latitude -54.8 (Ushuaia, fixed -03)",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2030-06-21T12:00:00-03:00",
+    "timezone": "America/Argentina/Ushuaia",
+    "latitude": -54.8,
+    "longitude": -68.3
+   },
+   "place": {
+    "key": "syn-ushuaia",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2030-06-21T15:00:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "southamerica",
+      "Zone America/Argentina/Ushuaia ... -3:00 Arg %z 2008 Oct 18 / -3:00 - %z (no DST since 2009)"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-L02",
+   "group": "timezone",
+   "purpose": "high latitude 60.17 N accepted with HIGH_LATITUDE_TIME_SENSITIVITY",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2035-12-21T12:00:00+02:00",
+    "timezone": "Europe/Helsinki",
+    "latitude": 60.17,
+    "longitude": 24.94
+   },
+   "place": {
+    "key": "syn-helsinki",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2035-12-21T10:00:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "europe",
+      "Zone Europe/Helsinki 2:00 EU EE%sT (since 1983): 21 December is standard time, +02"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-L03",
+   "group": "timezone",
+   "purpose": "latitude exactly +66.0 (band edge, inclusive)",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2044-03-20T06:00:00+02:00",
+    "timezone": "Europe/Helsinki",
+    "latitude": 66.0,
+    "longitude": 25.0
+   },
+   "place": {
+    "key": "syn-band-north",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2044-03-20T04:00:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "europe",
+      "Zone Europe/Helsinki 2:00 EU EE%sT: 20 March 2044 is before the last Sunday of March, +02"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-L04",
+   "group": "timezone",
+   "purpose": "latitude exactly -66.0 (band edge, inclusive)",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2052-09-23T18:00:00+10:00",
+    "timezone": "Antarctica/DumontDUrville",
+    "latitude": -66.0,
+    "longitude": 140.0
+   },
+   "place": {
+    "key": "syn-band-south",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "chart"
+   },
+   "time_reference": {
+    "expected_utc": "2052-09-23T08:00:00Z",
+    "source": "IANA tz 2026e source text (eggert/tz tag 2026e)",
+    "rule_text": [
+     [
+      "backward",
+      "Link\tPacific/Port_Moresby\tAntarctica/DumontDUrville"
+     ],
+     [
+      "australasia",
+      "Zone Pacific/Port_Moresby 9:48:40 - LMT 1880 / 9:48:32 - PMMT 1895 / 10:00 - %z"
+     ]
+    ]
+   },
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R01",
+   "group": "timezone",
+   "purpose": "New York DST gap 2026-03-08 02:30 does not exist",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-03-08T02:30:00-05:00",
+    "timezone": "America/New_York",
+    "latitude": 40.7,
+    "longitude": -74.0
+   },
+   "place": {
+    "key": "syn-new-york",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "TIME_NONEXISTENT_LOCAL",
+    "basis": "US rule Mar Sun>=8 2:00: 02:00 EST -> 03:00 EDT"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R02",
+   "group": "timezone",
+   "purpose": "London DST gap 2026-03-29 01:30 does not exist",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-03-29T01:30:00+00:00",
+    "timezone": "Europe/London",
+    "latitude": 51.50853,
+    "longitude": -0.12574
+   },
+   "place": {
+    "key": "gb-london",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "TIME_NONEXISTENT_LOCAL",
+    "basis": "EU rule Mar lastSun 1:00u"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R03",
+   "group": "timezone",
+   "purpose": "Sydney DST gap 2026-10-04 02:30 does not exist (southern spring)",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-10-04T02:30:00+10:00",
+    "timezone": "Australia/Sydney",
+    "latitude": -33.87,
+    "longitude": 151.21
+   },
+   "place": {
+    "key": "syn-sydney",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "TIME_NONEXISTENT_LOCAL",
+    "basis": "AN rule Oct Sun>=1 2:00s"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R04",
+   "group": "timezone",
+   "purpose": "Kathmandu 1986-01-01 00:10 falls in the 15-minute historical gap",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1986-01-01T00:10:00+05:30",
+    "timezone": "Asia/Kathmandu",
+    "latitude": 27.7,
+    "longitude": 85.3
+   },
+   "place": {
+    "key": "syn-kathmandu",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "TIME_NONEXISTENT_LOCAL",
+    "basis": "Zone Asia/Kathmandu 5:30 until 1986, then 5:45"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R05",
+   "group": "timezone",
+   "purpose": "Dhaka 2009-06-19 23:30 falls in the DST gap",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2009-06-19T23:30:00+06:00",
+    "timezone": "Asia/Dhaka",
+    "latitude": 23.8,
+    "longitude": 90.4
+   },
+   "place": {
+    "key": "syn-dhaka",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "TIME_NONEXISTENT_LOCAL",
+    "basis": "Rule Dhaka 2009 Jun 19 23:00 1:00"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R06",
+   "group": "timezone",
+   "purpose": "IST with a wrong offset (+05:00) is refused, not corrected",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2010-05-05T10:00:00+05:00",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "TIME_OFFSET_MISMATCH",
+    "basis": "P5 step 10; IST is +05:30"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R07",
+   "group": "timezone",
+   "purpose": "New York fold with an offset that is neither EDT nor EST",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2026-11-01T01:30:00-06:00",
+    "timezone": "America/New_York",
+    "latitude": 40.7,
+    "longitude": -74.0
+   },
+   "place": {
+    "key": "syn-new-york",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "TIME_OFFSET_MISMATCH",
+    "basis": "P5 step 10"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R08",
+   "group": "timezone",
+   "purpose": "no offset: never guessed",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2010-05-05T10:00:00",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "TIME_OFFSET_REQUIRED",
+    "basis": "P5 step 2"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R09",
+   "group": "timezone",
+   "purpose": "UTC is not a birthplace zone (no silent UTC fallback)",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2010-05-05T04:30:00Z",
+    "timezone": "UTC",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "TIMEZONE_NOT_LOCATION_BASED",
+    "basis": "D3 v2, P5 step 7"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R10",
+   "group": "timezone",
+   "purpose": "unknown zone key",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2010-05-05T10:00:00+05:30",
+    "timezone": "India/Delhi",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "TIMEZONE_INVALID",
+    "basis": "P5 step 6; key not in the pinned TZif manifest"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R11",
+   "group": "timezone",
+   "purpose": "IST one second before 1970-01-01 (historical clock unverified)",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1969-12-31T23:59:59+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "HISTORICAL_CLOCK_UNVERIFIED",
+    "basis": "SCI-03 Option B, P8"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R12",
+   "group": "timezone",
+   "purpose": "IST 1956 (historical IST period, still refused under Option B)",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "1956-04-01T10:00:00+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "HISTORICAL_CLOCK_UNVERIFIED",
+    "basis": "SCI-03 Option B"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R13",
+   "group": "latitude",
+   "purpose": "latitude 69.6489 N (Tromsoe) outside the band",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2030-01-01T12:00:00+01:00",
+    "timezone": "Europe/Oslo",
+    "latitude": 69.6489,
+    "longitude": 18.95508
+   },
+   "place": {
+    "key": "no-tromso",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "LATITUDE_OUTSIDE_SUPPORTED_BAND",
+    "basis": "SCI-01g"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R14",
+   "group": "latitude",
+   "purpose": "latitude 66.0000001 just outside the band",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2044-03-20T06:00:00+02:00",
+    "timezone": "Europe/Helsinki",
+    "latitude": 66.0000001,
+    "longitude": 25.0
+   },
+   "place": {
+    "key": "syn-band-north",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "LATITUDE_OUTSIDE_SUPPORTED_BAND",
+    "basis": "SCI-01g"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R15",
+   "group": "latitude",
+   "purpose": "latitude -66.5 (southern) outside the band",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2052-09-23T18:00:00+10:00",
+    "timezone": "Antarctica/DumontDUrville",
+    "latitude": -66.5,
+    "longitude": 140.0
+   },
+   "place": {
+    "key": "syn-band-south",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "LATITUDE_OUTSIDE_SUPPORTED_BAND",
+    "basis": "SCI-01g"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R16",
+   "group": "latitude",
+   "purpose": "Murmansk 68.97 N outside the band",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2030-01-01T12:00:00+03:00",
+    "timezone": "Europe/Moscow",
+    "latitude": 68.97,
+    "longitude": 33.08
+   },
+   "place": {
+    "key": "syn-murmansk",
+    "coordinate_source": "synthetic"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "LATITUDE_OUTSIDE_SUPPORTED_BAND",
+    "basis": "SCI-01g"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R17",
+   "group": "window",
+   "purpose": "local date 2101-01-01 outside the window",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2101-01-01T00:00:00+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "DATE_OUTSIDE_SUPPORTED_RANGE",
+    "basis": "SCI-03"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  },
+  {
+   "id": "GOLD-R18",
+   "group": "timezone",
+   "purpose": "leap second 23:59:60 refused",
+   "synthetic": true,
+   "input": {
+    "birth_datetime": "2016-12-31T23:59:60+05:30",
+    "timezone": "Asia/Kolkata",
+    "latitude": 28.63576,
+    "longitude": 77.22445
+   },
+   "place": {
+    "key": "in-new-delhi",
+    "coordinate_source": "places.json"
+   },
+   "expect": {
+    "kind": "refusal",
+    "code": "TIME_LEAP_SECOND_UNSUPPORTED",
+    "basis": "P5 step 3"
+   },
+   "time_reference": null,
+   "focus": [],
+   "design": null
+  }
+ ]
+}
