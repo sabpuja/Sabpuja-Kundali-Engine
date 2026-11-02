@@ -13,6 +13,10 @@ decides nothing, it refuses a register in which
 * customer release is anything but PENDING or APPROVED, or is APPROVED without every required
   layer of every item positively ACCEPTED against the current catalogs and a signed owner release.
 
+The gate checks evidence paths, SHA-256 values and metadata only. It does not and cannot
+authenticate a handwritten or electronic signature or a reviewer's identity; those remain
+independently verifiable requirements for whoever accepts the release.
+
 REJECTED and REVISED are decisions, never approvals: a revision has to be applied and then
 ACCEPTED against the new catalog bytes before release. The adversarial tests below feed the gate
 forged registers in memory; nothing here records or fabricates a review.
@@ -257,6 +261,49 @@ class AdversarialRegisters(unittest.TestCase):
         reg['items'][14][O] = {'status': 'NOT_APPLICABLE'}  # item 15, owner Change B
         self.assertRefused(reg, "15/owner_copy: required layer has status 'NOT_APPLICABLE'")
 
+    def test_one_mandatory_hindi_layer_not_applicable(self):
+        reg = self.fully_accepted()
+        reg['items'][7][L] = {'status': 'NOT_APPLICABLE'}  # item 8
+        self.assertRefused(reg, "8/human_hindi_language: required layer has status 'NOT_APPLICABLE'")
+        self.assertRefused(reg, 'customer_release APPROVED without ACCEPTED: 8/human_hindi_language')
+
+    def test_one_mandatory_jyotish_layer_not_applicable(self):
+        reg = self.fully_accepted()
+        reg['items'][4][J] = {'status': 'NOT_APPLICABLE'}  # item 5
+        self.assertRefused(reg, "5/human_jyotish_terminology: required layer has status 'NOT_APPLICABLE'")
+
+    def test_owner_approval_missing_for_item_13_or_15(self):
+        for index, iid in ((12, '13'), (14, '15')):
+            for missing in ('deleted', 'pending', 'empty'):
+                with self.subTest(item=iid, missing=missing):
+                    reg = self.fully_accepted()
+                    if missing == 'deleted':
+                        del reg['items'][index][O]
+                        fragment = f'{iid}/owner_copy: missing'
+                    elif missing == 'pending':
+                        reg['items'][index][O] = {'status': 'PENDING'}
+                        fragment = f'customer_release APPROVED without ACCEPTED'
+                    else:
+                        reg['items'][index][O] = {}
+                        fragment = f'{iid}/owner_copy: required layer has status None'
+                    self.assertRefused(reg, fragment)
+                    self.assertTrue(any(f'{iid}/owner_copy' in p for p in self.problems(reg)))
+
+    def test_optional_layer_is_not_a_missing_mandatory_approval(self):
+        """Item 2 needs only Jyotish; its language and owner layers are NOT_APPLICABLE and the
+        complete control passes, so optional layers are never demanded."""
+        reg = self.fully_accepted()
+        self.assertEqual(reg['items'][1][L], {'status': 'NOT_APPLICABLE'})
+        self.assertEqual(reg['items'][1][O], {'status': 'NOT_APPLICABLE'})
+        self.assertEqual(self.problems(reg), [])
+
+    def test_partial_approval_then_release(self):
+        reg = self.fully_accepted()
+        for item in reg['items'][9:]:
+            for layer in REQUIRED[item['id']]:
+                item[layer] = {'status': 'PENDING'}
+        self.assertRefused(reg, 'customer_release APPROVED without ACCEPTED: 10/human_hindi_language')
+
     def test_review_layers_field_cannot_relax_the_matrix(self):
         reg = self.fully_accepted()
         reg['items'][12]['review_layers'] = 'L'  # item 13 without its owner layer
@@ -300,10 +347,22 @@ class AdversarialRegisters(unittest.TestCase):
                 reg['items'][0][L]['evidence'] = evidence
                 self.assertRefused(reg, fragment)
 
-    def test_stale_catalog_hash(self):
+    def test_stale_ui_catalog_hash(self):
         reg = self.fully_accepted()
         reg['items'][3][J]['reviewed_ui_catalog_sha256'] = '0' * 64
         self.assertRefused(reg, '4/human_jyotish_terminology: stale')
+
+    def test_stale_pdf_catalog_hash(self):
+        reg = self.fully_accepted()
+        reg['items'][12][O]['reviewed_pdf_catalog_sha256'] = '0' * 64  # owner Change A on old bytes
+        self.assertRefused(reg, '13/owner_copy: stale')
+
+    def test_catalog_change_after_review_makes_every_decision_stale(self):
+        reg = self.fully_accepted()
+        changed = (self.catalogs[0], 'f' * 64)  # as if the PDF catalog changed after the reviews
+        problems = register_problems(reg, changed, self.root)
+        self.assertTrue(any('stale' in p for p in problems))
+        self.assertIn('reviewed_source does not match the catalogs in this tree', problems)
 
     def test_unauthorized_ai_approval(self):
         for name in ('Claude', 'ChatGPT QA', 'GPT-5', 'AI reviewer', 'review bot', 'Anthropic assistant'):

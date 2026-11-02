@@ -5,7 +5,8 @@ screenshots. This guard fails if any referenced asset is absent from the tree (f
 by the root `.gitignore` `*.pdf` rule), if a file is missing from `EVIDENCE-MANIFEST.md`, if a
 SHA-256 stated in the manifest or next to a path in the packet differs from the file, or if the
 three sample PDFs are not exactly what the current renderer produces from the synthetic fixture
-`s11-afternoon`. Removing a reference does not satisfy it: the manifest must list every file in
+`s11-afternoon`, ten A4 pages each, with extractable Hindi and Devanagari name text and the
+synthetic-data marking. Removing a reference does not satisfy it: the manifest must list every file in
 the package and every listed file must exist.
 """
 import hashlib
@@ -92,6 +93,33 @@ class PacketAssets(unittest.TestCase):
                                         display_name=display_name, locale=locale)
                 self.assertEqual(hashlib.sha256(data).hexdigest(), sha256(PACKET / name))
                 self.assertEqual(fitz.open(stream=data, filetype='pdf').page_count, 10)
+
+
+    def test_sample_pdfs_are_ten_a4_pages_with_extractable_text_and_synthetic_marking(self):
+        import fitz
+        marks = {'en': 'SYNTHETIC BIRTH DETAILS, NOT A REAL PERSON', 'hi': 'कृत्रिम जन्म विवरण, कोई वास्तविक व्यक्ति नहीं'}
+        birth = {'en': '5 September 2038', 'hi': '5 सितंबर 2038'}
+        hindi = ('वैदिक जन्म कुंडली', 'जन्म स्थान', 'नई दिल्ली', 'नवांश', 'लग्न')
+        for name, (locale, display_name) in SAMPLES.items():
+            with self.subTest(name):
+                doc = fitz.open(PACKET / name)
+                self.assertEqual(doc.page_count, 10)
+                for page in doc:  # A4 portrait, 595.28 x 841.89 pt
+                    self.assertAlmostEqual(page.rect.width, 595.28, places=1)
+                    self.assertAlmostEqual(page.rect.height, 841.89, places=1)
+                pages = [page.get_text() for page in doc]
+                text = ''.join(pages)
+                self.assertIn(marks[locale], text)            # labelled synthetic, not a real person
+                self.assertIn(birth[locale], text)            # the synthetic fixture's 2038 birth date
+                self.assertEqual(doc.metadata['creationDate'], "D:20000101000000+00'00'")
+                if locale == 'hi':
+                    for term in hindi:                         # Hindi is real, extractable Unicode
+                        self.assertIn(term, text)
+                    self.assertTrue(all(any('\u0900' <= ch <= '\u097f' for ch in page) for page in pages))
+                if display_name:                               # cover and page-4 birth record only
+                    self.assertEqual([i + 1 for i, page in enumerate(pages) if display_name in page], [1, 4])
+                else:
+                    self.assertNotIn('जातक\n', pages[0])
 
 
 if __name__ == '__main__':
