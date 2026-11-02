@@ -86,7 +86,7 @@
     },
     "ut1_assumption": {
       "en": "civil UTC is treated as UT1 (an assumption, not a measured UT1 correction)",
-      "hi": "नागरिक UTC को UT1 माना गया है (यह एक मान्यता है, मापा गया UT1 संशोधन नहीं)"
+      "hi": "नागरिक UTC को UT1 माना गया है (यह एक धारणा है, मापा गया UT1 संशोधन नहीं)"
     },
     "disclosure.FUTURE_CIVIL_TIME_PROJECTED": {
       "en": "The birth instant is after the pinned IERS leap-second list expiry (2027-06-28): civil-time rules, leap seconds, UT1-UTC and Delta T are projections, not records.",
@@ -94,7 +94,7 @@
     },
     "disclosure.HIGH_LATITUDE_TIME_SENSITIVITY": {
       "en": "Absolute latitude above 60 deg: ascendant sensitivity to birth-time uncertainty can be greater for some dates and sidereal times, but is not uniformly greater. An accurate recorded birth time is important. Descriptive only; calculation and acceptance are unchanged.",
-      "hi": "अक्षांश 60° से अधिक: जन्म समय की अनिश्चितता के प्रति लग्न की संवेदनशीलता कुछ दिनांकों और नाक्षत्र समयों पर अधिक हो सकती है, पर हर स्थिति में समान रूप से अधिक नहीं होती। जन्म का सही दर्ज समय महत्वपूर्ण है। यह केवल जानकारी है; गणना और स्वीकृति में कोई बदलाव नहीं।"
+      "hi": "अक्षांश 60° उत्तर या दक्षिण से अधिक: जन्म समय की अनिश्चितता के प्रति लग्न की संवेदनशीलता कुछ दिनांकों और नाक्षत्र समयों पर अधिक हो सकती है, पर हर स्थिति में समान रूप से अधिक नहीं होती। जन्म का सही दर्ज समय महत्वपूर्ण है। यह केवल जानकारी है; गणना और स्वीकृति में कोई बदलाव नहीं।"
     }
   },
   "ui": {
@@ -121,7 +121,7 @@
     "place.group_other": {"en": "Test coverage (outside India)", "hi": "परीक्षण के लिए (भारत के बाहर)"},
     "place.unavailable": {"en": "Places unavailable", "hi": "स्थान उपलब्ध नहीं हैं"},
     "date.label": {"en": "Date of birth", "hi": "जन्म दिनांक"},
-    "date.help": {"en": "Supported: local dates from 1970-01-01 to 2100-12-31.", "hi": "समर्थित: 1970-01-01 से 2100-12-31 तक की स्थानीय दिनांकें।"},
+    "date.help": {"en": "Supported: local dates from 1970-01-01 to 2100-12-31.", "hi": "समर्थित: 1970-01-01 से 2100-12-31 तक के स्थानीय दिनांक।"},
     "time.label": {"en": "Exact time of birth", "hi": "जन्म का सटीक समय"},
     "time.help": {"en": "Local clock time. Seconds are optional.", "hi": "स्थानीय घड़ी का समय। सेकंड वैकल्पिक हैं।"},
     "unknown.label": {"en": "I don't know the exact birth time", "hi": "मुझे जन्म का सटीक समय नहीं पता"},
@@ -142,7 +142,7 @@
     "result.for_before": {"en": "Prepared for ", "hi": ""},
     "result.for_after": {"en": "", "hi": " के लिए तैयार"},
     "download": {"en": "Download Kundali PDF", "hi": "कुंडली PDF डाउनलोड करें"},
-    "download.preparing": {"en": "Preparing PDF...", "hi": "PDF तैयार हो रही है..."},
+    "download.preparing": {"en": "Preparing PDF...", "hi": "PDF तैयार हो रही है…"},
     "edit": {"en": "Edit birth details", "hi": "जन्म विवरण बदलें"},
     "nav.aria": {"en": "Chart sections", "hi": "कुंडली के खंड"},
     "nav.d1": {"en": "D1 Rashi chart", "hi": "D1 राशि कुंडली"},
@@ -169,7 +169,7 @@
     "method.heading": {"en": "Method and transparency", "hi": "गणना पद्धति और पारदर्शिता"},
     "method.limits": {"en": "What this private preview does not calculate", "hi": "यह निजी पूर्वावलोकन किनकी गणना नहीं करता"},
     "limit.1": {"en": "Births before 1970-01-01: historical clock records are not yet verified, so these are refused.", "hi": "1970-01-01 से पहले के जन्म: ऐतिहासिक घड़ी-रिकॉर्ड अभी सत्यापित नहीं हैं, इसलिए इन्हें अस्वीकार किया जाता है।"},
-    "limit.2": {"en": "Local dates after 2100-12-31.", "hi": "2100-12-31 के बाद की स्थानीय दिनांकें।"},
+    "limit.2": {"en": "Local dates after 2100-12-31.", "hi": "2100-12-31 के बाद के स्थानीय दिनांक।"},
     "limit.3": {"en": "Latitudes beyond 66° north or south.", "hi": "66° उत्तर या दक्षिण से आगे के अक्षांश।"},
     "limit.4": {"en": "Unknown birth times: no time is ever assumed.", "hi": "अज्ञात जन्म समय: कोई भी समय कभी मान नहीं लिया जाता।"},
     "limit.5": {"en": "Local times that never happened (clocks moved forward); repeated times need your choice.", "hi": "ऐसे स्थानीय समय जो कभी आए ही नहीं (घड़ियाँ आगे की गईं); दो बार आए समय के लिए आपका चुनाव आवश्यक है।"},
@@ -188,7 +188,7 @@
     "val.time_format": {"en": "Use HH:MM or HH:MM:SS.", "hi": "HH:MM या HH:MM:SS प्रारूप का उपयोग करें।"},
     "status.calculating": {"en": "Calculating with the local engine…", "hi": "स्थानीय इंजन से गणना हो रही है…"},
     "status.calculated": {"en": "Chart calculated.", "hi": "कुंडली की गणना पूरी हुई।"},
-    "status.pdf_creating": {"en": "Creating your Kundali PDF in memory...", "hi": "आपकी कुंडली PDF मेमोरी में बनाई जा रही है..."},
+    "status.pdf_creating": {"en": "Creating your Kundali PDF in memory...", "hi": "आपकी कुंडली PDF मेमोरी में बनाई जा रही है…"},
     "status.pdf_done": {"en": "PDF downloaded.", "hi": "PDF डाउनलोड हो गई।"},
     "status.pdf_unavailable": {"en": "PDF download is unavailable. Your chart is still available.", "hi": "PDF डाउनलोड अभी उपलब्ध नहीं है। आपकी कुंडली अब भी उपलब्ध है।"},
     "status.pdf_language_changed": {"en": "Language changed, so the PDF being prepared was cancelled. Download again for an English PDF.", "hi": "भाषा बदलने के कारण तैयार हो रही PDF रद्द कर दी गई। हिंदी PDF के लिए फिर से डाउनलोड करें।"},
@@ -231,7 +231,7 @@
     "m.zodiac": {"en": "Zodiac and ayanamsa", "hi": "राशिचक्र और अयनांश"},
     "m.zodiac_value": {"en": "Sidereal, {definition}", "hi": "निरयन, {definition}"},
     "m.nodes": {"en": "Nodes", "hi": "पात (राहु-केतु)"},
-    "m.nodes_value": {"en": "Mean Rahu; Ketu exactly opposite", "hi": "मध्यम राहु; केतु ठीक सामने (180°)"},
+    "m.nodes_value": {"en": "Mean Rahu; Ketu exactly opposite", "hi": "मध्यम राहु; केतु ठीक सामने"},
     "m.houses": {"en": "Houses", "hi": "भाव"},
     "m.houses_value": {"en": "Whole-sign houses from the sidereal Lagna", "hi": "निरयन लग्न से पूर्ण-राशि भाव"},
     "m.d9": {"en": "D9", "hi": "D9"},

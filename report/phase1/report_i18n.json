@@ -73,7 +73,7 @@
     "guide.term.rashi": {"en": "Rashi", "hi": "राशि"},
     "guide.def.rashi": {"en": "One of the twelve 30° signs of the sidereal zodiac, counted from Mesha (1) to Meena (12).", "hi": "निरयन राशिचक्र के 30° के बारह भागों में से एक, जिनकी गिनती मेष (1) से मीन (12) तक होती है।"},
     "guide.term.graha": {"en": "Graha", "hi": "ग्रह"},
-    "guide.def.graha": {"en": "A body placed in the chart: Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, and the lunar nodes Rahu and Ketu.", "hi": "कुंडली में रखा गया पिंड: सूर्य, चंद्र, मंगल, बुध, गुरु, शुक्र, शनि, और चंद्रमा के पात राहु व केतु।"},
+    "guide.def.graha": {"en": "A body placed in the chart: Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, and the lunar nodes Rahu and Ketu.", "hi": "कुंडली में रखा गया पिंड: सूर्य, चंद्र, मंगल, बुध, गुरु, शुक्र, शनि, और चंद्र पात राहु व केतु।"},
     "guide.term.lagna": {"en": "Lagna", "hi": "लग्न"},
     "guide.def.lagna": {"en": "The Rashi rising on the eastern horizon at the birth time and place. It is house 1 and is marked Asc.", "hi": "जन्म के समय और स्थान पर पूर्वी क्षितिज पर उदित होने वाली राशि। यही भाव 1 है और कुंडली में ‘लग्न’ लिखकर दिखाया गया है।"},
     "guide.term.d1": {"en": "D1 chart", "hi": "D1 कुंडली"},
@@ -142,7 +142,7 @@
     "chart.d9_lagna_value": {"en": "{rashi}  ·  Rashi {number}  ·  house 1 (shaded)", "hi": "{rashi}  ·  राशि {number}  ·  भाव 1 (छायांकित)"},
     "chart.abbreviations": {"en": "Abbreviations", "hi": "संक्षिप्त रूप"},
     "chart.d1_note": {"en": "Small figures beside each graha are whole degrees within its Rashi, truncated. Exact values, to the arc-second and as absolute longitude, are in Planetary positions on page {page}. The Rashi and house of every graha are as calculated by the Sabpuja engine.", "hi": "हर ग्रह के पास लिखे छोटे अंक उसकी राशि में पूरे अंश हैं (भिन्न भाग छोड़कर)। विकला तक के सटीक मान और पूर्ण भोगांश पृष्ठ {page} पर ग्रह स्थितियों में दिए गए हैं। हर ग्रह की राशि और भाव Sabpuja इंजन की गणना के अनुसार हैं।"},
-    "chart.d9_note": {"en": "The D9 chart shows Navamsa Rashis and houses only; degrees are not shown because the engine reports D9 placements, not D9 longitudes. The table on page {page} lists the same placements, and each graha in this chart was checked against the engine D9 house list before drawing.", "hi": "D9 कुंडली केवल नवांश राशियाँ और भाव दिखाती है; अंश नहीं दिखाए गए, क्योंकि इंजन D9 स्थितियाँ बताता है, D9 भोगांश नहीं। पृष्ठ {page} की तालिका में यही स्थितियाँ दी गई हैं, और इस कुंडली का हर ग्रह बनाने से पहले इंजन की D9 भाव सूची से जाँचा गया।"},
+    "chart.d9_note": {"en": "The D9 chart shows Navamsa Rashis and houses only; degrees are not shown because the engine reports D9 placements, not D9 longitudes. The table on page {page} lists the same placements, and each graha in this chart was checked against the engine D9 house list before drawing.", "hi": "D9 कुंडली केवल नवांश राशियाँ और भाव दिखाती है; अंश नहीं दिखाए गए, क्योंकि इंजन D9 स्थितियाँ बताता है, D9 भोगांश नहीं। पृष्ठ {page} की तालिका में यही स्थितियाँ दी गई हैं, और कुंडली बनाने से पहले इसके हर ग्रह को इंजन की D9 भाव सूची से जाँचा गया।"},
     "chart.note_title": {"en": "Reading this chart", "hi": "इस कुंडली को कैसे पढ़ें"},
 
     "positions.title": {"en": "Planetary positions", "hi": "ग्रह स्थितियाँ"},
@@ -160,7 +160,7 @@
     "positions.pada": {"en": "Pada {pada}", "hi": "चरण {pada}"},
     "positions.moon_only": {"en": "Nakshatra is reported by the engine for the Moon only, so it is not shown for other grahas.", "hi": "इंजन केवल चंद्र का नक्षत्र बताता है, इसलिए अन्य ग्रहों के लिए नक्षत्र नहीं दिखाया गया।"},
     "positions.notes_title": {"en": "Notes on these values", "hi": "इन मानों के बारे में"},
-    "positions.notes": {"en": "Within-Rashi values are the sidereal longitude minus the start of the engine-reported Rashi, truncated to whole arc-seconds. Rahu is the mean lunar node; Ketu is exactly opposite the unrounded Rahu. Retrograde motion, dignity and strength are not calculated in this edition and are not shown.", "hi": "‘राशि में’ मान, निरयन भोगांश में से इंजन द्वारा बताई गई राशि का आरंभ घटाकर, पूरी विकला तक काटकर लिखे गए हैं। राहु चंद्रमा का मध्यम पात है; केतु बिना पूर्णांकन वाले राहु के ठीक सामने है। वक्री गति, उच्च-नीच अवस्था और ग्रह बल की गणना इस संस्करण में नहीं की गई है, इसलिए ये नहीं दिखाए गए।"},
+    "positions.notes": {"en": "Within-Rashi values are the sidereal longitude minus the start of the engine-reported Rashi, truncated to whole arc-seconds. Rahu is the mean lunar node; Ketu is exactly opposite the unrounded Rahu. Retrograde motion, dignity and strength are not calculated in this edition and are not shown.", "hi": "‘राशि में’ मान, निरयन भोगांश में से इंजन द्वारा बताई गई राशि का आरंभ घटाकर, पूरी विकला तक काटकर लिखे गए हैं। राहु मध्यम चंद्र पात है; केतु बिना पूर्णांकन वाले राहु के ठीक सामने है। वक्री गति, उच्च-नीच अवस्था और ग्रह बल की गणना इस संस्करण में नहीं की गई है, इसलिए ये नहीं दिखाए गए।"},
 
     "navamsa.title": {"en": "Navamsa placements", "hi": "नवांश स्थितियाँ"},
     "navamsa.intro": {"en": "The D9 Rashi and D9 whole-sign house of each graha, as returned by the engine. The D1 Rashi is repeated for comparison.", "hi": "हर ग्रह की D9 राशि और D9 पूर्ण-राशि भाव, जैसा इंजन ने दिया। तुलना के लिए D1 राशि भी दोहराई गई है।"},

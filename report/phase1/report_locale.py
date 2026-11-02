@@ -157,5 +157,5 @@ class Translator:
             return value
         entry = ENGINE_TEXT.get(key)
         if entry is None or entry['en'] != value:
-            raise ReportLocaleError('Engine text has no reviewed Hindi form')
+            raise ReportLocaleError('Engine text has no catalogued Hindi form')
         return entry['hi']
