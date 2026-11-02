@@ -512,6 +512,21 @@ class InputReadinessTest(unittest.TestCase):
             _, sums, errors = gold.load_receipt_sums(path)
             self.assertEqual((errors, sums), ([expected.get(name, "RECEIPT_SUMS_MALFORMED")], {}), name)
 
+    def test_missing_or_invalid_run_definition_is_structured_blocked(self):
+        import tempfile
+        from unittest import mock
+        d = Path(tempfile.mkdtemp())
+        (d / "garbage.json").write_bytes(b"\xff{not json")
+        (d / "empty.json").write_text("{}", encoding="utf-8")
+        cases = (("PINS", d / "absent.json", "PINS_MISSING"), ("PINS", d / "empty.json", "RUN_DEFINITION_MALFORMED"),
+                 ("SPEC", d / "garbage.json", "FROZEN_SPEC_INVALID"), ("HERE", d, "MATRIX_MISSING"))
+        for attr, value, reason in cases:
+            with mock.patch.object(gold, attr, value):
+                code, report = _quiet_main(["--ephe", EPHE or str(d)])
+            self.assertEqual(code, 2, reason)
+            self.assertEqual((report["verdict_verified_layers"], report["results"]), ("BLOCKED", []), reason)
+            self.assertIn(reason, report["run_blocking_reasons"])
+
     @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
     def test_missing_unreadable_or_malformed_receipt_sums_file_is_blocked(self):
         from unittest import mock

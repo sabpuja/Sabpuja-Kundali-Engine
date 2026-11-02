@@ -99,6 +99,37 @@ def frozen_tolerances() -> tuple[dict, str]:
     return {k: v["value"] for k, v in spec["tolerances_deg"].items()}, sha256_bytes(raw)
 
 
+def load_run_definition() -> tuple[dict | None, list[str]]:
+    """Load the frozen spec, the fixture matrix and PINS.json fail-closed.
+
+    These define the run itself; if any is missing or invalid no fixture can be
+    judged, so the run is BLOCKED with a reason code instead of a traceback.
+    """
+    out, errors = {}, []
+    for key, path, code in (("spec", SPEC, "FROZEN_SPEC"), ("matrix", HERE / "matrix.json", "MATRIX"), ("pins", PINS, "PINS")):
+        try:
+            raw = path.read_bytes()
+            out[key] = (raw, json.loads(raw.decode("utf-8")))
+        except FileNotFoundError:
+            errors.append(code + "_MISSING")
+        except OSError:
+            errors.append(code + "_UNREADABLE")
+        except (UnicodeDecodeError, ValueError):
+            errors.append(code + "_INVALID")
+    if errors:
+        return None, errors
+    try:
+        tol = {k: v["value"] for k, v in out["spec"][1]["tolerances_deg"].items()}
+        fixtures = out["matrix"][1]["fixtures"]
+        pins = {k: out["pins"][1][k] for k in ("matrix_sha256", "receipts_sha256sums_sha256", "swiss_spec_sha256")}
+        if not isinstance(fixtures, list) or not tol:
+            raise TypeError
+    except (KeyError, TypeError, AttributeError):
+        return None, ["RUN_DEFINITION_MALFORMED"]
+    return {"tol": tol, "spec_sha": sha256_bytes(out["spec"][0]), "matrix_bytes": out["matrix"][0],
+            "matrix": out["matrix"][1], "pins": pins}, []
+
+
 def worst(values) -> str:
     values = list(values)
     return max(values, key=lambda v: RANK[v]) if values else PASS
@@ -283,9 +314,11 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
     from sabpuja_kundali import engine
     from sabpuja_kundali.ephemeris import load_manifest, verify_ephemeris_dir
 
-    tol, spec_sha = frozen_tolerances()
-    matrix_bytes = (HERE / "matrix.json").read_bytes()
-    pins = json.loads(PINS.read_text(encoding="utf-8"))
+    definition, definition_errors = load_run_definition()
+    if definition is None:
+        return blocked_run_report(definition_errors)
+    tol, spec_sha = definition["tol"], definition["spec_sha"]
+    matrix_bytes, pins = definition["matrix_bytes"], definition["pins"]
     sums_bytes, sums, sums_errors = load_receipt_sums(sr.RECEIPTS / "SHA256SUMS")
     run_blocks = []
     input_blocks = []   # failures that make every chart comparison undecidable
@@ -306,7 +339,7 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
         input_blocks.append("EPHEMERIS_UNVERIFIED:" + getattr(exc, "code", type(exc).__name__))
     run_blocks += input_blocks
     inputs_ok = not input_blocks
-    matrix = json.loads(matrix_bytes)
+    matrix = definition["matrix"]
     live = None
     if swetest and not (Path(swetest).is_file() and os.access(swetest, os.X_OK)):
         run_blocks.append("SWETEST_BINARY_MISSING")
@@ -458,6 +491,20 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
     }
 
 
+def blocked_run_report(reasons: list[str]) -> dict:
+    """A structured report for a run that cannot judge any fixture (exit 2)."""
+    return {
+        "schema": "sabpuja-sci-gold-report/1", "task": "KUN-SCI-GOLD-001",
+        "claim_boundary": "No fixture was judged: the run definition could not be loaded. Nothing is verified.",
+        "environment": {"git": git_state(), "python": platform.python_version(), "platform": platform.platform(),
+                        "pyswisseph": None, "swiss_library": None, "tzdata": None, "ephemeris_verified": None,
+                        "matrix_sha256": None, "receipts_sha256sums_sha256": None, "frozen_spec_sha256": None,
+                        "frozen_tolerances_deg": None, "live_swetest": None},
+        "run_blocking_reasons": list(reasons), "verdict_verified_layers": BLOCKED,
+        "fixture_counts": {}, "layer_counts": {}, "results": [],
+    }
+
+
 def _fmt(v):
     if isinstance(v, float):
         return f"{v:.11g}"
@@ -486,7 +533,7 @@ def to_markdown(report: dict) -> str:
              f"- Commit `{env['git']['head']}` tree `{env['git']['tree']}` dirty={env['git']['dirty']}",
              f"- Python {env['python']}; pyswisseph {env['pyswisseph']}; Swiss {env['swiss_library']}; tzdata {env['tzdata']}",
              f"- Ephemeris verified={env['ephemeris_verified']}; matrix sha256 `{env['matrix_sha256']}`; receipts SHA256SUMS sha256 `{env['receipts_sha256sums_sha256']}`",
-             f"- Frozen tolerances (spec.json `{env['frozen_spec_sha256'][:12]}`): {env['frozen_tolerances_deg']}"]
+             f"- Frozen tolerances (spec.json `{str(env['frozen_spec_sha256'])[:12]}`): {env['frozen_tolerances_deg']}"]
     live = env["live_swetest"]
     if live:
         lines.append(f"- Live swetest sha256 `{live['swetest_sha256']}` source {live['source']}; receipt errors {live['receipt_errors']}; "
