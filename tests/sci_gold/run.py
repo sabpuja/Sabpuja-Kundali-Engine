@@ -312,7 +312,7 @@ def tzdata_dir() -> Path:
 def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
     sys.path.insert(0, str(REPO / "src"))
     from sabpuja_kundali import engine
-    from sabpuja_kundali.ephemeris import load_manifest, verify_ephemeris_dir
+    from sabpuja_kundali.ephemeris import EphemerisDataError, load_manifest, verify_ephemeris_dir
 
     definition, definition_errors = load_run_definition()
     if definition is None:
@@ -334,12 +334,19 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
     try:
         verify_ephemeris_dir(ephe, load_manifest())
         ephe_ok = True
-    except Exception as exc:  # recorded as a code only
+    except EphemerisDataError as exc:  # recorded as a code only; anything else is a bug and propagates
         ephe_ok = False
         input_blocks.append("EPHEMERIS_UNVERIFIED:" + getattr(exc, "code", type(exc).__name__))
+    matrix = definition["matrix"]
+    if not sums_errors:
+        # Every chart fixture needs exactly one listed hash, and nothing else may be listed.
+        required = {fx["id"] + ".txt" for fx in matrix["fixtures"] if fx["expect"]["kind"] == "chart"}
+        if required - set(sums):
+            input_blocks.append("RECEIPT_SUMS_INCOMPLETE")
+        if set(sums) - required:
+            input_blocks.append("RECEIPT_SUMS_UNEXPECTED_ENTRY")
     run_blocks += input_blocks
     inputs_ok = not input_blocks
-    matrix = definition["matrix"]
     live = None
     if swetest and not (Path(swetest).is_file() and os.access(swetest, os.X_OK)):
         run_blocks.append("SWETEST_BINARY_MISSING")
@@ -372,8 +379,6 @@ def run_all(ephe: str, swetest: str | None, receipt: str | None) -> dict:
             err = None
         except engine.EXPECTED_ERRORS as exc:
             out, err = None, exc.code
-        except Exception as exc:  # an unexpected engine exception is a result, not a runner crash
-            out, err = None, "UNEXPECTED_EXCEPTION:" + type(exc).__name__
         # A mismatch is a calculation defect only when the pinned inputs were verified.
         unverified = BLOCKED if not inputs_ok else FAIL
         if fx["expect"]["kind"] == "refusal":

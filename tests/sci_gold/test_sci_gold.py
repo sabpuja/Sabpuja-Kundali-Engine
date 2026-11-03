@@ -485,6 +485,8 @@ class InputReadinessTest(unittest.TestCase):
             with mock.patch.object(sr, "RECEIPTS", copy_dir):
                 report = gold.run_all(EPHE, None, None)
             self.assert_blocked_not_fail(report, "RECEIPT_SUMS_SHA256_MISMATCH")
+            if mode == "missing":
+                self.assertIn("RECEIPT_SUMS_INCOMPLETE", report["run_blocking_reasons"])
             t02 = next(r for r in report["results"] if r["id"] == "GOLD-T02")
             self.assertIn("RECEIPT_HASH_MISMATCH", t02["layers"][-1]["reason"])
 
@@ -527,17 +529,36 @@ class InputReadinessTest(unittest.TestCase):
             self.assertEqual((report["verdict_verified_layers"], report["results"]), ("BLOCKED", []), reason)
             self.assertIn(reason, report["run_blocking_reasons"])
 
+    def test_receipt_sums_completeness_is_checked_against_the_matrix(self):
+        from unittest import mock
+        _, sums, _ = gold.load_receipt_sums(sr.RECEIPTS / "SHA256SUMS")
+        required = {f["id"] + ".txt" for f in charts()}
+        self.assertEqual(set(sums), required)
+        fewer = {k: v for k, v in sums.items() if k != "GOLD-B03a.txt"}
+        with mock.patch.object(gold, "load_receipt_sums", return_value=(b"", fewer, [])):
+            report = gold.run_all(EPHE, None, None)
+        self.assertIn("RECEIPT_SUMS_INCOMPLETE", report["run_blocking_reasons"])
+        self.assertNotIn("FAIL", report["fixture_counts"])
+        self.assertEqual(report["fixture_counts"].get("BLOCKED"), 50)
+
     @unittest.skipUnless(EPHE, "SABPUJA_TEST_EPHE_PATH not set")
     def test_missing_unreadable_or_malformed_receipt_sums_file_is_blocked(self):
         from unittest import mock
         for mode, reason in (("missing", "RECEIPT_SUMS_MISSING"), ("not-utf8", "RECEIPT_SUMS_NOT_UTF8"),
-                             ("malformed-row", "RECEIPT_SUMS_MALFORMED")):
+                             ("malformed-row", "RECEIPT_SUMS_MALFORMED"), ("duplicate", "RECEIPT_SUMS_MALFORMED"),
+                             ("unexpected-entry", "RECEIPT_SUMS_UNEXPECTED_ENTRY")):
             copy_dir = self._receipt_copy()
             sums = copy_dir / "SHA256SUMS"
             if mode == "missing":
                 sums.unlink()
             elif mode == "not-utf8":
                 sums.write_bytes(b"\xff\xfe\x00")
+            elif mode == "duplicate":
+                lines = sums.read_text(encoding="utf-8").splitlines()
+                sums.write_text("\n".join(lines + [lines[0]]) + "\n", encoding="utf-8")
+            elif mode == "unexpected-entry":
+                lines = sums.read_text(encoding="utf-8").splitlines()
+                sums.write_text("\n".join(lines + ["0" * 64 + "  GOLD-X99.txt"]) + "\n", encoding="utf-8")
             else:
                 lines = sums.read_text(encoding="utf-8").splitlines()
                 sums.write_text("\n".join(lines[:3] + ["GOLD-T04.txt " + "0" * 64] + lines[4:]) + "\n", encoding="utf-8")

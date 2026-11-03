@@ -29,7 +29,7 @@ claim follows from any of this.
 A result is `FAIL` or `METHOD-MISMATCH` only when its inputs are verified: the
 pinned ephemeris files match the manifest, the matrix and frozen-spec pins
 match, `SE_EPHE_PATH` is unset, and the fixture's committed receipt is present
-and hash-valid against a readable, well-formed `receipts/SHA256SUMS`. A missing or unverified input makes the affected comparison
+and hash-valid against a readable, well-formed and complete `receipts/SHA256SUMS`. A missing or unverified input makes the affected comparison
 `BLOCKED` with reason codes (never `PASS`); missing paths, binaries and receipts
 are reported as codes, not tracebacks (DR-10). Exit codes: 0 every checked layer
 PASS/QUALIFIED; 1 any `FAIL`, `SWISS-CONFORMANCE FAIL` or `METHOD-MISMATCH` with
@@ -49,7 +49,7 @@ verified inputs (DR-11); 2 `BLOCKED` or `BOUNDARY-INDETERMINATE`.
 | `PINS.json` | SHA-256 of `matrix.json`, `receipts/SHA256SUMS` and the frozen `tests/swiss_conformance/spec.json` |
 | `run.py` | Comparison runner: per fixture the receipt and hash, exact input, expected, actual, difference, tolerance, classification and basis; JSON, CSV and Markdown |
 | `pdf_fidelity.py` | Premium PDF vs engine and vs reference (D1/D9 chart cells by the isolated geometry, positions and Navamsa tables); English/Hindi parity |
-| `test_sci_gold.py` | 40 unit/integration tests (in the normal `tests` discovery), incl. `InputReadinessTest` for missing/unverified inputs |
+| `test_sci_gold.py` | 41 unit/integration tests (in the normal `tests` discovery), incl. `InputReadinessTest` for missing/unverified inputs |
 | `INVENTORY.md` | Existing QA infrastructure and reuse decisions |
 | `DISCREPANCY-REGISTER.md` | Every mismatch and finding, with disposition |
 | `BLOCKERS.md` | Scientific decision and tolerance blockers |
