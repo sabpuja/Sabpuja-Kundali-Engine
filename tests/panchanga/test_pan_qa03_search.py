@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from fractions import Fraction
+import json
 import math
 import random
 import unittest
@@ -304,7 +305,7 @@ def frozen_limit_failures(calc, request, ephe) -> list[str]:
             calc(request, ephe, limits=limits)
             out.append(f"ACCEPTED:{limits!r}")
         except PanchangaComputationError as exc:
-            if exc.code != "PANCHANGA_SEARCH_LIMITS_NOT_APPROVED" or exc.__cause__ is not None:
+            if exc.code != "PANCHANGA_TRANSITION_NOT_CONVERGED" or exc.__cause__ is not None:
                 out.append(f"WRONG_REFUSAL:{exc.code}")
         except Exception as exc:          # anything untyped is a failure of the contract
             out.append(f"UNTYPED:{type(exc).__name__}")
@@ -336,6 +337,31 @@ class FrozenLimitsContractTest(unittest.TestCase):
     def setUpClass(cls):
         cls.REQUEST = request_at_utc(parse_utc("2026-01-03T07:30:00Z"))
 
+    def _refused(self, limits):
+        from sabpuja_kundali.panchanga import PanchangaComputationError, calculate
+        with self.assertRaises(PanchangaComputationError) as ctx:
+            calculate(self.REQUEST, EPHE, limits=limits)
+        self.assertEqual(ctx.exception.code, "PANCHANGA_TRANSITION_NOT_CONVERGED")
+
+    def test_one_second_bracket_cannot_produce_a_document(self):
+        self._refused(SearchLimits(bracket_max_us=1_000_000))
+        self._refused(SearchLimits(bracket_max_us=500_001))
+
+    def test_24_hour_step_is_refused(self):
+        self._refused(SearchLimits(step_us=24 * HOUR))
+
+    def test_12_day_extent_is_refused(self):
+        self._refused(SearchLimits(max_extent_us=12 * 24 * HOUR))
+
+    def test_excessive_iteration_cap_is_refused(self):
+        self._refused(SearchLimits(max_iterations=65))
+
+    def test_approved_defaults_give_identical_results(self):
+        from sabpuja_kundali.panchanga import calculate
+        implicit = calculate(self.REQUEST, EPHE)
+        explicit = calculate(self.REQUEST, EPHE, limits=SearchLimits())
+        self.assertEqual(json.dumps(implicit), json.dumps(explicit))
+
     def test_every_looser_or_malformed_override_is_refused(self):
         from sabpuja_kundali.panchanga import calculate
         self.assertEqual(frozen_limit_failures(calculate, self.REQUEST, EPHE), [])
@@ -345,8 +371,10 @@ class FrozenLimitsContractTest(unittest.TestCase):
         with self.assertRaises(PanchangaComputationError) as ctx:
             calculate(self.REQUEST, EPHE, limits=SearchLimits(bracket_max_us=1_000_000))
         self.assertEqual(str(ctx.exception),
-                         "PANCHANGA_SEARCH_LIMITS_NOT_APPROVED: the transition search limits are looser than, "
-                         "or not, the approved D09-A-M1 limits; no Panchanga produced")
+                         "PANCHANGA_TRANSITION_NOT_CONVERGED: a Panchanga transition could not be "
+                         "bracketed and converged within the approved limits; no Panchanga produced")
+        self.assertIsNone(ctx.exception.__cause__)
+        self.assertTrue(ctx.exception.__suppress_context__ or ctx.exception.__context__ is None)
 
     def test_default_document_declares_exactly_the_frozen_method(self):
         from sabpuja_kundali.panchanga import calculate
@@ -358,7 +386,6 @@ class FrozenLimitsContractTest(unittest.TestCase):
         self.assertEqual(ts["bracket_extent_max_days_each_direction"], d09["bracket_extent_max_days_each_direction"])
         self.assertEqual(ts["bisection_max_iterations"], d09["bisection_max_iterations"])
         self.assertEqual(ts["transition_bracket_max_seconds"], d09["transition_bracket_max_seconds"])
-        self.assertIs(ts["limits_are_frozen_d09_values"], True)
         widths = [v["search"]["final_bracket_us"] for k in ("tithi", "karana", "yoga", "nakshatra")
                   for v in (doc[k]["start"], doc[k]["end"])]
         self.assertLessEqual(max(widths), ts["transition_bracket_max_seconds"] * MICROS)
@@ -369,7 +396,8 @@ class FrozenLimitsContractTest(unittest.TestCase):
         doc = calculate(self.REQUEST, EPHE, limits=strict)
         ts = doc["method"]["transition_search"]
         self.assertEqual(ts["transition_bracket_max_seconds"], 0.1)
-        self.assertIs(ts["limits_are_frozen_d09_values"], False)
+        self.assertEqual(ts["bisection_max_iterations"], 64)
+        self.assertEqual(ts["bracket_step_hours"], 6)
         for k in ("tithi", "karana", "yoga", "nakshatra"):
             for v in (doc[k]["start"], doc[k]["end"]):
                 self.assertLessEqual(v["search"]["final_bracket_us"], 100_000)

@@ -27,11 +27,10 @@ All chart refusals come first, unchanged in code, text and order. Then:
 
 | Code | When |
 |---|---|
-| `PANCHANGA_SEARCH_LIMITS_NOT_APPROVED` | A `limits` override is looser than the frozen D09-A-M1 values (step > 6 h, extent > 2.5 days, iterations > 64, bracket > 0.5 s), or is malformed (not a `SearchLimits`, non-int, bool, non-positive, or a negative iteration cap). Stricter overrides are allowed for failure injection, and the document then reports the limits actually used with `limits_are_frozen_d09_values: false` |
-| `PANCHANGA_TRANSITION_NOT_CONVERGED` | Any search cap reached, no sector change within 2.5 days, a non-finite value, or a failed whole-second verification |
+| `PANCHANGA_TRANSITION_NOT_CONVERGED` | Any search cap reached, no sector change within 2.5 days, a non-finite value, or a failed whole-second verification. Also, before any computation, a `limits` override looser than the frozen D09-A-M1 values (step > 6 h, extent > 2.5 days, iterations > 64, bracket > 0.5 s) or malformed (not a `SearchLimits`, non-int, bool, non-positive, or a negative iteration cap). No separate code is added for this (KUN-PAN-M1-ENG-001A). Stricter overrides are allowed for failure injection; the method block then reports the limits actually used, so it never claims a limit that did not govern the calculation |
 | `PANCHANGA_CHART_IDENTITY_FAILED` | The session's birth-instant longitudes do not reproduce the chart's Moon Nakshatra/Pada and 8-decimal Sun and Moon. An internal fail-closed safety check, accepted by QA review 5751031274 for the draft M1 machine contract only. It is not customer-facing error copy and changes no chart code; a public error schema needs its own integration review |
 
-All three have fixed text, no birth data or instants, and no exception chain.
+Both have fixed text, no birth data or instants, and no exception chain.
 
 ## Search note: more than one edge in a 6 h step
 

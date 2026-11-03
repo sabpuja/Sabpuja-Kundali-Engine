@@ -39,7 +39,6 @@ LOCAL_RENDERING_LAST_DATE = engine.SUPPORTED_LOCAL_DATES[1]
 NOT_CONVERGED = "PANCHANGA_TRANSITION_NOT_CONVERGED"
 IDENTITY_FAILED = "PANCHANGA_CHART_IDENTITY_FAILED"
 NAME_NOT_ADOPTED = "PANCHANGA_METHOD_NOT_ADOPTED"
-LIMITS_NOT_APPROVED = "PANCHANGA_SEARCH_LIMITS_NOT_APPROVED"
 
 
 class PanchangaComputationError(RuntimeError):
@@ -56,8 +55,6 @@ _FIXED_DETAIL = {
     NOT_CONVERGED: "a Panchanga transition could not be bracketed and converged within the approved "
                    "limits; no Panchanga produced",
     IDENTITY_FAILED: "the Panchanga Moon Nakshatra did not reproduce the chart; no Panchanga produced",
-    LIMITS_NOT_APPROVED: "the transition search limits are looser than, or not, the approved D09-A-M1 "
-                         "limits; no Panchanga produced",
 }
 
 
@@ -66,15 +63,17 @@ def _check_limits(limits) -> None:
 
     Each field must be a plain positive int no larger than its DEFAULT_LIMITS value
     (max_iterations may be 0). Stricter values (used for failure injection) are allowed,
-    and the document's method block then reports the limits actually used.
+    and the document's method block then reports the limits actually used. No new
+    public code: the existing PANCHANGA_TRANSITION_NOT_CONVERGED refusal is used, whose
+    fixed text already states that no Panchanga is produced outside the approved limits.
     """
     if type(limits) is not SearchLimits:
-        raise _refuse(LIMITS_NOT_APPROVED)
+        raise _refuse(NOT_CONVERGED)
     for name in ("step_us", "max_extent_us", "max_iterations", "bracket_max_us"):
         value, frozen = getattr(limits, name), getattr(DEFAULT_LIMITS, name)
         floor = 0 if name == "max_iterations" else 1
         if type(value) is not int or not floor <= value <= frozen:
-            raise _refuse(LIMITS_NOT_APPROVED)
+            raise _refuse(NOT_CONVERGED)
 
 
 def _refuse(code: str) -> PanchangaComputationError:
@@ -130,7 +129,6 @@ def _method(lim: SearchLimits) -> dict[str, object]:
             "output": "first whole UTC second in the new half-open sector, verified at that second and "
                       "the second before",
             "extrapolation": "never",
-            "limits_are_frozen_d09_values": lim == DEFAULT_LIMITS,
         },
         "time_scale": "civil UTC treated as UT1 (SCI-01h), as for the chart; Swiss automatic Delta T",
         "precision_note": "whole-second output is a resolution, not an accuracy claim",
