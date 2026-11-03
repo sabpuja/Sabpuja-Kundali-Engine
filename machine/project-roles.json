@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-24",
+  "updated": "2026-11-03",
   "project": "Sabpuja Kundali Engine",
-  "governance_status": "proposed-in-draft-pr",
+  "governance_status": "owner-directed-dec-003-recorded-in-docs-decisions",
   "canonical_repo": "sabpuja/Sabpuja-Kundali-Engine",
   "roles": {
     "product_owner": {
@@ -64,5 +64,5 @@
     "design": "sabpuja/design-system",
     "organization_policy": "sabpuja/core"
   },
-  "current_state": "foundation PR #1 unmerged (PM/QA hold); KUN-03 draft stack PRs #23-#35 engineering-QA-passed and joined with main on integration/kun03-gate1 for QA only; decision rows except SCI-01b/c PENDING; independent golden reference tests not yet performed"
+  "current_state": "isolated integration candidate integration/kun-int-001 (KUN-INT-CAND-001): main 25cfde4 merged with PR #68 b1bca79 for independent QA only, not main, not released, not deployed; foundation PR #1 remains on PM/QA HOLD pending owner decision D-6; scientific decisions canonical per docs/DECISIONS.md and post-merge receipts (PR #64 comment 6598563378, PR #65 comment 6600051638); chart schema 0.3.0 with metadata /3; ten-page saffron premium PDF and optional Full Name on the owner-only preview running PR #58 fde3ec6; gold harness qualified (49 PASS / 18 QUALIFIED / 1 BOUNDARY-INDETERMINATE), not certification; Panchanga M1 independently engineering-QA-passed, machine-only, not customer-facing; bilingual PRs #59-#61 outside this candidate; LEG-01 pending; production NO-GO"
 }

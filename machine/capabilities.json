@@ -1,28 +1,31 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-24",
+  "updated": "2026-11-03",
   "repository": "sabpuja/Sabpuja-Kundali-Engine",
   "owner": "kundali-deterministic-calculation",
   "visibility": "public",
   "license": "AGPL-3.0-only",
   "runtime": "self-hosted-local-or-approved-hostinger-vps",
-  "release_status": "integration-branch-unreleased",
+  "release_status": "isolated-integration-candidate-kun-int-cand-001-unmerged-unreleased-production-no-go",
   "capabilities": [
     {
       "id": "kundali.pure-vedic-rules",
-      "status": "engineering-qa-passed-draft-unmerged-golden-charts-pending",
+      "status": "independent-qa-passed-at-source-heads-on-integration-candidate-unmerged",
       "entrypoint": "src/sabpuja_kundali/rules.py"
     },
     {
       "id": "kundali.local-chart-cli",
-      "status": "engineering-qa-passed-draft-unmerged-swiss-conformance-pass-golden-charts-pending",
-      "entrypoint": "src/sabpuja_kundali/cli.py"
+      "status": "independent-qa-passed-at-source-heads-on-integration-candidate-unmerged-swiss-on-swiss-conformance-pass",
+      "entrypoint": "src/sabpuja_kundali/cli.py",
+      "chart_schema": "0.3.0",
+      "calculation_metadata": "sabpuja-calculation-metadata/3",
+      "evidence": "PR #42 C7 review 5647737922; PR #68 review 5752132632"
     },
     {
       "id": "kundali.kun03-input-time-policy",
-      "status": "engineering-qa-passed-draft-unmerged-decisions-pending",
+      "status": "independent-qa-passed-at-source-heads-decisions-canonical-on-integration-candidate-unmerged",
       "entrypoint": "src/sabpuja_kundali/engine.py",
-      "evidence": "PRs #23-#35, ChatGPT QA PASS at each exact head; latest PR #35 review 5636399837"
+      "evidence": "PRs #23-#36 QA PASS at each exact head; decisions per docs/DECISIONS.md (adoption merge 5b71408)"
     },
     {
       "id": "kundali.swiss-conformance-suite",
@@ -30,12 +33,37 @@
       "entrypoint": "tests/swiss_conformance/run_d3.py"
     },
     {
-      "id": "kundali.offline-birthplace",
-      "status": "not-implemented"
+      "id": "kundali.gold-reference-harness",
+      "status": "independent-qa-passed-qualified-exit-2-49-pass-18-qualified-1-boundary-indeterminate-not-certification",
+      "entrypoint": "tests/sci_gold/run.py",
+      "evidence": "PR #62 review 5747720823"
     },
     {
-      "id": "kundali.pdf",
-      "status": "not-implemented"
+      "id": "kundali.panchanga-m1-birth-instant",
+      "status": "independent-engineering-qa-passed-machine-only-not-customer-facing",
+      "entrypoint": "src/sabpuja_kundali/panchanga/__main__.py",
+      "document_schema": "sabpuja-panchanga/1",
+      "evidence": "PR #68 review 5752132632; method adoption PR #65 comment 6600051638"
+    },
+    {
+      "id": "kundali.owner-only-prototype",
+      "status": "owner-only-preview-running-pr-58-fde3ec6-not-public",
+      "entrypoint": "prototype/kundali_prototype/server.py",
+      "evidence": "PR #58 comment 6544319453"
+    },
+    {
+      "id": "kundali.premium-pdf",
+      "status": "ten-page-saffron-premium-pdf-optional-full-name-owner-only-preview-not-client-release",
+      "entrypoint": "report/phase1/premium_report.py",
+      "evidence": "PRs #54, #55, #58"
+    },
+    {
+      "id": "kundali.bilingual-hindi",
+      "status": "outside-this-candidate-draft-prs-59-61-next-bilingual-milestone"
+    },
+    {
+      "id": "kundali.offline-birthplace",
+      "status": "fixed-12-place-prototype-list-only-full-selector-not-implemented"
     },
     {
       "id": "kundali.shopify",
@@ -69,5 +97,7 @@
   "no_github_actions": true,
   "no_external_astrology_api": true,
   "public_launch_approved": false,
-  "shopify_staging_connected": false
+  "shopify_staging_connected": false,
+  "pr_1_hold_active": true,
+  "legal_review_leg_01": "pending"
 }
