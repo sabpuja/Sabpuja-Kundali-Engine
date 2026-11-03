@@ -283,6 +283,9 @@ if __name__ == "__main__":
 LOOSER = {
     "bracket_max_us": (500_001, 1_000_000),
     "step_us": (6 * HOUR + 1, 24 * HOUR),
+}
+SMALLER_STEPS = (1, HOUR, 3 * HOUR, 6 * HOUR - 1)   # D10-A: the step is exactly 6 h (QA review 5751704671)
+LOOSER = {**LOOSER,
     "max_extent_us": (EXTENT + 1, 12 * 24 * HOUR),
     "max_iterations": (65, 10**6),
 }
@@ -292,13 +295,16 @@ MALFORMED = ([("bracket_max_us", v) for v in (0, -1, 0.5, 500_000.0, True, None,
              + [("max_iterations", v) for v in (-1, 16.0, True)])
 
 
-def frozen_limit_failures(calc, request, ephe) -> list[str]:
-    """Gate rule: every looser or malformed override is refused with the fixed typed code."""
+def frozen_limit_failures(calc, request, ephe, *, smaller_steps=True) -> list[str]:
+    """Gate rule: every looser or malformed override is refused with the fixed typed code.
+
+    smaller_steps=False omits the sub-6 h steps, for mutants that would otherwise run them."""
     from dataclasses import replace
     from sabpuja_kundali.panchanga import PanchangaComputationError
     out = []
     bad = [replace(DEFAULT_LIMITS, **{k: v}) for k, vals in LOOSER.items() for v in vals]
     bad += [replace(DEFAULT_LIMITS, **{k: v}) for k, v in MALFORMED]
+    bad += [replace(DEFAULT_LIMITS, step_us=v) for v in SMALLER_STEPS] if smaller_steps else []
     bad += [None, {"step_us": 6 * HOUR}, (6 * HOUR, EXTENT, 64, 500_000)]
     for limits in bad:
         try:
@@ -349,6 +355,20 @@ class FrozenLimitsContractTest(unittest.TestCase):
 
     def test_24_hour_step_is_refused(self):
         self._refused(SearchLimits(step_us=24 * HOUR))
+
+    def test_step_other_than_six_hours_is_refused_before_any_search(self):
+        from unittest import mock
+        from sabpuja_kundali.panchanga import PanchangaComputationError, astro, calculate, contract
+        for step in SMALLER_STEPS + (24 * HOUR,):
+            with self.subTest(step_us=step), \
+                    mock.patch.object(contract, "find_transition", side_effect=AssertionError("searched")) as fs, \
+                    mock.patch.object(astro.SwissSession, "sun_moon", side_effect=AssertionError("computed")) as sm:
+                with self.assertRaises(PanchangaComputationError) as ctx:
+                    calculate(self.REQUEST, EPHE, limits=SearchLimits(step_us=step))
+                self.assertEqual(ctx.exception.code, "PANCHANGA_TRANSITION_NOT_CONVERGED")
+                self.assertIsNone(ctx.exception.__cause__)
+                fs.assert_not_called()
+                sm.assert_not_called()
 
     def test_12_day_extent_is_refused(self):
         self._refused(SearchLimits(max_extent_us=12 * 24 * HOUR))

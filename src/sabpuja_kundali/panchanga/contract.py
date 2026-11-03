@@ -62,8 +62,11 @@ def _check_limits(limits) -> None:
     """D09-A-M1 maxima are frozen: a looser or malformed override is refused, never computed.
 
     Each field must be a plain positive int no larger than its DEFAULT_LIMITS value
-    (max_iterations may be 0). Stricter values (used for failure injection) are allowed,
-    and the document's method block then reports the limits actually used. No new
+    (max_iterations may be 0). The bracketing step must equal the adopted 6 h exactly
+    (D10-A TS-1): a smaller step would multiply the number of Swiss calls without bound
+    under the shared lock (QA review 5751704671). Stricter extent, iteration and bracket
+    values (used for failure injection) are allowed, and the document's method block then
+    reports the limits actually used. No new
     public code: the existing PANCHANGA_TRANSITION_NOT_CONVERGED refusal is used, whose
     fixed text already states that no Panchanga is produced outside the approved limits.
     """
@@ -74,6 +77,8 @@ def _check_limits(limits) -> None:
         floor = 0 if name == "max_iterations" else 1
         if type(value) is not int or not floor <= value <= frozen:
             raise _refuse(NOT_CONVERGED)
+    if limits.step_us != DEFAULT_LIMITS.step_us:
+        raise _refuse(NOT_CONVERGED)
 
 
 def _refuse(code: str) -> PanchangaComputationError:

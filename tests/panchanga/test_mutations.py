@@ -4,7 +4,8 @@ Each mutant is patched in for one test only. The test asserts the checker that
 gates the real code (empty failure list there) reports a failure, or that the
 required typed refusal disappears. ENGINEERING-SPEC section 9: tropical S, sign
 error in E, closed instead of half-open edge, missing FLG_SWIEPH check,
-extrapolation; plus wrong whole-second rounding and an ignored iteration cap.
+extrapolation; plus wrong whole-second rounding, an ignored iteration cap, unenforced
+frozen limits and a step check that accepts steps below 6 h.
 """
 from __future__ import annotations
 
@@ -155,8 +156,28 @@ class DocumentMutationTest(unittest.TestCase):
         from .test_pan_qa03_search import frozen_limit_failures
         self.assertEqual(frozen_limit_failures(calculate, self.requests[0], EPHE), [])
         with mock.patch.object(contract, "_check_limits", lambda limits: None):
-            got = frozen_limit_failures(contract.calculate, self.requests[0], EPHE)
+            got = frozen_limit_failures(contract.calculate, self.requests[0], EPHE, smaller_steps=False)
         self.assertTrue(any(f.startswith("ACCEPTED:") for f in got), got)
+
+    def test_upper_bound_only_step_check_is_caught(self):
+        """Mutant of the r3 check: steps below 6 h accepted (QA review 5751704671). The search is
+        replaced by a sentinel so the mutant never runs a microsecond-step search."""
+        from dataclasses import replace
+        from sabpuja_kundali.panchanga import calculate, contract
+        from .test_pan_qa03_search import frozen_limit_failures
+        real = contract._check_limits
+
+        def upper_bound_only(limits):
+            real(replace(limits, step_us=contract.DEFAULT_LIMITS.step_us)
+                 if type(limits) is SearchLimits and type(limits.step_us) is int and 0 < limits.step_us < contract.DEFAULT_LIMITS.step_us else limits)
+
+        class Searched(Exception):
+            pass
+        with mock.patch.object(contract, "find_transition", side_effect=Searched):
+            self.assertEqual(frozen_limit_failures(calculate, self.requests[0], EPHE), [])
+            with mock.patch.object(contract, "_check_limits", upper_bound_only):
+                got = frozen_limit_failures(contract.calculate, self.requests[0], EPHE)
+        self.assertEqual(sorted(set(got)), ["UNTYPED:Searched"], got)
 
     def test_chart_frame_mutant_is_caught_by_identity(self):
         """Tropical longitudes for everything (no FLG_SIDEREAL): the chart identity check refuses."""
