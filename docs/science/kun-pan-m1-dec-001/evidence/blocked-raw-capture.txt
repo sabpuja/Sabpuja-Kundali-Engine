@@ -1,0 +1,14 @@
+Raw-byte capture attempt from the Claude cloud container, 2026-11-03T08:41:58Z (UTC)
+
+$ curl -sS -L --max-time 60 "https://aa.usno.navy.mil/api/moon/phases/year?year=2026"
+curl: (56) CONNECT tunnel failed, response 403
+$ curl -sS -L --max-time 60 "https://eclipse.gsfc.nasa.gov/phase/phases2001.html"
+curl: (56) CONNECT tunnel failed, response 403
+$ curl -sS -L --max-time 60 "https://aa.usno.navy.mil/faq/moon_phases"
+curl: (56) CONNECT tunnel failed, response 403
+
+The environment network policy denies aa.usno.navy.mil and eclipse.gsfc.nasa.gov for
+direct download. No raw response bytes, and therefore no source-file sha256, could be
+recorded. The values in the two *-retrieved-20261103.txt files were obtained instead
+through Claude's page-reading tool (WebFetch), which returns a model-produced reading
+of the page, not the page bytes. See ../PHASE-EVENT-VERIFICATION.md section 3.
