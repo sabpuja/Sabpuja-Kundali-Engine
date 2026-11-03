@@ -26,3 +26,36 @@
 
 ## Requested verdict
 PASS, CHANGES REQUESTED or BLOCKED on the exact head SHA. A PASS is not owner approval of any decision and not authorization to merge.
+
+## Revision 2: KUN-PAN-M1-QA-FIX-001 (checker hardening, after QA review 5749516454)
+
+| Item | Value |
+|---|---|
+| Base | `main` `de721d665ed80ed58291f59962677065a73f0b26` (tree `80597a0db7a49f1ebbd6f6faa713b7ea1627af45`) |
+| r1 reviewed head | `aea018ba33e3e8d84f09e5b161212286b77ab9af` (tree `793312e2c85a75ccea733846496f6200f4b765b8`) |
+| Checker-fix commit | `a4ff29156302d93d8755d5bedefb34255612de49` (tree `543b544cedc992e11b095f241a3146cc40dbdf85`) |
+| This manifest commit | The PR head that contains this section. A commit cannot record its own SHA, so the exact final head and tree are given in the PR comment that requests re-review |
+
+**Paths changed since r1.** `evidence/compare_phase_sources.py` (fail-closed exit status), `evidence/test_compare_phase_sources.py` (new), `evidence/checker-tests.log` (new), `evidence/comparison-output.txt` (rerun), `evidence/SHA256SUMS` (new manifest), `QA-HANDOFF.md` (this file), and `PHASE-EVENT-VERIFICATION.md` (a paragraph on the checker's exit status in §3, and §7 appending QA's reported raw-byte recheck as reviewer evidence, as the review suggested; no status, recommendation or threshold changed). Nothing outside `docs/science/kun-pan-m1-dec-001/`.
+
+**Exit contract.** 0 all checks pass; 1 any discrepancy (minute mismatch, absent event either side, duplicate event either side, count ≠ 50, NASA marker mismatch, marker in the USNO file, wrong recorded inter-source difference); 2 unreadable or malformed input. One `ERROR` line per failing record, then `RESULT PASS` or `RESULT FAIL (n errors)`.
+
+**Controls** (`evidence/test_compare_phase_sources.py`, on temp copies; log `evidence/checker-tests.log`, Python 3.13.18): `Ran 15 tests … OK`.
+
+| Kind | Tests | Expected exit |
+|---|---|---|
+| Positive | committed inputs → `values 100 mismatches 0`, 8 differences, `RESULT PASS` | 0 |
+| Wrong published minute | fixture Jan 3 Full Moon USNO 10:03→10:04; USNO file 10:03→10:05 | 1 |
+| Missing event | NASA line removed; fixture case removed | 1 |
+| Duplicate event | USNO line repeated; fixture case repeated | 1 |
+| Event count | extra USNO event; 49 NASA / 51 fixture counts (inside the above) | 1 |
+| Marker mismatch | NASA `A`→`T`; fixture marker removed; marker added to USNO line | 1 |
+| Recorded difference | fixture `inter_source_difference_minutes` 0→1 | 1 |
+| Malformed input | bad phase token; missing file | 2 |
+| Inputs untouched | committed fixture and snapshots byte-identical after the run | — |
+
+**Canonical rerun** on the unchanged fixture `dfd964cf450cee57d76aff780fc2541814ca3ab79ac7e55028f4a88aa6459850`: exit 0, `RESULT PASS` (`evidence/comparison-output.txt`).
+
+**Evidence manifest:** `evidence/SHA256SUMS`; check with `cd docs/science/kun-pan-m1-dec-001/evidence && sha256sum -c SHA256SUMS`.
+
+**Remaining blockers (unchanged):** owner selections and adoption for the PAN decisions (all PENDING); owner/QA disposition of whether the §7 recheck makes the 50 records `INDEPENDENTLY_RECHECKED`; OD-09 or authorization to stack on PR #62 `6722b5c`; a numbered KUN-PAN-M1 task.
