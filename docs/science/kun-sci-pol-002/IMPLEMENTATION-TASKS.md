@@ -1,6 +1,11 @@
 # Proposed implementation tasks for SCI-04 (B-1), SCI-05 (B-3) and SCI-06 (B-6)
 
-**PROPOSAL ONLY. No task below is authorized.** Each one needs a numbered, bounded task from ChatGPT, owner authorization and its own draft PR. Each one also depends on the decision records in [DECISION-RECORDS.md](DECISION-RECORDS.md). Those records can only be merged after canonical adoption (step 2).
+**PROPOSAL ONLY. No task below is authorized.** Each one needs a numbered, bounded task from ChatGPT, owner authorization and its own draft PR. Each one also depends on the decision records in [DECISION-RECORDS.md](DECISION-RECORDS.md) having become canonical. The order is:
+1. The pre-merge records in this decision-record PR (step 1, done).
+2. A separately owner-authorized merge of this decision-record PR into `main` (step 2a).
+3. A post-merge adoption receipt giving the merge SHA and date (step 2b).
+
+Only the **implementation** PRs below wait for step 2b. Nothing in this document authorizes the merge of the decision-record PR itself; that remains the owner's separate decision.
 
 ## 0. Constraint every task inherits: the engine base
 

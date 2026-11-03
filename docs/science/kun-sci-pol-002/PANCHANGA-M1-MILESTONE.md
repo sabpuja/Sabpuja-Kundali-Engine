@@ -22,12 +22,14 @@ All of these are functions of the Sun and Moon longitudes, which are already can
 
 | Set (on `main`) | sha256 | Class | What M1 can prove with it |
 |---|---|---|---|
-| PAN-REF-PHASE-2026, `research/panchanga/reference-fixtures/geocentric-lunar-phase-events-2026.json` | `dfd964cf…9850` | **Independent.** 50 events, all `VERIFIED_TWO_INDEPENDENT_PUBLISHERS` (USNO API 4.0.1 and NASA/Espenak). 42 identical; 8 differ by 1 minute, with NASA later. Whole minutes, rounding rule unstated | E = 0° (12 New Moons: Tithi 30→1, includes the 0/360 wrap) and E = 180° (13 Full Moons: Tithi 15→16). These 25 are also Karana boundaries. E = 90° and 270° (25 quarters) are Karana-only boundaries. **Ayanamsa-free**, because Sun and Moon share the same ayanamsa at the same instant. Minute-level agreement only, not seconds-level accuracy |
+| PAN-REF-PHASE-2026, `research/panchanga/reference-fixtures/geocentric-lunar-phase-events-2026.json` | `dfd964cf…9850` | **Independent publishers.** 50 events, all `VERIFIED_TWO_INDEPENDENT_PUBLISHERS` (USNO API 4.0.1 and NASA/Espenak). 42 identical; 8 differ by 1 minute, with NASA later. Whole minutes, rounding rule unstated | E = 0° (12 New Moons: Tithi 30→1, includes the 0/360 wrap) and E = 180° (13 Full Moons: Tithi 15→16). These 25 are also Karana boundaries. E = 90° and 270° (25 quarters) are Karana-only boundaries. **Ayanamsa-free**, because Sun and Moon share the same ayanamsa at the same instant. Minute-level agreement only, not seconds-level accuracy |
 | PAN-DER-2026 cases 07 and 08 | see below | Derived from the phase set, labelled DERIVED | UT/IST civil-date rollover of a Tithi boundary; a Karana boundary 30 minutes after local midnight |
 | PAN-SPEC-BOUNDARY 01–06, 08–10, 12–15 | see below | Specifications, no numbers | Exact boundaries, the 0/360 wrap, Karana rollover, search caps and non-convergence refusal, refusal order, ephemeris failure, Swiss state isolation |
 | Swiss CLI conformance (REL-01 mandatory) | — | Swiss-on-Swiss | swetest Sun and Moon at the same instants. The gold matrix from PR #62 (50 charts) can be reused as instants, through an independently coded rule oracle for E, S and the indices |
 
 Derived set sha256 and specification set sha256 are listed in [QA-HANDOFF.md](QA-HANDOFF.md).
+
+**Transcription status.** The two publishers are independent, and their published whole-minute values agree (42 identical, 8 one minute apart). However, one implementation actor (Claude, WP-B1, 2026-10-28) transcribed all 100 values with an automated page-reading tool. The fixture's own `limitations` field says the values "should be re-verified by QA against the live sources". That independent QA re-check of the live USNO and NASA originals is therefore a **precondition for M1 accuracy acceptance** (§5). Two agreeing publishers are not an independent human verification of every transcription, and they are not JPL/INPOP accuracy assurance.
 
 **Not yet available (stated, not filled in).**
 - No independent reference for any **Yoga** or **Nakshatra** end time. These depend on the ayanamsa, and none has been obtained. M1 can therefore check Yoga only through the rule oracle plus Swiss conformance, and Nakshatra only through identity with the chart, which is itself Swiss-on-Swiss.
@@ -79,8 +81,9 @@ Not part of M1: PAN-QA-02 (names), PAN-QA-05 (sunrise), PAN-QA-06 (IMD), PAN-QA-
 
 1. The owner records the §3 decisions under the two-step rule.
 2. PAN-D15's phase-event tolerance is committed **before** the first evaluation run, and ChatGPT reviews it.
-3. The engine base SHA is fixed, or the owner decides the OD-09 merge plan. M1 must not stack on an unresolved branch without that plan. PR #1 HOLD stays active.
-4. ChatGPT issues a numbered, bounded task (for example KUN-PAN-M1) with KUN-A01 and QA links.
+3. QA independently re-checks the 50 transcribed phase events against the live USNO and NASA publications (fixture `limitations`) before M1 accuracy acceptance.
+4. The engine base SHA is fixed, or the owner decides the OD-09 merge plan. M1 must not stack on an unresolved branch without that plan. PR #1 HOLD stays active.
+5. ChatGPT issues a numbered, bounded task (for example KUN-PAN-M1) with KUN-A01 and QA links.
 
 ## 6. Claim boundary
 
