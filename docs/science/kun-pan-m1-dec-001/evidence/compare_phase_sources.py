@@ -9,7 +9,8 @@ with phase names New Moon, First Quarter, Full Moon, Last Quarter.
 Exit status:
     0  every check passed
     1  at least one discrepancy (details printed, one ``ERROR`` line each)
-    2  unreadable or malformed input
+    2  unreadable or malformed input, including an impossible 2026 date or a
+       time outside 00:00..23:59 in either the fixture or a publisher file
 
 Checks: fixture case count, publisher file event counts, malformed or duplicate
 lines, duplicate fixture keys, fixture values absent from a publisher file,
@@ -20,20 +21,29 @@ Documentation evidence only. It reads published minutes; it runs no engine and
 no Swiss Ephemeris calculation.
 """
 
+import datetime
 import json
 import sys
 
 PHASES = ("New Moon", "First Quarter", "Full Moon", "Last Quarter")
 SOURCES = ("SRC-USNO-PHASES", "SRC-NASA-PHASES")
 EXPECTED_EVENTS = 50
+YEAR = 2026
 
 
 class InputError(Exception):
     pass
 
 
-def _is_hhmm(s):
-    return len(s) == 5 and s[2] == ":" and s[:2].isdigit() and s[3:].isdigit()
+def _valid_md_hhmm(md, hhmm):
+    """True only for a real 2026 calendar date MM-DD and a time HH:MM in 00:00..23:59."""
+    if len(md) != 5 or md[2] != "-" or len(hhmm) != 5 or hhmm[2] != ":":
+        return False
+    try:
+        datetime.datetime.strptime(f"{YEAR}-{md}T{hhmm}", "%Y-%m-%dT%H:%M")
+    except ValueError:
+        return False
+    return True
 
 
 def load_publisher(path, errors):
@@ -47,7 +57,7 @@ def load_publisher(path, errors):
                 raise InputError(f"{path}:{lineno}: expected 'MM-DD Phase Name HH:MM [marker]'")
             md, phase, hhmm = tokens[0], " ".join(tokens[1:3]), tokens[3]
             marker = tokens[4] if len(tokens) == 5 else None
-            if phase not in PHASES or not _is_hhmm(hhmm) or len(md) != 5 or md[2] != "-":
+            if phase not in PHASES or not _valid_md_hhmm(md, hhmm):
                 raise InputError(f"{path}:{lineno}: malformed line {raw.strip()!r}")
             key = (md, phase)
             if key in events:
@@ -92,7 +102,8 @@ def compare(fixture_path, usno_path, nasa_path):
         for pv in values:
             src = pv.get("source_id")
             v = pv.get("value_utc_minute", "")
-            if src not in SOURCES or len(v) != 17 or not v.endswith("Z"):
+            if (src not in SOURCES or len(v) != 17 or v[:5] != f"{YEAR}-" or v[10] != "T"
+                    or not v.endswith("Z") or not _valid_md_hhmm(v[5:10], v[11:16])):
                 raise InputError(f"{cid}: malformed published value {pv!r}")
             key = (v[5:10], phase)
             if key in seen[src]:

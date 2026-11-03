@@ -59,3 +59,16 @@ PASS, CHANGES REQUESTED or BLOCKED on the exact head SHA. A PASS is not owner ap
 **Evidence manifest:** `evidence/SHA256SUMS`; check with `cd docs/science/kun-pan-m1-dec-001/evidence && sha256sum -c SHA256SUMS`.
 
 **Remaining blockers (unchanged):** owner selections and adoption for the PAN decisions (all PENDING); owner/QA disposition of whether the §7 recheck makes the 50 records `INDEPENDENTLY_RECHECKED`; OD-09 or authorization to stack on PR #62 `6722b5c`; a numbered KUN-PAN-M1 task.
+
+## Revision 3: malformed-input classification (after QA review 5749654235)
+
+| Item | Value |
+|---|---|
+| Re-reviewed head | `b623f14d53668874a8b044ada92005cf2a44c4e5` (tree `a60baa7cfc99d82edc9d1ad2c888a41bbcf177fb`) |
+| This revision | The PR head containing this section; exact SHA and tree in the PR comment requesting re-review |
+
+**Fix.** Publisher `MM-DD` and `HH:MM` must form a real 2026 date and a time in 00:00 to 23:59 (`datetime.strptime`), and each fixture `value_utc_minute` must be `2026-MM-DDTHH:MMZ` with the same validity. Anything else is `INPUT ERROR`, exit 2. Valid-but-wrong values stay exit 1.
+
+**Added controls (5; suite now 20, `Ran 20 tests … OK`):** `01-03 Full Moon 25:99` → 2; `AA-BB Full Moon 10:03` → 2; `02-30` date → 2; fixture `2026-13-03T10:03Z` → 2; valid but wrong `23:59` → still 1.
+
+**Paths changed since `b623f14`:** `evidence/compare_phase_sources.py`, `evidence/test_compare_phase_sources.py`, `evidence/checker-tests.log`, `evidence/SHA256SUMS`, `QA-HANDOFF.md`, `PHASE-EVENT-VERIFICATION.md` (exit-contract wording and the reviewer's 50-record disposition, attributed). `evidence/comparison-output.txt` was rerun and is byte-identical. Fixture, thresholds and recommendations unchanged; all PAN decisions PENDING.

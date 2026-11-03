@@ -147,6 +147,39 @@ class CompareTests(unittest.TestCase):
         self.assertEqual(code, 2, out)
         self.assertIn("INPUT ERROR", out)
 
+    def test_out_of_range_time_exits_2(self):
+        self.edit_text(self.usno, "01-03 Full Moon 10:03", "01-03 Full Moon 25:99")
+        code, out = self.run_script()
+        self.assertEqual(code, 2, out)
+        self.assertIn("INPUT ERROR", out)
+        self.assertNotIn("RESULT FAIL", out)
+
+    def test_non_numeric_date_exits_2(self):
+        self.edit_text(self.nasa, "01-03 Full Moon 10:03", "AA-BB Full Moon 10:03")
+        code, out = self.run_script()
+        self.assertEqual(code, 2, out)
+        self.assertIn("INPUT ERROR", out)
+
+    def test_impossible_calendar_date_exits_2(self):
+        self.edit_text(self.usno, "02-24 First Quarter 12:27", "02-30 First Quarter 12:27")
+        code, out = self.run_script()
+        self.assertEqual(code, 2, out)
+        self.assertIn("INPUT ERROR", out)
+
+    def test_malformed_fixture_datetime_exits_2(self):
+        def f(d):
+            d["cases"][0]["published_values"][0]["value_utc_minute"] = "2026-13-03T10:03Z"
+        self.edit_fixture(f)
+        code, out = self.run_script()
+        self.assertEqual(code, 2, out)
+        self.assertIn("INPUT ERROR", out)
+
+    def test_valid_but_wrong_minute_still_exits_1(self):
+        self.edit_text(self.usno, "01-03 Full Moon 10:03", "01-03 Full Moon 23:59")
+        code, out = self.run_script()
+        self.assertEqual(code, 1, out)
+        self.assertIn("RESULT FAIL", out)
+
     def test_missing_file_exits_2(self):
         code, out = self.run_script(usno=os.path.join(self.tmp, "absent.txt"))
         self.assertEqual(code, 2, out)
