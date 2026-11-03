@@ -1,0 +1,188 @@
+{
+ "purpose": "Synthetic Phase 2A report scenarios. Invented birth records; no real person.",
+ "generator": "report/phase1/tools/make_premium_scenarios.py (seed 20261029)",
+ "cases": [
+  {
+   "id": "s01-first-supported-date",
+   "description": "First supported local date, 00:00:00",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-new-delhi",
+    "birth_date": "1970-01-01",
+    "birth_time": "00:00:00"
+   },
+   "d1_lagna": "Kanya",
+   "d9_lagna": "Mesha",
+   "max_d1_house": 2,
+   "max_d9_house": 1
+  },
+  {
+   "id": "s02-last-supported-date",
+   "description": "Last supported local date, 23:59:59",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-new-delhi",
+    "birth_date": "2100-12-31",
+    "birth_time": "23:59:59"
+   },
+   "d1_lagna": "Kanya",
+   "d9_lagna": "Meena",
+   "max_d1_house": 3,
+   "max_d9_house": 2
+  },
+  {
+   "id": "s03-crowded-d1-house",
+   "description": "At least five grahas in one D1 house",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-kolkata",
+    "birth_date": "2030-06-12",
+    "birth_time": "04:17:32"
+   },
+   "d1_lagna": "Vrishabha",
+   "d9_lagna": "Mithuna",
+   "max_d1_house": 5,
+   "max_d9_house": 2
+  },
+  {
+   "id": "s04-crowded-d9-house",
+   "description": "At least four grahas in one D9 house",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-guwahati",
+    "birth_date": "2005-02-15",
+    "birth_time": "06:55:38"
+   },
+   "d1_lagna": "Kumbha",
+   "d9_lagna": "Meena",
+   "max_d1_house": 2,
+   "max_d9_house": 4
+  },
+  {
+   "id": "s05-graha-near-boundary",
+   "description": "A graha within 0.005 deg of a Rashi boundary",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-new-delhi",
+    "birth_date": "2073-09-23",
+    "birth_time": "01:32:00"
+   },
+   "d1_lagna": "Karka",
+   "d9_lagna": "Simha",
+   "max_d1_house": 2,
+   "max_d9_house": 2
+  },
+  {
+   "id": "s06-lagna-near-boundary",
+   "description": "Lagna within 0.02 deg of a Rashi boundary",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-bengaluru",
+    "birth_date": "2068-06-02",
+    "birth_time": "04:46:14"
+   },
+   "d1_lagna": "Mesha",
+   "d9_lagna": "Dhanu",
+   "max_d1_house": 3,
+   "max_d9_house": 2
+  },
+  {
+   "id": "s07-noon",
+   "description": "Local noon",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-jaipur",
+    "birth_date": "2039-07-31",
+    "birth_time": "12:00:00"
+   },
+   "d1_lagna": "Tula",
+   "d9_lagna": "Vrischika",
+   "max_d1_house": 2,
+   "max_d9_house": 3
+  },
+  {
+   "id": "s08-dawn",
+   "description": "Early morning time with seconds",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-lucknow",
+    "birth_date": "1978-12-12",
+    "birth_time": "05:07:33"
+   },
+   "d1_lagna": "Vrischika",
+   "d9_lagna": "Simha",
+   "max_d1_house": 2,
+   "max_d9_house": 2
+  },
+  {
+   "id": "s09-evening",
+   "description": "Evening time",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-varanasi",
+    "birth_date": "1977-11-11",
+    "birth_time": "19:45:00"
+   },
+   "d1_lagna": "Mithuna",
+   "d9_lagna": "Vrischika",
+   "max_d1_house": 3,
+   "max_d9_house": 2
+  },
+  {
+   "id": "s10-late-night",
+   "description": "Late night time",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-guwahati",
+    "birth_date": "2062-06-21",
+    "birth_time": "23:10:00"
+   },
+   "d1_lagna": "Meena",
+   "d9_lagna": "Karka",
+   "max_d1_house": 3,
+   "max_d9_house": 2
+  },
+  {
+   "id": "s11-afternoon",
+   "description": "Afternoon time",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-new-delhi",
+    "birth_date": "2038-09-05",
+    "birth_time": "15:20:10"
+   },
+   "d1_lagna": "Dhanu",
+   "d9_lagna": "Tula",
+   "max_d1_house": 4,
+   "max_d9_house": 2
+  },
+  {
+   "id": "s12-morning",
+   "description": "Morning time",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-mumbai",
+    "birth_date": "2005-01-08",
+    "birth_time": "08:30:00"
+   },
+   "d1_lagna": "Makara",
+   "d9_lagna": "Mesha",
+   "max_d1_house": 3,
+   "max_d9_house": 3
+  },
+  {
+   "id": "s13-remaining-lagna",
+   "description": "Any time; completes the twelve D1 Lagnas",
+   "synthetic": true,
+   "request": {
+    "place_id": "in-kolkata",
+    "birth_date": "2019-01-06",
+    "birth_time": "20:17:54"
+   },
+   "d1_lagna": "Simha",
+   "d9_lagna": "Vrishabha",
+   "max_d1_house": 4,
+   "max_d9_house": 2
+  }
+ ]
+}

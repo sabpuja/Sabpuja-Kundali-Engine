@@ -1,0 +1,318 @@
+{
+  "schema": "sabpuja-swiss-conformance-cases/1",
+  "note": "Predeclared synthetic cases. No real birth records. Time conversion here tests application of the installed IANA tzdb rules, not historical clock truth (RG-HIST remains a launch blocker). expected_utc values were derived by hand from the stated offsets.",
+  "cases": [
+    {
+      "id": "SC-01",
+      "purpose": "J2000.0 noon UTC, northern India coordinates",
+      "request": {
+        "birth_datetime": "2000-01-01T12:00:00+00:00",
+        "timezone": "UTC",
+        "latitude": 28.6139,
+        "longitude": 77.209
+      },
+      "expect": "chart",
+      "expected_utc": "2000-01-01T12:00:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-02",
+      "purpose": "Local date after UTC date (IST morning is previous UTC day)",
+      "request": {
+        "birth_datetime": "2000-01-01T03:00:00+05:30",
+        "timezone": "Asia/Kolkata",
+        "latitude": 22.5726,
+        "longitude": 88.3639
+      },
+      "expect": "chart",
+      "expected_utc": "1999-12-31T21:30:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-03",
+      "purpose": "Leap day 2024, IST evening",
+      "request": {
+        "birth_datetime": "2024-02-29T23:45:00+05:30",
+        "timezone": "Asia/Kolkata",
+        "latitude": 19.076,
+        "longitude": 72.8777
+      },
+      "expect": "chart",
+      "expected_utc": "2024-02-29T18:15:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-04",
+      "purpose": "Leap day 2000 (century leap year), southern hemisphere",
+      "request": {
+        "birth_datetime": "2000-02-29T00:00:00+00:00",
+        "timezone": "UTC",
+        "latitude": -33.8688,
+        "longitude": 151.2093
+      },
+      "expect": "chart",
+      "expected_utc": "2000-02-29T00:00:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-05",
+      "purpose": "DST fall-back, first 01:30 (EDT)",
+      "request": {
+        "birth_datetime": "2026-11-01T01:30:00-04:00",
+        "timezone": "America/New_York",
+        "latitude": 40.7128,
+        "longitude": -74.006
+      },
+      "expect": "chart",
+      "expected_utc": "2026-11-01T05:30:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-06",
+      "purpose": "DST fall-back, second 01:30 (EST)",
+      "request": {
+        "birth_datetime": "2026-11-01T01:30:00-05:00",
+        "timezone": "America/New_York",
+        "latitude": 40.7128,
+        "longitude": -74.006
+      },
+      "expect": "chart",
+      "expected_utc": "2026-11-01T06:30:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-07",
+      "purpose": "DST spring-forward gap: 02:30 does not exist; must be refused",
+      "request": {
+        "birth_datetime": "2026-03-08T02:30:00-05:00",
+        "timezone": "America/New_York",
+        "latitude": 40.7128,
+        "longitude": -74.006
+      },
+      "expect": "refuse",
+      "expected_utc": null,
+      "expected_refusal": "INPUT_REFUSED"
+    },
+    {
+      "id": "SC-08",
+      "purpose": "Southern-hemisphere DST (AEDT)",
+      "request": {
+        "birth_datetime": "2026-01-15T20:00:00+11:00",
+        "timezone": "Australia/Sydney",
+        "latitude": -33.8688,
+        "longitude": 151.2093
+      },
+      "expect": "chart",
+      "expected_utc": "2026-01-15T09:00:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-09",
+      "purpose": "Lower edge of the current UTC-year window",
+      "request": {
+        "birth_datetime": "1900-01-01T00:00:00+00:00",
+        "timezone": "UTC",
+        "latitude": 51.4779,
+        "longitude": -0.0015
+      },
+      "expect": "chart",
+      "expected_utc": "1900-01-01T00:00:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-10",
+      "purpose": "One second before the window: refused",
+      "request": {
+        "birth_datetime": "1899-12-31T23:59:59+00:00",
+        "timezone": "UTC",
+        "latitude": 51.4779,
+        "longitude": -0.0015
+      },
+      "expect": "refuse",
+      "expected_utc": null,
+      "expected_refusal": "INPUT_REFUSED"
+    },
+    {
+      "id": "SC-11",
+      "purpose": "Upper edge of the current UTC-year window",
+      "request": {
+        "birth_datetime": "2100-12-31T23:59:59+00:00",
+        "timezone": "UTC",
+        "latitude": 35.6762,
+        "longitude": 139.6503
+      },
+      "expect": "chart",
+      "expected_utc": "2100-12-31T23:59:59Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-12",
+      "purpose": "One second after the window: refused",
+      "request": {
+        "birth_datetime": "2101-01-01T00:00:00+00:00",
+        "timezone": "UTC",
+        "latitude": 35.6762,
+        "longitude": 139.6503
+      },
+      "expect": "refuse",
+      "expected_utc": null,
+      "expected_refusal": "INPUT_REFUSED"
+    },
+    {
+      "id": "SC-13",
+      "purpose": "Local date 1900 but UTC 1899: refused by the current UTC-year check (SCI-03 local-date window pending)",
+      "request": {
+        "birth_datetime": "1900-01-01T02:00:00+03:00",
+        "timezone": "Etc/GMT-3",
+        "latitude": 0.0,
+        "longitude": 45.0
+      },
+      "expect": "refuse",
+      "expected_utc": null,
+      "expected_refusal": "INPUT_REFUSED"
+    },
+    {
+      "id": "SC-14",
+      "purpose": "Moon just below 360 sidereal (instant frozen from a search with the pinned binding)",
+      "request": {
+        "birth_datetime": "2026-10-25T13:52:19+00:00",
+        "timezone": "UTC",
+        "latitude": 0.0,
+        "longitude": 0.0
+      },
+      "expect": "chart",
+      "expected_utc": "2026-10-25T13:52:19Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-15",
+      "purpose": "Moon just above 0 sidereal, one second later",
+      "request": {
+        "birth_datetime": "2026-10-25T13:52:20+00:00",
+        "timezone": "UTC",
+        "latitude": 0.0,
+        "longitude": 0.0
+      },
+      "expect": "chart",
+      "expected_utc": "2026-10-25T13:52:20Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-16",
+      "purpose": "Sub-second instant at the Moon's 0 deg crossing: must be PASS or BOUNDARY-INDETERMINATE, never FAIL",
+      "request": {
+        "birth_datetime": "2026-10-25T13:52:19.288692+00:00",
+        "timezone": "UTC",
+        "latitude": 0.0,
+        "longitude": 0.0
+      },
+      "expect": "chart",
+      "expected_utc": "2026-10-25T13:52:19.288692Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-17",
+      "purpose": "Arctic: Placidus undefined; engine and swetest must both refuse the Placidus ascendant",
+      "request": {
+        "birth_datetime": "2026-06-21T12:00:00+00:00",
+        "timezone": "UTC",
+        "latitude": 70.0,
+        "longitude": 25.0
+      },
+      "expect": "refuse",
+      "expected_utc": null,
+      "expected_refusal": "ASCENDANT_UNCOMPUTABLE"
+    },
+    {
+      "id": "SC-18",
+      "purpose": "Antarctic: as SC-17",
+      "request": {
+        "birth_datetime": "2026-12-21T00:00:00+00:00",
+        "timezone": "UTC",
+        "latitude": -75.0,
+        "longitude": 0.0
+      },
+      "expect": "refuse",
+      "expected_utc": null,
+      "expected_refusal": "ASCENDANT_UNCOMPUTABLE"
+    },
+    {
+      "id": "SC-19",
+      "purpose": "Equator at the antimeridian, east edge",
+      "request": {
+        "birth_datetime": "2026-06-21T00:00:00+00:00",
+        "timezone": "UTC",
+        "latitude": 0.0,
+        "longitude": 180.0
+      },
+      "expect": "chart",
+      "expected_utc": "2026-06-21T00:00:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-20",
+      "purpose": "Just south of the equator at the antimeridian, west edge",
+      "request": {
+        "birth_datetime": "2026-06-21T00:00:00+00:00",
+        "timezone": "UTC",
+        "latitude": -0.5,
+        "longitude": -180.0
+      },
+      "expect": "chart",
+      "expected_utc": "2026-06-21T00:00:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-21",
+      "purpose": "Ordinary 2026 IST morning, southern India",
+      "request": {
+        "birth_datetime": "2026-10-22T06:00:00+05:30",
+        "timezone": "Asia/Kolkata",
+        "latitude": 12.9716,
+        "longitude": 77.5946
+      },
+      "expect": "chart",
+      "expected_utc": "2026-10-22T00:30:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-22",
+      "purpose": "Late in the window, Japan",
+      "request": {
+        "birth_datetime": "2099-07-01T21:00:00+09:00",
+        "timezone": "Asia/Tokyo",
+        "latitude": 35.6762,
+        "longitude": 139.6503
+      },
+      "expect": "chart",
+      "expected_utc": "2099-07-01T12:00:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-23",
+      "purpose": "Mid-latitude south, winter",
+      "request": {
+        "birth_datetime": "1950-06-15T10:00:00-03:00",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "latitude": -34.6037,
+        "longitude": -58.3816
+      },
+      "expect": "chart",
+      "expected_utc": "1950-06-15T13:00:00Z",
+      "expected_refusal": null
+    },
+    {
+      "id": "SC-24",
+      "purpose": "High but supported latitude (Placidus defined), 66 deg N",
+      "request": {
+        "birth_datetime": "2026-03-20T09:00:00+00:00",
+        "timezone": "UTC",
+        "latitude": 66.0,
+        "longitude": -18.0
+      },
+      "expect": "chart",
+      "expected_utc": "2026-03-20T09:00:00Z",
+      "expected_refusal": null
+    }
+  ]
+}

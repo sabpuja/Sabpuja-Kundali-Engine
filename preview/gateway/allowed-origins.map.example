@@ -1,0 +1,4 @@
+# Gateway Origin allow-list: one exact browser Origin per line, each ending in " 0;".
+# Mounted read-only at /etc/nginx/preview-allowed-origins.map. Any other
+# non-empty Origin gets HTTP 403. Must be readable by the Nginx user (mode 0644).
+"https://kundali-preview.srv2005300.hstgr.cloud" 0;

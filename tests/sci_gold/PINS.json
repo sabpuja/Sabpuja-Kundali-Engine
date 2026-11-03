@@ -1,0 +1,6 @@
+{
+ "note": "Pinned inputs for KUN-SCI-GOLD-001. Changing any file needs a written reason and QA review.",
+ "matrix_sha256": "bc27314f4d243cb673debccf970dd20f8916fdb8d7661262495398556bd0e9c1",
+ "receipts_sha256sums_sha256": "71a6a9695f12ade3fadf18c26a7098aba8b16fb1f5febcdd21381ccc63be8eee",
+ "swiss_spec_sha256": "642a770d713c11bc42fc92fe441da02e4848522fc4978ae3049dddbea33d12a8"
+}

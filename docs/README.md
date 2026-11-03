@@ -19,7 +19,7 @@ The foundation PR contains `README.md`, `AGENTS.md`, `docs/architecture.md`, `do
 - [Draft foundation PR #1](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/1)
 - [CLAUDE-001 audit issue #2](https://github.com/sabpuja/Sabpuja-Kundali-Engine/issues/2)
 
-The existing `docs/roadmap.md` in that draft is a **preliminary outline**. With planning PR #3 merged, `docs/DEVELOPMENT-ROADMAP.md` is the **canonical detailed plan**, although still an owner-review draft. The foundation PR #1 must align its old outline/readme links and reconcile the newer project README before it can merge. Do not create a competing second roadmap.
+On `integration/kun03-gate1` these files are present through the integration merge of PR #35; on `main` they arrive only if the owner later approves that merge. The existing `docs/roadmap.md` in that draft is a **preliminary outline**, now marked as superseded. With planning PR #3 merged, `docs/DEVELOPMENT-ROADMAP.md` is the **canonical detailed plan**, although still an owner-review draft. The foundation PR #1 must align its old outline/readme links and reconcile the newer project README before it can merge. Do not create a competing second roadmap.
 
 ## Ownership rules
 - Human Sabpuja owner makes product/release decisions; ChatGPT is PM and independent QA; Claude develops in scoped PRs only.
