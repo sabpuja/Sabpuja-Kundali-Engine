@@ -109,3 +109,4 @@ live inter-source differences 8
   (('10-18', 'First Quarter'), '16:12', '16:13')
   (('12-01', 'Last Quarter'), '06:08', '06:09')
   (('12-17', 'First Quarter'), '05:42', '05:43')
+RESULT PASS

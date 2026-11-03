@@ -24,6 +24,8 @@ The NASA page lays out each row as New, First Quarter, Full, Last Quarter. The r
 
 Script: [evidence/compare_phase_sources.py](evidence/compare_phase_sources.py), run with `python3 -I` on the fixture and the two retrieval files. It looks up each fixture value by (month-day, phase name) in the retrieved list for its source and compares the HH:MM. Output: [evidence/comparison-output.txt](evidence/comparison-output.txt).
 
+**Exit status (revision 2, after QA review 5749516454).** The script exits 0 only when every check passes, 1 on any discrepancy, and 2 on unreadable or malformed input. Discrepancies are: a minute mismatch; a fixture value absent from a publisher file; a publisher event absent from the fixture; a duplicate key on either side; a fixture case count or publisher event count other than 50; a NASA eclipse-marker mismatch; a marker in the USNO file; a fixture `inter_source_difference_minutes` that disagrees with its own two values. Each is printed as an `ERROR` line, followed by `RESULT PASS` or `RESULT FAIL (n errors)`. Revision 1 printed mismatches but always exited 0, which QA showed by altering a fixture minute. 15 isolated positive and negative tests: [evidence/test_compare_phase_sources.py](evidence/test_compare_phase_sources.py), log [evidence/checker-tests.log](evidence/checker-tests.log).
+
 | Check | Result |
 |---|---|
 | Fixture values compared | 100 (50 USNO, 50 NASA) |
@@ -62,3 +64,20 @@ Compact, blind and reproducible. The verifier must not be Claude.
 5. **Disposition.** A case that matches on both publishers from raw captured bytes becomes `INDEPENDENTLY_RECHECKED`. A case that cannot be captured, or mismatches, stays pending and is excluded from the PAN-QA-04 gate until resolved.
 
 **Owner or environment action that would let Claude capture bytes too:** allow `aa.usno.navy.mil` and `eclipse.gsfc.nasa.gov` in the project's cloud environment network policy. That would give hashed captures, but it would still be a same-actor recheck and would not replace step 2 by someone else.
+
+## 7. Reviewer evidence reported by independent QA (appended; not Claude's verification)
+
+ChatGPT's QA review [5749516454](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/65#pullrequestreview-5749516454) on head `aea018b` reports, in the reviewer's words summarised here and **not re-verified by Claude**:
+
+| Item | As reported by QA |
+|---|---|
+| Capture | Raw bytes of the USNO API URL and the NASA page in §2, captured on the private QA machine |
+| USNO raw sha256 | `8e063694ffbf6cb49a650875f4bf1df6c361f955c63886c9fccfbe8aec084fa8` |
+| NASA raw sha256 | `ceb16de952edaf9bf1f7c6d1daf13c7487632c3a5ad78808bd40120a76c9fbd8` |
+| Independent script sha256 | `0f41cad8999da8b77140b13c1f8f353cf807b29989c227f51d930c4b01f4e8ab` |
+| Result JSON sha256 | `54ff64c52279ef407b308015851db7ec8feb536ff2d5e574ff1075478a897a75` |
+| Method | USNO JSON and the NASA 2026 preformatted table parsed independently, then compared with the fixture `dfd964cf…9850` |
+| Result | 50 USNO + 50 NASA, **100/100 date + phase + minute matches, 0 mismatches**; the 8 one-minute differences (NASA later) and all 4 eclipse markers reproduced |
+| Reviewer's caveats | Initial parser defects were corrected before the successful run. An engineering verification record, not a separate human attestation. No Swiss or engine calculation; no seconds-level or ephemeris certification |
+
+Claude's own §4 status line ("same-actor recheck matched; independent recheck pending") is kept as written for the record. Whether QA's reported recheck satisfies the §6 disposition rule, so that the 50 records become `INDEPENDENTLY_RECHECKED` for PAN-QA-04, is for QA and the owner to record; this file does not change any record's status. The fixture is not edited.
