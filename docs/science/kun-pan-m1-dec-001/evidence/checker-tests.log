@@ -1,0 +1,27 @@
+$ python3 -I -m unittest discover -s docs/science/kun-pan-m1-dec-001/evidence -p 'test_*.py' -v
+test_absent_publisher_event_fails (test_compare_phase_sources.CompareTests.test_absent_publisher_event_fails) ... ok
+test_altered_fixture_minute_fails (test_compare_phase_sources.CompareTests.test_altered_fixture_minute_fails) ... ok
+test_altered_publisher_minute_fails (test_compare_phase_sources.CompareTests.test_altered_publisher_minute_fails) ... ok
+test_committed_files_untouched (test_compare_phase_sources.CompareTests.test_committed_files_untouched) ... ok
+test_committed_inputs_pass (test_compare_phase_sources.CompareTests.test_committed_inputs_pass) ... ok
+test_duplicate_fixture_key_fails (test_compare_phase_sources.CompareTests.test_duplicate_fixture_key_fails) ... ok
+test_duplicate_publisher_event_fails (test_compare_phase_sources.CompareTests.test_duplicate_publisher_event_fails) ... ok
+test_extra_publisher_event_fails (test_compare_phase_sources.CompareTests.test_extra_publisher_event_fails) ... ok
+test_fixture_marker_removed_fails (test_compare_phase_sources.CompareTests.test_fixture_marker_removed_fails) ... ok
+test_impossible_calendar_date_exits_2 (test_compare_phase_sources.CompareTests.test_impossible_calendar_date_exits_2) ... ok
+test_malformed_fixture_datetime_exits_2 (test_compare_phase_sources.CompareTests.test_malformed_fixture_datetime_exits_2) ... ok
+test_malformed_line_exits_2 (test_compare_phase_sources.CompareTests.test_malformed_line_exits_2) ... ok
+test_marker_in_usno_file_fails (test_compare_phase_sources.CompareTests.test_marker_in_usno_file_fails) ... ok
+test_missing_file_exits_2 (test_compare_phase_sources.CompareTests.test_missing_file_exits_2) ... ok
+test_missing_fixture_case_fails (test_compare_phase_sources.CompareTests.test_missing_fixture_case_fails) ... ok
+test_non_numeric_date_exits_2 (test_compare_phase_sources.CompareTests.test_non_numeric_date_exits_2) ... ok
+test_out_of_range_time_exits_2 (test_compare_phase_sources.CompareTests.test_out_of_range_time_exits_2) ... ok
+test_publisher_marker_changed_fails (test_compare_phase_sources.CompareTests.test_publisher_marker_changed_fails) ... ok
+test_valid_but_wrong_minute_still_exits_1 (test_compare_phase_sources.CompareTests.test_valid_but_wrong_minute_still_exits_1) ... ok
+test_wrong_recorded_difference_fails (test_compare_phase_sources.CompareTests.test_wrong_recorded_difference_fails) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.983s
+
+OK
+exit=0
