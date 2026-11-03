@@ -197,3 +197,25 @@ Change request needed: YES | NO
 - The rest of the KUN-F06 D9 requirement, Nakshatra/Pada for all bodies and the Lagna, is **not** addressed and remains deferred.
 
 **Register merge.** This section was prepared on the documentation-only branch `docs/kun03-schema-030-owner-adoption` from `main` `5415ee9e232945153e89c043a14fa2ea0eba9099`. Merging it into `main` is a separate owner authorization. Until then, the approval is recorded in PR #42 comment 6407057368 and in this proposed amendment, and the register on `main` is unchanged.
+
+---
+
+## KUN-SCI-POL-002 pre-merge approval records: SCI-04, SCI-05, SCI-06 (2026-11-03)
+
+*Append-only record. It changes no earlier row, status or date.*
+
+**Status of every row below: OWNER SELECTED PRE-MERGE - CANONICAL ADOPTION PENDING.** This is step 1 of the two-step rule above. Each row becomes OWNER APPROVED / CANONICAL only after an owner-authorized merge of this section into `main` and a post-merge adoption receipt with the merge SHA and date.
+
+**Provenance.**
+- The owner decided in the owner's ChatGPT conversation on 2026-11-03 (Asia/Kolkata), saying "i will go with your recommendation" about the three recommendations of draft PR #63 at `1b70927bed1e040f55441b5b710600ae6fe11216`.
+- ChatGPT transcribed that decision in [PR #63 comment 6598001352](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/63#issuecomment-6598001352). The comment states that it is not an independently authenticated GitHub owner signature.
+- The owner then confirmed the three selections directly to Claude in the owner task KUN-SCI-POL-002 (Sabpuja Kundali Engine Claude project chat, 2026-11-03T07:43:04Z). Claude transcribes that task in the description of the PR that adds this section.
+- Neither transcription is an owner signature. Full records: [`docs/science/kun-sci-pol-002/DECISION-RECORDS.md`](science/kun-sci-pol-002/DECISION-RECORDS.md).
+
+| ID | Item | Owner choice | Effective scope | Reviewed SHA and QA | Status |
+|---|---|---|---|---|---|
+| SCI-04 | B-1 LAGNA-F tolerance | Approve recommended R | Test-only `LAGNA-F` formula-versus-swetest comparison at **1e-9°**, for \|lat\| ≤ 66.0° (SCI-01g). Not an engine change or an accuracy claim | PR #63 `1b70927`; QA [5748551920](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/63#pullrequestreview-5748551920) | **OWNER SELECTED PRE-MERGE - CANONICAL ADOPTION PENDING** |
+| SCI-05 | B-3 Swiss tolerance applicability | Approve recommended R | Frozen `engine_vs_swetest` **1e-8°** and `binding_vs_swetest` **1e-9°** (KUN-01-SWISS-01 `spec.json` `642a770d…`) extended **unchanged** to the KUN-SCI-GOLD-001 50-chart matrix (`matrix.json` `bc27314f…`). A scope extension, not a new tolerance | PR #63 `1b70927`; QA 5748551920 | **OWNER SELECTED PRE-MERGE - CANONICAL ADOPTION PENDING** |
+| SCI-06 | B-6 near-boundary disclosure | Approve recommended Option 1 | Keep calculated classifications. Show a brief birth-time sensitivity note when the Lagna Rashi, Lagna Navamsa, Moon Rashi, Moon Navamsa, Moon Nakshatra or Moon Pada would change within **±2 minutes** of the entered time, plus a near-exact-boundary note. Option 2's expanded explanation is an optional premium appendix. The window is a disclosure policy, not an assumption that the recorded time is wrong. **EN/HI wording not approved**: it needs human Hindi and Jyotish editorial review and owner copy sign-off | PR #63 `1b70927`; QA 5748551920 | **OWNER SELECTED PRE-MERGE - CANONICAL ADOPTION PENDING** |
+
+None of these rows authorizes a code change, a merge, a deployment, a release or customer copy. Implementation needs the separate tasks proposed in [`IMPLEMENTATION-TASKS.md`](science/kun-sci-pol-002/IMPLEMENTATION-TASKS.md). Chart schema 0.3.0, the calculations, the reference receipts, the boundary conventions, the customer PDF and the private preview are unchanged. PR #1 HOLD remains active. **Production NO-GO.**
