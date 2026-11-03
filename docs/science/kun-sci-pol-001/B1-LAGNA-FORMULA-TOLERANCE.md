@@ -34,9 +34,9 @@ The evidence comes from the 50 verified charts of the gold matrix. The source is
 
    `B = |∂A/∂ARMC|·5e-12 + |∂A/∂ε|·5e-12 + 1.4e-12 + 5e-12`
 
-   Every chart's observed difference is below its own bound, and the largest ratio is 0.80. The differences are therefore fully explained by print quantisation. No residual algorithmic difference between the formula and Swiss `houses_ex` is visible at this resolution.
+   Every chart's observed difference is below its own bound, and the largest ratio is 0.80. The differences are therefore consistent with swetest print quantisation, and no discrepancy between the formula and Swiss `houses_ex` is resolved at that precision.
 
-**3. Worst case inside the canonical envelope.** A grid sweep covered ARMC in 0.25° steps, latitude from −66° to +66° in 0.5° steps (SCI-01g) and ε of 23.40° and 23.45°. The largest amplification is |∂A/∂ARMC| ≈ 42.4, at latitude −66° and ARMC 90°, where the ecliptic lies close to the horizon. |∂A/∂ε| reaches 52.4. Adding the two maxima, although they occur at different points, gives a conservative worst-case quantisation bound of **4.8e-10°** for any chart the product accepts. The joint maximum at a single point is 3.9e-10°, at latitude 66°. By latitude the joint bound is 2.1e-11° at 45°, 4.5e-11° at 60° and 7.2e-11° at 63°.
+**3. Worst case inside the canonical envelope (sampled estimate, not a certified supremum).** A finite grid sweep covered ARMC in 0.25° steps, latitude from −66° to +66° in 0.5° steps (SCI-01g) and ε of 23.40° and 23.45°. The largest amplification is |∂A/∂ARMC| ≈ 42.4, at latitude −66° and ARMC 90°, where the ecliptic lies close to the horizon. |∂A/∂ε| reaches 52.4. Adding the two maxima, although they occur at different points, gives a conservative estimate of the worst-case quantisation bound, **4.8e-10°**, over the sampled grid. It is not a proven bound for every chart the product accepts. The amplification peaks where the ecliptic approaches the horizon, at the band edge \|lat\| = 66° with ARMC near 90° or 270°. Both of those were sampled, and the sweep spacing (0.25° in ARMC, 0.5° in latitude, ε only at 23.40° and 23.45°) could miss a slightly higher value between grid points. A continuous-domain bound or an endpoint check would be needed before claiming a guaranteed bound. The joint maximum at a single point is 3.9e-10°, at latitude 66°. By latitude the joint bound is 2.1e-11° at 45°, 4.5e-11° at 60° and 7.2e-11° at 63°.
 
 **4. Size of real defects the check must catch.** All values are on the 50 charts.
 
@@ -61,7 +61,7 @@ The evidence comes from the 50 verified charts of the gold matrix. The source is
 
 | Option | Value | Consequence |
 |---|---|---|
-| **R (recommended)** | **1e-9°**, fixed, for \|lat\| ≤ 66.0° | About 2× the worst-case envelope bound (4.8e-10°) and 23× the observed maximum. It is also the existing `binding_vs_swetest` band, so one number serves both. It detects every defect class in §3 item 4 with at least 100× margin. All 50 rows would become PASS |
+| **R (recommended)** | **1e-9°**, fixed, for \|lat\| ≤ 66.0° | About 2× the sampled worst-case estimate (4.8e-10°) and 23× the observed maximum. It is also the existing `binding_vs_swetest` band, so one number serves both. It detects every defect class in §3 item 4 with at least 100× margin. All 50 rows would become PASS |
 | A1 | 5e-10° | Equal to the envelope bound with no margin. A valid chart near latitude ±66° and ARMC 90° or 270° could FAIL on print rounding alone |
 | A2 | 1e-10° | Below the bound in the highest-latitude part of the envelope. The joint bound passes 1e-10° only above about 64° (7.2e-11° at 63°, 3.9e-10° at 66°), so false FAILs are possible there. It would need a latitude-dependent rule |
 | A3 | Adaptive: 2 × per-chart bound B (§3 item 2) | The tightest defensible value per chart (2e-11° to 1e-9°). It is more complex, and the tolerance becomes a computed quantity that QA must re-verify each time |

@@ -21,7 +21,7 @@ The numbers come from PR #62 at `6722b5c`, `sci-gold-6722b5c46c3f.json`, reprodu
 - **500 of 500 engine values are exactly** `round(swetest value, 8 decimals)`, with zero exceptions. Every difference is the engine's 8-decimal display rounding. No calculation difference shows at the 11 decimals swetest prints.
 - \|difference\| distribution: min 3.0e-11°, median 2.42e-9°, p95 4.70e-9°, p99 4.96e-9°, **max 4.999992e-9°** (Mercury). The theoretical maximum from rounding is 5e-9° + 5e-12° = 5.005e-9°. The largest observed difference is **0.50 × tolerance**.
 - The maximum per body falls between 4.65e-9° and 5.00e-9° for every body. Lagna, Rahu and Ketu show no outlier.
-- **Consequence.** The tolerance is justified by display quantisation alone, and that does not depend on date, place, latitude, retrograde motion or time zone. The basis recorded for KUN-01-SWISS-01 therefore holds for this matrix as well. One limit: a disagreement smaller than about 5e-9° cannot be detected through rounded output. That is about 1 ms of Moon motion and about 1e-6 s of Lagna motion.
+- **Consequence.** The tolerance is justified by display quantisation alone, and that does not depend on date, place, latitude, retrograde motion or time zone. The basis recorded for KUN-01-SWISS-01 therefore holds for this matrix as well. One limit: a disagreement smaller than about 5e-9° cannot be detected through rounded output. That is about 3e-5 s of Moon motion (at about 1.6e-4° per second) and about 1e-6 s of Lagna motion.
 
 ### 2.2 `binding_vs_swetest` used as the boundary band
 - Of 500 reference longitudes (planets, nodes and Lagna), exactly **one** lies within 1e-9° of a Pada edge: GOLD-E01's Moon, at 7.1e-10° from 120°. That is the designed exact-edge fixture.

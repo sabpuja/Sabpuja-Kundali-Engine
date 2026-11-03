@@ -34,10 +34,10 @@ Compare the output with the committed `analysis/results.json`. Two runs here wer
 
 | Item | Value |
 |---|---|
-| B-1 \|LAGNA-F\| | max 4.33e-11°, median 2.47e-12°. Ratio to the per-chart quantisation bound at most 0.80. float64 evaluation error at most 8.9e-14°. Envelope worst-case bound 4.8e-10° (\|∂A/∂ARMC\| 42.4 at −66°, ARMC 90°) |
+| B-1 \|LAGNA-F\| | max 4.33e-11°, median 2.47e-12°. Ratio to the per-chart quantisation bound at most 0.80. float64 evaluation error at most 8.9e-14°. Envelope worst case estimated at 4.8e-10° from a sampled grid (\|∂A/∂ARMC\| 42.4 at −66°, ARMC 90°); not a certified supremum |
 | B-3 SWISS | 500/500 engine values = `round(swetest, 8)`. Max 4.999992e-9° = 0.50 × 1e-8°. Within 1e-9° of an edge: only GOLD-E01 Moon (7.1e-10°). Next nearest 2.4e-4° (GOLD-B01b Moon) |
-| B-6 sample (n = 20,000, seed 20261103) | Change within ±2 min: Lagna Navamsa 29.4%, Lagna Rashi 3.5%, Moon Pada 1.1%, Moon Nakshatra 0.32%, Moon Rashi 0.13% |
-| GOLD-E01 | 6 BOUNDARY-INDETERMINATE rows. Engine and reference both give Simha, Mesha, Magha 1. Time to edge 2.0e-5 s |
+| B-6 illustrative sample (n = 20,000, seed 20261103; not a prevalence) | Change within ±2 min: Lagna Navamsa 29.4%, Lagna Rashi 3.5%, Moon Pada 1.1%, Moon Nakshatra 0.32%, Moon Rashi 0.13% |
+| GOLD-E01 | 6 BOUNDARY-INDETERMINATE rows. Engine and reference both give Simha, Mesha, Magha 1. Time to edge: `RESOLUTION_LIMITED` (linear estimate about 4.5e-6 s, below the float64 JD spacing of about 4.0e-5 s) |
 
 ## Remaining blockers (unchanged)
 - DATA-01.

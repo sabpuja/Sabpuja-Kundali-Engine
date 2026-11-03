@@ -12,7 +12,7 @@ Evidence base:
 | | |
 |---|---|
 | Existing approved method | SCI-01e: Lagna = `houses_ex(…, b"W", FLG_SIDEREAL)` `ascmc[0]`. REL-01 makes an independent formula check mandatory. **No tolerance is frozen**, so LAGNA-F is BLOCKED on all 50 charts |
-| Evidence | \|formula − swetest\|: max 4.33e-11°, median 2.5e-12°. Fully explained by swetest print quantisation: at most 0.80 of each chart's bound. float64 error at most 9e-14°. Worst-case bound inside \|lat\| ≤ 66° is 4.8e-10° (conservative). The smallest realistic defect (mean instead of true obliquity) is 1.1e-7° |
+| Evidence | \|formula − swetest\|: max 4.33e-11°, median 2.5e-12°. Consistent with swetest print quantisation (at most 0.80 of each chart's bound); no discrepancy is resolved at that precision. float64 error at most 9e-14°. The worst-case bound inside \|lat\| ≤ 66° is estimated at 4.8e-10° from a sampled grid sweep (not a certified supremum). The smallest realistic defect (mean instead of true obliquity) is 1.1e-7° |
 | Recommended | **1e-9°**, fixed, for the whole canonical envelope |
 | Alternatives | 5e-10° (no margin), 1e-10° (false FAILs above about 64°), adaptive 2× per-chart bound (complex), 1e-8° (10× defect margin), status quo (unscored) |
 | Implementation | Test-only: LAGNA-F classifies against the value. No engine, schema or report change |
@@ -34,7 +34,7 @@ Evidence base:
 | | |
 |---|---|
 | Existing approved method | SCI-01f half-open classification on unrounded values. **No disclosure policy exists.** GOLD-E01 is BOUNDARY-INDETERMINATE on 6 comparisons, while engine and reference agree |
-| Evidence | Numerical indeterminacy is below 1e-9°, under a millisecond, and occurs only in the designed exact-edge fixture. Birth-time sensitivity is much larger. In 20,000 synthetic charts, a 2-minute birth-time error changes the Lagna Navamsa in 29%, the Lagna Rashi in 3.5%, the Moon Pada in 1.1% and the Moon Nakshatra in 0.3% |
+| Evidence | Numerical indeterminacy is below 1e-9°. It occurs only in the designed exact-edge fixture, where the crossing is well below one second and its exact time is unresolved at float64 JD precision. Birth-time sensitivity is much larger. In an illustrative synthetic sample of 20,000 charts (not a population prevalence), a 2-minute birth-time error changes the Lagna Navamsa in 29%, the Lagna Rashi in 3.5%, the Moon Pada in 1.1% and the Moon Nakshatra in 0.3% |
 | Recommended | **Option 1**: show the calculated result, with a short birth-time note when an item changes within **W = 2 min**, plus an exact-boundary note. Option 2's longer explanation goes in an optional premium appendix. Option 3 (withhold) is not recommended |
 | Alternatives | Option 2 alone (more text). Option 3 (withhold: about 29% of Lagna Navamsas at W = 2). W = 1 or 5 min |
 | Implementation | A new versioned sensitivity computation, an additive schema field (a new version; 0.3.0 unchanged), EN/HI renderer and catalogue entries. Each is a separate authorized task through the ENG and RPT gates |

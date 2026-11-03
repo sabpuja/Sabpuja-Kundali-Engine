@@ -195,6 +195,28 @@ def b6(pr62: Path, gold: dict, ephe: str, samples: int, seed: int) -> dict:
                 t = t2
         return best
 
+    def time_to_change(f, jd0, width, step_s, limit_s):
+        """Time to the nearest change, with the float64 Julian-date resolution floor made explicit.
+
+        A JD near 2.45e6 is a float64 with a spacing (ULP) of about 4.0e-5 s. A bisection on JD
+        cannot resolve a crossing closer than that, so such results are reported as
+        RESOLUTION_LIMITED, with a linear estimate (edge distance / local rate) instead of a value.
+        """
+        ulp_s = math.ulp(jd0) * 86400
+        secs = seconds_to_change(f, jd0, width, step_s, limit_s)
+        if secs is not None and secs > 2 * ulp_s:
+            return {"status": "RESOLVED", "seconds": secs, "jd_ulp_s": ulp_s}
+        v = f(jd0)
+        r = v % width
+        dist = min(r, width - r)
+        h = 30 / 86400
+        rate = abs((f(jd0 + h) - f(jd0 - h) + 540) % 360 - 180) / 60.0
+        return {"status": "RESOLUTION_LIMITED", "seconds": None, "jd_ulp_s": ulp_s,
+                "edge_distance_deg": dist, "local_rate_deg_per_s": rate,
+                "linear_estimate_s": dist / rate,
+                "note": "crossing closer than the float64 JD resolution; the input instant itself is only "
+                        "representable to +/- half a JD ULP, so the time to the edge is unresolved at this precision"}
+
     matrix = {f["id"]: f for f in json.loads((pr62 / "tests/sci_gold/matrix.json").read_text())["fixtures"]}
     sys.path.insert(0, str(pr62))
     from tests.sci_gold import swiss_reference as sr
@@ -207,9 +229,9 @@ def b6(pr62: Path, gold: dict, ephe: str, samples: int, seed: int) -> dict:
         jd = float(sr.parse((sr.RECEIPTS / f"{res['id']}.txt").read_text(encoding="utf-8"))["header"]["jd_double"])
         row = {"id": res["id"], "group": res["group"], "classification": res["classification"]}
         for c in ("rashi", "navamsa"):
-            row[f"lagna_{c}_s"] = seconds_to_change(lambda j: lagna(j, lat, lon), jd, cats[c], 10, 4 * 3600)
+            row[f"lagna_{c}"] = time_to_change(lambda j: lagna(j, lat, lon), jd, cats[c], 10, 4 * 3600)
         for c, w in cats.items():
-            row[f"moon_{c}_s"] = seconds_to_change(moon, jd, w, 300, 3 * 86400)
+            row[f"moon_{c}"] = time_to_change(moon, jd, w, 300, 3 * 86400)
         per_chart.append(row)
     # unbiased estimate: random synthetic instants at the matrix coordinates, linear-rate time-to-edge
     rng = random.Random(seed)
@@ -233,6 +255,8 @@ def b6(pr62: Path, gold: dict, ephe: str, samples: int, seed: int) -> dict:
                         hits[f"{who}_{c}"][win] += 1
     frac = {k: {f"within_{w // 60}_min": v[w] / samples for w in windows} for k, v in hits.items()}
     return {"per_chart": per_chart, "random_sample": {"n": samples, "seed": seed, "period": "1970-01-01..2100-12-31 UTC",
+                                                     "interpretation": "illustrative synthetic sample at the matrix coordinates; "
+                                                                       "not a population prevalence and not a rate of inaccurate birth records",
                                                      "coordinates": len(coords), "fraction_changing_within": frac}}
 
 

@@ -809,551 +809,1767 @@
     "classification": "PASS",
     "group": "typical",
     "id": "GOLD-T01",
-    "lagna_navamsa_s": 29.32840660214424,
-    "lagna_rashi_s": 1725.4892326891422,
-    "moon_nakshatra_s": 43166.225107759514,
-    "moon_navamsa_s": 4762.849301844835,
-    "moon_pada_s": 4762.849301844835,
-    "moon_rashi_s": 76977.52427235246
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 29.32840660214424,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1725.4892326891422,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 43166.225107759514,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4762.849301844835,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4762.849301844835,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 76977.52427235246,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "typical",
     "id": "GOLD-T02",
-    "lagna_navamsa_s": 140.21720364690736,
-    "lagna_rashi_s": 502.9580645263195,
-    "moon_nakshatra_s": 13696.155946701765,
-    "moon_navamsa_s": 10272.45715633062,
-    "moon_pada_s": 10272.45715633062,
-    "moon_rashi_s": 81769.90286484388
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 140.21720364690736,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 502.9580645263195,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 13696.155946701765,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10272.45715633062,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10272.45715633062,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 81769.90286484388,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "typical",
     "id": "GOLD-T03",
-    "lagna_navamsa_s": 142.08679720759392,
-    "lagna_rashi_s": 2867.705326527357,
-    "moon_nakshatra_s": 15847.450333088636,
-    "moon_navamsa_s": 6091.334592550993,
-    "moon_pada_s": 6091.334592550993,
-    "moon_rashi_s": 27931.75159469274
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 142.08679720759392,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2867.705326527357,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 15847.450333088636,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 6091.334592550993,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 6091.334592550993,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 27931.75159469274,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "typical",
     "id": "GOLD-T04",
-    "lagna_navamsa_s": 173.57099577785448,
-    "lagna_rashi_s": 2195.5421648919673,
-    "moon_nakshatra_s": 1021.6547481718408,
-    "moon_navamsa_s": 1021.6547481718408,
-    "moon_pada_s": 1021.6547481718408,
-    "moon_rashi_s": 86129.0380619469
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 173.57099577785448,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2195.5421648919673,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1021.6547481718408,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1021.6547481718408,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1021.6547481718408,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 86129.0380619469,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "typical",
     "id": "GOLD-T05",
-    "lagna_navamsa_s": 104.07875552774385,
-    "lagna_rashi_s": 610.6009729206653,
-    "moon_nakshatra_s": 45690.57492390303,
-    "moon_navamsa_s": 1028.7981010976182,
-    "moon_pada_s": 1028.7981010976182,
-    "moon_rashi_s": 47383.40352103114
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 104.07875552774385,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 610.6009729206653,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 45690.57492390303,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1028.7981010976182,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1028.7981010976182,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 47383.40352103114,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "typical",
     "id": "GOLD-T06",
-    "lagna_navamsa_s": 303.3072464168072,
-    "lagna_rashi_s": 303.3072464168072,
-    "moon_nakshatra_s": 28878.539659827948,
-    "moon_navamsa_s": 4604.376695305382,
-    "moon_pada_s": 4604.376695305382,
-    "moon_rashi_s": 44110.07587239146
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 303.3072464168072,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 303.3072464168072,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 28878.539659827948,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4604.376695305382,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4604.376695305382,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 44110.07587239146,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "typical",
     "id": "GOLD-T07",
-    "lagna_navamsa_s": 159.68879386782646,
-    "lagna_rashi_s": 2460.213430970907,
-    "moon_nakshatra_s": 38869.837266952076,
-    "moon_navamsa_s": 1524.3666864934312,
-    "moon_pada_s": 1524.3666864934312,
-    "moon_rashi_s": 1524.3666864934312
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 159.68879386782646,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2460.213430970907,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 38869.837266952076,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1524.3666864934312,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1524.3666864934312,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1524.3666864934312,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "typical",
     "id": "GOLD-T08",
-    "lagna_navamsa_s": 141.47617891431764,
-    "lagna_rashi_s": 3046.9964884221554,
-    "moon_nakshatra_s": 9514.208402484655,
-    "moon_navamsa_s": 9514.208402484655,
-    "moon_pada_s": 9514.208402484655,
-    "moon_rashi_s": 75821.08745500445
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 141.47617891431764,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3046.9964884221554,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9514.208402484655,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9514.208402484655,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9514.208402484655,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 75821.08745500445,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "typical",
     "id": "GOLD-T09",
-    "lagna_navamsa_s": 318.38384941220284,
-    "lagna_rashi_s": 404.0658228099437,
-    "moon_nakshatra_s": 42428.18590030102,
-    "moon_navamsa_s": 258.2700334492074,
-    "moon_pada_s": 258.2700334492074,
-    "moon_rashi_s": 84582.87428990006
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 318.38384941220284,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 404.0658228099437,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 42428.18590030102,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 258.2700334492074,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 258.2700334492074,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 84582.87428990006,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "typical",
     "id": "GOLD-T10",
-    "lagna_navamsa_s": 183.91360715031624,
-    "lagna_rashi_s": 2491.6118524968715,
-    "moon_nakshatra_s": 9187.217216939007,
-    "moon_navamsa_s": 9187.217216939007,
-    "moon_pada_s": 9187.217216939007,
-    "moon_rashi_s": 9187.217216939007
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 183.91360715031624,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2491.6118524968715,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9187.217216939007,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9187.217216939007,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9187.217216939007,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9187.217216939007,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "midnight",
     "id": "GOLD-M01",
-    "lagna_navamsa_s": 134.65782925487474,
-    "lagna_rashi_s": 2851.1015944182964,
-    "moon_nakshatra_s": 3490.798185020685,
-    "moon_navamsa_s": 3490.798185020685,
-    "moon_pada_s": 3490.798185020685,
-    "moon_rashi_s": 23437.598823756252
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 134.65782925487474,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2851.1015944182964,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3490.798185020685,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3490.798185020685,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3490.798185020685,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 23437.598823756252,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "midnight",
     "id": "GOLD-M02",
-    "lagna_navamsa_s": 135.65782383085207,
-    "lagna_rashi_s": 2852.1015889942737,
-    "moon_nakshatra_s": 3491.7981795966625,
-    "moon_navamsa_s": 3491.7981795966625,
-    "moon_pada_s": 3491.7981795966625,
-    "moon_rashi_s": 23438.59881833223
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 135.65782383085207,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2852.1015889942737,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3491.7981795966625,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3491.7981795966625,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3491.7981795966625,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 23438.59881833223,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "midnight",
     "id": "GOLD-M03",
-    "lagna_navamsa_s": 351.06659308076814,
-    "lagna_rashi_s": 2271.385567635298,
-    "moon_nakshatra_s": 37341.34243950248,
-    "moon_navamsa_s": 10801.06668099761,
-    "moon_pada_s": 10801.06668099761,
-    "moon_rashi_s": 10801.06668099761
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 351.06659308076814,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2271.385567635298,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 37341.34243950248,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10801.06668099761,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10801.06668099761,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10801.06668099761,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "midnight",
     "id": "GOLD-M04",
-    "lagna_navamsa_s": 309.04682502150536,
-    "lagna_rashi_s": 2307.5847275555225,
-    "moon_nakshatra_s": 30590.21772220758,
-    "moon_navamsa_s": 7355.585912615334,
-    "moon_pada_s": 7355.585912615334,
-    "moon_rashi_s": 101197.69042655826
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 309.04682502150536,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2307.5847275555225,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 30590.21772220758,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7355.585912615334,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7355.585912615334,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 101197.69042655826,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "midnight",
     "id": "GOLD-M05",
-    "lagna_navamsa_s": 298.7162835896106,
-    "lagna_rashi_s": 2095.9719948470592,
-    "moon_nakshatra_s": 7764.590413123642,
-    "moon_navamsa_s": 7764.590413123642,
-    "moon_pada_s": 7764.590413123642,
-    "moon_rashi_s": 27726.87087133554
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 298.7162835896106,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2095.9719948470592,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7764.590413123642,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7764.590413123642,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7764.590413123642,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 27726.87087133554,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "boundary",
     "id": "GOLD-B01a",
-    "lagna_navamsa_s": 424.16344061494783,
-    "lagna_rashi_s": 2959.0116508305164,
-    "moon_nakshatra_s": 2.3166038098679564,
-    "moon_navamsa_s": 2.3166038098679564,
-    "moon_pada_s": 2.3166038098679564,
-    "moon_rashi_s": 2.3166038098679564
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 424.16344061494783,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2959.0116508305164,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.3166038098679564,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.3166038098679564,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.3166038098679564,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.3166038098679564,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "boundary",
     "id": "GOLD-B01b",
-    "lagna_navamsa_s": 420.16346231103853,
-    "lagna_rashi_s": 2955.011672526607,
-    "moon_nakshatra_s": 1.6833744943141937,
-    "moon_navamsa_s": 1.6833744943141937,
-    "moon_pada_s": 1.6833744943141937,
-    "moon_rashi_s": 1.6833744943141937
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 420.16346231103853,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2955.011672526607,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.6833744943141937,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.6833744943141937,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.6833744943141937,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.6833744943141937,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "boundary",
     "id": "GOLD-B02a",
-    "lagna_navamsa_s": 216.22169986367226,
-    "lagna_rashi_s": 216.22169986367226,
-    "moon_nakshatra_s": 2.2477246820926666,
-    "moon_navamsa_s": 2.2477246820926666,
-    "moon_pada_s": 2.2477246820926666,
-    "moon_rashi_s": 80752.95835062889
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 216.22169986367226,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 216.22169986367226,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.2477246820926666,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.2477246820926666,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.2477246820926666,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 80752.95835062889,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "boundary",
     "id": "GOLD-B02b",
-    "lagna_navamsa_s": 220.22167816758156,
-    "lagna_rashi_s": 220.22167816758156,
-    "moon_nakshatra_s": 1.7522536220894835,
-    "moon_navamsa_s": 1.7522536220894835,
-    "moon_pada_s": 1.7522536220894835,
-    "moon_rashi_s": 80756.9583289328
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 220.22167816758156,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 220.22167816758156,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.7522536220894835,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.7522536220894835,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.7522536220894835,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 80756.9583289328,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "boundary",
     "id": "GOLD-B03a",
-    "lagna_navamsa_s": 87.62766793370247,
-    "lagna_rashi_s": 1326.7633326351643,
-    "moon_nakshatra_s": 21272.16804251102,
-    "moon_navamsa_s": 2.2795893251895905,
-    "moon_pada_s": 2.2795893251895905,
-    "moon_rashi_s": 21272.16804251102
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 87.62766793370247,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1326.7633326351643,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 21272.16804251102,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.2795893251895905,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.2795893251895905,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 21272.16804251102,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "boundary",
     "id": "GOLD-B03b",
-    "lagna_navamsa_s": 91.62764623761177,
-    "lagna_rashi_s": 1330.7633109390736,
-    "moon_nakshatra_s": 21276.16802081493,
-    "moon_navamsa_s": 1.7203889789925597,
-    "moon_pada_s": 1.7203889789925597,
-    "moon_rashi_s": 21276.16802081493
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 91.62764623761177,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1330.7633109390736,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 21276.16802081493,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.7203889789925597,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.7203889789925597,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 21276.16802081493,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "boundary",
     "id": "GOLD-B04a",
-    "lagna_navamsa_s": 60.75334176422075,
-    "lagna_rashi_s": 915.2383469045253,
-    "moon_nakshatra_s": 23669.474049657856,
-    "moon_navamsa_s": 2298.897186666727,
-    "moon_pada_s": 2298.897186666727,
-    "moon_rashi_s": 86763.63960877061
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 60.75334176422075,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 915.2383469045253,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 23669.474049657856,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2298.897186666727,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2298.897186666727,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 86763.63960877061,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "boundary",
     "id": "GOLD-B04b",
-    "lagna_navamsa_s": 180.75333461166338,
-    "lagna_rashi_s": 1035.238339751968,
-    "moon_nakshatra_s": 23549.474056810413,
-    "moon_navamsa_s": 2178.8971938192844,
-    "moon_pada_s": 2178.8971938192844,
-    "moon_rashi_s": 86643.63961592317
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 180.75333461166338,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1035.238339751968,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 23549.474056810413,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2178.8971938192844,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2178.8971938192844,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 86643.63961592317,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "boundary",
     "id": "GOLD-B05a",
-    "lagna_navamsa_s": 13.162571936854874,
-    "lagna_rashi_s": 1649.9129377305508,
-    "moon_nakshatra_s": 18599.0238212049,
-    "moon_navamsa_s": 4739.8446790874,
-    "moon_pada_s": 4739.8446790874,
-    "moon_rashi_s": 97309.65522900251
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 13.162571936854874,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1649.9129377305508,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 18599.0238212049,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4739.8446790874,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4739.8446790874,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 97309.65522900251,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "boundary",
     "id": "GOLD-B05b",
-    "lagna_navamsa_s": 106.83742091059685,
-    "lagna_rashi_s": 1529.9129448831081,
-    "moon_nakshatra_s": 18479.023828357458,
-    "moon_navamsa_s": 4859.844671934843,
-    "moon_pada_s": 4859.844671934843,
-    "moon_rashi_s": 97429.65522184996
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 106.83742091059685,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1529.9129448831081,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 18479.023828357458,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4859.844671934843,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4859.844671934843,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 97429.65522184996,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "boundary",
     "id": "GOLD-B06a",
-    "lagna_navamsa_s": 1.8915407359600067,
-    "lagna_rashi_s": 1.8915407359600067,
-    "moon_nakshatra_s": 16657.75911435485,
-    "moon_navamsa_s": 7495.759322494268,
-    "moon_pada_s": 7495.759322494268,
-    "moon_rashi_s": 7495.759322494268
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.8915407359600067,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.8915407359600067,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 16657.75911435485,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7495.759322494268,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7495.759322494268,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7495.759322494268,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "boundary",
     "id": "GOLD-B06b",
-    "lagna_navamsa_s": 2.10843756795839,
-    "lagna_rashi_s": 2.10843756795839,
-    "moon_nakshatra_s": 16653.75913605094,
-    "moon_navamsa_s": 7499.759300798178,
-    "moon_pada_s": 7499.759300798178,
-    "moon_rashi_s": 7499.759300798178
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.10843756795839,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.10843756795839,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 16653.75913605094,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7499.759300798178,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7499.759300798178,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7499.759300798178,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "boundary",
     "id": "GOLD-B07a",
-    "lagna_navamsa_s": 1.0507889091968536,
-    "lagna_rashi_s": 3432.149177044639,
-    "moon_nakshatra_s": 15684.371233731508,
-    "moon_navamsa_s": 7883.500088006258,
-    "moon_pada_s": 7883.500088006258,
-    "moon_rashi_s": 54718.84733811021
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.0507889091968536,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3432.149177044639,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 15684.371233731508,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7883.500088006258,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7883.500088006258,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 54718.84733811021,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "boundary",
     "id": "GOLD-B07b",
-    "lagna_navamsa_s": 0.9492002427668922,
-    "lagna_rashi_s": 3430.1491878926845,
-    "moon_nakshatra_s": 15682.371244579554,
-    "moon_navamsa_s": 7885.500077158213,
-    "moon_pada_s": 7885.500077158213,
-    "moon_rashi_s": 54720.84732726216
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 0.9492002427668922,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3430.1491878926845,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 15682.371244579554,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7885.500077158213,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7885.500077158213,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 54720.84732726216,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "boundary",
     "id": "GOLD-B08a",
-    "lagna_navamsa_s": 246.9351924955845,
-    "lagna_rashi_s": 1484.892026335001,
-    "moon_nakshatra_s": 43050.52744522691,
-    "moon_navamsa_s": 460.02942994236946,
-    "moon_pada_s": 460.02942994236946,
-    "moon_rashi_s": 43603.06973084835
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 246.9351924955845,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1484.892026335001,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 43050.52744522691,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 460.02942994236946,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 460.02942994236946,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 43603.06973084835,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "boundary",
     "id": "GOLD-B08b",
-    "lagna_navamsa_s": 284.8920173943043,
-    "lagna_rashi_s": 284.8920173943043,
-    "moon_nakshatra_s": 41850.52743628621,
-    "moon_navamsa_s": 1660.0294388830662,
-    "moon_pada_s": 1660.0294388830662,
-    "moon_rashi_s": 44803.06973978905
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 284.8920173943043,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 284.8920173943043,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 41850.52743628621,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1660.0294388830662,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1660.0294388830662,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 44803.06973978905,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "boundary",
     "id": "GOLD-B09a",
-    "lagna_navamsa_s": 339.2377696931362,
-    "lagna_rashi_s": 428.42992320657686,
-    "moon_nakshatra_s": 18229.085614532232,
-    "moon_navamsa_s": 2863.800499588524,
-    "moon_pada_s": 2863.800499588524,
-    "moon_rashi_s": 60908.79787132144
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 339.2377696931362,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 428.42992320657686,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 18229.085614532232,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2863.800499588524,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2863.800499588524,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 60908.79787132144,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "boundary",
     "id": "GOLD-B09b",
-    "lagna_navamsa_s": 171.5700812637806,
-    "lagna_rashi_s": 171.5700812637806,
-    "moon_nakshatra_s": 17629.085610061884,
-    "moon_navamsa_s": 3463.8005040588723,
-    "moon_pada_s": 3463.8005040588723,
-    "moon_rashi_s": 60308.79786685109
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 171.5700812637806,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 171.5700812637806,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 17629.085610061884,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3463.8005040588723,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3463.8005040588723,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 60308.79786685109,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "boundary",
     "id": "GOLD-B10a",
-    "lagna_navamsa_s": 212.92523816228822,
-    "lagna_rashi_s": 1640.0008611381054,
-    "moon_nakshatra_s": 3193.252906948601,
-    "moon_navamsa_s": 3193.252906948601,
-    "moon_pada_s": 3193.252906948601,
-    "moon_rashi_s": 3193.252906948601
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 212.92523816228822,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1640.0008611381054,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3193.252906948601,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3193.252906948601,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3193.252906948601,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3193.252906948601,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "boundary",
     "id": "GOLD-B10b",
-    "lagna_navamsa_s": 387.07476630806923,
-    "lagna_rashi_s": 2240.0008656084538,
-    "moon_nakshatra_s": 2593.2529024782525,
-    "moon_navamsa_s": 2593.2529024782525,
-    "moon_pada_s": 2593.2529024782525,
-    "moon_rashi_s": 2593.2529024782525
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 387.07476630806923,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2240.0008656084538,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2593.2529024782525,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2593.2529024782525,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2593.2529024782525,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2593.2529024782525,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "BOUNDARY-INDETERMINATE",
     "group": "boundary-exact",
     "id": "GOLD-E01",
-    "lagna_navamsa_s": 172.02910110355333,
-    "lagna_rashi_s": 1298.1483198702335,
-    "moon_nakshatra_s": 2.0116840460104868e-05,
-    "moon_navamsa_s": 2.0116840460104868e-05,
-    "moon_pada_s": 2.0116840460104868e-05,
-    "moon_rashi_s": 2.0116840460104868e-05
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 172.02910110355333,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1298.1483198702335,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "edge_distance_deg": 7.082778807898649e-10,
+     "jd_ulp_s": 4.023313522338867e-05,
+     "linear_estimate_s": 4.534026107144771e-06,
+     "local_rate_deg_per_s": 0.00015621389556486065,
+     "note": "crossing closer than the float64 JD resolution; the input instant itself is only representable to +/- half a JD ULP, so the time to the edge is unresolved at this precision",
+     "seconds": null,
+     "status": "RESOLUTION_LIMITED"
+    },
+    "moon_navamsa": {
+     "edge_distance_deg": 7.082778807898649e-10,
+     "jd_ulp_s": 4.023313522338867e-05,
+     "linear_estimate_s": 4.534026107144771e-06,
+     "local_rate_deg_per_s": 0.00015621389556486065,
+     "note": "crossing closer than the float64 JD resolution; the input instant itself is only representable to +/- half a JD ULP, so the time to the edge is unresolved at this precision",
+     "seconds": null,
+     "status": "RESOLUTION_LIMITED"
+    },
+    "moon_pada": {
+     "edge_distance_deg": 7.082778807898649e-10,
+     "jd_ulp_s": 4.023313522338867e-05,
+     "linear_estimate_s": 4.534026107144771e-06,
+     "local_rate_deg_per_s": 0.00015621389556486065,
+     "note": "crossing closer than the float64 JD resolution; the input instant itself is only representable to +/- half a JD ULP, so the time to the edge is unresolved at this precision",
+     "seconds": null,
+     "status": "RESOLUTION_LIMITED"
+    },
+    "moon_rashi": {
+     "edge_distance_deg": 7.082832098603831e-10,
+     "jd_ulp_s": 4.023313522338867e-05,
+     "linear_estimate_s": 4.5340602210787384e-06,
+     "local_rate_deg_per_s": 0.00015621389556486065,
+     "note": "crossing closer than the float64 JD resolution; the input instant itself is only representable to +/- half a JD ULP, so the time to the edge is unresolved at this precision",
+     "seconds": null,
+     "status": "RESOLUTION_LIMITED"
+    }
    },
    {
     "classification": "PASS",
     "group": "timezone",
     "id": "GOLD-Z01",
-    "lagna_navamsa_s": 247.33993783594087,
-    "lagna_rashi_s": 3373.4355948865414,
-    "moon_nakshatra_s": 32439.926780015503,
-    "moon_navamsa_s": 10571.370924264465,
-    "moon_pada_s": 10571.370924264465,
-    "moon_rashi_s": 55551.221901923695
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 247.33993783594087,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3373.4355948865414,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 32439.926780015503,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10571.370924264465,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10571.370924264465,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 55551.221901923695,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "timezone",
     "id": "GOLD-Z02",
-    "lagna_navamsa_s": 307.3399342596622,
-    "lagna_rashi_s": 3313.43559846282,
-    "moon_nakshatra_s": 32379.92678359178,
-    "moon_navamsa_s": 10511.370927840744,
-    "moon_pada_s": 10511.370927840744,
-    "moon_rashi_s": 55611.221898347416
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 307.3399342596622,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3313.43559846282,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 32379.92678359178,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10511.370927840744,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10511.370927840744,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 55611.221898347416,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "timezone",
     "id": "GOLD-Z03",
-    "lagna_navamsa_s": 243.67522224783897,
-    "lagna_rashi_s": 243.67522224783897,
-    "moon_nakshatra_s": 42300.07092431215,
-    "moon_navamsa_s": 5684.410869330168,
-    "moon_pada_s": 5684.410869330168,
-    "moon_rashi_s": 53985.87086722255
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 243.67522224783897,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 243.67522224783897,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 42300.07092431215,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 5684.410869330168,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 5684.410869330168,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 53985.87086722255,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "timezone",
     "id": "GOLD-Z04",
-    "lagna_navamsa_s": 22.00967743993715,
-    "lagna_rashi_s": 1041.1432765424252,
-    "moon_nakshatra_s": 19206.92243501544,
-    "moon_navamsa_s": 1221.7454351487504,
-    "moon_pada_s": 1221.7454351487504,
-    "moon_rashi_s": 39547.40635380149
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 22.00967743993715,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1041.1432765424252,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 19206.92243501544,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1221.7454351487504,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1221.7454351487504,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 39547.40635380149,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "timezone",
     "id": "GOLD-Z05",
-    "lagna_navamsa_s": 437.00283989310265,
-    "lagna_rashi_s": 4468.376789242038,
-    "moon_nakshatra_s": 22806.92246183753,
-    "moon_navamsa_s": 2378.2545916736126,
-    "moon_pada_s": 2378.2545916736126,
-    "moon_rashi_s": 43147.40638062358
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 437.00283989310265,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4468.376789242038,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 22806.92246183753,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2378.2545916736126,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2378.2545916736126,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 43147.40638062358,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "timezone",
     "id": "GOLD-Z06",
-    "lagna_navamsa_s": 418.5005061328411,
-    "lagna_rashi_s": 418.5005061328411,
-    "moon_nakshatra_s": 34060.716419667006,
-    "moon_navamsa_s": 7304.196571558714,
-    "moon_pada_s": 7304.196571558714,
-    "moon_rashi_s": 48139.288658649006
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 418.5005061328411,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 418.5005061328411,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 34060.716419667006,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7304.196571558714,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7304.196571558714,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 48139.288658649006,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "timezone",
     "id": "GOLD-Z07",
-    "lagna_navamsa_s": 546.6311730444431,
-    "lagna_rashi_s": 4018.500492721796,
-    "moon_nakshatra_s": 37660.71640625596,
-    "moon_navamsa_s": 3704.196584969759,
-    "moon_pada_s": 3704.196584969759,
-    "moon_rashi_s": 44539.28867206005
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 546.6311730444431,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4018.500492721796,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 37660.71640625596,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3704.196584969759,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3704.196584969759,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 44539.28867206005,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "timezone",
     "id": "GOLD-Z08",
-    "lagna_navamsa_s": 358.11302438379244,
-    "lagna_rashi_s": 2542.550341039905,
-    "moon_nakshatra_s": 2140.672778338194,
-    "moon_navamsa_s": 2140.672778338194,
-    "moon_pada_s": 2140.672778338194,
-    "moon_rashi_s": 73687.8054432571
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 358.11302438379244,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2542.550341039905,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2140.672778338194,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2140.672778338194,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2140.672778338194,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 73687.8054432571,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "timezone",
     "id": "GOLD-Z09",
-    "lagna_navamsa_s": 94.47088167072252,
-    "lagna_rashi_s": 1057.449645549059,
-    "moon_nakshatra_s": 1459.3272082510339,
-    "moon_navamsa_s": 1459.3272082510339,
-    "moon_pada_s": 1459.3272082510339,
-    "moon_rashi_s": 70087.80545666814
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 94.47088167072252,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1057.449645549059,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1459.3272082510339,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1459.3272082510339,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1459.3272082510339,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 70087.80545666814,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "PASS",
     "group": "timezone",
     "id": "GOLD-Z10",
-    "lagna_navamsa_s": 142.08679720759392,
-    "lagna_rashi_s": 2867.705326527357,
-    "moon_nakshatra_s": 15847.450333088636,
-    "moon_navamsa_s": 6091.334592550993,
-    "moon_pada_s": 6091.334592550993,
-    "moon_rashi_s": 27931.75159469274
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 142.08679720759392,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2867.705326527357,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 15847.450333088636,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 6091.334592550993,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 6091.334592550993,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 27931.75159469274,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "timezone",
     "id": "GOLD-L01",
-    "lagna_navamsa_s": 93.34568157792091,
-    "lagna_rashi_s": 1653.0976720154285,
-    "moon_nakshatra_s": 20658.70381817249,
-    "moon_navamsa_s": 1542.750936001812,
-    "moon_pada_s": 1542.750936001812,
-    "moon_rashi_s": 46475.748496502914
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 93.34568157792091,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1653.0976720154285,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 20658.70381817249,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1542.750936001812,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1542.750936001812,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 46475.748496502914,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "timezone",
     "id": "GOLD-L02",
-    "lagna_navamsa_s": 15.166343003520524,
-    "lagna_rashi_s": 848.7341813743114,
-    "moon_nakshatra_s": 31961.73082217574,
-    "moon_navamsa_s": 10637.434456497704,
-    "moon_pada_s": 10637.434456497704,
-    "moon_rashi_s": 10637.434456497704
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 15.166343003520524,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 848.7341813743114,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 31961.73082217574,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10637.434456497704,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10637.434456497704,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10637.434456497704,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "timezone",
     "id": "GOLD-L03",
-    "lagna_navamsa_s": 116.2150003016086,
-    "lagna_rashi_s": 900.7536537945361,
-    "moon_nakshatra_s": 16742.301162332296,
-    "moon_navamsa_s": 7411.8877194821835,
-    "moon_pada_s": 7411.8877194821835,
-    "moon_rashi_s": 80072.35789820552
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 116.2150003016086,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 900.7536537945361,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 16742.301162332296,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7411.8877194821835,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7411.8877194821835,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 80072.35789820552,
+     "status": "RESOLVED"
+    }
    },
    {
     "classification": "QUALIFIED",
     "group": "timezone",
     "id": "GOLD-L04",
-    "lagna_navamsa_s": 639.3438063561916,
-    "lagna_rashi_s": 639.3438063561916,
-    "moon_nakshatra_s": 3745.3259132802486,
-    "moon_navamsa_s": 3745.3259132802486,
-    "moon_pada_s": 3745.3259132802486,
-    "moon_rashi_s": 71337.76009306312
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 639.3438063561916,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 639.3438063561916,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3745.3259132802486,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3745.3259132802486,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3745.3259132802486,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 71337.76009306312,
+     "status": "RESOLVED"
+    }
    }
   ],
   "random_sample": {
@@ -1408,6 +2624,7 @@
      "within_5_min": 0.0033
     }
    },
+   "interpretation": "illustrative synthetic sample at the matrix coordinates; not a population prevalence and not a rate of inaccurate birth records",
    "n": 20000,
    "period": "1970-01-01..2100-12-31 UTC",
    "seed": 20261103

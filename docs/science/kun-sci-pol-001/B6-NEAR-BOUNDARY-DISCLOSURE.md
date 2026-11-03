@@ -6,16 +6,16 @@
 
 | Kind | Cause | Size | Example |
 |---|---|---|---|
-| **Numerical** | The reference and the engine cannot be told apart near an edge at the frozen band (B-3: 1e-9°) | Below 1e-9°, which is under a millisecond of birth time | GOLD-E01 |
+| **Numerical** | The reference and the engine cannot be told apart near an edge at the frozen band (B-3: 1e-9°) | Below 1e-9°, which is a few microseconds of Moon motion or less | GOLD-E01 |
 | **Birth-time** | The customer's birth time is recorded to the minute at best and is often uncertain by several minutes. Classifications that change within that window are not determined by the data | Lagna moves about 0.14° to 1.0° per minute in the matrix (median 0.23°) and up to about 10.6° per minute at the edge of the ±66° band. The Moon moves about 0.008° to 0.011° per minute | Lagna Navamsa often changes within a few minutes |
 
 The second kind is far larger and far more common. A disclosure policy based only on the 1e-9° numerical band would essentially never trigger, yet it would leave customers unaware of the uncertainty that matters. The recommendation below therefore treats them separately.
 
 ## 2. GOLD-E01 and the six indeterminate comparisons
 
-GOLD-E01 is a synthetic New Delhi chart at `2008-01-24T09:31:02.327269+05:30`. It was designed with the Moon about 1 microsecond of time from the 120° edge. 120° is simultaneously the Karka/Simha Rashi edge, the Ashlesha/Magha Nakshatra edge, a Navamsa edge and a Pada edge.
+GOLD-E01 is a synthetic New Delhi chart at `2008-01-24T09:31:02.327269+05:30`. It was designed with the Moon a few microseconds of time from the 120° edge. 120° is simultaneously the Karka/Simha Rashi edge, the Ashlesha/Magha Nakshatra edge, a Navamsa edge and a Pada edge.
 
-- swetest Moon: `120.00000000071`. That is **7.1e-10°** past the edge, which is 2.0e-5 s of Moon motion.
+- swetest Moon: `120.00000000071`. That is **7.1e-10°** past the edge: **extremely close to the boundary, well below one second.** The exact crossing time is unresolved at this numerical precision. A linear estimate (edge distance ÷ local Moon rate of 1.56e-4° per second) is about 4.5e-6 s. However, the birth instant is itself a float64 Julian date with a spacing of about 4.0e-5 s, so neither the instant nor a bisection on it resolves a separation that small. `analysis/results.json` therefore marks these GOLD-E01 values `RESOLUTION_LIMITED` instead of giving a measured time.
 - The engine classifies on the unrounded value by the canonical half-open rule (SCI-01f): Simha, Navamsa Mesha, Magha Pada 1. The reference rules on the swetest value give the same results.
 - The engine's displayed 8-decimal longitude is `120.0`.
 - The six rows are `BOUNDARY-INDETERMINATE` only because the reference value lies within the 1e-9° band:
@@ -29,7 +29,7 @@ GOLD-E01 is a synthetic New Delhi chart at `2008-01-24T09:31:02.327269+05:30`. I
 
 ## 3. How often birth-time sensitivity occurs
 
-The estimate below uses 20,000 synthetic instants, uniform over 1970 to 2100 UTC, at the matrix's 19 chart coordinates. The seed is 20261103 and the method is linear-rate time-to-edge from pyswisseph with the SCI-01 flags (see `analysis/results.json`, `B6.random_sample`). Each cell is the share of charts in which **a birth-time error up to N minutes in one direction** would change the item.
+The estimate below is **illustrative**. It is not a population prevalence, and it is not a rate of inaccurate birth records. It uses 20,000 synthetic instants, uniform over 1970 to 2100 UTC, at the matrix's 19 chart coordinates. The seed is 20261103 and the method is linear-rate time-to-edge from pyswisseph with the SCI-01 flags (see `analysis/results.json`, `B6.random_sample`). Each cell is the share of charts in which **a birth-time error up to N minutes in one direction** would change the item.
 
 | Item (edge spacing) | ±1 min | ±2 min | ±5 min | ±15 min |
 |---|---|---|---|---|
@@ -40,7 +40,7 @@ The estimate below uses 20,000 synthetic instants, uniform over 1970 to 2100 UTC
 | Moon Navamsa / Pada | 0.59% | 1.1% | 2.8% | 8.1% |
 | Moon Nakshatra | 0.19% | 0.32% | 0.76% | 2.1% |
 
-In the designed matrix, which is biased toward edges, the median time to the nearest Lagna Navamsa change is 173 s, and 8 of 50 charts change within 60 s (`B6.per_chart`). The slow planets change Rashi or Navamsa over days to months, so this mostly concerns the Lagna, which drives every house, and the Moon.
+In the designed matrix, which is biased toward edges, the median time to the nearest Lagna Navamsa change is 173 s, and 8 of 50 charts change within 60 s (`B6.per_chart`). The Moon statistics there use n = 49, because GOLD-E01's Moon times are `RESOLUTION_LIMITED` and are excluded rather than given a measured value. The slow planets change Rashi or Navamsa over days to months, so this mostly concerns the Lagna, which drives every house, and the Moon.
 
 ## 4. Customer-experience options
 
@@ -84,7 +84,7 @@ Each of these needs its own authorized task, ENG gate and RPT gate:
 4. **Not affected.** The classification rules, the half-open convention and all existing values.
 
 ## 7. Tests required after approval
-- **Bracketing and bisection.** Times to edge checked against independent bisection on swetest values at designed boundary pairs (GOLD-B01 to B10 style), with a stated time tolerance.
+- **Bracketing and bisection.** Times to edge checked against independent bisection on swetest values at designed boundary pairs (GOLD-B01 to B10 style), with a stated time tolerance in stated units. The time arithmetic must declare its resolution: a single float64 JD resolves only about 4e-5 s. Results finer than that must be reported as resolution-limited, never as a measured time.
 - **Windows.** The trigger fires at exactly W and not at W plus 1 s, in both directions, for the Lagna at low and high latitude (including ±66°) and for the Moon.
 - **GOLD-E01.** It must trigger the exact-boundary text and keep Simha, Mesha, Magha 1.
 - **No side effects.** Classifications and degrees stay byte-identical to schema 0.3.0 outputs on all 50 charts. EN/HI key parity, PDF fidelity and no PII in logs.
