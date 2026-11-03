@@ -1,0 +1,2875 @@
+{
+  "fixture_set": "PAN-REF-PHASE-2026",
+  "schema": "sabpuja-panchanga-reference-fixture/0 (proposed, non-executable)",
+  "status": "PROPOSED - NOT CANONICAL - research fixture for WP-B1; owner scientific-method approval pending",
+  "generated_by": "Claude, WP-B1, 2026-10-28, transcription of published tables only; no Sabpuja engine, Swiss Ephemeris call or PR #48 code was used to produce any expected value",
+  "sources": [
+    "SRC-USNO-PHASES",
+    "SRC-NASA-PHASES",
+    "SRC-USNO-PHASE-DEF"
+  ],
+  "covers": [
+    "Tithi + Karana boundaries: New Moon (Tithi 30->1, 12 events) and Full Moon (Tithi 15->16, 13 events) = 25",
+    "Karana-only boundaries (mid-Tithi): First Quarter (12) and Last Quarter (13) = 25",
+    "0/360 elongation wrap (New Moon: 12 events)",
+    "civil-date rollover between UT and IST (events after 18:30 UT)"
+  ],
+  "does_not_cover": [
+    "Nakshatra, Pada and Yoga transitions (need ayanamsa-dependent published data; none obtained)",
+    "Karana names",
+    "Tithi boundaries other than 15/16 and 30/1"
+  ],
+  "cases": [
+    {
+      "case_id": "PAN-REF-PHASE-2026-01",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-01-03T10:03Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=1, day=3, time='10:03' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-01-03T10:03Z",
+          "published_record": "table row cell (as transcribed): 2026 Jan  3 10:03",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-01-03T15:33+05:30",
+        "ist_from_nasa": "2026-01-03T15:33+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-01-03T10:02:00Z",
+          "2026-01-03T10:04:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-02",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-01-10T15:48Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=1, day=10, time='15:48' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-01-10T15:48Z",
+          "published_record": "table row cell (as transcribed): 2026 Jan 10 15:48",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-01-10T21:18+05:30",
+        "ist_from_nasa": "2026-01-10T21:18+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-01-10T15:47:00Z",
+          "2026-01-10T15:49:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-03",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "New Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 0
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 30 (Krishna Amavasya) ends; Tithi 1 (Shukla Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "59->0",
+        "karana_boundary_one_based": "60->1",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-01-18T19:52Z",
+          "published_record": "phasedata entry: phase='New Moon', year=2026, month=1, day=18, time='19:52' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-01-18T19:52Z",
+          "published_record": "table row cell (as transcribed): 2026 Jan 18 19:52",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-01-19T01:22+05:30",
+        "ist_from_nasa": "2026-01-19T01:22+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-01-18T19:51:00Z",
+          "2026-01-18T19:53:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-04",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "First Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 90
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 8 (Shukla Ashtami, elongation [84,96)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "14->15",
+        "karana_boundary_one_based": "15->16",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-01-26T04:47Z",
+          "published_record": "phasedata entry: phase='First Quarter', year=2026, month=1, day=26, time='04:47' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-01-26T04:47Z",
+          "published_record": "table row cell (as transcribed): 2026 Jan 26 04:47",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-01-26T10:17+05:30",
+        "ist_from_nasa": "2026-01-26T10:17+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-01-26T04:46:00Z",
+          "2026-01-26T04:48:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-05",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-02-01T22:09Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=2, day=1, time='22:09' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-02-01T22:09Z",
+          "published_record": "table row cell (as transcribed): 2026 Feb  1 22:09",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-02-02T03:39+05:30",
+        "ist_from_nasa": "2026-02-02T03:39+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-02-01T22:08:00Z",
+          "2026-02-01T22:10:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-06",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-02-09T12:43Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=2, day=9, time='12:43' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-02-09T12:43Z",
+          "published_record": "table row cell (as transcribed): 2026 Feb  9 12:43",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-02-09T18:13+05:30",
+        "ist_from_nasa": "2026-02-09T18:13+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-02-09T12:42:00Z",
+          "2026-02-09T12:44:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-07",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "New Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 0
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 30 (Krishna Amavasya) ends; Tithi 1 (Shukla Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "59->0",
+        "karana_boundary_one_based": "60->1",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-02-17T12:01Z",
+          "published_record": "phasedata entry: phase='New Moon', year=2026, month=2, day=17, time='12:01' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-02-17T12:01Z",
+          "published_record": "table row cell (as transcribed): 2026 Feb 17 12:01 A",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": "A (annular solar eclipse marker in source)"
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-02-17T17:31+05:30",
+        "ist_from_nasa": "2026-02-17T17:31+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-02-17T12:00:00Z",
+          "2026-02-17T12:02:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-08",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "First Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 90
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 8 (Shukla Ashtami, elongation [84,96)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "14->15",
+        "karana_boundary_one_based": "15->16",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-02-24T12:27Z",
+          "published_record": "phasedata entry: phase='First Quarter', year=2026, month=2, day=24, time='12:27' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-02-24T12:28Z",
+          "published_record": "table row cell (as transcribed): 2026 Feb 24 12:28",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 1,
+      "derived_local_display": {
+        "ist_from_usno": "2026-02-24T17:57+05:30",
+        "ist_from_nasa": "2026-02-24T17:58+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-02-24T12:26:00Z",
+          "2026-02-24T12:29:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-09",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-03-03T11:38Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=3, day=3, time='11:38' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-03-03T11:38Z",
+          "published_record": "table row cell (as transcribed): 2026 Mar  3 11:38 t",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": "t (total lunar eclipse marker in source)"
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-03-03T17:08+05:30",
+        "ist_from_nasa": "2026-03-03T17:08+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-03-03T11:37:00Z",
+          "2026-03-03T11:39:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-10",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-03-11T09:38Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=3, day=11, time='09:38' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-03-11T09:39Z",
+          "published_record": "table row cell (as transcribed): 2026 Mar 11 09:39",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 1,
+      "derived_local_display": {
+        "ist_from_usno": "2026-03-11T15:08+05:30",
+        "ist_from_nasa": "2026-03-11T15:09+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-03-11T09:37:00Z",
+          "2026-03-11T09:40:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-11",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "New Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 0
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 30 (Krishna Amavasya) ends; Tithi 1 (Shukla Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "59->0",
+        "karana_boundary_one_based": "60->1",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-03-19T01:23Z",
+          "published_record": "phasedata entry: phase='New Moon', year=2026, month=3, day=19, time='01:23' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-03-19T01:23Z",
+          "published_record": "table row cell (as transcribed): 2026 Mar 19 01:23",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-03-19T06:53+05:30",
+        "ist_from_nasa": "2026-03-19T06:53+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-03-19T01:22:00Z",
+          "2026-03-19T01:24:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-12",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "First Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 90
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 8 (Shukla Ashtami, elongation [84,96)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "14->15",
+        "karana_boundary_one_based": "15->16",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-03-25T19:18Z",
+          "published_record": "phasedata entry: phase='First Quarter', year=2026, month=3, day=25, time='19:18' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-03-25T19:18Z",
+          "published_record": "table row cell (as transcribed): 2026 Mar 25 19:18",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-03-26T00:48+05:30",
+        "ist_from_nasa": "2026-03-26T00:48+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-03-25T19:17:00Z",
+          "2026-03-25T19:19:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-13",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-04-02T02:12Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=4, day=2, time='02:12' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-04-02T02:12Z",
+          "published_record": "table row cell (as transcribed): 2026 Apr  2 02:12",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-04-02T07:42+05:30",
+        "ist_from_nasa": "2026-04-02T07:42+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-04-02T02:11:00Z",
+          "2026-04-02T02:13:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-14",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-04-10T04:51Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=4, day=10, time='04:51' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-04-10T04:52Z",
+          "published_record": "table row cell (as transcribed): 2026 Apr 10 04:52",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 1,
+      "derived_local_display": {
+        "ist_from_usno": "2026-04-10T10:21+05:30",
+        "ist_from_nasa": "2026-04-10T10:22+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-04-10T04:50:00Z",
+          "2026-04-10T04:53:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-15",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "New Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 0
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 30 (Krishna Amavasya) ends; Tithi 1 (Shukla Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "59->0",
+        "karana_boundary_one_based": "60->1",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-04-17T11:52Z",
+          "published_record": "phasedata entry: phase='New Moon', year=2026, month=4, day=17, time='11:52' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-04-17T11:52Z",
+          "published_record": "table row cell (as transcribed): 2026 Apr 17 11:52",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-04-17T17:22+05:30",
+        "ist_from_nasa": "2026-04-17T17:22+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-04-17T11:51:00Z",
+          "2026-04-17T11:53:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-16",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "First Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 90
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 8 (Shukla Ashtami, elongation [84,96)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "14->15",
+        "karana_boundary_one_based": "15->16",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-04-24T02:32Z",
+          "published_record": "phasedata entry: phase='First Quarter', year=2026, month=4, day=24, time='02:32' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-04-24T02:32Z",
+          "published_record": "table row cell (as transcribed): 2026 Apr 24 02:32",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-04-24T08:02+05:30",
+        "ist_from_nasa": "2026-04-24T08:02+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-04-24T02:31:00Z",
+          "2026-04-24T02:33:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-17",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-05-01T17:23Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=5, day=1, time='17:23' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-05-01T17:23Z",
+          "published_record": "table row cell (as transcribed): 2026 May  1 17:23",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-05-01T22:53+05:30",
+        "ist_from_nasa": "2026-05-01T22:53+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-05-01T17:22:00Z",
+          "2026-05-01T17:24:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-18",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-05-09T21:10Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=5, day=9, time='21:10' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-05-09T21:10Z",
+          "published_record": "table row cell (as transcribed): 2026 May  9 21:10",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-05-10T02:40+05:30",
+        "ist_from_nasa": "2026-05-10T02:40+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-05-09T21:09:00Z",
+          "2026-05-09T21:11:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-19",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "New Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 0
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 30 (Krishna Amavasya) ends; Tithi 1 (Shukla Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "59->0",
+        "karana_boundary_one_based": "60->1",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-05-16T20:01Z",
+          "published_record": "phasedata entry: phase='New Moon', year=2026, month=5, day=16, time='20:01' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-05-16T20:01Z",
+          "published_record": "table row cell (as transcribed): 2026 May 16 20:01",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-05-17T01:31+05:30",
+        "ist_from_nasa": "2026-05-17T01:31+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-05-16T20:00:00Z",
+          "2026-05-16T20:02:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-20",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "First Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 90
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 8 (Shukla Ashtami, elongation [84,96)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "14->15",
+        "karana_boundary_one_based": "15->16",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-05-23T11:11Z",
+          "published_record": "phasedata entry: phase='First Quarter', year=2026, month=5, day=23, time='11:11' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-05-23T11:11Z",
+          "published_record": "table row cell (as transcribed): 2026 May 23 11:11",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-05-23T16:41+05:30",
+        "ist_from_nasa": "2026-05-23T16:41+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-05-23T11:10:00Z",
+          "2026-05-23T11:12:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-21",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-05-31T08:45Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=5, day=31, time='08:45' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-05-31T08:45Z",
+          "published_record": "table row cell (as transcribed): 2026 May 31 08:45",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-05-31T14:15+05:30",
+        "ist_from_nasa": "2026-05-31T14:15+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-05-31T08:44:00Z",
+          "2026-05-31T08:46:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-22",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-06-08T10:00Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=6, day=8, time='10:00' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-06-08T10:00Z",
+          "published_record": "table row cell (as transcribed): 2026 Jun  8 10:00",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-06-08T15:30+05:30",
+        "ist_from_nasa": "2026-06-08T15:30+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-06-08T09:59:00Z",
+          "2026-06-08T10:01:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-23",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "New Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 0
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 30 (Krishna Amavasya) ends; Tithi 1 (Shukla Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "59->0",
+        "karana_boundary_one_based": "60->1",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-06-15T02:54Z",
+          "published_record": "phasedata entry: phase='New Moon', year=2026, month=6, day=15, time='02:54' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-06-15T02:54Z",
+          "published_record": "table row cell (as transcribed): 2026 Jun 15 02:54",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-06-15T08:24+05:30",
+        "ist_from_nasa": "2026-06-15T08:24+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-06-15T02:53:00Z",
+          "2026-06-15T02:55:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-24",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "First Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 90
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 8 (Shukla Ashtami, elongation [84,96)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "14->15",
+        "karana_boundary_one_based": "15->16",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-06-21T21:55Z",
+          "published_record": "phasedata entry: phase='First Quarter', year=2026, month=6, day=21, time='21:55' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-06-21T21:55Z",
+          "published_record": "table row cell (as transcribed): 2026 Jun 21 21:55",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-06-22T03:25+05:30",
+        "ist_from_nasa": "2026-06-22T03:25+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-06-21T21:54:00Z",
+          "2026-06-21T21:56:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-25",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-06-29T23:56Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=6, day=29, time='23:56' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-06-29T23:57Z",
+          "published_record": "table row cell (as transcribed): 2026 Jun 29 23:57",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 1,
+      "derived_local_display": {
+        "ist_from_usno": "2026-06-30T05:26+05:30",
+        "ist_from_nasa": "2026-06-30T05:27+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-06-29T23:55:00Z",
+          "2026-06-29T23:58:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-26",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-07-07T19:29Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=7, day=7, time='19:29' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-07-07T19:29Z",
+          "published_record": "table row cell (as transcribed): 2026 Jul  7 19:29",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-07-08T00:59+05:30",
+        "ist_from_nasa": "2026-07-08T00:59+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-07-07T19:28:00Z",
+          "2026-07-07T19:30:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-27",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "New Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 0
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 30 (Krishna Amavasya) ends; Tithi 1 (Shukla Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "59->0",
+        "karana_boundary_one_based": "60->1",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-07-14T09:43Z",
+          "published_record": "phasedata entry: phase='New Moon', year=2026, month=7, day=14, time='09:43' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-07-14T09:43Z",
+          "published_record": "table row cell (as transcribed): 2026 Jul 14 09:43",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-07-14T15:13+05:30",
+        "ist_from_nasa": "2026-07-14T15:13+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-07-14T09:42:00Z",
+          "2026-07-14T09:44:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-28",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "First Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 90
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 8 (Shukla Ashtami, elongation [84,96)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "14->15",
+        "karana_boundary_one_based": "15->16",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-07-21T11:05Z",
+          "published_record": "phasedata entry: phase='First Quarter', year=2026, month=7, day=21, time='11:05' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-07-21T11:06Z",
+          "published_record": "table row cell (as transcribed): 2026 Jul 21 11:06",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 1,
+      "derived_local_display": {
+        "ist_from_usno": "2026-07-21T16:35+05:30",
+        "ist_from_nasa": "2026-07-21T16:36+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-07-21T11:04:00Z",
+          "2026-07-21T11:07:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-29",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-07-29T14:36Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=7, day=29, time='14:36' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-07-29T14:36Z",
+          "published_record": "table row cell (as transcribed): 2026 Jul 29 14:36",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-07-29T20:06+05:30",
+        "ist_from_nasa": "2026-07-29T20:06+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-07-29T14:35:00Z",
+          "2026-07-29T14:37:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-30",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-08-06T02:21Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=8, day=6, time='02:21' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-08-06T02:21Z",
+          "published_record": "table row cell (as transcribed): 2026 Aug  6 02:21",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-08-06T07:51+05:30",
+        "ist_from_nasa": "2026-08-06T07:51+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-08-06T02:20:00Z",
+          "2026-08-06T02:22:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-31",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "New Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 0
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 30 (Krishna Amavasya) ends; Tithi 1 (Shukla Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "59->0",
+        "karana_boundary_one_based": "60->1",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-08-12T17:37Z",
+          "published_record": "phasedata entry: phase='New Moon', year=2026, month=8, day=12, time='17:37' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-08-12T17:37Z",
+          "published_record": "table row cell (as transcribed): 2026 Aug 12 17:37 T",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": "T (total solar eclipse marker in source)"
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-08-12T23:07+05:30",
+        "ist_from_nasa": "2026-08-12T23:07+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-08-12T17:36:00Z",
+          "2026-08-12T17:38:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-32",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "First Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 90
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 8 (Shukla Ashtami, elongation [84,96)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "14->15",
+        "karana_boundary_one_based": "15->16",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-08-20T02:46Z",
+          "published_record": "phasedata entry: phase='First Quarter', year=2026, month=8, day=20, time='02:46' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-08-20T02:46Z",
+          "published_record": "table row cell (as transcribed): 2026 Aug 20 02:46",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-08-20T08:16+05:30",
+        "ist_from_nasa": "2026-08-20T08:16+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-08-20T02:45:00Z",
+          "2026-08-20T02:47:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-33",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-08-28T04:18Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=8, day=28, time='04:18' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-08-28T04:18Z",
+          "published_record": "table row cell (as transcribed): 2026 Aug 28 04:18 p",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": "p (partial lunar eclipse marker in source)"
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-08-28T09:48+05:30",
+        "ist_from_nasa": "2026-08-28T09:48+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-08-28T04:17:00Z",
+          "2026-08-28T04:19:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-34",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-09-04T07:51Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=9, day=4, time='07:51' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-09-04T07:51Z",
+          "published_record": "table row cell (as transcribed): 2026 Sep  4 07:51",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-09-04T13:21+05:30",
+        "ist_from_nasa": "2026-09-04T13:21+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-09-04T07:50:00Z",
+          "2026-09-04T07:52:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-35",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "New Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 0
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 30 (Krishna Amavasya) ends; Tithi 1 (Shukla Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "59->0",
+        "karana_boundary_one_based": "60->1",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-09-11T03:27Z",
+          "published_record": "phasedata entry: phase='New Moon', year=2026, month=9, day=11, time='03:27' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-09-11T03:27Z",
+          "published_record": "table row cell (as transcribed): 2026 Sep 11 03:27",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-09-11T08:57+05:30",
+        "ist_from_nasa": "2026-09-11T08:57+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-09-11T03:26:00Z",
+          "2026-09-11T03:28:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-36",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "First Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 90
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 8 (Shukla Ashtami, elongation [84,96)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "14->15",
+        "karana_boundary_one_based": "15->16",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-09-18T20:44Z",
+          "published_record": "phasedata entry: phase='First Quarter', year=2026, month=9, day=18, time='20:44' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-09-18T20:44Z",
+          "published_record": "table row cell (as transcribed): 2026 Sep 18 20:44",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-09-19T02:14+05:30",
+        "ist_from_nasa": "2026-09-19T02:14+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-09-18T20:43:00Z",
+          "2026-09-18T20:45:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-37",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-09-26T16:49Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=9, day=26, time='16:49' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-09-26T16:49Z",
+          "published_record": "table row cell (as transcribed): 2026 Sep 26 16:49",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-09-26T22:19+05:30",
+        "ist_from_nasa": "2026-09-26T22:19+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-09-26T16:48:00Z",
+          "2026-09-26T16:50:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-38",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-10-03T13:25Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=10, day=3, time='13:25' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-10-03T13:25Z",
+          "published_record": "table row cell (as transcribed): 2026 Oct  3 13:25",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-10-03T18:55+05:30",
+        "ist_from_nasa": "2026-10-03T18:55+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-10-03T13:24:00Z",
+          "2026-10-03T13:26:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-39",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "New Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 0
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 30 (Krishna Amavasya) ends; Tithi 1 (Shukla Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "59->0",
+        "karana_boundary_one_based": "60->1",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-10-10T15:50Z",
+          "published_record": "phasedata entry: phase='New Moon', year=2026, month=10, day=10, time='15:50' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-10-10T15:50Z",
+          "published_record": "table row cell (as transcribed): 2026 Oct 10 15:50",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-10-10T21:20+05:30",
+        "ist_from_nasa": "2026-10-10T21:20+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-10-10T15:49:00Z",
+          "2026-10-10T15:51:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-40",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "First Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 90
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 8 (Shukla Ashtami, elongation [84,96)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "14->15",
+        "karana_boundary_one_based": "15->16",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-10-18T16:12Z",
+          "published_record": "phasedata entry: phase='First Quarter', year=2026, month=10, day=18, time='16:12' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-10-18T16:13Z",
+          "published_record": "table row cell (as transcribed): 2026 Oct 18 16:13",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 1,
+      "derived_local_display": {
+        "ist_from_usno": "2026-10-18T21:42+05:30",
+        "ist_from_nasa": "2026-10-18T21:43+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-10-18T16:11:00Z",
+          "2026-10-18T16:14:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-41",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-10-26T04:12Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=10, day=26, time='04:12' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-10-26T04:12Z",
+          "published_record": "table row cell (as transcribed): 2026 Oct 26 04:12",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-10-26T09:42+05:30",
+        "ist_from_nasa": "2026-10-26T09:42+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-10-26T04:11:00Z",
+          "2026-10-26T04:13:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-42",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-11-01T20:28Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=11, day=1, time='20:28' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-11-01T20:28Z",
+          "published_record": "table row cell (as transcribed): 2026 Nov  1 20:28",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-11-02T01:58+05:30",
+        "ist_from_nasa": "2026-11-02T01:58+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-11-01T20:27:00Z",
+          "2026-11-01T20:29:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-43",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "New Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 0
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 30 (Krishna Amavasya) ends; Tithi 1 (Shukla Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "59->0",
+        "karana_boundary_one_based": "60->1",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-11-09T07:02Z",
+          "published_record": "phasedata entry: phase='New Moon', year=2026, month=11, day=9, time='07:02' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-11-09T07:02Z",
+          "published_record": "table row cell (as transcribed): 2026 Nov  9 07:02",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-11-09T12:32+05:30",
+        "ist_from_nasa": "2026-11-09T12:32+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-11-09T07:01:00Z",
+          "2026-11-09T07:03:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-44",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "First Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 90
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 8 (Shukla Ashtami, elongation [84,96)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "14->15",
+        "karana_boundary_one_based": "15->16",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-11-17T11:48Z",
+          "published_record": "phasedata entry: phase='First Quarter', year=2026, month=11, day=17, time='11:48' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-11-17T11:48Z",
+          "published_record": "table row cell (as transcribed): 2026 Nov 17 11:48",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-11-17T17:18+05:30",
+        "ist_from_nasa": "2026-11-17T17:18+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-11-17T11:47:00Z",
+          "2026-11-17T11:49:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-45",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-11-24T14:53Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=11, day=24, time='14:53' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-11-24T14:53Z",
+          "published_record": "table row cell (as transcribed): 2026 Nov 24 14:53",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-11-24T20:23+05:30",
+        "ist_from_nasa": "2026-11-24T20:23+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-11-24T14:52:00Z",
+          "2026-11-24T14:54:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-46",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-12-01T06:08Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=12, day=1, time='06:08' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-12-01T06:09Z",
+          "published_record": "table row cell (as transcribed): 2026 Dec  1 06:09",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 1,
+      "derived_local_display": {
+        "ist_from_usno": "2026-12-01T11:38+05:30",
+        "ist_from_nasa": "2026-12-01T11:39+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-12-01T06:07:00Z",
+          "2026-12-01T06:10:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-47",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "New Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 0
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 30 (Krishna Amavasya) ends; Tithi 1 (Shukla Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "59->0",
+        "karana_boundary_one_based": "60->1",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-12-09T00:52Z",
+          "published_record": "phasedata entry: phase='New Moon', year=2026, month=12, day=9, time='00:52' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-12-09T00:52Z",
+          "published_record": "table row cell (as transcribed): 2026 Dec  9 00:52",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-12-09T06:22+05:30",
+        "ist_from_nasa": "2026-12-09T06:22+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-12-09T00:51:00Z",
+          "2026-12-09T00:53:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-48",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "First Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 90
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 8 (Shukla Ashtami, elongation [84,96)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "14->15",
+        "karana_boundary_one_based": "15->16",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-12-17T05:42Z",
+          "published_record": "phasedata entry: phase='First Quarter', year=2026, month=12, day=17, time='05:42' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-12-17T05:43Z",
+          "published_record": "table row cell (as transcribed): 2026 Dec 17 05:43",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 1,
+      "derived_local_display": {
+        "ist_from_usno": "2026-12-17T11:12+05:30",
+        "ist_from_nasa": "2026-12-17T11:13+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-12-17T05:41:00Z",
+          "2026-12-17T05:44:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-49",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Full Moon",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 180
+      },
+      "panchanga_meaning": {
+        "tithi": "Tithi 15 (Shukla Purnima) ends; Tithi 16 (Krishna Pratipada) begins",
+        "karana_boundary_zero_based_half_tithi_index": "29->30",
+        "karana_boundary_one_based": "30->31",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-12-24T01:28Z",
+          "published_record": "phasedata entry: phase='Full Moon', year=2026, month=12, day=24, time='01:28' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-12-24T01:28Z",
+          "published_record": "table row cell (as transcribed): 2026 Dec 24 01:28",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-12-24T06:58+05:30",
+        "ist_from_nasa": "2026-12-24T06:58+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-12-24T01:27:00Z",
+          "2026-12-24T01:29:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    },
+    {
+      "case_id": "PAN-REF-PHASE-2026-50",
+      "fixture_class": "DIRECT_PUBLISHED_GEOCENTRIC_EVENT",
+      "event": {
+        "published_phase_name": "Last Quarter",
+        "defining_quantity": "excess of apparent ecliptic longitude of Moon over Sun (USNO definition)",
+        "elongation_deg": 270
+      },
+      "panchanga_meaning": {
+        "tithi": "Inside Tithi 23 (Krishna Ashtami, elongation [264,276)); no Tithi boundary",
+        "karana_boundary_zero_based_half_tithi_index": "44->45",
+        "karana_boundary_one_based": "45->46",
+        "karana_names": "NOT ASSERTED: Karana naming convention unverified by an authoritative primary source in WP-B1 (see SCI-PAN-01 section 5.5)",
+        "frame_note": "Elongation is identical in tropical and sidereal frames because Sun and Moon share the same ayanamsa at the same instant; no ayanamsa assumption is needed for this reference"
+      },
+      "published_values": [
+        {
+          "source_id": "SRC-USNO-PHASES",
+          "value_utc_minute": "2026-12-30T18:59Z",
+          "published_record": "phasedata entry: phase='Last Quarter', year=2026, month=12, day=30, time='18:59' (JSON fields, reformatted)",
+          "time_standard": "Universal Time (per USNO API documentation)",
+          "precision": "1 minute (rounding vs truncation not stated)"
+        },
+        {
+          "source_id": "SRC-NASA-PHASES",
+          "value_utc_minute": "2026-12-30T18:59Z",
+          "published_record": "table row cell (as transcribed): 2026 Dec 30 18:59",
+          "time_standard": "Universal Time (page states UT; Delta T listed as 00h01m)",
+          "precision": "1 minute",
+          "source_markers": null
+        }
+      ],
+      "inter_source_difference_minutes": 0,
+      "derived_local_display": {
+        "ist_from_usno": "2026-12-31T00:29+05:30",
+        "ist_from_nasa": "2026-12-31T00:29+05:30",
+        "note": "Derived by adding +05:30 (IST) to the published UT; not itself published"
+      },
+      "location_dependence": "NONE (geocentric event; identical for every Indian location)",
+      "proposed_tolerance": {
+        "accept_window_utc": [
+          "2026-12-30T18:58:00Z",
+          "2026-12-30T19:00:00Z"
+        ],
+        "rule": "engine event instant t passes if min(published) - 60 s <= t <= max(published) + 60 s",
+        "justification": "Both sources publish whole minutes with an unstated rounding rule; in 8 of 50 2026 events they differ by exactly 1 minute (NASA later), so the true instant can lie anywhere in a two-minute span. 60 s margin covers truncation-vs-rounding. Model differences (lunar theory, Delta T, UT1-UTC) are well below 1 minute for 2026. Proposed only; owner and QA to confirm."
+      },
+      "method_assumptions": [
+        "geocentric apparent longitudes (USNO definition says apparent ecliptic longitude; geocentric implied, not stated on the definitions page)",
+        "times in UT; Sabpuja engine uses civil UTC as UT1 (SCI-01h), difference < 1 s in 2026"
+      ],
+      "limitations": [
+        "Published to whole minutes only",
+        "Transcribed on 2026-10-28 through an automated page-reading tool; the two transcriptions are mutually consistent and consistent with the closest-phase values in the separate USNO rise/set responses, but should be re-verified by QA against the live sources"
+      ],
+      "status": "VERIFIED_TWO_INDEPENDENT_PUBLISHERS"
+    }
+  ],
+  "precision_note": "All values are publisher-printed whole minutes (rounding rule unstated). They are not exact-second astronomical instants, and USNO/NASA agreement shows agreement at minute resolution only (SCI-PAN-01 section 5.9)."
+}
