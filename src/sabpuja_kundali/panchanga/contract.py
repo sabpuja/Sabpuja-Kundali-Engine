@@ -39,6 +39,7 @@ LOCAL_RENDERING_LAST_DATE = engine.SUPPORTED_LOCAL_DATES[1]
 NOT_CONVERGED = "PANCHANGA_TRANSITION_NOT_CONVERGED"
 IDENTITY_FAILED = "PANCHANGA_CHART_IDENTITY_FAILED"
 NAME_NOT_ADOPTED = "PANCHANGA_METHOD_NOT_ADOPTED"
+LIMITS_NOT_APPROVED = "PANCHANGA_SEARCH_LIMITS_NOT_APPROVED"
 
 
 class PanchangaComputationError(RuntimeError):
@@ -55,7 +56,25 @@ _FIXED_DETAIL = {
     NOT_CONVERGED: "a Panchanga transition could not be bracketed and converged within the approved "
                    "limits; no Panchanga produced",
     IDENTITY_FAILED: "the Panchanga Moon Nakshatra did not reproduce the chart; no Panchanga produced",
+    LIMITS_NOT_APPROVED: "the transition search limits are looser than, or not, the approved D09-A-M1 "
+                         "limits; no Panchanga produced",
 }
+
+
+def _check_limits(limits) -> None:
+    """D09-A-M1 maxima are frozen: a looser or malformed override is refused, never computed.
+
+    Each field must be a plain positive int no larger than its DEFAULT_LIMITS value
+    (max_iterations may be 0). Stricter values (used for failure injection) are allowed,
+    and the document's method block then reports the limits actually used.
+    """
+    if type(limits) is not SearchLimits:
+        raise _refuse(LIMITS_NOT_APPROVED)
+    for name in ("step_us", "max_extent_us", "max_iterations", "bracket_max_us"):
+        value, frozen = getattr(limits, name), getattr(DEFAULT_LIMITS, name)
+        floor = 0 if name == "max_iterations" else 1
+        if type(value) is not int or not floor <= value <= frozen:
+            raise _refuse(LIMITS_NOT_APPROVED)
 
 
 def _refuse(code: str) -> PanchangaComputationError:
@@ -86,8 +105,7 @@ def _instant(second: int, zone, transition) -> dict[str, object]:
     return out
 
 
-def _method() -> dict[str, object]:
-    lim = DEFAULT_LIMITS
+def _method(lim: SearchLimits) -> dict[str, object]:
     return {
         "method_id": METHOD_ID,
         "method_revision": METHOD_REVISION,
@@ -112,6 +130,7 @@ def _method() -> dict[str, object]:
             "output": "first whole UTC second in the new half-open sector, verified at that second and "
                       "the second before",
             "extrapolation": "never",
+            "limits_are_frozen_d09_values": lim == DEFAULT_LIMITS,
         },
         "time_scale": "civil UTC treated as UT1 (SCI-01h), as for the chart; Swiss automatic Delta T",
         "precision_note": "whole-second output is a resolution, not an accuracy claim",
@@ -122,6 +141,8 @@ def calculate(request: dict[str, object], ephe_path: str | None = None, *,
               limits: SearchLimits = DEFAULT_LIMITS) -> dict[str, object]:
     """Return the `sabpuja-panchanga/1` document, or raise one of EXPECTED_ERRORS."""
     chart = engine.calculate(request, ephe_path)
+    # After every chart refusal (their order is unchanged), before any Panchanga computation.
+    _check_limits(limits)
     utc = datetime.fromisoformat(chart["birth"]["utc"].replace("Z", "+00:00")).astimezone(timezone.utc)
     zone = get_zone(chart["birth"]["timezone"])
     ephemeris_manifest = load_ephemeris_manifest()
@@ -161,7 +182,7 @@ def calculate(request: dict[str, object], ephe_path: str | None = None, *,
                           "Karana transitions at E = 0, 90, 180, 270 deg are compared with USNO/NASA "
                           "published minutes; everything else is rule-oracle and Swiss-on-Swiss "
                           "conformance, not independent astronomical accuracy.",
-        "method": _method(),
+        "method": _method(limits),
         "birth": {"utc": chart["birth"]["utc"], "timezone": chart["birth"]["timezone"]},
         "angles": {"elongation_deg": _display_deg(e), "yoga_sum_deg": _display_deg(s),
                    "note": "8-decimal display only; classification uses the unrounded values"},

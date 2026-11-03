@@ -21,9 +21,33 @@ SHA-256 check (`common.py`); nothing here may edit them.
 | PAN-QA-09 | Same refusals, codes, text and order as the chart; typed Panchanga refusals; no birth data in errors, logs or CLI output | — |
 | PAN-QA-10 | Identical output across runs, processes, locales, host time zones, threads and foreign Swiss state | — |
 
+## Typed Panchanga refusals (draft M1 machine contract only)
+
+All chart refusals come first, unchanged in code, text and order. Then:
+
+| Code | When |
+|---|---|
+| `PANCHANGA_SEARCH_LIMITS_NOT_APPROVED` | A `limits` override is looser than the frozen D09-A-M1 values (step > 6 h, extent > 2.5 days, iterations > 64, bracket > 0.5 s), or is malformed (not a `SearchLimits`, non-int, bool, non-positive, or a negative iteration cap). Stricter overrides are allowed for failure injection, and the document then reports the limits actually used with `limits_are_frozen_d09_values: false` |
+| `PANCHANGA_TRANSITION_NOT_CONVERGED` | Any search cap reached, no sector change within 2.5 days, a non-finite value, or a failed whole-second verification |
+| `PANCHANGA_CHART_IDENTITY_FAILED` | The session's birth-instant longitudes do not reproduce the chart's Moon Nakshatra/Pada and 8-decimal Sun and Moon. An internal fail-closed safety check, accepted by QA review 5751031274 for the draft M1 machine contract only. It is not customer-facing error copy and changes no chart code; a public error schema needs its own integration review |
+
+All three have fixed text, no birth data or instants, and no exception chain.
+
+## Search note: more than one edge in a 6 h step
+
+ENGINEERING-SPEC section 5 says each 6 h bracket contains exactly one crossing. That
+holds for Tithi, Karana, Yoga and Nakshatra, but **not for Pada**: the Moon moves up to
+about 3.85 deg in 6 h against a 3.33 deg Pada, so one step can cross two Pada edges.
+The search does not rely on a single crossing. It bisects on membership of the birth
+sector, which the monotonic Moon leaves exactly once within the extent, so it always
+returns the first exit (the end) or the last entry (the start).
+`test_two_edges_in_one_step_returns_the_first` covers this, and QA independently
+reproduced it; no method change.
+
 `test_mutations.py` seeds the defects listed in ENGINEERING-SPEC section 9 (tropical S,
 sign error in E, closed edge, missing `FLG_SWIEPH` check, extrapolation) plus a
-rounded-down whole second and an ignored iteration cap; each must be caught.
+rounded-down whole second, an ignored iteration cap and unenforced frozen limits;
+each must be caught.
 
 ## Files
 

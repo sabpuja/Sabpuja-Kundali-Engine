@@ -150,6 +150,14 @@ class DocumentMutationTest(unittest.TestCase):
                 doc = contract.calculate(VALID, EPHE)     # the mutant silently accepts the fallback
         self.assertEqual(doc["schema"], "sabpuja-panchanga/1")
 
+    def test_unenforced_frozen_limits_are_caught(self):
+        from sabpuja_kundali.panchanga import calculate, contract
+        from .test_pan_qa03_search import frozen_limit_failures
+        self.assertEqual(frozen_limit_failures(calculate, self.requests[0], EPHE), [])
+        with mock.patch.object(contract, "_check_limits", lambda limits: None):
+            got = frozen_limit_failures(contract.calculate, self.requests[0], EPHE)
+        self.assertTrue(any(f.startswith("ACCEPTED:") for f in got), got)
+
     def test_chart_frame_mutant_is_caught_by_identity(self):
         """Tropical longitudes for everything (no FLG_SIDEREAL): the chart identity check refuses."""
         from sabpuja_kundali.panchanga import PanchangaComputationError, astro, contract

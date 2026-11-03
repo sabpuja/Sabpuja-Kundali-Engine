@@ -274,3 +274,102 @@ class RealDataSearchTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ---------------------------------------------------------------------------
+# D09-A-M1 limits are frozen in the public contract (QA review 5751031274).
+
+LOOSER = {
+    "bracket_max_us": (500_001, 1_000_000),
+    "step_us": (6 * HOUR + 1, 24 * HOUR),
+    "max_extent_us": (EXTENT + 1, 12 * 24 * HOUR),
+    "max_iterations": (65, 10**6),
+}
+MALFORMED = ([("bracket_max_us", v) for v in (0, -1, 0.5, 500_000.0, True, None, "500000")]
+             + [("step_us", v) for v in (0, -HOUR, float(6 * HOUR), False)]
+             + [("max_extent_us", v) for v in (0, -1, float(EXTENT))]
+             + [("max_iterations", v) for v in (-1, 16.0, True)])
+
+
+def frozen_limit_failures(calc, request, ephe) -> list[str]:
+    """Gate rule: every looser or malformed override is refused with the fixed typed code."""
+    from dataclasses import replace
+    from sabpuja_kundali.panchanga import PanchangaComputationError
+    out = []
+    bad = [replace(DEFAULT_LIMITS, **{k: v}) for k, vals in LOOSER.items() for v in vals]
+    bad += [replace(DEFAULT_LIMITS, **{k: v}) for k, v in MALFORMED]
+    bad += [None, {"step_us": 6 * HOUR}, (6 * HOUR, EXTENT, 64, 500_000)]
+    for limits in bad:
+        try:
+            calc(request, ephe, limits=limits)
+            out.append(f"ACCEPTED:{limits!r}")
+        except PanchangaComputationError as exc:
+            if exc.code != "PANCHANGA_SEARCH_LIMITS_NOT_APPROVED" or exc.__cause__ is not None:
+                out.append(f"WRONG_REFUSAL:{exc.code}")
+        except Exception as exc:          # anything untyped is a failure of the contract
+            out.append(f"UNTYPED:{type(exc).__name__}")
+    return out
+
+
+class FrozenLimitsWithoutDataTest(unittest.TestCase):
+    def test_chart_refusals_still_come_first(self):
+        from sabpuja_kundali.engine import InputRefusalError
+        from sabpuja_kundali.ephemeris import EphemerisDataError
+        from sabpuja_kundali.panchanga import calculate
+        loose = SearchLimits(bracket_max_us=1_000_000)
+        req = request_at_utc(parse_utc("2026-01-03T07:30:00Z"))
+        with self.assertRaises(InputRefusalError) as ctx:
+            calculate(dict(req, latitude=99.0), "/nonexistent", limits=loose)
+        self.assertEqual(ctx.exception.code, "LATITUDE_OUTSIDE_SUPPORTED_BAND")
+        with self.assertRaises(InputRefusalError) as ctx:
+            calculate(dict(req, birth_datetime="bad"), "/nonexistent", limits=None)
+        self.assertEqual(ctx.exception.code, "TIME_FORMAT_INVALID")
+        with self.assertRaises(EphemerisDataError):
+            calculate(req, "/nonexistent", limits=loose)
+
+
+@real_data
+class FrozenLimitsContractTest(unittest.TestCase):
+    REQUEST = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls.REQUEST = request_at_utc(parse_utc("2026-01-03T07:30:00Z"))
+
+    def test_every_looser_or_malformed_override_is_refused(self):
+        from sabpuja_kundali.panchanga import calculate
+        self.assertEqual(frozen_limit_failures(calculate, self.REQUEST, EPHE), [])
+
+    def test_refusal_text_is_fixed_and_private(self):
+        from sabpuja_kundali.panchanga import PanchangaComputationError, calculate
+        with self.assertRaises(PanchangaComputationError) as ctx:
+            calculate(self.REQUEST, EPHE, limits=SearchLimits(bracket_max_us=1_000_000))
+        self.assertEqual(str(ctx.exception),
+                         "PANCHANGA_SEARCH_LIMITS_NOT_APPROVED: the transition search limits are looser than, "
+                         "or not, the approved D09-A-M1 limits; no Panchanga produced")
+
+    def test_default_document_declares_exactly_the_frozen_method(self):
+        from sabpuja_kundali.panchanga import calculate
+        from .common import tolerances
+        d09 = tolerances()["D09_A_M1"]
+        doc = calculate(self.REQUEST, EPHE)
+        ts = doc["method"]["transition_search"]
+        self.assertEqual(ts["bracket_step_hours"], d09["bracket_step_hours"])
+        self.assertEqual(ts["bracket_extent_max_days_each_direction"], d09["bracket_extent_max_days_each_direction"])
+        self.assertEqual(ts["bisection_max_iterations"], d09["bisection_max_iterations"])
+        self.assertEqual(ts["transition_bracket_max_seconds"], d09["transition_bracket_max_seconds"])
+        self.assertIs(ts["limits_are_frozen_d09_values"], True)
+        widths = [v["search"]["final_bracket_us"] for k in ("tithi", "karana", "yoga", "nakshatra")
+                  for v in (doc[k]["start"], doc[k]["end"])]
+        self.assertLessEqual(max(widths), ts["transition_bracket_max_seconds"] * MICROS)
+
+    def test_stricter_override_reports_the_limits_actually_used(self):
+        from sabpuja_kundali.panchanga import calculate
+        strict = SearchLimits(bracket_max_us=100_000)
+        doc = calculate(self.REQUEST, EPHE, limits=strict)
+        ts = doc["method"]["transition_search"]
+        self.assertEqual(ts["transition_bracket_max_seconds"], 0.1)
+        self.assertIs(ts["limits_are_frozen_d09_values"], False)
+        for k in ("tithi", "karana", "yoga", "nakshatra"):
+            for v in (doc[k]["start"], doc[k]["end"]):
+                self.assertLessEqual(v["search"]["final_bracket_us"], 100_000)
