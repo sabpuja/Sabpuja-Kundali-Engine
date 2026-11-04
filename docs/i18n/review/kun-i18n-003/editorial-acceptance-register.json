@@ -487,14 +487,16 @@
         "status": "NOT_APPLICABLE"
       },
       "owner_copy": {
-        "status": "PENDING",
-        "reviewer": null,
-        "decision_date": null,
-        "reviewed_commit": null,
-        "reviewed_ui_catalog_sha256": null,
-        "reviewed_pdf_catalog_sha256": null,
-        "evidence": null,
-        "decision_text": null
+        "status": "ACCEPTED",
+        "decided_by": "Sabpuja owner",
+        "source": "chat owner instruction recorded in GitHub issue",
+        "record": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/issues/75",
+        "decision_date": "2026-11-04",
+        "decision_text": "Change A approved exactly as documented: English method.exc5 \"Hindi edition\" becomes \"Hindi text (available as a separate edition)\"; the Hindi line is unchanged. The owner approved Changes A and B in chat on 2026-11-04 (\"i will go with your recommendation\", issue #73), authorized the normal merge of the independently tested implementation (PR #74, merge 4c57c7316615940c91a12cfbcf561c967888c5ab), and directed that this chat approval is the owner approval, with no PDF or signature (KUN-GOV-SIMPLE-001, issue #75).",
+        "reviewed_commit": "84fe981c79573ab753b5d7baadf2ff4aa49e819c",
+        "reviewed_ui_catalog_sha256": "06c0f071206ffc40a1f6c1eb254ce252bc8e91305568cf787a232f374f064627",
+        "reviewed_pdf_catalog_sha256": "1483e1fa666005a7182b791904dbb777f63a1a554b1407ff274d59c0b277f81e",
+        "recorded_by": "Claude (developer), transcribing the owner decision recorded in issue #75; not the decider"
       }
     },
     {
@@ -562,14 +564,16 @@
         "status": "NOT_APPLICABLE"
       },
       "owner_copy": {
-        "status": "PENDING",
-        "reviewer": null,
-        "decision_date": null,
-        "reviewed_commit": null,
-        "reviewed_ui_catalog_sha256": null,
-        "reviewed_pdf_catalog_sha256": null,
-        "evidence": null,
-        "decision_text": null
+        "status": "ACCEPTED",
+        "decided_by": "Sabpuja owner",
+        "source": "chat owner instruction recorded in GitHub issue",
+        "record": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/issues/75",
+        "decision_date": "2026-11-04",
+        "decision_text": "Change B approved exactly as documented: the D9 footnote ends \"The D9 house fields use chart schema 0.3.0.\" in English and \"D9 भाव के फ़ील्ड चार्ट स्कीमा 0.3.0 के अनुसार हैं।\" in Hindi (also the index.html English fallback); schema 0.3.0 and /api/chart unchanged. The owner approved Changes A and B in chat on 2026-11-04 (\"i will go with your recommendation\", issue #73), authorized the normal merge of the independently tested implementation (PR #74, merge 4c57c7316615940c91a12cfbcf561c967888c5ab), and directed that this chat approval is the owner approval, with no PDF or signature (KUN-GOV-SIMPLE-001, issue #75). The Hindi wording still needs the human Hindi language decision (item 15, human_hindi_language).",
+        "reviewed_commit": "84fe981c79573ab753b5d7baadf2ff4aa49e819c",
+        "reviewed_ui_catalog_sha256": "06c0f071206ffc40a1f6c1eb254ce252bc8e91305568cf787a232f374f064627",
+        "reviewed_pdf_catalog_sha256": "1483e1fa666005a7182b791904dbb777f63a1a554b1407ff274d59c0b277f81e",
+        "recorded_by": "Claude (developer), transcribing the owner decision recorded in issue #75; not the decider"
       }
     },
     {
