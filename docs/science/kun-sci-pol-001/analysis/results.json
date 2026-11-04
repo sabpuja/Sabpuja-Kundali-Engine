@@ -1,0 +1,2646 @@
+{
+ "B1": {
+  "abs_dAsc_dARMC": {
+   "max": 3.9921968230250973,
+   "mean": 1.080190602220249,
+   "median": 0.9258808380547675,
+   "min": 0.5519101838489519,
+   "n": 50,
+   "p25": 0.8808856823262599,
+   "p75": 1.125358065741154,
+   "p95": 1.6992834603843383,
+   "p99": 3.9921968230250973,
+   "stdev": 0.49357400669875073
+  },
+  "abs_diff_float64": {
+   "max": 4.3308096847031264e-11,
+   "mean": 4.134442843396391e-12,
+   "median": 2.4716943979728966e-12,
+   "min": 1.9331237999722363e-13,
+   "n": 50,
+   "p25": 1.2159789830911904e-12,
+   "p75": 4.636273848591373e-12,
+   "p95": 1.2079445882700384e-11,
+   "p99": 4.3308096847031264e-11,
+   "stdev": 6.4044269830855886e-12
+  },
+  "abs_diff_highprec": {
+   "max": 4.33248787991422e-11,
+   "mean": 4.1290574974147245e-12,
+   "median": 2.4419549412548258e-12,
+   "min": 1.8232270076199222e-13,
+   "n": 50,
+   "p25": 1.2128263620481335e-12,
+   "p75": 4.611754259874888e-12,
+   "p95": 1.2075915141269433e-11,
+   "p99": 4.33248787991422e-11,
+   "stdev": 6.4086118088398315e-12
+  },
+  "abs_float64_eval_error": {
+   "max": 8.924246078739215e-14,
+   "mean": 2.4596661106919003e-14,
+   "median": 2.1667883625812857e-14,
+   "min": 4.002796208315722e-16,
+   "n": 50,
+   "p25": 1.0013757533101536e-14,
+   "p75": 3.256660080259373e-14,
+   "p95": 6.282636204813357e-14,
+   "p99": 8.924246078739215e-14,
+   "stdev": 1.9347534649940995e-14
+  },
+  "envelope_worst_case": {
+   "at_armc": 90.0,
+   "at_lat": -66.0,
+   "dAsc_dARMC": 42.372092596296376,
+   "dAsc_deps": 52.44349975556517,
+   "quantisation_bound_deg": 4.804668506481965e-10
+  },
+  "input_quantisation_bound": {
+   "max": 1.2070558097261457e-10,
+   "mean": 1.5725865057915103e-11,
+   "median": 1.1777958640881203e-11,
+   "min": 9.464463035826646e-12,
+   "n": 50,
+   "p25": 1.115115103260873e-11,
+   "p75": 1.5157993063362462e-11,
+   "p95": 2.8949949770131352e-11,
+   "p99": 1.2070558097261457e-10,
+   "stdev": 1.5820633856412203e-11
+  },
+  "min_lagna_pada_edge_distance_deg": 0.0037350813533333334,
+  "ratio_highprec_to_bound": {
+   "max": 0.7966411595215859,
+   "mean": 0.24388954425284826,
+   "median": 0.21688718148526168,
+   "min": 0.013106052712664174,
+   "n": 50,
+   "p25": 0.10705026769780082,
+   "p75": 0.3589302039726867,
+   "p95": 0.5131304975419194,
+   "p99": 0.7966411595215859,
+   "stdev": 0.16814026363123027
+  },
+  "rows": [
+   {
+    "dAsc_dARMC": 1.3948871173201682,
+    "dAsc_deps": -0.35904266782071936,
+    "diff_float64_deg": -1.2079445882700384e-11,
+    "diff_highprec_deg": -1.2075915141269433e-11,
+    "float64_eval_error_deg": -2.4084858730566775e-14,
+    "id": "GOLD-T01",
+    "input_quantisation_bound_deg": 1.5158537814593326e-11,
+    "lagna_rate_deg_per_s": 0.005827942465841655,
+    "lat": 28.63576,
+    "ratio_highprec_to_bound": 0.7966411595215859
+   },
+   {
+    "dAsc_dARMC": 1.2438541521385056,
+    "dAsc_deps": 0.3152555814683488,
+    "diff_float64_deg": 5.228361809859052e-12,
+    "diff_highprec_deg": 5.246883057417747e-12,
+    "float64_eval_error_deg": -4.688305741774727e-14,
+    "id": "GOLD-T02",
+    "input_quantisation_bound_deg": 1.418443755692316e-11,
+    "lagna_rate_deg_per_s": 0.005196915466886183,
+    "lat": 19.07283,
+    "ratio_highprec_to_bound": 0.3699042021484201
+   },
+   {
+    "dAsc_dARMC": 1.125358065741154,
+    "dAsc_deps": -0.6284627691535609,
+    "diff_float64_deg": 3.302030131453648e-12,
+    "diff_highprec_deg": 3.287574392485832e-12,
+    "float64_eval_error_deg": 1.2425607514167987e-14,
+    "id": "GOLD-T03",
+    "input_quantisation_bound_deg": 1.5157993063362462e-11,
+    "lagna_rate_deg_per_s": 0.004701829975468129,
+    "lat": 22.56263,
+    "ratio_highprec_to_bound": 0.21688718148526168
+   },
+   {
+    "dAsc_dARMC": 1.0291787232578808,
+    "dAsc_deps": -0.43081401788699264,
+    "diff_float64_deg": -2.4716943979728966e-12,
+    "diff_highprec_deg": -2.410757539212608e-12,
+    "float64_eval_error_deg": -8.924246078739215e-14,
+    "id": "GOLD-T04",
+    "input_quantisation_bound_deg": 1.3688852594613255e-11,
+    "lagna_rate_deg_per_s": 0.004299985505449745,
+    "lat": 13.08784,
+    "ratio_highprec_to_bound": 0.17611100145539393
+   },
+   {
+    "dAsc_dARMC": 1.1111643383946772,
+    "dAsc_deps": -0.39332505090244374,
+    "diff_float64_deg": 1.9331237999722363e-13,
+    "diff_highprec_deg": 1.8232270076199222e-13,
+    "float64_eval_error_deg": 1.7677299238007786e-14,
+    "id": "GOLD-T05",
+    "input_quantisation_bound_deg": 1.3911335835374494e-11,
+    "lagna_rate_deg_per_s": 0.00464252752344604,
+    "lat": 12.97194,
+    "ratio_highprec_to_bound": 0.013106052712664174
+   },
+   {
+    "dAsc_dARMC": 1.2081781114020618,
+    "dAsc_deps": 0.34962949576959973,
+    "diff_float64_deg": 7.261471807578346e-13,
+    "diff_highprec_deg": 7.393609579088212e-13,
+    "float64_eval_error_deg": -1.3260957908821183e-14,
+    "id": "GOLD-T06",
+    "input_quantisation_bound_deg": 1.4177926924747197e-11,
+    "lagna_rate_deg_per_s": 0.005047858306461283,
+    "lat": 17.38405,
+    "ratio_highprec_to_bound": 0.05214873527231165
+   },
+   {
+    "dAsc_dARMC": 1.1763903153054154,
+    "dAsc_deps": -0.7309952084608251,
+    "diff_float64_deg": -4.782317572971806e-12,
+    "diff_highprec_deg": -4.720009932526912e-12,
+    "float64_eval_error_deg": -7.999006747308797e-14,
+    "id": "GOLD-T07",
+    "input_quantisation_bound_deg": 1.5925816507720092e-11,
+    "lagna_rate_deg_per_s": 0.004915046522291196,
+    "lat": 26.91962,
+    "ratio_highprec_to_bound": 0.29637475292013266
+   },
+   {
+    "dAsc_dARMC": 1.1524079850064461,
+    "dAsc_deps": -0.7416602850446432,
+    "diff_float64_deg": -2.0785197080112993e-12,
+    "diff_highprec_deg": -2.0458935244279476e-12,
+    "float64_eval_error_deg": -5.410647557205244e-14,
+    "id": "GOLD-T08",
+    "input_quantisation_bound_deg": 1.5859230239144334e-11,
+    "lagna_rate_deg_per_s": 0.0048148465566855755,
+    "lat": 26.83928,
+    "ratio_highprec_to_bound": 0.12900333077819867
+   },
+   {
+    "dAsc_dARMC": 1.1029221464148462,
+    "dAsc_deps": 0.7099111109178398,
+    "diff_float64_deg": -6.541492321703118e-12,
+    "diff_highprec_deg": -6.5304231888692955e-12,
+    "float64_eval_error_deg": -9.576811130704745e-15,
+    "id": "GOLD-T09",
+    "input_quantisation_bound_deg": 1.545305517555232e-11,
+    "lagna_rate_deg_per_s": 0.004608091030303025,
+    "lat": 25.31668,
+    "ratio_highprec_to_bound": 0.422597545577966
+   },
+   {
+    "dAsc_dARMC": 1.3745644572417164,
+    "dAsc_deps": 0.1953461897243995,
+    "diff_float64_deg": -4.818788623670116e-12,
+    "diff_highprec_deg": -4.827630923424122e-12,
+    "float64_eval_error_deg": 2.7630923424121617e-14,
+    "id": "GOLD-T10",
+    "input_quantisation_bound_deg": 1.4238442123719468e-11,
+    "lagna_rate_deg_per_s": 0.005743032875510348,
+    "lat": 26.1844,
+    "ratio_highprec_to_bound": 0.33905611874362934
+   },
+   {
+    "dAsc_dARMC": 0.8808856823262599,
+    "dAsc_deps": -0.007040917867325254,
+    "diff_float64_deg": -1.651965611963533e-12,
+    "diff_highprec_deg": -1.6504002796208315e-12,
+    "float64_eval_error_deg": 4.002796208315722e-16,
+    "id": "GOLD-M01",
+    "input_quantisation_bound_deg": 1.0828521889856814e-11,
+    "lagna_rate_deg_per_s": 0.0036804061144703817,
+    "lat": 28.63576,
+    "ratio_highprec_to_bound": 0.15241233257946113
+   },
+   {
+    "dAsc_dARMC": 0.8808849766698401,
+    "dAsc_deps": -0.007046998474798881,
+    "diff_float64_deg": 4.636273848591373e-12,
+    "diff_highprec_deg": 4.611754259874888e-12,
+    "float64_eval_error_deg": 2.8245740125111743e-14,
+    "id": "GOLD-M02",
+    "input_quantisation_bound_deg": 1.0828548764612083e-11,
+    "lagna_rate_deg_per_s": 0.0036804031661852024,
+    "lat": 28.63576,
+    "ratio_highprec_to_bound": 0.42588848793350725
+   },
+   {
+    "dAsc_dARMC": 0.9085314172153954,
+    "dAsc_deps": -0.04392101152857313,
+    "diff_float64_deg": 5.602359882323071e-13,
+    "diff_highprec_deg": 5.60537721673342e-13,
+    "float64_eval_error_deg": -5.377216733419363e-16,
+    "id": "GOLD-M03",
+    "input_quantisation_bound_deg": 1.115115103260873e-11,
+    "lagna_rate_deg_per_s": 0.003795912057825375,
+    "lat": 13.08784,
+    "ratio_highprec_to_bound": 0.0502672522355935
+   },
+   {
+    "dAsc_dARMC": 0.9179807879815182,
+    "dAsc_deps": 0.00035543681637650686,
+    "diff_float64_deg": -4.002328780479729e-12,
+    "diff_highprec_deg": -3.978596938398846e-12,
+    "float64_eval_error_deg": -2.140306160115433e-14,
+    "id": "GOLD-M04",
+    "input_quantisation_bound_deg": 1.0980570012878362e-11,
+    "lagna_rate_deg_per_s": 0.003835392234019969,
+    "lat": 22.56263,
+    "ratio_highprec_to_bound": 0.3623306380026375
+   },
+   {
+    "dAsc_dARMC": 0.8914852374237424,
+    "dAsc_deps": -0.02066645733248378,
+    "diff_float64_deg": -6.19376472197473e-12,
+    "diff_highprec_deg": -6.160419466092045e-12,
+    "float64_eval_error_deg": -3.958053390795503e-14,
+    "id": "GOLD-M05",
+    "input_quantisation_bound_deg": 1.0949647362670019e-11,
+    "lagna_rate_deg_per_s": 0.003724691846630791,
+    "lat": 26.1844,
+    "ratio_highprec_to_bound": 0.5626135036178788
+   },
+   {
+    "dAsc_dARMC": 0.9391353610815706,
+    "dAsc_deps": -0.01700392657525023,
+    "diff_float64_deg": 5.708152551669627e-12,
+    "diff_highprec_deg": 5.7314548762692e-12,
+    "float64_eval_error_deg": -3.1454876269199845e-14,
+    "id": "GOLD-B01a",
+    "input_quantisation_bound_deg": 1.1169585327172991e-11,
+    "lagna_rate_deg_per_s": 0.003923777619034783,
+    "lat": 19.07283,
+    "ratio_highprec_to_bound": 0.5131304975419194
+   },
+   {
+    "dAsc_dARMC": 0.9391503958002675,
+    "dAsc_deps": -0.01699939597409379,
+    "diff_float64_deg": -3.8839498127344997e-13,
+    "diff_highprec_deg": -4.083821990543341e-13,
+    "float64_eval_error_deg": 8.382199054334087e-15,
+    "id": "GOLD-B01b",
+    "input_quantisation_bound_deg": 1.1169637847760694e-11,
+    "lagna_rate_deg_per_s": 0.003923840435211424,
+    "lat": 19.07283,
+    "ratio_highprec_to_bound": 0.03656181199609861
+   },
+   {
+    "dAsc_dARMC": 0.8928730392115175,
+    "dAsc_deps": 0.1350644484283633,
+    "diff_float64_deg": 3.2011355098802597e-12,
+    "diff_highprec_deg": 3.1882761669332442e-12,
+    "float64_eval_error_deg": 1.1723833066755961e-14,
+    "id": "GOLD-B02a",
+    "input_quantisation_bound_deg": 1.1528576327088291e-11,
+    "lagna_rate_deg_per_s": 0.0037304901860610706,
+    "lat": 17.38405,
+    "ratio_highprec_to_bound": 0.27655419684752086
+   },
+   {
+    "dAsc_dARMC": 0.8928769227435954,
+    "dAsc_deps": 0.13495035198688204,
+    "diff_float64_deg": 3.7935671271407046e-12,
+    "diff_highprec_deg": 3.7881852315518075e-12,
+    "float64_eval_error_deg": 1.1814768448192706e-14,
+    "id": "GOLD-B02b",
+    "input_quantisation_bound_deg": 1.1528025262541276e-11,
+    "lagna_rate_deg_per_s": 0.00373050641174789,
+    "lat": 17.38405,
+    "ratio_highprec_to_bound": 0.3286066039307696
+   },
+   {
+    "dAsc_dARMC": 1.3105923970963798,
+    "dAsc_deps": -0.5295940312452477,
+    "diff_float64_deg": -8.159520919434726e-13,
+    "diff_highprec_deg": -8.432226177186404e-13,
+    "float64_eval_error_deg": 4.322261771864044e-14,
+    "id": "GOLD-B03a",
+    "input_quantisation_bound_deg": 1.5589821030597024e-11,
+    "lagna_rate_deg_per_s": 0.005475752834481186,
+    "lat": 26.83928,
+    "ratio_highprec_to_bound": 0.054088024234768814
+   },
+   {
+    "dAsc_dARMC": 1.3107162248356863,
+    "dAsc_deps": -0.5292744700421983,
+    "diff_float64_deg": 1.1453395616263151e-12,
+    "diff_highprec_deg": 1.2128263620481335e-12,
+    "float64_eval_error_deg": -6.282636204813357e-14,
+    "id": "GOLD-B03b",
+    "input_quantisation_bound_deg": 1.558884236327831e-11,
+    "lagna_rate_deg_per_s": 0.005476270196016319,
+    "lat": 26.83928,
+    "ratio_highprec_to_bound": 0.07780092541734304
+   },
+   {
+    "dAsc_dARMC": 0.9258808380547675,
+    "dAsc_deps": 0.5477968252777213,
+    "diff_float64_deg": -1.053136255359277e-12,
+    "diff_highprec_deg": -1.0265285853052665e-12,
+    "float64_eval_error_deg": -2.347141469473349e-14,
+    "id": "GOLD-B04a",
+    "input_quantisation_bound_deg": 1.3757277205551333e-11,
+    "lagna_rate_deg_per_s": 0.0038683992327458723,
+    "lat": 25.31668,
+    "ratio_highprec_to_bound": 0.07461713317014808
+   },
+   {
+    "dAsc_dARMC": 0.9240623707737774,
+    "dAsc_deps": 0.5434363751859107,
+    "diff_float64_deg": 2.7166778716491534e-13,
+    "diff_highprec_deg": 2.7538767433746e-13,
+    "float64_eval_error_deg": -5.387674337460029e-15,
+    "id": "GOLD-B04b",
+    "input_quantisation_bound_deg": 1.3726382618687328e-11,
+    "lagna_rate_deg_per_s": 0.0038608015407476937,
+    "lat": 25.31668,
+    "ratio_highprec_to_bound": 0.02006265466930396
+   },
+   {
+    "dAsc_dARMC": 0.9793901943437223,
+    "dAsc_deps": 0.051189297188415354,
+    "diff_float64_deg": -1.4508182869758457e-12,
+    "diff_highprec_deg": -1.4479189159724712e-12,
+    "float64_eval_error_deg": -2.081084027528721e-15,
+    "id": "GOLD-B05a",
+    "input_quantisation_bound_deg": 1.1541786346549576e-11,
+    "lagna_rate_deg_per_s": 0.004091965316312097,
+    "lat": 12.97194,
+    "ratio_highprec_to_bound": 0.12545015758373723
+   },
+   {
+    "dAsc_dARMC": 0.9787874778679395,
+    "dAsc_deps": 0.052157115344961286,
+    "diff_float64_deg": -8.664323022821918e-13,
+    "diff_highprec_deg": -8.649384044234526e-13,
+    "float64_eval_error_deg": -5.0615955765474075e-15,
+    "id": "GOLD-B05b",
+    "input_quantisation_bound_deg": 1.1543611854953392e-11,
+    "lagna_rate_deg_per_s": 0.004089447121900189,
+    "lat": 12.97194,
+    "ratio_highprec_to_bound": 0.07492788351613758
+   },
+   {
+    "dAsc_dARMC": 0.855582894263346,
+    "dAsc_deps": 0.35067213865616864,
+    "diff_float64_deg": -1.7938488209620118e-12,
+    "diff_highprec_deg": -1.8100137575331015e-12,
+    "float64_eval_error_deg": 1.0013757533101536e-14,
+    "id": "GOLD-B06a",
+    "input_quantisation_bound_deg": 1.2420164053486463e-11,
+    "lagna_rate_deg_per_s": 0.0035746891777914116,
+    "lat": 28.63576,
+    "ratio_highprec_to_bound": 0.14573187195744108
+   },
+   {
+    "dAsc_dARMC": 0.8555677211386097,
+    "dAsc_deps": 0.35052210742920575,
+    "diff_float64_deg": 2.4369288107845933e-12,
+    "diff_highprec_deg": 2.4419549412548258e-12,
+    "float64_eval_error_deg": -1.9549412548258013e-15,
+    "id": "GOLD-B06b",
+    "input_quantisation_bound_deg": 1.2419338031727966e-11,
+    "lagna_rate_deg_per_s": 0.0035746257833440104,
+    "lat": 28.63576,
+    "ratio_highprec_to_bound": 0.19662520941263598
+   },
+   {
+    "dAsc_dARMC": 0.9418452982013095,
+    "dAsc_deps": 0.05271935506158326,
+    "diff_float64_deg": 1.1228455282980576e-12,
+    "diff_highprec_deg": 1.1273061307643549e-12,
+    "float64_eval_error_deg": -7.306130764354768e-15,
+    "id": "GOLD-B07a",
+    "input_quantisation_bound_deg": 1.1361712155203352e-11,
+    "lagna_rate_deg_per_s": 0.003935099938542779,
+    "lat": 13.08784,
+    "ratio_highprec_to_bound": 0.0992197404198521
+   },
+   {
+    "dAsc_dARMC": 0.9418309368527662,
+    "dAsc_deps": 0.05270287566223417,
+    "diff_float64_deg": -1.6504918708233163e-12,
+    "diff_highprec_deg": -1.6152155514117137e-12,
+    "float64_eval_error_deg": -3.4784448588286304e-14,
+    "id": "GOLD-B07b",
+    "input_quantisation_bound_deg": 1.136155795146389e-11,
+    "lagna_rate_deg_per_s": 0.003935039935756888,
+    "lat": 13.08784,
+    "ratio_highprec_to_bound": 0.1421649705358938
+   },
+   {
+    "dAsc_dARMC": 0.9201919190027209,
+    "dAsc_deps": -0.0013472165966912793,
+    "diff_float64_deg": -5.0832190952496606e-12,
+    "diff_highprec_deg": -5.101552796292319e-12,
+    "float64_eval_error_deg": 2.1552796292319305e-14,
+    "id": "GOLD-B08a",
+    "input_quantisation_bound_deg": 1.099658456688595e-11,
+    "lagna_rate_deg_per_s": 0.0038446305044262255,
+    "lat": 22.56263,
+    "ratio_highprec_to_bound": 0.4639215717628036
+   },
+   {
+    "dAsc_dARMC": 0.9223729854217775,
+    "dAsc_deps": -0.0014311186820756912,
+    "diff_float64_deg": -3.802299376111478e-12,
+    "diff_highprec_deg": -3.828942789188079e-12,
+    "float64_eval_error_deg": 2.8942789188078876e-14,
+    "id": "GOLD-B08b",
+    "input_quantisation_bound_deg": 1.1007909409408153e-11,
+    "lagna_rate_deg_per_s": 0.0038537431626812254,
+    "lat": 22.56263,
+    "ratio_highprec_to_bound": 0.3478356013645596
+   },
+   {
+    "dAsc_dARMC": 1.0379266713068194,
+    "dAsc_deps": -0.7356871239460954,
+    "diff_float64_deg": 4.353085409384221e-12,
+    "diff_highprec_deg": 4.34816353214688e-12,
+    "float64_eval_error_deg": 1.836467853120631e-15,
+    "id": "GOLD-B09a",
+    "input_quantisation_bound_deg": 1.5256957865153462e-11,
+    "lagna_rate_deg_per_s": 0.00433653508519017,
+    "lat": 26.91962,
+    "ratio_highprec_to_bound": 0.28499544736096993
+   },
+   {
+    "dAsc_dARMC": 1.0556266822619809,
+    "dAsc_deps": -0.744944618027165,
+    "diff_float64_deg": -3.980103901121766e-12,
+    "diff_highprec_deg": -3.960123834143458e-12,
+    "float64_eval_error_deg": -3.987616585654204e-14,
+    "id": "GOLD-B09b",
+    "input_quantisation_bound_deg": 1.5391745390334618e-11,
+    "lagna_rate_deg_per_s": 0.004410487051776274,
+    "lat": 26.91962,
+    "ratio_highprec_to_bound": 0.2572888086253202
+   },
+   {
+    "dAsc_dARMC": 0.8612899604398148,
+    "dAsc_deps": -0.2474814178274412,
+    "diff_float64_deg": 2.1814361738506704e-12,
+    "diff_highprec_deg": 2.1851707831833343e-12,
+    "float64_eval_error_deg": -5.17078318333414e-15,
+    "id": "GOLD-B10a",
+    "input_quantisation_bound_deg": 1.1932745780225168e-11,
+    "lagna_rate_deg_per_s": 0.003598533726151074,
+    "lat": 26.1844,
+    "ratio_highprec_to_bound": 0.1831238864406697
+   },
+   {
+    "dAsc_dARMC": 0.8619859458959513,
+    "dAsc_deps": -0.26733009734181234,
+    "diff_float64_deg": -1.97920436039567e-12,
+    "diff_highprec_deg": -1.951918616827801e-12,
+    "float64_eval_error_deg": -2.8081383172199187e-14,
+    "id": "GOLD-B10b",
+    "input_quantisation_bound_deg": 1.2035469105077706e-11,
+    "lagna_rate_deg_per_s": 0.003601441605322845,
+    "lat": 26.1844,
+    "ratio_highprec_to_bound": 0.16218051824870672
+   },
+   {
+    "dAsc_dARMC": 1.4053909624379095,
+    "dAsc_deps": -0.29912378147406765,
+    "diff_float64_deg": 3.2648617087397723e-12,
+    "diff_highprec_deg": 3.281667883625813e-12,
+    "float64_eval_error_deg": -2.1667883625812857e-14,
+    "id": "GOLD-E01",
+    "input_quantisation_bound_deg": 1.4911462608448775e-11,
+    "lagna_rate_deg_per_s": 0.005871828314564607,
+    "lat": 28.63576,
+    "ratio_highprec_to_bound": 0.22007686098923876
+   },
+   {
+    "dAsc_dARMC": 0.8850308770606109,
+    "dAsc_deps": -0.016197965844318547,
+    "diff_float64_deg": 4.209194359136746e-12,
+    "diff_highprec_deg": 4.238280030070669e-12,
+    "float64_eval_error_deg": -3.828003007066948e-14,
+    "id": "GOLD-Z01",
+    "input_quantisation_bound_deg": 1.0895033103413537e-11,
+    "lagna_rate_deg_per_s": 0.003697725047394445,
+    "lat": 27.7,
+    "ratio_highprec_to_bound": 0.3890102939423625
+   },
+   {
+    "dAsc_dARMC": 0.8849215640636178,
+    "dAsc_deps": -0.0165819819482739,
+    "diff_float64_deg": 5.373888607136905e-12,
+    "diff_highprec_deg": 5.367928282476778e-12,
+    "float64_eval_error_deg": 2.0717175232226882e-15,
+    "id": "GOLD-Z02",
+    "input_quantisation_bound_deg": 1.0896406618948345e-11,
+    "lagna_rate_deg_per_s": 0.0036972683295358206,
+    "lat": 27.7,
+    "ratio_highprec_to_bound": 0.4926328899237479
+   },
+   {
+    "dAsc_dARMC": 0.9023477812591899,
+    "dAsc_deps": -0.016210884584285077,
+    "diff_float64_deg": -2.468545645242557e-12,
+    "diff_highprec_deg": -2.4383717081687188e-12,
+    "float64_eval_error_deg": -3.162829183128133e-14,
+    "id": "GOLD-Z03",
+    "input_quantisation_bound_deg": 1.0981682218106262e-11,
+    "lagna_rate_deg_per_s": 0.003770076365363242,
+    "lat": 23.8,
+    "ratio_highprec_to_bound": 0.22203990788846595
+   },
+   {
+    "dAsc_dARMC": 0.7834207408270383,
+    "dAsc_deps": 0.21358353102285557,
+    "diff_float64_deg": -5.66342833568342e-12,
+    "diff_highprec_deg": -5.688869524388574e-12,
+    "float64_eval_error_deg": 2.886952438857435e-14,
+    "id": "GOLD-Z04",
+    "input_quantisation_bound_deg": 1.1373910248138358e-11,
+    "lagna_rate_deg_per_s": 0.003273190315829015,
+    "lat": 40.7,
+    "ratio_highprec_to_bound": 0.5001683150541573
+   },
+   {
+    "dAsc_dARMC": 0.7885606738977307,
+    "dAsc_deps": 0.1214477850618306,
+    "diff_float64_deg": 1.5717613225569949e-12,
+    "diff_highprec_deg": 1.5374333991974062e-12,
+    "float64_eval_error_deg": 3.256660080259373e-14,
+    "id": "GOLD-Z05",
+    "input_quantisation_bound_deg": 1.0938931183686695e-11,
+    "lagna_rate_deg_per_s": 0.00329466533975197,
+    "lat": 40.7,
+    "ratio_highprec_to_bound": 0.14054694863518216
+   },
+   {
+    "dAsc_dARMC": 0.6981214721437856,
+    "dAsc_deps": 0.3796924782546774,
+    "diff_float64_deg": 3.6278609264991247e-12,
+    "diff_highprec_deg": 3.6151117829254704e-12,
+    "float64_eval_error_deg": 1.488821707452969e-14,
+    "id": "GOLD-Z06",
+    "input_quantisation_bound_deg": 1.1777958640881203e-11,
+    "lagna_rate_deg_per_s": 0.002916803606043192,
+    "lat": 51.50853,
+    "ratio_highprec_to_bound": 0.3069387398235078
+   },
+   {
+    "dAsc_dARMC": 0.7002250801367306,
+    "dAsc_deps": 0.24356919112519734,
+    "diff_float64_deg": 1.2159789830911904e-12,
+    "diff_highprec_deg": 1.189099412798262e-12,
+    "float64_eval_error_deg": 3.090058720173806e-14,
+    "id": "GOLD-Z07",
+    "input_quantisation_bound_deg": 1.1107860245198528e-11,
+    "lagna_rate_deg_per_s": 0.0029255926372137725,
+    "lat": 51.50853,
+    "ratio_highprec_to_bound": 0.10705026769780082
+   },
+   {
+    "dAsc_dARMC": 0.8237042386412039,
+    "dAsc_deps": 0.2320427434198682,
+    "diff_float64_deg": 3.5610907420050354e-12,
+    "diff_highprec_deg": 3.545166303426744e-12,
+    "float64_eval_error_deg": 1.483369657325602e-14,
+    "id": "GOLD-Z08",
+    "input_quantisation_bound_deg": 1.1667623799194249e-11,
+    "lagna_rate_deg_per_s": 0.003441497775743657,
+    "lat": -33.87,
+    "ratio_highprec_to_bound": 0.303846469893173
+   },
+   {
+    "dAsc_dARMC": 0.8297249106785196,
+    "dAsc_deps": 0.1384832412102902,
+    "diff_float64_deg": 8.903727366123349e-13,
+    "diff_highprec_deg": 8.569860852492975e-13,
+    "float64_eval_error_deg": 4.301391475070252e-14,
+    "id": "GOLD-Z09",
+    "input_quantisation_bound_deg": 1.1229929648332936e-11,
+    "lagna_rate_deg_per_s": 0.0034666525927919273,
+    "lat": -33.87,
+    "ratio_highprec_to_bound": 0.07631268512679558
+   },
+   {
+    "dAsc_dARMC": 1.125358065741154,
+    "dAsc_deps": -0.6284627691535609,
+    "diff_float64_deg": 3.302030131453648e-12,
+    "diff_highprec_deg": 3.287574392485832e-12,
+    "float64_eval_error_deg": 1.2425607514167987e-14,
+    "id": "GOLD-Z10",
+    "input_quantisation_bound_deg": 1.5157993063362462e-11,
+    "lagna_rate_deg_per_s": 0.004701829975468129,
+    "lat": 22.56263,
+    "ratio_highprec_to_bound": 0.21688718148526168
+   },
+   {
+    "dAsc_dARMC": 1.6992834603843383,
+    "dAsc_deps": -2.8129287158641545,
+    "diff_float64_deg": 1.5896746516227721e-12,
+    "diff_highprec_deg": 1.5782066887357377e-12,
+    "float64_eval_error_deg": 1.1793311264262255e-14,
+    "id": "GOLD-L01",
+    "input_quantisation_bound_deg": 2.8949949770131352e-11,
+    "lagna_rate_deg_per_s": 0.007099733101917474,
+    "lat": -54.8,
+    "ratio_highprec_to_bound": 0.0545150061145884
+   },
+   {
+    "dAsc_dARMC": 3.9921968230250973,
+    "dAsc_deps": -3.212559468786743,
+    "diff_float64_deg": -1.912570893182419e-11,
+    "diff_highprec_deg": -1.9144679858125182e-11,
+    "float64_eval_error_deg": 4.4679858125181534e-14,
+    "id": "GOLD-L02",
+    "input_quantisation_bound_deg": 4.2412670347948085e-11,
+    "lagna_rate_deg_per_s": 0.016679696233487973,
+    "lat": 60.17,
+    "ratio_highprec_to_bound": 0.451390579774032
+   },
+   {
+    "dAsc_dARMC": 2.1929735264326227,
+    "dAsc_deps": -20.670364890312516,
+    "diff_float64_deg": -4.3308096847031264e-11,
+    "diff_highprec_deg": -4.33248787991422e-11,
+    "float64_eval_error_deg": 2.4878799142197847e-14,
+    "id": "GOLD-L03",
+    "input_quantisation_bound_deg": 1.2070558097261457e-10,
+    "lagna_rate_deg_per_s": 0.009162407038152964,
+    "lat": 66.0,
+    "ratio_highprec_to_bound": 0.3589302039726867
+   },
+   {
+    "dAsc_dARMC": 0.5519101838489519,
+    "dAsc_deps": 0.06320464553859968,
+    "diff_float64_deg": 1.2049094785470515e-12,
+    "diff_highprec_deg": 1.1726569295949936e-12,
+    "float64_eval_error_deg": 2.7343070405006436e-14,
+    "id": "GOLD-L04",
+    "input_quantisation_bound_deg": 9.464463035826646e-12,
+    "lagna_rate_deg_per_s": 0.0023059219329254863,
+    "lat": -66.0,
+    "ratio_highprec_to_bound": 0.12390105230017111
+   }
+  ]
+ },
+ "B3": {
+  "abs_diff": {
+   "max": 4.999991910735844e-09,
+   "mean": 2.48259936570796e-09,
+   "median": 2.4200165644451045e-09,
+   "min": 2.9974021047819404e-11,
+   "n": 500,
+   "p25": 1.1899952298094286e-09,
+   "p75": 3.779999637511792e-09,
+   "p95": 4.699989497591741e-09,
+   "p99": 4.960001447770046e-09,
+   "stdev": 1.425749906415272e-09
+  },
+  "coverage_gold_matrix": {
+   "abs_lat_gt_60": 3,
+   "lat_max": 66.0,
+   "lat_min": -66.0,
+   "n": 50,
+   "southern": 4,
+   "year_max": 2100,
+   "year_min": 1970,
+   "zones": 10
+  },
+  "coverage_sc_cases": {
+   "abs_lat_gt_60": 1,
+   "lat_max": 66.0,
+   "lat_min": -34.6037,
+   "n": 18,
+   "southern": 4,
+   "year_max": 2100,
+   "year_min": 1900,
+   "zones": 6
+  },
+  "five_nearest_to_an_edge": [
+   {
+    "body": "moon",
+    "edge_distance_deg": 7.1e-10,
+    "id": "GOLD-E01"
+   },
+   {
+    "body": "moon",
+    "edge_distance_deg": 0.0002403203,
+    "id": "GOLD-B01b"
+   },
+   {
+    "body": "moon",
+    "edge_distance_deg": 0.0002682999666666667,
+    "id": "GOLD-B03b"
+   },
+   {
+    "body": "moon",
+    "edge_distance_deg": 0.00028767443666666666,
+    "id": "GOLD-B02b"
+   },
+   {
+    "body": "moon",
+    "edge_distance_deg": 0.00033071468,
+    "id": "GOLD-B01a"
+   }
+  ],
+  "max_abs_diff_by_body": {
+   "jupiter": 4.9600035694029065e-09,
+   "ketu_mean": 4.989994422541931e-09,
+   "lagna": 4.959992354059941e-09,
+   "mars": 4.960001447770046e-09,
+   "mercury": 4.999991910735844e-09,
+   "moon": 4.700003213244781e-09,
+   "rahu_mean": 4.989994422541931e-09,
+   "saturn": 4.919997008198989e-09,
+   "sun": 4.649993209676177e-09,
+   "venus": 4.989998633902578e-09
+  },
+  "max_ratio_to_tolerance": 0.49999919107358437,
+  "n_reference_longitudes": 500,
+  "n_rows": 500,
+  "reference_longitudes_within_threshold_of_a_pada_edge": {
+   "0.0001": [
+    "GOLD-E01:moon"
+   ],
+   "0.001": [
+    "GOLD-B01a:moon",
+    "GOLD-B01b:moon",
+    "GOLD-B02a:moon",
+    "GOLD-B02b:moon",
+    "GOLD-B03a:moon",
+    "GOLD-B03b:moon",
+    "GOLD-B04a:sun",
+    "GOLD-B04b:sun",
+    "GOLD-B05a:sun",
+    "GOLD-B05b:sun",
+    "GOLD-B08a:ketu_mean",
+    "GOLD-B08a:rahu_mean",
+    "GOLD-B08b:ketu_mean",
+    "GOLD-B08b:rahu_mean",
+    "GOLD-B10a:mars",
+    "GOLD-B10b:mars",
+    "GOLD-E01:moon"
+   ],
+   "1e-05": [
+    "GOLD-E01:moon"
+   ],
+   "1e-06": [
+    "GOLD-E01:moon"
+   ],
+   "1e-07": [
+    "GOLD-E01:moon"
+   ],
+   "1e-08": [
+    "GOLD-E01:moon"
+   ],
+   "1e-09": [
+    "GOLD-E01:moon"
+   ],
+   "1e-10": [],
+   "1e-11": [],
+   "1e-12": []
+  },
+  "rows_where_engine_value_is_not_round8_of_swetest": [],
+  "theoretical_max_from_rounding_deg": 5.005e-09
+ },
+ "B6": {
+  "per_chart": [
+   {
+    "classification": "PASS",
+    "group": "typical",
+    "id": "GOLD-T01",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 29.32840660214424,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1725.4892326891422,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 43166.225107759514,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4762.849301844835,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4762.849301844835,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 76977.52427235246,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "typical",
+    "id": "GOLD-T02",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 140.21720364690736,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 502.9580645263195,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 13696.155946701765,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10272.45715633062,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10272.45715633062,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 81769.90286484388,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "typical",
+    "id": "GOLD-T03",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 142.08679720759392,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2867.705326527357,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 15847.450333088636,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 6091.334592550993,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 6091.334592550993,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 27931.75159469274,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "typical",
+    "id": "GOLD-T04",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 173.57099577785448,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2195.5421648919673,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1021.6547481718408,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1021.6547481718408,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1021.6547481718408,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 86129.0380619469,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "typical",
+    "id": "GOLD-T05",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 104.07875552774385,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 610.6009729206653,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 45690.57492390303,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1028.7981010976182,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1028.7981010976182,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 47383.40352103114,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "typical",
+    "id": "GOLD-T06",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 303.3072464168072,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 303.3072464168072,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 28878.539659827948,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4604.376695305382,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4604.376695305382,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 44110.07587239146,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "typical",
+    "id": "GOLD-T07",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 159.68879386782646,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2460.213430970907,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 38869.837266952076,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1524.3666864934312,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1524.3666864934312,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1524.3666864934312,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "typical",
+    "id": "GOLD-T08",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 141.47617891431764,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3046.9964884221554,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9514.208402484655,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9514.208402484655,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9514.208402484655,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 75821.08745500445,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "typical",
+    "id": "GOLD-T09",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 318.38384941220284,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 404.0658228099437,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 42428.18590030102,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 258.2700334492074,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 258.2700334492074,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 84582.87428990006,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "typical",
+    "id": "GOLD-T10",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 183.91360715031624,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2491.6118524968715,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9187.217216939007,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9187.217216939007,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9187.217216939007,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 9187.217216939007,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "midnight",
+    "id": "GOLD-M01",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 134.65782925487474,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2851.1015944182964,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3490.798185020685,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3490.798185020685,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3490.798185020685,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 23437.598823756252,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "midnight",
+    "id": "GOLD-M02",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 135.65782383085207,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2852.1015889942737,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3491.7981795966625,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3491.7981795966625,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3491.7981795966625,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 23438.59881833223,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "midnight",
+    "id": "GOLD-M03",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 351.06659308076814,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2271.385567635298,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 37341.34243950248,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10801.06668099761,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10801.06668099761,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10801.06668099761,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "midnight",
+    "id": "GOLD-M04",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 309.04682502150536,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2307.5847275555225,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 30590.21772220758,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7355.585912615334,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7355.585912615334,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 101197.69042655826,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "midnight",
+    "id": "GOLD-M05",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 298.7162835896106,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2095.9719948470592,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7764.590413123642,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7764.590413123642,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7764.590413123642,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 27726.87087133554,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "boundary",
+    "id": "GOLD-B01a",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 424.16344061494783,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2959.0116508305164,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.3166038098679564,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.3166038098679564,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.3166038098679564,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.3166038098679564,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "boundary",
+    "id": "GOLD-B01b",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 420.16346231103853,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2955.011672526607,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.6833744943141937,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.6833744943141937,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.6833744943141937,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.6833744943141937,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "boundary",
+    "id": "GOLD-B02a",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 216.22169986367226,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 216.22169986367226,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.2477246820926666,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.2477246820926666,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.2477246820926666,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 80752.95835062889,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "boundary",
+    "id": "GOLD-B02b",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 220.22167816758156,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 220.22167816758156,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.7522536220894835,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.7522536220894835,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.7522536220894835,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 80756.9583289328,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "boundary",
+    "id": "GOLD-B03a",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 87.62766793370247,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1326.7633326351643,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 21272.16804251102,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.2795893251895905,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.2795893251895905,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 21272.16804251102,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "boundary",
+    "id": "GOLD-B03b",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 91.62764623761177,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1330.7633109390736,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 21276.16802081493,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.7203889789925597,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.7203889789925597,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 21276.16802081493,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "boundary",
+    "id": "GOLD-B04a",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 60.75334176422075,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 915.2383469045253,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 23669.474049657856,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2298.897186666727,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2298.897186666727,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 86763.63960877061,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "boundary",
+    "id": "GOLD-B04b",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 180.75333461166338,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1035.238339751968,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 23549.474056810413,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2178.8971938192844,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2178.8971938192844,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 86643.63961592317,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "boundary",
+    "id": "GOLD-B05a",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 13.162571936854874,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1649.9129377305508,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 18599.0238212049,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4739.8446790874,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4739.8446790874,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 97309.65522900251,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "boundary",
+    "id": "GOLD-B05b",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 106.83742091059685,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1529.9129448831081,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 18479.023828357458,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4859.844671934843,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4859.844671934843,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 97429.65522184996,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "boundary",
+    "id": "GOLD-B06a",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.8915407359600067,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.8915407359600067,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 16657.75911435485,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7495.759322494268,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7495.759322494268,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7495.759322494268,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "boundary",
+    "id": "GOLD-B06b",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.10843756795839,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2.10843756795839,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 16653.75913605094,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7499.759300798178,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7499.759300798178,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7499.759300798178,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "boundary",
+    "id": "GOLD-B07a",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1.0507889091968536,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3432.149177044639,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 15684.371233731508,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7883.500088006258,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7883.500088006258,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 54718.84733811021,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "boundary",
+    "id": "GOLD-B07b",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 0.9492002427668922,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3430.1491878926845,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 15682.371244579554,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7885.500077158213,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7885.500077158213,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 54720.84732726216,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "boundary",
+    "id": "GOLD-B08a",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 246.9351924955845,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1484.892026335001,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 43050.52744522691,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 460.02942994236946,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 460.02942994236946,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 43603.06973084835,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "boundary",
+    "id": "GOLD-B08b",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 284.8920173943043,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 284.8920173943043,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 41850.52743628621,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1660.0294388830662,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1660.0294388830662,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 44803.06973978905,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "boundary",
+    "id": "GOLD-B09a",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 339.2377696931362,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 428.42992320657686,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 18229.085614532232,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2863.800499588524,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2863.800499588524,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 60908.79787132144,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "boundary",
+    "id": "GOLD-B09b",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 171.5700812637806,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 171.5700812637806,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 17629.085610061884,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3463.8005040588723,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3463.8005040588723,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 60308.79786685109,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "boundary",
+    "id": "GOLD-B10a",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 212.92523816228822,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1640.0008611381054,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3193.252906948601,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3193.252906948601,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3193.252906948601,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3193.252906948601,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "boundary",
+    "id": "GOLD-B10b",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 387.07476630806923,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2240.0008656084538,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2593.2529024782525,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2593.2529024782525,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2593.2529024782525,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2593.2529024782525,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "BOUNDARY-INDETERMINATE",
+    "group": "boundary-exact",
+    "id": "GOLD-E01",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 172.02910110355333,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1298.1483198702335,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "edge_distance_deg": 7.082778807898649e-10,
+     "jd_ulp_s": 4.023313522338867e-05,
+     "linear_estimate_s": 4.534026107144771e-06,
+     "local_rate_deg_per_s": 0.00015621389556486065,
+     "note": "crossing closer than the float64 JD resolution; the input instant itself is only representable to +/- half a JD ULP, so the time to the edge is unresolved at this precision",
+     "seconds": null,
+     "status": "RESOLUTION_LIMITED"
+    },
+    "moon_navamsa": {
+     "edge_distance_deg": 7.082778807898649e-10,
+     "jd_ulp_s": 4.023313522338867e-05,
+     "linear_estimate_s": 4.534026107144771e-06,
+     "local_rate_deg_per_s": 0.00015621389556486065,
+     "note": "crossing closer than the float64 JD resolution; the input instant itself is only representable to +/- half a JD ULP, so the time to the edge is unresolved at this precision",
+     "seconds": null,
+     "status": "RESOLUTION_LIMITED"
+    },
+    "moon_pada": {
+     "edge_distance_deg": 7.082778807898649e-10,
+     "jd_ulp_s": 4.023313522338867e-05,
+     "linear_estimate_s": 4.534026107144771e-06,
+     "local_rate_deg_per_s": 0.00015621389556486065,
+     "note": "crossing closer than the float64 JD resolution; the input instant itself is only representable to +/- half a JD ULP, so the time to the edge is unresolved at this precision",
+     "seconds": null,
+     "status": "RESOLUTION_LIMITED"
+    },
+    "moon_rashi": {
+     "edge_distance_deg": 7.082832098603831e-10,
+     "jd_ulp_s": 4.023313522338867e-05,
+     "linear_estimate_s": 4.5340602210787384e-06,
+     "local_rate_deg_per_s": 0.00015621389556486065,
+     "note": "crossing closer than the float64 JD resolution; the input instant itself is only representable to +/- half a JD ULP, so the time to the edge is unresolved at this precision",
+     "seconds": null,
+     "status": "RESOLUTION_LIMITED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "timezone",
+    "id": "GOLD-Z01",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 247.33993783594087,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3373.4355948865414,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 32439.926780015503,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10571.370924264465,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10571.370924264465,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 55551.221901923695,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "timezone",
+    "id": "GOLD-Z02",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 307.3399342596622,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3313.43559846282,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 32379.92678359178,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10511.370927840744,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10511.370927840744,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 55611.221898347416,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "timezone",
+    "id": "GOLD-Z03",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 243.67522224783897,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 243.67522224783897,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 42300.07092431215,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 5684.410869330168,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 5684.410869330168,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 53985.87086722255,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "timezone",
+    "id": "GOLD-Z04",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 22.00967743993715,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1041.1432765424252,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 19206.92243501544,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1221.7454351487504,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1221.7454351487504,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 39547.40635380149,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "timezone",
+    "id": "GOLD-Z05",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 437.00283989310265,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4468.376789242038,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 22806.92246183753,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2378.2545916736126,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2378.2545916736126,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 43147.40638062358,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "timezone",
+    "id": "GOLD-Z06",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 418.5005061328411,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 418.5005061328411,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 34060.716419667006,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7304.196571558714,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7304.196571558714,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 48139.288658649006,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "timezone",
+    "id": "GOLD-Z07",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 546.6311730444431,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 4018.500492721796,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 37660.71640625596,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3704.196584969759,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3704.196584969759,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 44539.28867206005,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "timezone",
+    "id": "GOLD-Z08",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 358.11302438379244,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2542.550341039905,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2140.672778338194,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2140.672778338194,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2140.672778338194,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 73687.8054432571,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "timezone",
+    "id": "GOLD-Z09",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 94.47088167072252,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1057.449645549059,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1459.3272082510339,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1459.3272082510339,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1459.3272082510339,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 70087.80545666814,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "PASS",
+    "group": "timezone",
+    "id": "GOLD-Z10",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 142.08679720759392,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 2867.705326527357,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 15847.450333088636,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 6091.334592550993,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 6091.334592550993,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 27931.75159469274,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "timezone",
+    "id": "GOLD-L01",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 93.34568157792091,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1653.0976720154285,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 20658.70381817249,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1542.750936001812,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 1542.750936001812,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 46475.748496502914,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "timezone",
+    "id": "GOLD-L02",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 15.166343003520524,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 848.7341813743114,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 31961.73082217574,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10637.434456497704,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10637.434456497704,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 10637.434456497704,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "timezone",
+    "id": "GOLD-L03",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 116.2150003016086,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 900.7536537945361,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 16742.301162332296,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7411.8877194821835,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 7411.8877194821835,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 80072.35789820552,
+     "status": "RESOLVED"
+    }
+   },
+   {
+    "classification": "QUALIFIED",
+    "group": "timezone",
+    "id": "GOLD-L04",
+    "lagna_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 639.3438063561916,
+     "status": "RESOLVED"
+    },
+    "lagna_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 639.3438063561916,
+     "status": "RESOLVED"
+    },
+    "moon_nakshatra": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3745.3259132802486,
+     "status": "RESOLVED"
+    },
+    "moon_navamsa": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3745.3259132802486,
+     "status": "RESOLVED"
+    },
+    "moon_pada": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 3745.3259132802486,
+     "status": "RESOLVED"
+    },
+    "moon_rashi": {
+     "jd_ulp_s": 4.023313522338867e-05,
+     "seconds": 71337.76009306312,
+     "status": "RESOLVED"
+    }
+   }
+  ],
+  "random_sample": {
+   "coordinates": 19,
+   "fraction_changing_within": {
+    "lagna_nakshatra": {
+     "within_15_min": 0.5359,
+     "within_1_min": 0.0389,
+     "within_2_min": 0.0755,
+     "within_5_min": 0.1861
+    },
+    "lagna_navamsa": {
+     "within_15_min": 1.0,
+     "within_1_min": 0.1474,
+     "within_2_min": 0.2937,
+     "within_5_min": 0.69865
+    },
+    "lagna_pada": {
+     "within_15_min": 1.0,
+     "within_1_min": 0.1474,
+     "within_2_min": 0.2937,
+     "within_5_min": 0.69865
+    },
+    "lagna_rashi": {
+     "within_15_min": 0.24505,
+     "within_1_min": 0.01705,
+     "within_2_min": 0.03515,
+     "within_5_min": 0.0839
+    },
+    "moon_nakshatra": {
+     "within_15_min": 0.0214,
+     "within_1_min": 0.0019,
+     "within_2_min": 0.00315,
+     "within_5_min": 0.00755
+    },
+    "moon_navamsa": {
+     "within_15_min": 0.08145,
+     "within_1_min": 0.00585,
+     "within_2_min": 0.0113,
+     "within_5_min": 0.02795
+    },
+    "moon_pada": {
+     "within_15_min": 0.08145,
+     "within_1_min": 0.00585,
+     "within_2_min": 0.0113,
+     "within_5_min": 0.02795
+    },
+    "moon_rashi": {
+     "within_15_min": 0.0089,
+     "within_1_min": 0.0006,
+     "within_2_min": 0.0013,
+     "within_5_min": 0.0033
+    }
+   },
+   "interpretation": "illustrative synthetic sample at the matrix coordinates; not a population prevalence and not a rate of inaccurate birth records",
+   "n": 20000,
+   "period": "1970-01-01..2100-12-31 UTC",
+   "seed": 20261103
+  }
+ },
+ "inputs": {
+  "gold_report_sha256": "edb8aab5459a326b57b4abcffc7e8f44a79be2a966baf549e97162d8d4e24bef",
+  "matrix_sha256": "bc27314f4d243cb673debccf970dd20f8916fdb8d7661262495398556bd0e9c1",
+  "mpmath": "1.3.0",
+  "pr62_head": "6722b5c46c3fb510495d8587b7b613f32691d97a",
+  "pr62_tree": "84816a56f388ac5e07bae3f63e24740b191da96c",
+  "pyswisseph": "2.10.3.2",
+  "python": "3.13.18",
+  "receipts_sha256sums_sha256": "71a6a9695f12ade3fadf18c26a7098aba8b16fb1f5febcdd21381ccc63be8eee",
+  "swiss_library": "2.10.03",
+  "swiss_spec_sha256": "642a770d713c11bc42fc92fe441da02e4848522fc4978ae3049dddbea33d12a8"
+ },
+ "schema": "kun-sci-pol-001-analysis/1"
+}
