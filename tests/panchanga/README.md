@@ -17,7 +17,7 @@ SHA-256 check (`common.py`); nothing here may edit them.
 | PAN-QA-03 | TS-1 search: 6 h steps, at most 2.5 days each way, at most 64 iterations, bracket at most 0.5 s, first whole second in the new sector, typed refusal otherwise | Accuracy of the instants |
 | PAN-QA-04 | All 50 rechecked USNO/NASA phase events fall inside [earliest minute - 60 s, latest minute + 60 s] | Seconds-level astronomical accuracy; Yoga or Nakshatra end times |
 | PAN-QA-07 | Engine equals the official swetest 2.10.03 within the D15-b thresholds, and every transition equals an independent swetest bisection within 1 s | Independent astronomy (Swiss-on-Swiss) |
-| PAN-QA-08 | Chart engine, renderer and harness files byte-identical to PR #62; charts byte-identical with and without Panchanga; Nakshatra identity | — |
+| PAN-QA-08 | v1: the preserved PR #62 baseline equals the 6722b5c git objects. v2 (KUN-I18N-INT-001): the other 210 v1 files byte-identical, the 12 declared bilingual changes and 55 declared additions exactly as in PR #61 fee3967, nothing undeclared; charts byte-identical with and without Panchanga; Nakshatra identity | Hindi editorial approval |
 | PAN-QA-09 | Same refusals, codes, text and order as the chart; typed Panchanga refusals; no birth data in errors, logs or CLI output | — |
 | PAN-QA-10 | Identical output across runs, processes, locales, host time zones, threads and foreign Swiss state | — |
 
@@ -58,6 +58,8 @@ each must be caught.
 | `phase_events.py` | PAN-QA-04 evaluator |
 | `swiss_conformance.py` | PAN-QA-07 evaluator: receipt-verified swetest, independent bisection (1 h steps, 1 ms) |
 | `baseline-hashes.json` | SHA-256 of 222 chart, renderer, prototype, preview and existing test files at PR #62 |
+| `identity-manifest-v2.json` | PAN-QA-08 v2: the 12 intentionally changed v1 paths (v1 and v2 SHA-256, v2 git blob) and the 55 added paths of the bilingual integration, bound to the v1 file by its SHA-256 |
+| `identity_v2.py` | v2 loader, validator, working-tree and exact-commit verifier, and deterministic generator (`python -m tests.panchanga.identity_v2 --check`) |
 | `run.py` | Full numerical gate run, JSON and Markdown report; exit 0 PASS, 1 FAIL, 2 BLOCKED |
 
 ## Reproduce
@@ -75,3 +77,22 @@ echo '{"birth_datetime":"2026-01-03T13:00:00+05:30","timezone":"Asia/Kolkata","l
 Without `SABPUJA_TEST_EPHE_PATH` the real-data classes skip (existing convention);
 once it is set, wrong or incomplete data fails instead of skipping. The swetest
 classes also need `SABPUJA_TEST_SWETEST`.
+
+## PAN-QA-08 identity versions (KUN-I18N-INT-001)
+
+`baseline-hashes.json` (v1, SHA-256 `2e913eda…007e`) is never edited or regenerated. It
+remains the acceptance record for the PR #62 / PR #68 base and is checked against the
+git objects of `6722b5c`. The bilingual integration of PR #61 `fee3967` (with #59 and #60)
+changes 12 of its 222 files on purpose, so the working-tree assertion now runs through
+`identity-manifest-v2.json` (SHA-256 `d2dea049…87da`). Both SHA-256 values are pinned in
+`identity_v2.py`, so any change to either manifest is a code change that review sees.
+
+v2 refuses: a substituted or edited v1 file, a manifest that fails its pin, is not JSON,
+has duplicate or extra keys, wrong counts, unsorted or unsafe paths, a v1 hash that
+differs from the baseline, a "modified" entry that does not change or is not a v1 file,
+an "added" entry that already exists in v1; and in the tree, any missing file, any
+unexpected hash, any undeclared change to one of the 210 files and any undeclared file
+in the v1 scope (the PR #68 Panchanga package stays confined to
+`src/sabpuja_kundali/panchanga/` as before). `test_pan_qa08_identity_v2.py` seeds each
+defect. The exact-commit checks need a clone with history back to `6722b5c`
+(`git fetch --depth=200 origin <branch>` is enough); without it they fail, not skip.
