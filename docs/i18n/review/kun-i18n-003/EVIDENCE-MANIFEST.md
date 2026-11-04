@@ -3,10 +3,10 @@
 | | |
 |---|---|
 | Base (PR #60 head, re-fetched: no drift) | `c9f147bad9b50c5eb85585b0e3e952e49fb5ac40`, tree `85e38f1dbafc0eef4dc24f87c5910b118261fb73` |
-| Reviewed source (catalogs and samples) | `c9f147b` (the packet adds no catalog change) |
-| Packet commits | see the PR; the first is `3459c63639502d93284c541bd8d673f87f2542a8` |
+| Packet commits | see PR #61; the first is `3459c63639502d93284c541bd8d673f87f2542a8` |
+| Reviewed source since KUN-I18N-COPY-005 | `84fe981c79573ab753b5d7baadf2ff4aa49e819c` (Changes A and B applied; `editorial-acceptance-register.json` `reviewed_source` holds its tree, catalog SHA-256 and blob IDs). The English sample PDF, `assets/en-hi-page-10.png` and the eight result screenshots (English and Hindi at 280, 375, 768 and 1440 px, under `assets/screens/`) were regenerated at that commit; every other asset is unchanged. |
 
-## Application unchanged (Task 4)
+## Application unchanged at KUN-I18N-003 (Task 4, historical)
 
 The packet commits add files under `docs/i18n/review/kun-i18n-003/` and two tests,
 `report/phase1/tests/test_editorial_register.py` (register gate) and
@@ -18,7 +18,8 @@ root `.gitignore` ignores `*.pdf`; `.gitignore` itself is unchanged. Nothing els
 configuration), `tests`, `machine`, `data`, `docs/DECISIONS.md`, `docs/api-contract.md` and `docs/i18n/TERMINOLOGY.md`
 have identical git tree/blob objects at the base and the head (`evidence/01-unchanged-application.txt`, rerun on the
 final head). All 104 premium PDFs are byte-identical and `/api/chart` is byte-identical (evidence 02, 03). The
-owner-copy patches are files under `patches/` and are **not applied**.
+owner-copy patches are files under `patches/` and were **not applied** in KUN-I18N-003. (Since
+KUN-I18N-COPY-005 both changes are applied in the reviewed source above; this section describes KUN-I18N-003.)
 
 ## Files in this package (SHA-256)
 
@@ -26,13 +27,13 @@ owner-copy patches are files under `patches/` and are **not applied**.
 |---|---|
 | `cca69914637b1705ee19af8f076094d981bb16a43e0ee7871a5f37bd78862525` | `CHANGE-A-ENGLISH-PAGE10.md` |
 | `a52150d17ab5f8f5ba2d2ad7cdda37ed229035a462e0d370dc66182f63fab5bc` | `CHANGE-B-SCHEMA-WORDING.md` |
-| `412356996918908afa18af0aab5405d9d973a5310474cf797b02a57910ca1227` | `DECISION-SHEET.csv` |
-| `ac0acd932a73427e412952cd94dd8d44736979bfb1748d1df036cf5f8b0f42ea` | `DECISION-SHEET.md` |
-| `133b9a9180a77e4644f60dec0e7621bc1855b9a12171b30ef095987c087e6874` | `EDITORIAL-ACCEPTANCE-REGISTER.md` |
+| `c99eae20648a787c64e0ea916c17ab276610c7d01c1e9f299f645af972b98c97` | `DECISION-SHEET.csv` |
+| `c82b2566fcf960822e63a8c3dfd61cc09afdc6f8689d7d3950cdb89b81eeb2b3` | `DECISION-SHEET.md` |
+| `d19d897407625b433b14d8ef5595e3c6a4b17c08ba112768a9f45b9186548465` | `EDITORIAL-ACCEPTANCE-REGISTER.md` |
 | `9690c9afd5dc1f7ee9c10e6edc38033cd3017b5ad77422bb5b879f7f84803198` | `LOCATIONS.md` |
 | `c00d5c12319076c02e07158d1f0f2991876322fd9d9516c64e560ff0d566527f` | `OWNER-COPY-ATTESTATION.md` |
-| `a19ec7a367c5c0eacbd398e1c9d264df1a1aacf0086438fc09a2a5031d307839` | `README.md` |
-| `df8dcb0244622da8377256d403414eb2b31e5c3735a38ac70d86cb9c29a4bd96` | `REVIEW-PACKET.md` |
+| `8385911664de51054ee1a3b50563dba78c5f2e560977a639c06fce896fbf51ce` | `README.md` |
+| `e9f9b9718bc873bea3ccbc73b3772fa5eb0ae579a3ed0b6b2573b508bc820058` | `REVIEW-PACKET.md` |
 | `732231a491cd70c4f9719001fef0bde1d63e39602f4e112eeef248a9ad32a66d` | `assets/en-hi-page-01.png` |
 | `912c7b85e9241a9061f53ffc0ec714b4c217630faceff44288f79e944e5166d4` | `assets/en-hi-page-02.png` |
 | `b5d5574356f9b202aac3f4c099a9404527af08a8bc3312628e07e8ce9625ecae` | `assets/en-hi-page-03.png` |
@@ -61,7 +62,7 @@ owner-copy patches are files under `patches/` and are **not applied**.
 | `35bc27b3d3082c9cb677e17746d53f3a0d17738641c3129e1acee5c19e7c15ee` | `assets/screens/i18n-hi-form-280.png` |
 | `fdd2d47f6132998d75a5732fa78ea9356436d3e0baa58fc8b9ac06bfbcd4787f` | `assets/screens/i18n-hi-form-375.png` |
 | `1cae86ece38b489b11085cc789fa455071f8c8cdc80cc106112f52d15cfe0792` | `assets/screens/i18n-hi-form-768.png` |
-| `f292c93d9495499c8e922eee681f372cb9bc8e763e642362a8c9dfe8e5cbc2d1` | `editorial-acceptance-register.json` |
+| `7fa3f3a981252f0f2275d0ca45fae61e110fc3183e93d46a70dac653f9fd2ed8` | `editorial-acceptance-register.json` |
 | `a579014eba39fed9ba8478fd3e46ff3301694f72c0b855f1af6958d3f04a038a` | `locations.py` |
 | `b2f55fc5c1f728a0566379a91581b77366533aa0c9749518b9eaff67a7f14326` | `patches/change-a-english-page10.patch` |
 | `8998a9b0e06c8b4566b6cb7a64d28e7a07467e7b16d62b636c4f3afc2368af32` | `patches/change-b-schema-wording.patch` |

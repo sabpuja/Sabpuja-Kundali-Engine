@@ -183,3 +183,15 @@ reviewer's behalf.
 
 Engineering QA: ChatGPT, PR #60 review 5733977880, 2026-11-02, commit `c9f147b`
 (KUN-I18N-002-INDEPENDENT-ENGINEERING-QA-PASS). **Customer release: PENDING.** Production NO-GO; PR #1 HOLD.
+
+## State at KUN-I18N-COPY-005 (reviewed source `84fe981`)
+
+The owner approved Changes A and B in chat for implementation and exact-SHA independent QA (issue #73). They
+are applied at `84fe981c79573ab753b5d7baadf2ff4aa49e819c`, and `reviewed_source` is re-pinned to that commit
+(new web catalog SHA-256 `06c0f071…4627`, PDF catalog SHA-256 `1483e1fa…f81e`). Items 13 and 15 now show
+the developer layer as CORRECTED at that commit. **Every human Hindi language, Jyotish, owner copy and
+customer release layer stays PENDING**: the chat approval is not a signed owner attestation
+(`OWNER-COPY-ATTESTATION.md` is blank), and no reviewer has seen the new catalogs. The engineering QA layer
+still names its own verified commit `c9f147b`; independent engineering QA of `84fe981` and the pin commit is
+pending on the KUN-I18N-COPY-005 draft PR. A later signed-decision intake needs its own versioned PAN-QA-08
+identity overlay, because the v4 overlay fixes this packet's exact file inventory.

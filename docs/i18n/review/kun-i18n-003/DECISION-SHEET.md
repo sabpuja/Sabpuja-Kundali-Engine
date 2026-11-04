@@ -7,10 +7,10 @@ Reviewed revision (write it exactly as shown; a review of any other revision mus
 
 | | |
 |---|---|
-| Commit | `c9f147bad9b50c5eb85585b0e3e952e49fb5ac40` |
-| Tree | `85e38f1dbafc0eef4dc24f87c5910b118261fb73` |
-| Web catalog `prototype/kundali_prototype/static/i18n.json` SHA-256 | `5cf9e5fcb4234dd971fa1c512c6c6da6567918d38a0c7e61c9e6d8cd496b17f1` |
-| PDF catalog `report/phase1/report_i18n.json` SHA-256 | `324b19ec2269b578f026b4b1dbebbd73d9b3b2f3d4879e2cca9dedb325ac0145` |
+| Commit | `84fe981c79573ab753b5d7baadf2ff4aa49e819c` |
+| Tree | `273d99ee6c91a65117ff676c17ae6f0a2642ecb3` |
+| Web catalog `prototype/kundali_prototype/static/i18n.json` SHA-256 | `06c0f071206ffc40a1f6c1eb254ce252bc8e91305568cf787a232f374f064627` |
+| PDF catalog `report/phase1/report_i18n.json` SHA-256 | `1483e1fa666005a7182b791904dbb777f63a1a554b1407ff274d59c0b277f81e` |
 
 Decisions: **ACCEPT** (wording is correct as is), **REVISE** (write the exact replacement Hindi and
 the key it replaces), **REJECT** (wording is wrong and no replacement is offered; explain).
@@ -30,9 +30,9 @@ the key it replaces), **REJECT** (wording is wrong and no replacement is offered
 | 10 | Place transliterations | L | ACCEPT Indian names; Tromsø at reviewer discretion |   | NA |  |  |  |
 | 11 | Latin script kept for names and codes | L | ACCEPT |   | NA |  |  |  |
 | 12 | International digits | L | ACCEPT |   | NA |  |  |  |
-| 13 | Page 10 not-included line (Hindi: अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध); English: Change A) | L+Owner | ACCEPT Hindi line |   | NA |  |  |  |
+| 13 | Page 10 not-included line (Hindi: अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध); English: Change A, applied) | L+Owner | ACCEPT Hindi line |   | NA |  |  |  |
 | 14 | Hindi reading-guide sign note | L | ACCEPT |   | NA |  |  |  |
-| 15 | "owner-approved chart schema" / स्वीकृत चार्ट स्कीमा (Change B) | L+Owner | REVISE per Change B if owner approves |   | NA |  |  |  |
+| 15 | D9 footnote: चार्ट स्कीमा 0.3.0 (Change B, applied; was स्वीकृत चार्ट स्कीमा) | L+Owner | ACCEPT applied Change B wording |   | NA |  |  |  |
 | 16 | Native date and time pickers follow the browser locale | L | ACCEPT |   | NA |  |  |  |
 | 17 | Fallback refusal message | L | ACCEPT |   | NA |  |  |  |
 | 18 | Register and tone of all text | L | REVISE at reviewer discretion (see packet) |   | NA |  |  |  |
@@ -79,6 +79,10 @@ Complete one block per reviewer. A decision without a complete, signed block is 
 |---|---|---|---|
 | Change A: English page 10 "Hindi text (available as a separate edition)" (`CHANGE-A-ENGLISH-PAGE10.md`) | | | |
 | Change B: "Chart schema 0.3.0" / "चार्ट स्कीमा 0.3.0" (`CHANGE-B-SCHEMA-WORDING.md`) | | | |
+
+The owner may sign either this block or `OWNER-COPY-ATTESTATION.md` (same two decisions, with the exact commit
+and catalog hashes). Both changes are applied in the reviewed source above on the owner's chat approval for
+implementation (issue #73); the signed owner record is still pending.
 
 The signed sheet is the evidence the acceptance register cites. AI assistants (Claude, ChatGPT)
 cannot sign any block on this sheet.
