@@ -58,6 +58,8 @@ V1_FILE_COUNT = 222
 MAIN_COMMIT = "3ba9f5b14739f08d5d07ef476bebb0584b463da0"      # approved main
 INTEGRATED_HEAD = "fee3967d62d0229e31de98682da9ada5d9190e93"  # PR #61 head (with #59, #60)
 MERGE_BASE = "fde3ec670618a02f2b913e9bbbedd1521d3840c7"       # PR #58, merge base with main
+# The commit that introduced and was independently audited with v2 (PR #71 review 5765253656).
+V2_CANDIDATE_COMMIT = "be608d873fe9af22d91c3d87ccb6659337b215e3"
 SCHEMA = "sabpuja-pan-qa-08-identity/2"
 EXPECTED_COUNTS = {"v1": 222, "modified": 12, "unchanged": 210, "added": 55}
 
@@ -211,10 +213,18 @@ def _scope_files(root: Path) -> set[str]:
     return out
 
 
-def verify_tree(root: Path, v1: dict, v2: dict) -> dict:
-    """Current-tree v2 acceptance. Returns a summary; raises IdentityError listing every problem."""
+def verify_tree(root: Path, v1: dict, v2: dict, *, read=None, listing=None, v3: dict = None) -> dict:
+    """Tree acceptance against v2 (optionally with the v3 overlay). Raises IdentityError listing every problem.
+
+    By default the working tree under `root` is read. `read(path) -> bytes | None` and
+    `listing() -> set[str]` let the same check run on an exact git commit (`verify_commit`).
+    `v3` (identity_v3) replaces the expected bytes of the v2 paths it declares as modified and
+    adds the paths it declares as added; every other expectation is v2's, unchanged.
+    """
     root = Path(root)
-    files, mod, add = v1["files"], v2["modified"], v2["added"]
+    files, mod, add = v1["files"], v2["modified"], dict(v2["added"])
+    v3_mod = v3["modified"] if v3 else {}
+    v3_add = v3["added"] if v3 else {}
     problems, unchanged = [], 0
 
     def digest(rel):
@@ -222,33 +232,64 @@ def verify_tree(root: Path, v1: dict, v2: dict) -> dict:
         if target.is_symlink() or not target.is_file():
             return None
         return target.read_bytes()
+    read = read or digest
+
+    def expect(p, data, sha, blob, label):
+        if sha256(data) != sha or blob_id(data) != blob:
+            problems.append(f"unexpected hash (declared {label}): {p}")
 
     for p, h in files.items():
-        data = digest(p)
+        data = read(p)
         if data is None:
             problems.append(f"missing: {p}")
+        elif p in v3_mod:
+            expect(p, data, v3_mod[p]["v3_sha256"], v3_mod[p]["v3_git_blob"], "v3 modified")
         elif p in mod:
-            if sha256(data) != mod[p]["v2_sha256"] or blob_id(data) != mod[p]["v2_git_blob"]:
-                problems.append(f"unexpected hash (declared v2 modified): {p}")
+            expect(p, data, mod[p]["v2_sha256"], mod[p]["v2_git_blob"], "v2 modified")
         elif sha256(data) != h:
             problems.append(f"undeclared change to a v1 file: {p}")
         else:
             unchanged += 1
     for p, e in add.items():
-        data = digest(p)
+        data = read(p)
         if data is None:
             problems.append(f"missing: {p}")
-        elif sha256(data) != e["sha256"] or blob_id(data) != e["git_blob"]:
-            problems.append(f"unexpected hash (declared v2 added): {p}")
-    declared = set(files) | set(add)
-    for p in sorted(_scope_files(root) - declared):
+        elif p in v3_mod:
+            expect(p, data, v3_mod[p]["v3_sha256"], v3_mod[p]["v3_git_blob"], "v3 modified")
+        else:
+            expect(p, data, e["sha256"], e["git_blob"], "v2 added")
+    for p, e in v3_add.items():
+        data = read(p)
+        if data is None:
+            problems.append(f"missing: {p}")
+        else:
+            expect(p, data, e["sha256"], e["git_blob"], "v3 added")
+    declared = set(files) | set(add) | set(v3_add)
+    present = listing() if listing else _scope_files(root)
+    for p in sorted(present - declared):
         if not p.startswith(PANCHANGA_PACKAGE_PREFIX):
             problems.append(f"undeclared file in v1 scope: {p}")
     if problems:
-        raise IdentityError("PAN-QA-08 v2 identity failed:\n  " + "\n  ".join(problems))
+        raise IdentityError(f"PAN-QA-08 {'v3' if v3 else 'v2'} identity failed:\n  " + "\n  ".join(problems))
     if unchanged != EXPECTED_COUNTS["unchanged"]:
         raise IdentityError(f"expected 210 byte-identical v1 files, found {unchanged}")
-    return {"unchanged": unchanged, "modified": len(mod), "added": len(add)}
+    out = {"unchanged": unchanged, "modified": len(mod), "added": len(add)}
+    if v3:
+        out.update(v3_modified=len(v3_mod), v3_added=len(v3_add))
+    return out
+
+
+def verify_commit(root: Path, commit: str, v1: dict, v2: dict, v3: dict = None) -> dict:
+    """The same tree acceptance on the committed tree of `commit` (git objects, not the disk)."""
+    git = Git(root)
+    if not git.available():
+        raise IdentityError("not a git clone of this repository: exact-commit checks cannot run")
+    names = [n for n in git.run("ls-tree", "-r", "-z", "--name-only", commit).split("\0") if n]
+    scope = {n for n in names if in_scope(n)}
+    v3_paths = list(v3["modified"]) + list(v3["added"]) if v3 else []
+    wanted = sorted(set(v1["files"]) | set(v2["added"]) | set(v3_paths))
+    blobs = git.blobs(commit, wanted)
+    return verify_tree(root, v1, v2, read=blobs.get, listing=lambda: scope, v3=v3)
 
 
 # ---------------------------------------------------------------- exact git commits
@@ -403,11 +444,12 @@ def main(argv=None) -> int:
         print("FAIL: committed v2 manifest differs from the git-derived regeneration")
         return 1
     v1, v2 = load_committed(REPO)
-    t = verify_tree(REPO, v1, v2)
+    t = verify_commit(REPO, V2_CANDIDATE_COMMIT, v1, v2)
     g_ = verify_git(REPO, v1, v2)
     print(f"PASS v1 sha256 {V1_SHA256} ({V1_FILE_COUNT} files, PR #62 {V1_BASE_COMMIT[:7]})")
     print(f"PASS v2 sha256 {V2_SHA256} regenerated byte-identical from git objects")
-    print(f"PASS tree: {t['unchanged']} unchanged, {t['modified']} modified, {t['added']} added")
+    print(f"PASS v2 tree at {V2_CANDIDATE_COMMIT[:7]}: {t['unchanged']} unchanged, {t['modified']} modified, "
+          f"{t['added']} added (the current tree is checked by identity_v3)")
     print(f"PASS git: {g_['v1_checked']} v1 hashes = 6722b5c blobs; {g_['modified']}+{g_['added']} = fee3967 blobs")
     return 0
 

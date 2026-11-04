@@ -459,22 +459,27 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(429, {"error": {"code": "REPORT_BUSY", "message": "try again shortly",
                                           "category": "resources"}})
                 return
+            # The slot covers validation, the engine and rendering. It is released before the
+            # response is written (KUN-I18N-INT-001A): a client that has read a complete answer
+            # must never find its own finished request still holding the slot, or a strictly
+            # sequential next request would get REPORT_BUSY instead of its own result. A request
+            # that arrives while a render is running is still refused with 429 above.
             try:
                 try:
                     status, payload = handle_report(raw, self.server.places, self.server.ephe_path)
-                    if status == 200:
-                        self._pdf(payload)
-                    else:
-                        self._json(status, payload)
                 except Exception as exc:
                     # Never log input data, exception text, filenames or personal records.
                     print(json.dumps({"event": "REPORT_FAILURE", "type": type(exc).__name__}),
                           file=sys.stderr, flush=True)
-                    self._json(503, {"error": {"code": "REPORT_UNAVAILABLE",
-                                               "message": "the PDF could not be generated",
-                                               "category": "resources"}})
+                    status, payload = 503, {"error": {"code": "REPORT_UNAVAILABLE",
+                                                      "message": "the PDF could not be generated",
+                                                      "category": "resources"}}
             finally:
                 _PDF_RENDER_SLOT.release()
+            if status == 200:
+                self._pdf(payload)
+            else:
+                self._json(status, payload)
             return
         status, payload = handle_chart(raw, self.server.places, self.server.ephe_path)
         self._json(status, payload)

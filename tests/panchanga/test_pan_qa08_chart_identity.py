@@ -8,8 +8,13 @@
         (PR #61 fee3967) changes on purpose and the 55 files it adds. The current tree
         must hold the 210 other v1 files byte for byte, exactly the declared bytes for
         the 12 and the 55, and nothing undeclared in the v1 scope. See identity_v2.py.
-   Until KUN-I18N-INT-001 this test asserted v1 directly against the working tree;
-   that assertion is replaced by the v2 check, never skipped or relaxed.
+   v3 - `identity-manifest-v3.json` (KUN-I18N-INT-001A) declares the one v2 file the HTTP
+        report repeatability fix changes and the one regression test it adds. v2 is now
+        proved on the exact tree of its audited commit be608d8; the current tree must match
+        v2 with the v3 overlay. See identity_v3.py.
+   Until KUN-I18N-INT-001 this test asserted v1 directly against the working tree, and
+   until KUN-I18N-INT-001A v2; each assertion is moved to its exact commit and the
+   working-tree check to the next version, never skipped or relaxed.
 2. Charts are byte-identical with and without a preceding Panchanga call in the
    same process, for all 50 KUN-SCI-GOLD-001 chart fixtures.
 3. The Panchanga Nakshatra equals the chart `moon_nakshatra` byte for byte for the
@@ -25,7 +30,7 @@ import random
 import unittest
 
 from .common import EPHE, HERE, REPO, gold_chart_requests, parse_utc, real_data, request_at_utc
-from . import checkers, identity_v2
+from . import checkers, identity_v2, identity_v3
 from .phase_events import SideSwiss
 
 BASELINE = json.loads((HERE / "baseline-hashes.json").read_text(encoding="utf-8"))
@@ -55,9 +60,29 @@ class BaselineFilesTest(unittest.TestCase):
         self.assertEqual(changed, [])
 
     def test_current_tree_matches_v2_identity_manifest(self):
-        """v2 (current tree): 210 v1 files unchanged, 12 declared changes, 55 declared additions, nothing else."""
+        """v2: on the exact tree of its audited commit be608d8, 210 v1 files unchanged, 12 declared
+        changes, 55 declared additions, nothing else; the current tree holds v2 except where v3 declares.
+
+        Before KUN-I18N-INT-001A this compared v2 with the working tree alone. The working-tree
+        comparison now runs through v2 with the v3 overlay (next test).
+        """
         v1, v2 = identity_v2.load_committed(REPO)
-        self.assertEqual(identity_v2.verify_tree(REPO, v1, v2), {"unchanged": 210, "modified": 12, "added": 55})
+        self.assertEqual(identity_v2.verify_commit(REPO, identity_v2.V2_CANDIDATE_COMMIT, v1, v2),
+                         {"unchanged": 210, "modified": 12, "added": 55})
+
+    def test_current_tree_matches_v3_identity_manifest(self):
+        """v3 (current tree): v2 everywhere except the 1 re-declared modified path and the 1 added test."""
+        v1, v2, v3 = identity_v3.load_committed(REPO)
+        self.assertEqual(identity_v3.verify_tree(REPO, v1, v2, v3),
+                         {"unchanged": 210, "modified": 12, "added": 55, "v3_modified": 1, "v3_added": 1})
+
+    def test_v3_manifest_reproduces_from_exact_commits(self):
+        """v3 regenerates byte for byte at HEAD; be608d8..HEAD is exactly the v3 declaration."""
+        v1, v2, v3 = identity_v3.load_committed(REPO)
+        self.assertEqual(identity_v3.generate(REPO), (REPO / identity_v3.V3_PATH).read_bytes())
+        result = identity_v3.verify_git_v3(REPO, v1, v2, v3)
+        self.assertEqual({k: v for k, v in result.items() if k != "commit"},
+                         {"unchanged": 210, "modified": 12, "added": 55, "v3_modified": 1, "v3_added": 1})
 
     def test_v2_manifest_reproduces_from_exact_commits(self):
         """v2 regenerates byte for byte from git objects and binds to 6722b5c, 3ba9f5b and fee3967."""

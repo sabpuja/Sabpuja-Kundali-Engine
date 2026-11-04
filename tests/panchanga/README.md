@@ -60,6 +60,8 @@ each must be caught.
 | `baseline-hashes.json` | SHA-256 of 222 chart, renderer, prototype, preview and existing test files at PR #62 |
 | `identity-manifest-v2.json` | PAN-QA-08 v2: the 12 intentionally changed v1 paths (v1 and v2 SHA-256, v2 git blob) and the 55 added paths of the bilingual integration, bound to the v1 file by its SHA-256 |
 | `identity_v2.py` | v2 loader, validator, working-tree and exact-commit verifier, and deterministic generator (`python -m tests.panchanga.identity_v2 --check`) |
+| `identity-manifest-v3.json` | PAN-QA-08 v3 (KUN-I18N-INT-001A): the one v2 path the HTTP report repeatability fix changes and the one regression test it adds, bound to v1/v2 by SHA-256 and to the audited v2 commit `be608d8` |
+| `identity_v3.py` | v3 validator, overlay tree check and exact-commit check (`python -m tests.panchanga.identity_v3 --check`) |
 | `run.py` | Full numerical gate run, JSON and Markdown report; exit 0 PASS, 1 FAIL, 2 BLOCKED |
 
 ## Reproduce
@@ -96,3 +98,16 @@ in the v1 scope (the PR #68 Panchanga package stays confined to
 `src/sabpuja_kundali/panchanga/` as before). `test_pan_qa08_identity_v2.py` seeds each
 defect. The exact-commit checks need a clone with history back to `6722b5c`
 (`git fetch --depth=200 origin <branch>` is enough); without it they fail, not skip.
+
+### v3 (KUN-I18N-INT-001A)
+
+v2 is kept byte for byte and is now proved on the exact tree of the commit it was
+independently audited with, `be608d8`. The HTTP report repeatability fix changes one v2 path
+(`prototype/kundali_prototype/server.py`: the PDF render slot is released before the response
+is written) and adds one regression test (`prototype/tests/test_report_slot_release.py`).
+`identity-manifest-v3.json` (SHA-256 `9a2051d9…0e77`, pinned in `identity_v3.py`) declares
+exactly those two paths; the paths themselves are fixed in code as the only ones the task
+authorizes. The working-tree check is the v2 check with the v3 overlay, so every other v2
+expectation (210 unchanged v1 files, 11 other modified files, 55 added files) still holds,
+and `be608d8..HEAD` inside the v1 scope must equal the v3 declaration.
+`test_pan_qa08_identity_v3.py` seeds the v3 defects.

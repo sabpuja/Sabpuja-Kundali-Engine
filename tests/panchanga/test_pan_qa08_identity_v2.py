@@ -128,21 +128,28 @@ class ManifestStructureTest(unittest.TestCase):
 
 
 class TreeVerificationTest(unittest.TestCase):
-    """verify_tree on a private copy of the committed v1 scope and the 55 added paths."""
+    """verify_tree on a private copy of the v1 scope and the 55 added paths, taken from the git
+    objects of the audited v2 commit be608d8 (since KUN-I18N-INT-001A the working tree carries
+    the v3 changes, which identity_v3 and its own tests cover)."""
 
     @classmethod
     def setUpClass(cls):
         cls.v1_bytes, cls.v1, cls.v2_bytes, cls.v2 = _committed()
-        out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z"], capture_output=True, check=True).stdout
+        out = subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", iv.V2_CANDIDATE_COMMIT],
+                             capture_output=True, check=True).stdout
         tracked = [p for p in out.decode().split("\0") if p]
         cls.paths = [p for p in tracked if iv.in_scope(p) or p in cls.v2["added"]]
+        cls.blobs = iv.Git(REPO).blobs(iv.V2_CANDIDATE_COMMIT, cls.paths)
+
+    def restore(self, p):
+        (self.tmp / p).write_bytes(self.blobs[p])
 
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix="pan-qa08-v2-"))
         self.addCleanup(shutil.rmtree, self.tmp)
         for p in self.paths:
             (self.tmp / p).parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(REPO / p, self.tmp / p)
+            self.restore(p)
 
     def refused(self, needle):
         with self.assertRaises(IdentityError) as ctx:
@@ -168,7 +175,7 @@ class TreeVerificationTest(unittest.TestCase):
         with open(self.tmp / m, "ab") as f:
             f.write(b"\n")
         self.refused(f"unexpected hash (declared v2 modified): {m}")
-        shutil.copyfile(REPO / m, self.tmp / m)
+        self.restore(m)
         with open(self.tmp / a, "ab") as f:
             f.write(b"\n")
         self.refused(f"unexpected hash (declared v2 added): {a}")
