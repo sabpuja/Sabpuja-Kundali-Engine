@@ -1,29 +1,29 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-03",
+  "updated": "2026-11-04",
   "repository": "sabpuja/Sabpuja-Kundali-Engine",
   "owner": "kundali-deterministic-calculation",
   "visibility": "public",
   "license": "AGPL-3.0-only",
   "runtime": "self-hosted-local-or-approved-hostinger-vps",
-  "release_status": "isolated-integration-candidate-kun-int-cand-001-unmerged-unreleased-production-no-go",
+  "release_status": "integrated-in-main-via-pr-69-b7bf1cc-unreleased-production-no-go",
   "capabilities": [
     {
       "id": "kundali.pure-vedic-rules",
-      "status": "independent-qa-passed-at-source-heads-on-integration-candidate-unmerged",
+      "status": "in-main-via-pr-69-independent-integration-qa-passed-unreleased",
       "entrypoint": "src/sabpuja_kundali/rules.py"
     },
     {
       "id": "kundali.local-chart-cli",
-      "status": "independent-qa-passed-at-source-heads-on-integration-candidate-unmerged-swiss-on-swiss-conformance-pass",
+      "status": "in-main-via-pr-69-independent-integration-qa-passed-unreleased-swiss-on-swiss-conformance-pass",
       "entrypoint": "src/sabpuja_kundali/cli.py",
       "chart_schema": "0.3.0",
       "calculation_metadata": "sabpuja-calculation-metadata/3",
-      "evidence": "PR #42 C7 review 5647737922; PR #68 review 5752132632"
+      "evidence": "PR #42 C7 review 5647737922; PR #68 review 5752132632; PR #69 integration QA review 5753128047"
     },
     {
       "id": "kundali.kun03-input-time-policy",
-      "status": "independent-qa-passed-at-source-heads-decisions-canonical-on-integration-candidate-unmerged",
+      "status": "in-main-via-pr-69-decisions-canonical-unreleased",
       "entrypoint": "src/sabpuja_kundali/engine.py",
       "evidence": "PRs #23-#36 QA PASS at each exact head; decisions per docs/DECISIONS.md (adoption merge 5b71408)"
     },
@@ -34,13 +34,13 @@
     },
     {
       "id": "kundali.gold-reference-harness",
-      "status": "independent-qa-passed-qualified-exit-2-49-pass-18-qualified-1-boundary-indeterminate-not-certification",
+      "status": "in-main-via-pr-69-independent-qa-passed-qualified-exit-2-49-pass-18-qualified-1-boundary-indeterminate-not-certification",
       "entrypoint": "tests/sci_gold/run.py",
       "evidence": "PR #62 review 5747720823"
     },
     {
       "id": "kundali.panchanga-m1-birth-instant",
-      "status": "independent-engineering-qa-passed-machine-only-not-customer-facing",
+      "status": "in-main-via-pr-69-independent-engineering-qa-passed-machine-only-not-customer-facing",
       "entrypoint": "src/sabpuja_kundali/panchanga/__main__.py",
       "document_schema": "sabpuja-panchanga/1",
       "evidence": "PR #68 review 5752132632; method adoption PR #65 comment 6600051638"
@@ -53,13 +53,13 @@
     },
     {
       "id": "kundali.premium-pdf",
-      "status": "ten-page-saffron-premium-pdf-optional-full-name-owner-only-preview-not-client-release",
+      "status": "in-main-via-pr-69-ten-page-saffron-premium-pdf-optional-full-name-owner-only-preview-not-client-release",
       "entrypoint": "report/phase1/premium_report.py",
       "evidence": "PRs #54, #55, #58"
     },
     {
       "id": "kundali.bilingual-hindi",
-      "status": "outside-this-candidate-draft-prs-59-61-next-bilingual-milestone"
+      "status": "outside-merged-integration-draft-prs-59-61-human-hindi-jyotish-review-pending-next-bilingual-milestone"
     },
     {
       "id": "kundali.offline-birthplace",
@@ -98,6 +98,14 @@
   "no_external_astrology_api": true,
   "public_launch_approved": false,
   "shopify_staging_connected": false,
-  "pr_1_hold_active": true,
-  "legal_review_leg_01": "pending"
+  "legal_review_leg_01": "pending",
+  "integration": {
+    "pr": 69,
+    "merge_commit": "b7bf1cca570626ba02e68711e3ae69257e19202f",
+    "tree": "a9c834571d55d5a01e8c63d4d7d92f5947166584",
+    "independent_qa": "PR #69 review 5753128047",
+    "owner_decision": "D-6 KUN-INT-MERGE-001 (exact candidate only)"
+  },
+  "pr_1_status": "auto-marked-merged-by-github-via-ancestry-no-separate-merge-hold-released-only-under-d6-for-pr-69-candidate",
+  "bilingual_editorial_acceptance": "pending"
 }

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-03",
+  "updated": "2026-11-04",
   "project": "Sabpuja Kundali Engine",
   "governance_status": "owner-directed-dec-003-recorded-in-docs-decisions",
   "canonical_repo": "sabpuja/Sabpuja-Kundali-Engine",
@@ -64,5 +64,5 @@
     "design": "sabpuja/design-system",
     "organization_policy": "sabpuja/core"
   },
-  "current_state": "isolated integration candidate integration/kun-int-001 (KUN-INT-CAND-001): main 25cfde4 merged with PR #68 b1bca79 for independent QA only, not main, not released, not deployed; foundation PR #1 remains on PM/QA HOLD pending owner decision D-6; scientific decisions canonical per docs/DECISIONS.md and post-merge receipts (PR #64 comment 6598563378, PR #65 comment 6600051638); chart schema 0.3.0 with metadata /3; ten-page saffron premium PDF and optional Full Name on the owner-only preview running PR #58 fde3ec6; gold harness qualified (49 PASS / 18 QUALIFIED / 1 BOUNDARY-INDETERMINATE), not certification; Panchanga M1 independently engineering-QA-passed, machine-only, not customer-facing; bilingual PRs #59-#61 outside this candidate; LEG-01 pending; production NO-GO"
+  "current_state": "engine stack integrated into canonical main through PR #69 (merge b7bf1cc, tree a9c8345, independent integration QA review 5753128047), not released and not deployed from main; PR #1 HOLD released only under owner D-6 for that exact candidate; PR #1 auto-marked merged by GitHub via ancestry, no separate PR #1 merge; scientific decisions canonical per docs/DECISIONS.md and post-merge receipts (PR #64 comment 6598563378, PR #65 comment 6600051638); chart schema 0.3.0 with metadata /3; D1/D9, ten-page saffron premium PDF and Panchanga M1 (machine-only, not customer-facing) present in source; gold harness qualified (49 PASS / 18 QUALIFIED / 1 BOUNDARY-INDETERMINATE), not certification; owner-only preview runs PR #58 fde3ec6; bilingual PRs #59-#61 outside the merged integration, human Hindi/Jyotish review pending; inherited stacked PR dispositions await owner D-7; LEG-01 and production gates pending; production NO-GO"
 }
