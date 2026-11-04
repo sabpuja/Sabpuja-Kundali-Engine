@@ -10,14 +10,14 @@
     "Exact git identity, not SHA format: every decision's reviewed_commit equals reviewed_source.commit; reviewed_source commit, tree and catalog blob IDs are checked against the git object database (blob IDs alone in a git archive, where any decided register is refused as unverifiable); an approved release names an explicit release_candidate {commit, tree, catalog hashes and blobs} that exists in git, contains the reviewed source and carries the reviewed catalogs, and customer_release.commit equals it."
   ],
   "reviewed_source": {
-    "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
-    "tree": "85e38f1dbafc0eef4dc24f87c5910b118261fb73",
-    "ui_catalog_blob": "f8b8059fa2bcfc87b20f1f891032aeaac29b9c8b",
-    "pdf_catalog_blob": "d59fbb4599a383212205a7860d4e4e756d586ad8",
+    "commit": "84fe981c79573ab753b5d7baadf2ff4aa49e819c",
+    "tree": "273d99ee6c91a65117ff676c17ae6f0a2642ecb3",
+    "ui_catalog_blob": "92ac48acae04094db1940a0c79b68350eadb8515",
+    "pdf_catalog_blob": "9d222a46e9bb03c3aacb1c01b454c0d720cec676",
     "ui_catalog": "prototype/kundali_prototype/static/i18n.json",
-    "ui_catalog_sha256": "5cf9e5fcb4234dd971fa1c512c6c6da6567918d38a0c7e61c9e6d8cd496b17f1",
+    "ui_catalog_sha256": "06c0f071206ffc40a1f6c1eb254ce252bc8e91305568cf787a232f374f064627",
     "pdf_catalog": "report/phase1/report_i18n.json",
-    "pdf_catalog_sha256": "324b19ec2269b578f026b4b1dbebbd73d9b3b2f3d4879e2cca9dedb325ac0145"
+    "pdf_catalog_sha256": "1483e1fa666005a7182b791904dbb777f63a1a554b1407ff274d59c0b277f81e"
   },
   "layers": [
     "developer_correction",
@@ -461,10 +461,10 @@
       "title": "Page 10 not-included line (Hindi: अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध); English: Change A)",
       "review_layers": "L+Owner",
       "developer_correction": {
-        "status": "NO_CHANGE",
+        "status": "CORRECTED",
         "by": "Claude (developer; a correction, not a review)",
-        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
-        "note": null
+        "commit": "84fe981c79573ab753b5d7baadf2ff4aa49e819c",
+        "note": "KUN-I18N-COPY-005: owner-approved Change A applied (English method.exc5 now \"Hindi text (available as a separate edition)\"; Hindi unchanged). Owner chat approval for implementation only; owner_copy stays PENDING until a signed attestation."
       },
       "engineering_rendering_verification": {
         "status": "PASS",
@@ -533,13 +533,13 @@
     },
     {
       "id": "15",
-      "title": "\"owner-approved chart schema\" / स्वीकृत चार्ट स्कीमा (Change B)",
+      "title": "D9 footnote schema wording: chart schema 0.3.0 / चार्ट स्कीमा 0.3.0 (Change B applied; was \"owner-approved chart schema\" / स्वीकृत चार्ट स्कीमा)",
       "review_layers": "L+Owner",
       "developer_correction": {
-        "status": "NO_CHANGE",
+        "status": "CORRECTED",
         "by": "Claude (developer; a correction, not a review)",
-        "commit": "c9f147bad9b50c5eb85585b0e3e952e49fb5ac40",
-        "note": null
+        "commit": "84fe981c79573ab753b5d7baadf2ff4aa49e819c",
+        "note": "KUN-I18N-COPY-005: owner-approved Change B applied (ui.d9.footnote EN \"... use chart schema 0.3.0.\", HI \"... चार्ट स्कीमा 0.3.0 ...\"; index.html fallback matches). Owner chat approval for implementation only; owner_copy and the human Hindi review stay PENDING."
       },
       "engineering_rendering_verification": {
         "status": "PASS",

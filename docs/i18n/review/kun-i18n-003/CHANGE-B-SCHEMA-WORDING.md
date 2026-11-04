@@ -1,6 +1,6 @@
 # Change B: customer-facing chart schema wording (owner-controlled)
 
-**Status: SPECIFICATION AND UNAPPLIED PATCH. Not authorized. The canonical catalogs are unchanged.**
+**Status: APPLIED (KUN-I18N-COPY-005, issue #73).** The owner approved this change for implementation and exact-SHA independent QA in chat on 2026-11-04 ("i will go with your recommendation", in reply to the question whether to approve Changes A and B exactly as documented). That chat decision is not a signed owner attestation: register item 15 `owner_copy` stays **PENDING** until the owner signs `OWNER-COPY-ATTESTATION.md`. Not merged, not released. The text below is the original specification, kept for traceability; the patch under `patches/` is the historical proposal and is not re-applied.
 Apply only after the owner's explicit approval, recorded with attribution in
 `editorial-acceptance-register.json` (item 15, `owner_copy`) in the same commit. The Hindi
 replacement still needs the human language reviewer's acceptance (item 15, `human_hindi_language`).

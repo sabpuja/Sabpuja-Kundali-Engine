@@ -62,6 +62,8 @@ each must be caught.
 | `identity_v2.py` | v2 loader, validator, working-tree and exact-commit verifier, and deterministic generator (`python -m tests.panchanga.identity_v2 --check`) |
 | `identity-manifest-v3.json` | PAN-QA-08 v3 (KUN-I18N-INT-001A): the one v2 path the HTTP report repeatability fix changes and the one regression test it adds, bound to v1/v2 by SHA-256 and to the audited v2 commit `be608d8` |
 | `identity_v3.py` | v3 validator, overlay tree check and exact-commit check (`python -m tests.panchanga.identity_v3 --check`) |
+| `identity-manifest-v4.json` | PAN-QA-08 v4 (KUN-I18N-COPY-005): the 25 paths the owner-approved copy Changes A and B change (previous and new SHA-256), the 2 new copy tests and the exact editorial-packet inventory, bound to v1/v2/v3 by SHA-256 and to main `7fc1702` |
+| `identity_v4.py` | v4 validator, overlay tree check and exact-commit check (`python -m tests.panchanga.identity_v4 --check`) |
 | `run.py` | Full numerical gate run, JSON and Markdown report; exit 0 PASS, 1 FAIL, 2 BLOCKED |
 
 ## Reproduce
@@ -111,3 +113,23 @@ authorizes. The working-tree check is the v2 check with the v3 overlay, so every
 expectation (210 unchanged v1 files, 11 other modified files, 55 added files) still holds,
 and `be608d8..HEAD` inside the v1 scope must equal the v3 declaration.
 `test_pan_qa08_identity_v3.py` seeds the v3 defects.
+Since KUN-I18N-COPY-005, v3 is proved, unchanged, on the exact trees of `85f6a89` and `7fc1702`.
+
+### v4 (KUN-I18N-COPY-005)
+
+v1, v2 and v3 are kept byte for byte (their SHA-256 values stay pinned in code). The owner-approved
+copy Changes A (English PDF page 10, `report_i18n.json` `method.exc5`) and B (web D9 footnote,
+`i18n.json` `ui.d9.footnote` and the `index.html` fallback) change a fixed set of 25 already-pinned
+paths: both catalogs, the HTML fallback, the 26 English PDF pins in `test_premium_name.py`, and 21
+files of the editorial review packet (register re-pinned to the new reviewed source, regenerated
+English sample PDF, page-10 image and result screenshots, documents and manifest). They add two
+copy tests in the v1 scope and one blank owner attestation form in the packet.
+`identity-manifest-v4.json` (pinned in `identity_v4.py`) declares exactly those paths, each with the
+SHA-256 it had before (which must equal its v1/v2/v3 expectation) and its new SHA-256 and git blob,
+plus the exact inventory of `docs/i18n/review/kun-i18n-003/`. The authorized path list is fixed in
+code. The working-tree check is v1/v2/v3 with the v4 overlay: the 209 v1 files no version touches stay
+byte-identical, and no undeclared file may appear in the v1 scope or in the packet. A signed sheet
+under `signed/`, an edited attestation form or any other packet change is refused, so a later
+signed-decision intake needs its own versioned overlay; v4 pre-approves no signature.
+`7fc1702..HEAD` restricted to the v1 scope, the v2/v3-declared paths and the packet must equal the v4
+declaration, and `7fc1702` itself must satisfy v3. `test_pan_qa08_identity_v4.py` seeds the v4 defects.

@@ -132,7 +132,7 @@ Devanagari name, rendered from this commit. Web locations: the catalog key and t
 
 ## Item 15
 
-- **स्वीकृत चार्ट स्कीमा**: PDF pages none in the fixtures
+- **चार्ट स्कीमा 0.3.0**: PDF pages 10
   - web `ui.d9.footnote` (Result: D9 chart and table)
 
 ## Item 17

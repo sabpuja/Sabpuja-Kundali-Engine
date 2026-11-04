@@ -7,11 +7,11 @@ are proposals for the reviewer to accept, revise or reject. No human review has 
 
 | | |
 |---|---|
-| Source under review | commit `c9f147bad9b50c5eb85585b0e3e952e49fb5ac40`, tree `85e38f1dbafc0eef4dc24f87c5910b118261fb73` (PR #60, KUN-I18N-002) |
-| Web catalog | `prototype/kundali_prototype/static/i18n.json` SHA-256 `5cf9e5fcb4234dd971fa1c512c6c6da6567918d38a0c7e61c9e6d8cd496b17f1` |
-| PDF catalog | `report/phase1/report_i18n.json` SHA-256 `324b19ec2269b578f026b4b1dbebbd73d9b3b2f3d4879e2cca9dedb325ac0145` |
+| Source under review | commit `84fe981c79573ab753b5d7baadf2ff4aa49e819c`, tree `273d99ee6c91a65117ff676c17ae6f0a2642ecb3` (KUN-I18N-COPY-005: owner-approved Changes A and B applied to the KUN-I18N-002 text of `c9f147b`; nothing else in either catalog changed) |
+| Web catalog | `prototype/kundali_prototype/static/i18n.json` SHA-256 `06c0f071206ffc40a1f6c1eb254ce252bc8e91305568cf787a232f374f064627` |
+| PDF catalog | `report/phase1/report_i18n.json` SHA-256 `1483e1fa666005a7182b791904dbb777f63a1a554b1407ff274d59c0b277f81e` |
 | Hindi sample PDF (10 pages, synthetic) | `assets/sample-hi-anonymous.pdf` SHA-256 `7590ea3a5b094e1f92e27ea975af262219a3bef4cd49219e48882944282588c7` |
-| English sample PDF (10 pages, synthetic) | `assets/sample-en-anonymous.pdf` SHA-256 `37b77f9a4013d5fb6ccfa379ac71c2bcd186f28428f1b010ff52ee63426010ea` |
+| English sample PDF (10 pages, synthetic) | `assets/sample-en-anonymous.pdf` SHA-256 `c12c378b84839530e0267aad846253b9488fe89d3bfdb65a1ee256909f978278` |
 
 Every birth detail, name and chart in this packet is synthetic (fixture `s11-afternoon`: New Delhi,
 5 September 2038, 15:20:10; name "क्षत्रिय प्रियंका सिद्धार्थ" where a named sample is shown). No
@@ -179,10 +179,12 @@ Priority items (owner and QA): **1, 3, 4, 5, 7, 10, 14, 15, 18**.
 | Meaning | Engine values are shown exactly as calculated and compared between languages by tests. |
 | Developer recommendation | **ACCEPT** (Devanagari numerals would be a separate owner decision) |
 
-## Item 13 — English page 10 "Hindi edition" [Owner]
+## Item 13 — English page 10 not-included line [L + Owner]
 
-Not a Hindi editorial item. See `CHANGE-A-ENGLISH-PAGE10.md`. The Hindi line
-"अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध)" (PDF p. 10) is in scope for the language reviewer: **ACCEPT / REVISE**.
+The English line is now "Hindi text (available as a separate edition)" (Change A, applied in
+KUN-I18N-COPY-005; see `CHANGE-A-ENGLISH-PAGE10.md`; the owner's signed attestation is still pending).
+The English line is not a Hindi editorial item. The Hindi line "अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध)"
+(PDF p. 10) is unchanged and is in scope for the language reviewer: **ACCEPT / REVISE**.
 
 ## Item 14 — Hindi reading-guide sign note [L] — PRIORITY
 
@@ -196,16 +198,16 @@ Not a Hindi editorial item. See `CHANGE-A-ENGLISH-PAGE10.md`. The Hindi line
 | Developer recommendation | **ACCEPT** |
 | Where | PDF p. 3 (under the Rashi list). |
 
-## Item 15 — "owner-approved chart schema 0.3.0" [L + Owner] — PRIORITY
+## Item 15 — D9 footnote "chart schema 0.3.0" [L + Owner] — PRIORITY
 
 | | |
 |---|---|
-| English source | Web D9 footnote: "… The D9 house fields use the owner-approved chart schema 0.3.0." |
-| Current Hindi | "… D9 भाव के फ़ील्ड **स्वीकृत** चार्ट स्कीमा 0.3.0 के अनुसार हैं।" |
-| Alternatives | Change B (owner decision): English "… use chart schema 0.3.0.", Hindi "… चार्ट स्कीमा 0.3.0 के अनुसार हैं।"; or "परियोजना स्वामी द्वारा अनुमोदित" |
+| English source | Web D9 footnote: "… The D9 house fields use chart schema 0.3.0." (Change B, applied in KUN-I18N-COPY-005; before: "… use the owner-approved chart schema 0.3.0.") |
+| Current Hindi | "… D9 भाव के फ़ील्ड चार्ट स्कीमा 0.3.0 के अनुसार हैं।" (before Change B: "… **स्वीकृत** चार्ट स्कीमा 0.3.0 …") |
+| Alternatives | "… चार्ट स्कीमा संस्करण 0.3.0 …"; or keep the earlier "स्वीकृत" form (would need a new owner decision) |
 | Meaning | Internal engineering provenance in customer text. |
 | Risks | स्वीकृत alone reads as generally "approved"; the English exposes internal process wording to customers. |
-| Developer recommendation | **REVISE** per Change B, if the owner approves (`CHANGE-B-SCHEMA-WORDING.md`). Web only; no PDF effect. |
+| Developer recommendation | **ACCEPT** the applied Change B wording (`CHANGE-B-SCHEMA-WORDING.md`). Web only; no PDF effect. Owner approval of the copy does not replace this language review. |
 
 ## Item 16 — Native date and time pickers [L]
 

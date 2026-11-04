@@ -95,21 +95,28 @@ class ManifestStructureTest(unittest.TestCase):
 
 
 class TreeVerificationTest(unittest.TestCase):
-    """The v2-with-v3 check on a private copy of the committed tree."""
+    """The v2-with-v3 check on a private copy of the tree, taken from the git objects of the audited v3
+    commit 85f6a89 (since KUN-I18N-COPY-005 the working tree carries the v4 changes, which identity_v4 and
+    its own tests cover)."""
 
     @classmethod
     def setUpClass(cls):
         cls.v1, cls.v2, _, _, cls.v3 = _committed()
-        out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z"], capture_output=True, check=True).stdout
+        out = subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", iv3.V3_CANDIDATE_COMMIT],
+                             capture_output=True, check=True).stdout
         tracked = [p for p in out.decode().split("\0") if p]
         cls.paths = [p for p in tracked if iv2.in_scope(p) or p in cls.v2["added"]]
+        cls.blobs = iv2.Git(REPO).blobs(iv3.V3_CANDIDATE_COMMIT, cls.paths)
+
+    def restore(self, p):
+        (self.tmp / p).write_bytes(self.blobs[p])
 
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix="pan-qa08-v3-"))
         self.addCleanup(shutil.rmtree, self.tmp)
         for p in self.paths:
             (self.tmp / p).parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(REPO / p, self.tmp / p)
+            self.restore(p)
 
     def refused(self, needle):
         with self.assertRaises(IdentityError) as ctx:
@@ -130,12 +137,12 @@ class TreeVerificationTest(unittest.TestCase):
         with open(self.tmp / other, "ab") as f:
             f.write(b"\n")
         self.refused(f"unexpected hash (declared v2 modified): {other}")
-        shutil.copyfile(REPO / other, self.tmp / other)
+        self.restore(other)
         added = next(iter(self.v2["added"]))
         with open(self.tmp / added, "ab") as f:
             f.write(b"\n")
         self.refused(f"unexpected hash (declared v2 added): {added}")
-        shutil.copyfile(REPO / added, self.tmp / added)
+        self.restore(added)
         unchanged = next(p for p in sorted(self.v1["files"]) if p not in self.v2["modified"])
         with open(self.tmp / unchanged, "ab") as f:
             f.write(b"\n")
@@ -168,11 +175,20 @@ class ExactCommitTest(unittest.TestCase):
         doc = copy.deepcopy(self.v3)
         doc["added"][NEW_TEST]["git_blob"] = "1" * 40
         with self.assertRaisesRegex(IdentityError, f"v3 added hash differs from the committed object: {NEW_TEST}"):
-            iv3.verify_git_v3(REPO, self.v1, self.v2, doc)
+            iv3.verify_git_v3(REPO, self.v1, self.v2, doc, commit=iv3.V3_CANDIDATE_COMMIT)
         doc = copy.deepcopy(self.v3)
         doc["modified"][SERVER]["v3_sha256"] = "2" * 64
         with self.assertRaisesRegex(IdentityError, f"v3 modified hash differs from the committed object: {SERVER}"):
-            iv3.verify_git_v3(REPO, self.v1, self.v2, doc)
+            iv3.verify_git_v3(REPO, self.v1, self.v2, doc, commit=iv3.V3_CANDIDATE_COMMIT)
+
+    def test_v3_holds_at_its_commit_and_at_main(self):
+        for commit in (iv3.V3_CANDIDATE_COMMIT, iv3.V3_MAIN_COMMIT):
+            self.assertEqual(iv3.verify_git_v3(REPO, self.v1, self.v2, self.v3, commit=commit)["v3_modified"], 1)
+
+    def test_v3_alone_rejects_the_v4_tree(self):
+        """KUN-I18N-COPY-005: v3 is preserved, so it must still refuse the copy changes."""
+        with self.assertRaisesRegex(IdentityError, "differs from the v3 declaration"):
+            iv3.verify_git_v3(REPO, self.v1, self.v2, self.v3, commit="HEAD")
 
     def test_the_v2_commit_itself_is_not_the_v3_tree(self):
         with self.assertRaisesRegex(IdentityError, "differs from the v3 declaration"):
