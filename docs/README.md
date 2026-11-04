@@ -16,7 +16,7 @@
 ## Existing foundation and governance (from draft PR #1, integrated through PR #69)
 The foundation PR contains `README.md`, `AGENTS.md`, `docs/architecture.md`, `docs/project-governance.md`, `docs/accuracy-plan.md`, `docs/api-contract.md`, `docs/privacy-security.md`, and `docs/qa-review-template.md`.
 
-- [Draft foundation PR #1](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/1)
+- [Historical foundation PR #1](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/1)
 - [CLAUDE-001 audit issue #2](https://github.com/sabpuja/Sabpuja-Kundali-Engine/issues/2)
 
 These files reached `main` on 2026-11-04 through the PR #69 merge (`b7bf1cc`), under owner decision D-6 for the exact independently reviewed candidate. PR #1 was not merged separately; GitHub marked it merged automatically because its head is now part of `main`. The existing `docs/roadmap.md` is a **preliminary outline**, marked as superseded. `docs/DEVELOPMENT-ROADMAP.md` is the **canonical detailed plan**; its own header gives its current review status. Do not create a competing second roadmap.

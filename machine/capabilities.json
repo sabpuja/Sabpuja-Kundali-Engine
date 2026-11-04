@@ -106,6 +106,7 @@
     "independent_qa": "PR #69 review 5753128047",
     "owner_decision": "D-6 KUN-INT-MERGE-001 (exact candidate only)"
   },
+  "pr_1_hold_active": false,
   "pr_1_status": "auto-marked-merged-by-github-via-ancestry-no-separate-merge-hold-released-only-under-d6-for-pr-69-candidate",
   "bilingual_editorial_acceptance": "pending"
 }
