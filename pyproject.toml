@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sabpuja-kundali-engine"
+version = "0.1.0"
+description = "Self-hosted, AGPL-licensed Vedic Kundali calculation foundation for Sabpuja"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "AGPL-3.0-only" }
+dependencies = ["pyswisseph==2.10.3.2", "tzdata==2026.5"]
+
+[project.scripts]
+sabpuja-kundali = "sabpuja_kundali.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+sabpuja_kundali = ["ephemeris-manifest.json", "tzif-manifest.json"]

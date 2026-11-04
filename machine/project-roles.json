@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "updated": "2026-11-03",
+  "project": "Sabpuja Kundali Engine",
+  "governance_status": "owner-directed-dec-003-recorded-in-docs-decisions",
+  "canonical_repo": "sabpuja/Sabpuja-Kundali-Engine",
+  "roles": {
+    "product_owner": {
+      "actor": "Sabpuja human owner",
+      "accountability": [
+        "product vision",
+        "priorities",
+        "scope and budget decisions",
+        "approval of merge, staging and release"
+      ]
+    },
+    "project_manager_qa": {
+      "actor": "ChatGPT",
+      "accountability": [
+        "work packages",
+        "architecture and risk review",
+        "all material PR/code reviews",
+        "independent verification",
+        "defect triage",
+        "release recommendation"
+      ],
+      "continuous_monitoring": false
+    },
+    "lead_developer": {
+      "actor": "Claude or Claude Code",
+      "accountability": [
+        "implementation",
+        "local/approved VPS tests",
+        "defect repair",
+        "PR evidence"
+      ],
+      "access_status": "repository access used only within milestones the owner authorizes; evidence: Claude-authored commits on draft PR branches (e.g. 5a0ac2f on PR #35) and the authorization records on PR #20"
+    }
+  },
+  "gates": [
+    "owner-approved scope",
+    "developer draft PR",
+    "test evidence",
+    "PM independent QA",
+    "owner merge approval",
+    "separate deployment approval"
+  ],
+  "first_task": "docs/claude-builder-brief-001.md",
+  "qa_template": "docs/qa-review-template.md",
+  "rules": {
+    "no_self_merge": true,
+    "no_direct_main_push": true,
+    "no_auto_deploy": true,
+    "no_github_actions": true,
+    "no_external_astrology_api": true,
+    "no_real_birth_data_in_git": true,
+    "shopify_staging_only": true,
+    "production_launch_approved": false
+  },
+  "other_repos": {
+    "requirements": "sabpuja/Sabpuja-Kundali-Engine (docs/, DEC-004)",
+    "routing": "sabpuja/Progress-Memory",
+    "storefront": "sabpuja/theme",
+    "design": "sabpuja/design-system",
+    "organization_policy": "sabpuja/core"
+  },
+  "current_state": "isolated integration candidate integration/kun-int-001 (KUN-INT-CAND-001): main 25cfde4 merged with PR #68 b1bca79 for independent QA only, not main, not released, not deployed; foundation PR #1 remains on PM/QA HOLD pending owner decision D-6; scientific decisions canonical per docs/DECISIONS.md and post-merge receipts (PR #64 comment 6598563378, PR #65 comment 6600051638); chart schema 0.3.0 with metadata /3; ten-page saffron premium PDF and optional Full Name on the owner-only preview running PR #58 fde3ec6; gold harness qualified (49 PASS / 18 QUALIFIED / 1 BOUNDARY-INDETERMINATE), not certification; Panchanga M1 independently engineering-QA-passed, machine-only, not customer-facing; bilingual PRs #59-#61 outside this candidate; LEG-01 pending; production NO-GO"
+}

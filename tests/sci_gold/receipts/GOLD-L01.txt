@@ -1,0 +1,67 @@
+# KUN-SCI-GOLD-001 swetest receipt GOLD-L01
+# expected_utc 2030-06-21T15:00:00Z
+# exact_jd 19701393/8
+# jd_double 2462674.125
+## RUN A exit=0
+<SWETEST> -edir<EPHE> -bj2462674.125 -ut -sid1 -i65538 -p0123456m -fPl -ep -g, 
+date (dmy) 21.6.2030 greg.   15:00:00 UT		version 2.10.03
+UT:  2462674.125000000     delta t: 69.389582 sec
+TT:  2462674.125803120   ayanamsa =   24°17'14.85586587 (Lahiri)
+Epsilon (m)       23°26' 7.13492996
+Sun            , 66.00984156960
+Moon           , 323.10256609785
+Mercury        , 62.70654622696
+Venus          , 34.65089046353
+Mars           , 58.89541035451
+Jupiter        , 204.29541076530
+Saturn         , 38.26737072550
+mean Node      , 231.43286905840
+## RUN B exit=0
+<SWETEST> -edir<EPHE> -bj2462674.125 -ut -sid1 -i65794 -p0123456m -fPls -ep -g, 
+date (dmy) 21.6.2030 greg.   15:00:00 UT		version 2.10.03
+UT:  2462674.125000000     delta t: 69.389582 sec
+TT:  2462674.125803120   ayanamsa =   24°17'14.85586587 (Lahiri)
+Epsilon (m)       23°26' 7.13492996
+Sun            , 66.00984156960, 0.95411474712569611
+Moon           , 323.10256609785, 12.92744212337509246
+Mercury        , 62.70654622696, 2.18606860135706338
+Venus          , 34.65089046353, 1.19078544220551996
+Mars           , 58.89541035451, 0.68438781126007087
+Jupiter        , 204.29541076530,-0.06864485211082075
+Saturn         , 38.26737072550, 0.11974890514154488
+mean Node      , 231.43286905840,-0.05299199161258415
+## RUN C exit=0
+<SWETEST> -edir<EPHE> -bj2462674.125 -ut -sid1 -i65536 -p -fPl -ep -g, -house-68.3,-54.8,W 
+date (dmy) 21.6.2030 greg.   15:00:00 UT		version 2.10.03
+UT:  2462674.125000000     delta t: 69.389582 sec
+TT:  2462674.125803120   ayanamsa =   24°17'14.85586587 (Lahiri)
+geo. long -68.300000, lat -54.800000, alt 0.000000
+Epsilon (m)       23°26' 7.13492996
+Houses system W (equal/ whole sign) for long= -68°18' 0.00000000, lat= -54°48' 0.00000000
+house  1       , 90.00000000000
+house  2       , 120.00000000000
+house  3       , 150.00000000000
+house  4       , 180.00000000000
+house  5       , 210.00000000000
+house  6       , 240.00000000000
+house  7       , 270.00000000000
+house  8       , 300.00000000000
+house  9       , 330.00000000000
+house 10       , 0.00000000000
+house 11       , 30.00000000000
+house 12       , 60.00000000000
+Ascendant      , 100.65896630466
+MC             , 44.01747327203
+ARMC           , 66.55770014083
+Vertex         , 316.19499631700
+equat. Asc.    , 130.41722716374
+co-Asc. W.Koch , 139.90909295167
+co-Asc Munkasey, 120.38211137812
+Polar Asc.     , 319.90909295167
+## RUN D exit=0
+<SWETEST> -edir<EPHE> -bj2462674.125 -ut -po -fPlbr -ep -g, 
+date (dmy) 21.6.2030 greg.   15:00:00 UT		version 2.10.03
+UT:  2462674.125000000     delta t: 69.389582 sec
+TT:  2462674.125803120
+Nutation           0° 0'16.95227583,  -0° 0' 2.67752045
+Ecl. Obl.      , 23.43457150264, 23.43531525832,   0.000000000
