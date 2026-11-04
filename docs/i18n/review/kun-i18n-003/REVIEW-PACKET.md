@@ -11,7 +11,7 @@ are proposals for the reviewer to accept, revise or reject. No human review has 
 | Web catalog | `prototype/kundali_prototype/static/i18n.json` SHA-256 `5cf9e5fcb4234dd971fa1c512c6c6da6567918d38a0c7e61c9e6d8cd496b17f1` |
 | PDF catalog | `report/phase1/report_i18n.json` SHA-256 `324b19ec2269b578f026b4b1dbebbd73d9b3b2f3d4879e2cca9dedb325ac0145` |
 | Hindi sample PDF (10 pages, synthetic) | `assets/sample-hi-anonymous.pdf` SHA-256 `7590ea3a5b094e1f92e27ea975af262219a3bef4cd49219e48882944282588c7` |
-| English sample PDF (10 pages, synthetic) | `assets/sample-en-anonymous.pdf` SHA-256 `37b77f9a4013d5fb6ccfa379ac71c2bcd186f28428f1b010ff52ee63426010ea` |
+| English sample PDF (10 pages, synthetic) | `assets/sample-en-anonymous.pdf` SHA-256 `c12c378b84839530e0267aad846253b9488fe89d3bfdb65a1ee256909f978278` |
 
 Every birth detail, name and chart in this packet is synthetic (fixture `s11-afternoon`: New Delhi,
 5 September 2038, 15:20:10; name "क्षत्रिय प्रियंका सिद्धार्थ" where a named sample is shown). No

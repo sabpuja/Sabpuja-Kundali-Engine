@@ -201,7 +201,7 @@
     "method.exc2": {"en": "Other divisional charts, Yogas, Doshas and strengths", "hi": "अन्य वर्ग कुंडलियाँ, योग, दोष और बल"},
     "method.exc3": {"en": "Retrograde status and dignities", "hi": "वक्री स्थिति और उच्च-नीच अवस्था"},
     "method.exc4": {"en": "Interpretations, predictions and remedies", "hi": "व्याख्या, भविष्यवाणी और उपाय"},
-    "method.exc5": {"en": "Hindi edition", "hi": "अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध)"},
+    "method.exc5": {"en": "Hindi text (available as a separate edition)", "hi": "अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध)"},
     "method.licences_title": {"en": "Source and licences", "hi": "स्रोत और लाइसेंस"},
     "method.licences": {"en": "Sabpuja Kundali Engine source: github.com/sabpuja/Sabpuja-Kundali-Engine (AGPL-3.0). Swiss Ephemeris is used under its AGPL licence option. Time zone data: IANA tz database (public domain) via the tzdata package (Apache-2.0). Place coordinates: GeoNames (CC BY 4.0), cross-checked with Natural Earth. Typefaces: Poppins and Inter (SIL Open Font License 1.1).", "hi": "Sabpuja Kundali Engine का स्रोत कोड: github.com/sabpuja/Sabpuja-Kundali-Engine (AGPL-3.0)। Swiss Ephemeris का उपयोग उसके AGPL लाइसेंस विकल्प के अंतर्गत किया गया है। समय क्षेत्र डेटा: IANA tz डेटाबेस (सार्वजनिक डोमेन), tzdata पैकेज (Apache-2.0) के माध्यम से। स्थान निर्देशांक: GeoNames (CC BY 4.0), Natural Earth से मिलान किए गए। टाइपफ़ेस: Poppins और Inter (SIL Open Font License 1.1)।"}
   }

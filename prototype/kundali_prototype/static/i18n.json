@@ -165,7 +165,7 @@
     "d9table.caption": {"en": "D9 Navamsa sign and D9 whole-sign house of the D9 Lagna and each graha", "hi": "D9 लग्न और प्रत्येक ग्रह की D9 नवांश राशि और D9 पूर्ण-राशि भाव"},
     "th.d9rashi": {"en": "D9 Rashi", "hi": "D9 राशि"},
     "th.d9house": {"en": "D9 House", "hi": "D9 भाव"},
-    "d9.footnote": {"en": "D9 signs come from the unrounded sidereal longitudes in 3°20′ divisions; D9 houses are counted from the D9 Lagna sign, so a D9 house number is not a D1 house number. The D9 house fields use the owner-approved chart schema 0.3.0.", "hi": "D9 राशियाँ बिना पूर्णांकन वाले निरयन भोगांशों के 3°20′ के विभागों से निकलती हैं; D9 भाव D9 लग्न राशि से गिने जाते हैं, इसलिए D9 भाव संख्या D1 भाव संख्या नहीं है। D9 भाव के फ़ील्ड स्वीकृत चार्ट स्कीमा 0.3.0 के अनुसार हैं।"},
+    "d9.footnote": {"en": "D9 signs come from the unrounded sidereal longitudes in 3°20′ divisions; D9 houses are counted from the D9 Lagna sign, so a D9 house number is not a D1 house number. The D9 house fields use chart schema 0.3.0.", "hi": "D9 राशियाँ बिना पूर्णांकन वाले निरयन भोगांशों के 3°20′ के विभागों से निकलती हैं; D9 भाव D9 लग्न राशि से गिने जाते हैं, इसलिए D9 भाव संख्या D1 भाव संख्या नहीं है। D9 भाव के फ़ील्ड चार्ट स्कीमा 0.3.0 के अनुसार हैं।"},
     "method.heading": {"en": "Method and transparency", "hi": "गणना पद्धति और पारदर्शिता"},
     "method.limits": {"en": "What this private preview does not calculate", "hi": "यह निजी पूर्वावलोकन किनकी गणना नहीं करता"},
     "limit.1": {"en": "Births before 1970-01-01: historical clock records are not yet verified, so these are refused.", "hi": "1970-01-01 से पहले के जन्म: ऐतिहासिक घड़ी-रिकॉर्ड अभी सत्यापित नहीं हैं, इसलिए इन्हें अस्वीकार किया जाता है।"},
