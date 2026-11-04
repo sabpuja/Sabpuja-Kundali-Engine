@@ -706,7 +706,8 @@ async function runView(browser, base, view, contextOpts) {
   }
   const ids = order.map((o) => o.id);
   // KUN-UX-NAME-001: the optional Full name field comes first in the form, before the birthplace.
-  const wanted = ["skip-link", "header-site-link", "full-name", "place", "birth-date", "birth-time", "time-unknown", "submit", "clear"];
+  // KUN-I18N-001: the English / Hindi language switch sits in the header before the site link.
+  const wanted = ["skip-link", "lang-en", "lang-hi", "header-site-link", "full-name", "place", "birth-date", "birth-time", "time-unknown", "submit", "clear"];
   check(view, "keyboard Tab order reaches all controls in order", JSON.stringify(ids) === JSON.stringify(wanted), ids);
   check(view, "focused controls show a focus ring", order.every((o) => o.ring), order);
   // Keyboard-only submission.

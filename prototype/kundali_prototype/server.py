@@ -31,6 +31,8 @@ _PDF_RENDER_SLOT = threading.BoundedSemaphore(1)
 # OD-10: the owner approved the saffron Foundation design (report/phase1/premium_theme.json
 # 'baseline', which maps theme.json). The only palette the /api/report route renders.
 REPORT_PALETTE = "baseline"
+# KUN-I18N-001: report languages accepted by /api/report (presentation only); omitted means English.
+REPORT_LOCALES = ("en", "hi")
 # ChartComputationError codes meaning the pinned Swiss runtime itself is unusable on
 # this server (engine.swiss_runtime and the Moshier refusal), reported as "resources".
 # Every other ChartComputationError is a server-side calculation failure.
@@ -55,9 +57,11 @@ _STATIC.update({f"/static/fonts/{family}-{subset}-{weight}-normal.woff2":
                 (f"fonts/{family}-{subset}-{weight}-normal.woff2", "font/woff2")
                 for family, weights in (("inter", (400, 500, 600)), ("poppins", (500, 600, 700)))
                 for weight in weights for subset in ("latin", "latin-ext")})
-# Poppins Devanagari (same @fontsource/poppins 5.3.0 package) for Hindi report names.
+# Poppins Devanagari (same @fontsource/poppins 5.3.0 package) for Hindi names and the Hindi interface.
 _STATIC.update({f"/static/fonts/poppins-devanagari-{weight}-normal.woff2":
-                (f"fonts/poppins-devanagari-{weight}-normal.woff2", "font/woff2") for weight in (500, 600, 700)})
+                (f"fonts/poppins-devanagari-{weight}-normal.woff2", "font/woff2") for weight in (400, 500, 600, 700)})
+# KUN-I18N-001: the English/Hindi interface catalog and terminology register (no personal data).
+_STATIC["/static/i18n.json"] = ("i18n.json", "application/json; charset=utf-8")
 _SECURITY_HEADERS = {
     "Content-Security-Policy": ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; "
                                 "font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; "
@@ -282,6 +286,28 @@ def _split_display_name(raw: bytes) -> tuple[bytes, str | None]:
     return json.dumps(body, ensure_ascii=False).encode("utf-8"), name
 
 
+def _split_report_locale(raw: bytes) -> tuple[bytes, str | None]:
+    """Separate the optional report language from the rest of the request (KUN-I18N-001).
+
+    Returns the remaining request bytes and the locale ("en" or "hi"), or None when the key is
+    absent. A request without report_locale is passed on byte for byte. The value must be the
+    string "en" or "hi": anything else is refused with a fixed, non-echoing message. The key is
+    removed before the name split and the unchanged chart handler, which never see it.
+    """
+    try:
+        body = json.loads(raw.decode("utf-8"), object_pairs_hook=_no_duplicates)
+    except (UnicodeDecodeError, ValueError, RecursionError):
+        return raw, None
+    if not isinstance(body, dict) or "report_locale" not in body:
+        return raw, None
+    locale = body.pop("report_locale")
+    if not isinstance(locale, str):
+        raise FormError(400, "REQUEST_INVALID", "report_locale must be a string")
+    if locale not in REPORT_LOCALES:
+        raise FormError(422, "REPORT_LOCALE_UNSUPPORTED", "report_locale must be en or hi")
+    return json.dumps(body, ensure_ascii=False).encode("utf-8"), locale
+
+
 def handle_report(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[int, dict | bytes]:
     """An in-memory PDF derived only from the authenticated engine request and response.
 
@@ -293,8 +319,13 @@ def handle_report(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[
     The optional display_name is accepted by this route only (never by /api/chart). It is
     validated separately, removed before the chart handler runs, and passed to the renderer
     as a display-only argument. It is not stored, logged or echoed.
+
+    The optional report_locale ("en" default, or "hi") is the report language only. It is
+    validated and removed first, and the renderer receives it separately from the engine
+    response; the chart request and result are the same in both languages.
     """
     try:
+        raw, locale = _split_report_locale(raw)
         raw, display_name = _split_display_name(raw)
     except FormError as exc:
         return _error(exc.status, exc.code, exc.message, exc.category)
@@ -302,9 +333,11 @@ def handle_report(raw: bytes, places: dict[str, dict], ephe_path: str) -> tuple[
     if status != 200:
         return status, response
     from report.phase1.premium_report import generate
-    # Without a name the renderer is called exactly as before this feature.
-    named = {} if display_name is None else {"display_name": display_name}
-    pdf = generate(response, synthetic=False, palette=REPORT_PALETTE, **named)
+    # Without a name or a non-English locale the renderer is called exactly as before.
+    options = {} if display_name is None else {"display_name": display_name}
+    if locale is not None and locale != "en":
+        options["locale"] = locale
+    pdf = generate(response, synthetic=False, palette=REPORT_PALETTE, **options)
     if len(pdf) > MAX_PDF_BYTES or not pdf.startswith(b"%PDF-"):
         raise RuntimeError("controlled PDF size exceeded")
     return 200, pdf
