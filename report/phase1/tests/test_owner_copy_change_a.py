@@ -1,5 +1,5 @@
 """KUN-I18N-003 owner copy Change A, applied in KUN-I18N-COPY-005 (issue #73, owner chat approval for
-implementation and independent QA; the signed owner attestation is still pending)."""
+implementation and independent QA; merged in PR #74; owner-accepted under KUN-GOV-SIMPLE-001, issue #75)."""
 import sys
 import unittest
 from pathlib import Path

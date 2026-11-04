@@ -24,15 +24,16 @@ customer data is included.
 2. Look at the term in context: `assets/en-hi-page-NN.png` (English | Hindi, each of the ten pages),
    `assets/sample-*.pdf`, and the interface screenshots `assets/screens/` (280, 375, 768 and
    1440 px; English, Hindi form, Hindi result).
-3. Record a decision for every item in `DECISION-SHEET.md` (or the CSV copy): **ACCEPT**,
-   **REVISE** (write the exact replacement Hindi) or **REJECT** (say why), and sign it.
-4. Return the signed sheet to the owner. The developer then applies REVISE decisions in a
-   separate exact-SHA commit, and `EDITORIAL-ACCEPTANCE-REGISTER.md` records who decided what,
-   when, and against which catalog revision.
+3. Give a decision for each item in your layer, using `DECISION-SHEET.md` (or the CSV copy) as the
+   list: **ACCEPT**, **REVISE** (write the exact replacement Hindi) or **REJECT** (say why). No
+   signature or form is needed (KUN-GOV-SIMPLE-001, issue #75).
+4. Send the feedback as a GitHub issue or PR comment, or to the owner, who posts it there. The developer
+   records each decision in the register with your name and that GitHub record, applies REVISE
+   decisions in a separate change, and `EDITORIAL-ACCEPTANCE-REGISTER.md` explains what is recorded.
 
 "Language" decisions are about Hindi grammar, spelling, readability and tone. "Jyotish" decisions
 are about whether a term is the correct, recognised astrological term. Items marked **[L]**, **[J]**
-or **[L+J]** say which review layer has to sign.
+or **[L+J]** say which review layer decides.
 
 Priority items (owner and QA): **1, 3, 4, 5, 7, 10, 14, 15, 18**.
 
@@ -182,7 +183,7 @@ Priority items (owner and QA): **1, 3, 4, 5, 7, 10, 14, 15, 18**.
 ## Item 13 — English page 10 not-included line [L + Owner]
 
 The English line is now "Hindi text (available as a separate edition)" (Change A, applied in
-KUN-I18N-COPY-005; see `CHANGE-A-ENGLISH-PAGE10.md`; the owner's signed attestation is still pending).
+KUN-I18N-COPY-005; see `CHANGE-A-ENGLISH-PAGE10.md`; owner-accepted, recorded under issue #75).
 The English line is not a Hindi editorial item. The Hindi line "अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध)"
 (PDF p. 10) is unchanged and is in scope for the language reviewer: **ACCEPT / REVISE**.
 
@@ -236,7 +237,7 @@ defects it found. Style points left for the reviewer:
 | `ui.name.help` | "ऐपॉस्ट्रॉफ़ी" | spelling of "apostrophe" (एपॉस्ट्रॉफ़ी?) |
 | whole catalog | — | read for naturalness: nothing should read as machine translation |
 
-Developer recommendation: **REVISE** at the reviewer's discretion; the reviewer signs the overall tone.
+Developer recommendation: **REVISE** at the reviewer's discretion; the reviewer decides the overall tone.
 
 ---
 

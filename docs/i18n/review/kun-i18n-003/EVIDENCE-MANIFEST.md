@@ -23,17 +23,22 @@ KUN-I18N-COPY-005 both changes are applied in the reviewed source above; this se
 
 ## Files in this package (SHA-256)
 
+Every file except `editorial-acceptance-register.json`, which is the live decision record: its decision fields
+change when a decision is recorded (KUN-GOV-SIMPLE-001, issue #75), so it is validated by
+`report/phase1/tests/test_editorial_register.py` and, for everything except those fields, by PAN-QA-08 v5,
+rather than pinned here.
+
 | SHA-256 | File |
 |---|---|
-| `cca69914637b1705ee19af8f076094d981bb16a43e0ee7871a5f37bd78862525` | `CHANGE-A-ENGLISH-PAGE10.md` |
-| `a52150d17ab5f8f5ba2d2ad7cdda37ed229035a462e0d370dc66182f63fab5bc` | `CHANGE-B-SCHEMA-WORDING.md` |
+| `847a8838f29b89dc7827eba3937165a24bcc2dd8d1f8cf70074892d55b74c3f0` | `CHANGE-A-ENGLISH-PAGE10.md` |
+| `782c087c77d2d25aba71895c1a059df03bcba0228de9936742337c699abe6456` | `CHANGE-B-SCHEMA-WORDING.md` |
 | `c99eae20648a787c64e0ea916c17ab276610c7d01c1e9f299f645af972b98c97` | `DECISION-SHEET.csv` |
-| `c82b2566fcf960822e63a8c3dfd61cc09afdc6f8689d7d3950cdb89b81eeb2b3` | `DECISION-SHEET.md` |
-| `d19d897407625b433b14d8ef5595e3c6a4b17c08ba112768a9f45b9186548465` | `EDITORIAL-ACCEPTANCE-REGISTER.md` |
+| `4ac0e28dd55555888ea4b1e1e69c565e3184d7ff57a7b383ac61b967951a0d4d` | `DECISION-SHEET.md` |
+| `a1c85668e304cb05c89b937725891a5a39e9442933010bee8b7e0010437cbbaa` | `EDITORIAL-ACCEPTANCE-REGISTER.md` |
 | `9690c9afd5dc1f7ee9c10e6edc38033cd3017b5ad77422bb5b879f7f84803198` | `LOCATIONS.md` |
-| `c00d5c12319076c02e07158d1f0f2991876322fd9d9516c64e560ff0d566527f` | `OWNER-COPY-ATTESTATION.md` |
-| `8385911664de51054ee1a3b50563dba78c5f2e560977a639c06fce896fbf51ce` | `README.md` |
-| `e9f9b9718bc873bea3ccbc73b3772fa5eb0ae579a3ed0b6b2573b508bc820058` | `REVIEW-PACKET.md` |
+| `f3d79fc5f1c4d8caf4d4ff6f2640ba78876c4826354139b55387008dbe43460f` | `OWNER-COPY-ATTESTATION.md` |
+| `0268758b4af28ccd6b4dc9a6573fcc796116b71f84dd5d3d15290b5e1d64328f` | `README.md` |
+| `3a4bd12d0224d2ffb640037783d45f6c09fc3a509d40c688b4cb02e8a7ddbceb` | `REVIEW-PACKET.md` |
 | `732231a491cd70c4f9719001fef0bde1d63e39602f4e112eeef248a9ad32a66d` | `assets/en-hi-page-01.png` |
 | `912c7b85e9241a9061f53ffc0ec714b4c217630faceff44288f79e944e5166d4` | `assets/en-hi-page-02.png` |
 | `b5d5574356f9b202aac3f4c099a9404527af08a8bc3312628e07e8ce9625ecae` | `assets/en-hi-page-03.png` |
@@ -62,11 +67,10 @@ KUN-I18N-COPY-005 both changes are applied in the reviewed source above; this se
 | `35bc27b3d3082c9cb677e17746d53f3a0d17738641c3129e1acee5c19e7c15ee` | `assets/screens/i18n-hi-form-280.png` |
 | `fdd2d47f6132998d75a5732fa78ea9356436d3e0baa58fc8b9ac06bfbcd4787f` | `assets/screens/i18n-hi-form-375.png` |
 | `1cae86ece38b489b11085cc789fa455071f8c8cdc80cc106112f52d15cfe0792` | `assets/screens/i18n-hi-form-768.png` |
-| `7fa3f3a981252f0f2275d0ca45fae61e110fc3183e93d46a70dac653f9fd2ed8` | `editorial-acceptance-register.json` |
 | `a579014eba39fed9ba8478fd3e46ff3301694f72c0b855f1af6958d3f04a038a` | `locations.py` |
 | `b2f55fc5c1f728a0566379a91581b77366533aa0c9749518b9eaff67a7f14326` | `patches/change-a-english-page10.patch` |
 | `8998a9b0e06c8b4566b6cb7a64d28e7a07467e7b16d62b636c4f3afc2368af32` | `patches/change-b-schema-wording.patch` |
-| `415e271594c98388ef1435d8b9b7e7f01b39f1f7127158d8f2b3e0ee54b82f0d` | `refresh_manifest.py` |
+| `e9b16cef197a7438d3924637c4c372ac5df13e4b07bea528f6cd5479c7e9d71e` | `refresh_manifest.py` |
 
 ## Developer evidence outside the repository (shared project folder `kun-i18n-003/`)
 

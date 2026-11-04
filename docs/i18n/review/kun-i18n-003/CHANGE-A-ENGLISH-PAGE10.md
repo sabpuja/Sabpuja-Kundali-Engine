@@ -1,6 +1,6 @@
 # Change A: English page 10 "Hindi edition" (owner-controlled)
 
-**Status: APPLIED (KUN-I18N-COPY-005, issue #73).** The owner approved this change for implementation and exact-SHA independent QA in chat on 2026-11-04 ("i will go with your recommendation", in reply to the question whether to approve Changes A and B exactly as documented). That chat decision is not a signed owner attestation: register item 13 `owner_copy` stays **PENDING** until the owner signs `OWNER-COPY-ATTESTATION.md`. Not merged, not released. The text below is the original specification, kept for traceability; the patch under `patches/` is the historical proposal and is not re-applied.
+**Status: APPLIED (KUN-I18N-COPY-005, issue #73).** The owner approved this change for implementation and exact-SHA independent QA in chat on 2026-11-04 ("i will go with your recommendation", in reply to the question whether to approve Changes A and B exactly as documented). Merged on owner instruction (PR #74). Under owner policy KUN-GOV-SIMPLE-001 (issue #75) the chat decision is the owner's decision: register item 13 `owner_copy` is recorded as ACCEPTED with issue #75 as its audit reference; no attestation or signature is required. Not released. The text below is the original specification, kept for traceability; the patch under `patches/` is the historical proposal and is not re-applied.
 Apply only after the owner's explicit approval, recorded with attribution in
 `editorial-acceptance-register.json` (item 13, `owner_copy`) in the same commit.
 

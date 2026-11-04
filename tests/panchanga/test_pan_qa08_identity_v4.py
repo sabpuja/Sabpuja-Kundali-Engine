@@ -152,16 +152,18 @@ class ManifestStructureTest(unittest.TestCase):
 
 
 class TreeVerificationTest(unittest.TestCase):
-    """The v1/v2/v3 + v4 check on a private copy of the committed HEAD tree."""
+    """The v1/v2/v3 + v4 check on a private copy of the tree, taken from the git objects of the audited v4
+    commit b5e2fa7 (since KUN-GOV-SIMPLE-001 the working tree carries the v5 changes, which identity_v5 and its
+    own tests cover)."""
 
     @classmethod
     def setUpClass(cls):
         cls.v1, cls.v2, cls.v3, _, _, cls.v4 = _committed()
-        out = subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", "HEAD"],
+        out = subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", iv4.V4_CANDIDATE_COMMIT],
                              capture_output=True, check=True).stdout
         prior = iv4.prior_expectations(cls.v1, cls.v2, cls.v3)
         cls.paths = [p for p in out.decode().split("\0") if p and (iv2.in_scope(p) or p in prior or p.startswith(PKT))]
-        cls.blobs = iv2.Git(REPO).blobs("HEAD", cls.paths)
+        cls.blobs = iv2.Git(REPO).blobs(iv4.V4_CANDIDATE_COMMIT, cls.paths)
         cls.main = iv2.Git(REPO).blobs(iv4.BASE_COMMIT, [SAMPLE_EN, PAGE10, UI, PDF_CAT, PINS, REGISTER, HTML])
 
     def setUp(self):
@@ -244,11 +246,22 @@ class ExactCommitTest(unittest.TestCase):
         doc = copy.deepcopy(self.v4)
         doc["added"][TEST_A]["git_blob"] = "1" * 40
         with self.assertRaisesRegex(IdentityError, f"v4 added hash differs from the committed object: {TEST_A}"):
-            iv4.verify_git_v4(REPO, self.v1, self.v2, self.v3, doc)
+            iv4.verify_git_v4(REPO, self.v1, self.v2, self.v3, doc, commit=iv4.V4_CANDIDATE_COMMIT)
         doc = copy.deepcopy(self.v4)
         doc["modified"][PDF_CAT]["v4_sha256"] = "2" * 64
         with self.assertRaisesRegex(IdentityError, f"v4 modified hash differs from the committed object: {PDF_CAT}"):
-            iv4.verify_git_v4(REPO, self.v1, self.v2, self.v3, doc)
+            iv4.verify_git_v4(REPO, self.v1, self.v2, self.v3, doc, commit=iv4.V4_CANDIDATE_COMMIT)
+
+    def test_v4_holds_at_its_commit_and_at_main(self):
+        for commit in (iv4.V4_CANDIDATE_COMMIT, iv4.V4_MAIN_COMMIT):
+            with self.subTest(commit):
+                self.assertEqual(iv4.verify_git_v4(REPO, self.v1, self.v2, self.v3, self.v4, commit=commit)
+                                 ["v4_packet"], 43)
+
+    def test_v4_alone_rejects_the_v5_tree(self):
+        """KUN-GOV-SIMPLE-001: v4 is preserved, so it must still refuse the governance changes at HEAD."""
+        with self.assertRaisesRegex(IdentityError, "differs from the v4 declaration"):
+            iv4.verify_git_v4(REPO, self.v1, self.v2, self.v3, self.v4, commit="HEAD")
 
     def test_main_itself_is_not_the_v4_tree(self):
         with self.assertRaisesRegex(IdentityError, "differs from the v4 declaration"):
