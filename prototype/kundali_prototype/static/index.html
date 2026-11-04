@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
-  <title>Sabpuja Kundali - Private Client Preview</title>
+  <title data-i18n="meta.title">Sabpuja Kundali - Private Client Preview</title>
   <link rel="stylesheet" href="/static/fonts.css">
   <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
+  <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
   <header class="site-header">
     <div class="wrap header-inner">
       <div class="brand">
@@ -19,160 +19,165 @@
              width="1254" height="1254" alt="Sabpuja">
       </div>
       <div class="header-meta">
-        <span class="product-name">Janam Kundali</span>
-        <span class="badge">Private client preview · Invitation only</span>
-        <a class="site-link" id="header-site-link" href="https://sabpuja.com" target="_blank" rel="noopener noreferrer">sabpuja.com<span class="visually-hidden"> (opens in a new tab)</span></a>
+        <span class="product-name" data-i18n="header.product">Janam Kundali</span>
+        <span class="badge" data-i18n="header.badge">Private client preview · Invitation only</span>
+        <span class="visually-hidden" id="lang-announce" aria-live="polite"></span>
+        <div class="lang-switch" role="group" aria-label="Language / भाषा" id="lang-switch">
+          <button type="button" class="lang-option" id="lang-en" lang="en" data-locale="en" aria-pressed="true">English</button>
+          <button type="button" class="lang-option" id="lang-hi" lang="hi" data-locale="hi" aria-pressed="false" disabled>हिंदी</button>
+        </div>
+        <a class="site-link" id="header-site-link" href="https://sabpuja.com" target="_blank" rel="noopener noreferrer">sabpuja.com<span class="visually-hidden" data-i18n="link.new_tab"> (opens in a new tab)</span></a>
       </div>
     </div>
   </header>
 
   <main id="main" class="wrap">
-    <section class="notice" aria-label="Prototype notice">
-      <p><strong>Private preview, not a public release.</strong> This chart is calculated using the Sabpuja engine and Swiss Ephemeris. Your birth details are processed for this calculation and are not saved as a customer profile. Enter only information you are comfortable sharing in a restricted preview.</p>
+    <section class="notice" aria-label="Prototype notice" data-i18n-aria="notice.aria">
+      <p><strong data-i18n="notice.strong">Private preview, not a public release.</strong><span data-i18n="notice.body"> This chart is calculated using the Sabpuja engine and Swiss Ephemeris. Your birth details are processed for this calculation and are not saved as a customer profile. Enter only information you are comfortable sharing in a restricted preview.</span></p>
     </section>
 
     <section class="card form-card" aria-labelledby="form-heading" id="form-section">
-      <h1 id="form-heading">Birth details</h1>
-      <p class="lede">Enter the date, exact time and place of birth as written on the birth record, in local clock time.</p>
+      <h1 id="form-heading" data-i18n="form.heading">Birth details</h1>
+      <p class="lede" data-i18n="form.lede">Enter the date, exact time and place of birth as written on the birth record, in local clock time.</p>
       <form id="birth-form" novalidate>
         <div class="field-grid">
           <div class="field field--wide">
-            <label for="full-name">Full name (for Kundali report) <span class="optional">optional</span></label>
+            <label for="full-name"><span data-i18n="name.label">Full name (for Kundali report)</span> <span class="optional" data-i18n="name.optional">optional</span></label>
             <input id="full-name" name="full-name" type="text" class="name-text" autocomplete="off" spellcheck="false"
                    autocapitalize="words" maxlength="320" aria-describedby="name-help name-error">
-            <p class="help" id="name-help">Shown only on this Kundali and its PDF. It is not used in the calculation and is not saved. Up to 80 characters in English or Hindi: letters, spaces, apostrophes, hyphens and full stops. Leave empty for a report without a name.</p>
+            <p class="help" id="name-help" data-i18n="name.help">Shown only on this Kundali and its PDF. It is not used in the calculation and is not saved. Up to 80 characters in English or Hindi: letters, spaces, apostrophes, hyphens and full stops. Leave empty for a report without a name.</p>
             <p class="field-error" id="name-error" role="alert" hidden></p>
           </div>
           <div class="field field--wide">
-            <label for="place">Birthplace</label>
+            <label for="place" data-i18n="place.label">Birthplace</label>
             <select id="place" name="place" required aria-describedby="place-help place-error">
-              <option value="">Loading places…</option>
+              <option value="" data-i18n="place.loading">Loading places…</option>
             </select>
-            <p class="help" id="place-help">A curated list of Indian city reference points for this preview. The place fixes the coordinates and the timezone together.</p>
+            <p class="help" id="place-help" data-i18n="place.help">A curated list of Indian city reference points for this preview. The place fixes the coordinates and the timezone together.</p>
             <p class="field-error" id="place-error" role="alert" hidden></p>
           </div>
           <div class="field">
-            <label for="birth-date">Date of birth</label>
+            <label for="birth-date" data-i18n="date.label">Date of birth</label>
             <input id="birth-date" name="birth-date" type="date" required aria-describedby="date-help date-error">
-            <p class="help" id="date-help">Supported: local dates from 1970-01-01 to 2100-12-31.</p>
+            <p class="help" id="date-help" data-i18n="date.help">Supported: local dates from 1970-01-01 to 2100-12-31.</p>
             <p class="field-error" id="date-error" role="alert" hidden></p>
           </div>
           <div class="field">
-            <label for="birth-time">Exact time of birth</label>
+            <label for="birth-time" data-i18n="time.label">Exact time of birth</label>
             <input id="birth-time" name="birth-time" type="time" step="1" required aria-describedby="time-help time-error">
-            <p class="help" id="time-help">Local clock time. Seconds are optional.</p>
+            <p class="help" id="time-help" data-i18n="time.help">Local clock time. Seconds are optional.</p>
             <p class="field-error" id="time-error" role="alert" hidden></p>
           </div>
         </div>
 
         <div class="unknown-time">
           <input type="checkbox" id="time-unknown" aria-controls="unknown-time-panel">
-          <label for="time-unknown">I don't know the exact birth time</label>
+          <label for="time-unknown" data-i18n="unknown.label">I don't know the exact birth time</label>
         </div>
         <div class="explain" id="unknown-time-panel" hidden>
-          <h2>Why an exact time is needed</h2>
-          <p>The Lagna (ascendant) moves through a whole sign in about two hours, and the twelve houses and the D9 Lagna all follow from it. A guessed time could give a different Lagna, so this preview never assumes midnight, noon or any other time.</p>
-          <p>Please check a birth certificate, hospital record or family record, then enter the time here. A chart without a birth time is not available in this preview.</p>
+          <h2 data-i18n="unknown.heading">Why an exact time is needed</h2>
+          <p data-i18n="unknown.p1">The Lagna (ascendant) moves through a whole sign in about two hours, and the twelve houses and the D9 Lagna all follow from it. A guessed time could give a different Lagna, so this preview never assumes midnight, noon or any other time.</p>
+          <p data-i18n="unknown.p2">Please check a birth certificate, hospital record or family record, then enter the time here. A chart without a birth time is not available in this preview.</p>
         </div>
 
         <fieldset class="ambiguity" id="ambiguity" hidden>
-          <legend>This time happened twice at this place</legend>
-          <p id="ambiguity-text">Clocks were set back that night, so this local time occurred twice. Choose which one is on the birth record.</p>
+          <legend data-i18n="ambiguity.legend">This time happened twice at this place</legend>
+          <p id="ambiguity-text" data-i18n="ambiguity.text">Clocks were set back that night, so this local time occurred twice. Choose which one is on the birth record.</p>
           <div id="ambiguity-choices" class="choices"></div>
         </fieldset>
 
         <div class="actions">
-          <button type="submit" class="button button--primary" id="submit">Calculate Kundali</button>
-          <button type="button" class="button button--ghost" id="clear">Clear</button>
+          <button type="submit" class="button button--primary" id="submit" data-i18n="submit">Calculate Kundali</button>
+          <button type="button" class="button button--ghost" id="clear" data-i18n="clear">Clear</button>
         </div>
       </form>
       <div class="status" id="status" role="status" aria-live="polite"></div>
       <div class="error-card" id="error-card" role="alert" tabindex="-1" hidden>
-        <h2 id="error-title">We could not calculate this chart</h2>
+        <h2 id="error-title" data-i18n="error.title">We could not calculate this chart</h2>
         <p id="error-message"></p>
-        <p class="error-code">Code: <code id="error-code"></code></p>
+        <p class="error-code"><span data-i18n="error.code">Code:</span> <code id="error-code" lang="en"></code></p>
       </div>
     </section>
 
     <section id="result" class="result" hidden aria-labelledby="result-heading" tabindex="-1">
       <div class="result-head">
         <div class="result-title">
-          <h2 id="result-heading">Janam Kundali</h2>
-          <p class="result-for" id="result-for" hidden>Prepared for <strong id="result-name" class="name-text"></strong></p>
+          <h2 id="result-heading" data-i18n="result.heading">Janam Kundali</h2>
+          <p class="result-for" id="result-for" hidden><span data-i18n="result.for_before">Prepared for </span><strong id="result-name" class="name-text"></strong><span data-i18n="result.for_after"></span></p>
         </div>
         <div class="report-actions">
-          <button type="button" class="button button--primary" id="download-pdf" disabled>Download Kundali PDF</button>
-          <button type="button" class="button button--ghost" id="edit">Edit birth details</button>
+          <button type="button" class="button button--primary" id="download-pdf" disabled data-i18n="download">Download Kundali PDF</button>
+          <button type="button" class="button button--ghost" id="edit" data-i18n="edit">Edit birth details</button>
         </div>
       </div>
-      <nav class="chart-nav" aria-label="Chart sections">
-        <a href="#d1-section" id="nav-d1">D1 Rashi chart</a>
-        <a href="#d9-section" id="nav-d9">D9 Navamsa chart</a>
+      <nav class="chart-nav" aria-label="Chart sections" data-i18n-aria="nav.aria">
+        <a href="#d1-section" id="nav-d1" data-i18n="nav.d1">D1 Rashi chart</a>
+        <a href="#d9-section" id="nav-d9" data-i18n="nav.d9">D9 Navamsa chart</a>
       </nav>
 
       <div class="bento">
         <article class="card confirm-card" aria-labelledby="confirm-heading">
-          <h3 id="confirm-heading">Confirmed birth details</h3>
+          <h3 id="confirm-heading" data-i18n="confirm.heading">Confirmed birth details</h3>
           <dl class="facts" id="confirm-list"></dl>
         </article>
 
         <article class="card key-card" aria-labelledby="key-heading">
-          <h3 id="key-heading">Key placements</h3>
+          <h3 id="key-heading" data-i18n="key.heading">Key placements</h3>
           <dl class="facts" id="key-list"></dl>
         </article>
 
         <article class="card chart-card" id="d1-section" tabindex="-1" aria-labelledby="d1-heading">
-          <h3 id="d1-heading">D1 Rashi chart <span class="sub">North Indian style</span></h3>
+          <h3 id="d1-heading"><span data-i18n="d1.heading">D1 Rashi chart</span> <span class="sub" data-i18n="chart.sub">North Indian style</span></h3>
           <div class="chart-wrap">
             <svg id="d1-chart" class="d1-chart" role="img" aria-labelledby="d1-title d1-desc" focusable="false"></svg>
           </div>
-          <p class="legend">Houses are fixed with the Lagna (Asc) at the top; numbers are signs (1 Mesha … 12 Meena). Su Sun, Mo Moon, Ma Mars, Me Mercury, Ju Jupiter, Ve Venus, Sa Saturn, Ra Rahu, Ke Ketu.</p>
+          <p class="legend" data-i18n="d1.legend">Houses are fixed with the Lagna (Asc) at the top; numbers are signs (1 Mesha … 12 Meena). Su Sun, Mo Moon, Ma Mars, Me Mercury, Ju Jupiter, Ve Venus, Sa Saturn, Ra Rahu, Ke Ketu.</p>
         </article>
 
         <article class="card table-card table-card--d1" aria-labelledby="d1-table-heading">
-          <h3 id="d1-table-heading">D1 placements</h3>
+          <h3 id="d1-table-heading" data-i18n="d1table.heading">D1 placements</h3>
           <div class="table-scroll" tabindex="0" role="region" aria-labelledby="d1-table-heading">
             <table id="d1-table">
-              <caption class="visually-hidden">D1 placements: sidereal longitude, rashi and whole-sign house of the Lagna and each graha</caption>
-              <thead><tr><th scope="col">Graha</th><th scope="col">Longitude</th><th scope="col">Rashi</th><th scope="col">House</th></tr></thead>
+              <caption class="visually-hidden" data-i18n="d1table.caption">D1 placements: sidereal longitude, rashi and whole-sign house of the Lagna and each graha</caption>
+              <thead><tr><th scope="col" data-i18n="th.graha">Graha</th><th scope="col" data-i18n="th.longitude">Longitude</th><th scope="col" data-i18n="th.rashi">Rashi</th><th scope="col" data-i18n="th.house">House</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
-          <p class="footnote">Sidereal longitudes (Lahiri), Rahu and Ketu by the mean node. Longitudes are the engine's 8-decimal display values. Rashi and house come from the unrounded values, so a value shown as exactly 30° can still belong to the earlier sign.</p>
+          <p class="footnote" data-i18n="d1.footnote">Sidereal longitudes (Lahiri), Rahu and Ketu by the mean node. Longitudes are the engine's 8-decimal display values. Rashi and house come from the unrounded values, so a value shown as exactly 30° can still belong to the earlier sign.</p>
         </article>
 
         <article class="card chart-card--d9" id="d9-section" tabindex="-1" aria-labelledby="d9-chart-heading">
-          <h3 id="d9-chart-heading">D9 Navamsa chart <span class="sub">North Indian style</span></h3>
+          <h3 id="d9-chart-heading"><span data-i18n="d9.heading">D9 Navamsa chart</span> <span class="sub" data-i18n="chart.sub">North Indian style</span></h3>
           <div class="chart-wrap">
             <svg id="d9-chart" class="d9-chart" role="img" aria-labelledby="d9-title d9-desc" focusable="false"></svg>
           </div>
-          <p class="legend">D9 houses are whole-sign houses counted from the D9 Lagna (Asc, House 1, at the top); numbers are D9 signs (1 Mesha … 12 Meena). They are not the D1 houses. Su Sun, Mo Moon, Ma Mars, Me Mercury, Ju Jupiter, Ve Venus, Sa Saturn, Ra Rahu, Ke Ketu.</p>
+          <p class="legend" data-i18n="d9.legend">D9 houses are whole-sign houses counted from the D9 Lagna (Asc, House 1, at the top); numbers are D9 signs (1 Mesha … 12 Meena). They are not the D1 houses. Su Sun, Mo Moon, Ma Mars, Me Mercury, Ju Jupiter, Ve Venus, Sa Saturn, Ra Rahu, Ke Ketu.</p>
         </article>
 
         <article class="card table-card table-card--d9" aria-labelledby="d9-heading">
-          <h3 id="d9-heading">D9 Navamsa placements</h3>
+          <h3 id="d9-heading" data-i18n="d9table.heading">D9 Navamsa placements</h3>
           <div class="table-scroll" tabindex="0" role="region" aria-labelledby="d9-heading">
             <table id="d9-table">
-              <caption class="visually-hidden">D9 Navamsa sign and D9 whole-sign house of the D9 Lagna and each graha</caption>
-              <thead><tr><th scope="col">Graha</th><th scope="col">D9 Rashi</th><th scope="col">D9 House</th></tr></thead>
+              <caption class="visually-hidden" data-i18n="d9table.caption">D9 Navamsa sign and D9 whole-sign house of the D9 Lagna and each graha</caption>
+              <thead><tr><th scope="col" data-i18n="th.graha">Graha</th><th scope="col" data-i18n="th.d9rashi">D9 Rashi</th><th scope="col" data-i18n="th.d9house">D9 House</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
-          <p class="footnote">D9 signs come from the unrounded sidereal longitudes in 3°20′ divisions; D9 houses are counted from the D9 Lagna sign, so a D9 house number is not a D1 house number. The D9 house fields use the owner-approved chart schema 0.3.0.</p>
+          <p class="footnote" data-i18n="d9.footnote">D9 signs come from the unrounded sidereal longitudes in 3°20′ divisions; D9 houses are counted from the D9 Lagna sign, so a D9 house number is not a D1 house number. The D9 house fields use the owner-approved chart schema 0.3.0.</p>
         </article>
 
         <article class="card method-card" aria-labelledby="method-heading">
-          <h3 id="method-heading">Method and transparency</h3>
+          <h3 id="method-heading" data-i18n="method.heading">Method and transparency</h3>
           <p class="claim" id="claim"></p>
           <dl class="facts facts--method" id="method-list"></dl>
-          <h4>What this private preview does not calculate</h4>
+          <h4 data-i18n="method.limits">What this private preview does not calculate</h4>
           <ul class="limits">
-            <li>Births before 1970-01-01: historical clock records are not yet verified, so these are refused.</li>
-            <li>Local dates after 2100-12-31.</li>
-            <li>Latitudes beyond 66° north or south.</li>
-            <li>Unknown birth times: no time is ever assumed.</li>
-            <li>Local times that never happened (clocks moved forward); repeated times need your choice.</li>
-            <li>Places outside the curated list.</li>
+            <li data-i18n="limit.1">Births before 1970-01-01: historical clock records are not yet verified, so these are refused.</li>
+            <li data-i18n="limit.2">Local dates after 2100-12-31.</li>
+            <li data-i18n="limit.3">Latitudes beyond 66° north or south.</li>
+            <li data-i18n="limit.4">Unknown birth times: no time is ever assumed.</li>
+            <li data-i18n="limit.5">Local times that never happened (clocks moved forward); repeated times need your choice.</li>
+            <li data-i18n="limit.6">Places outside the curated list.</li>
           </ul>
         </article>
       </div>
@@ -183,10 +188,10 @@
     <div class="wrap footer-inner">
       <div class="footer-brand">
         <img class="footer-emblem" src="/static/brand/sabpuja-emblem-color.svg" width="1254" height="1254" alt="" aria-hidden="true">
-        <p><strong>Sabpuja</strong> · <a class="site-link" id="footer-site-link" href="https://sabpuja.com" target="_blank" rel="noopener noreferrer">https://sabpuja.com<span class="visually-hidden"> (opens in a new tab)</span></a></p>
+        <p><strong>Sabpuja</strong> · <a class="site-link" id="footer-site-link" href="https://sabpuja.com" target="_blank" rel="noopener noreferrer">https://sabpuja.com<span class="visually-hidden" data-i18n="link.new_tab"> (opens in a new tab)</span></a></p>
       </div>
-      <p class="status-label">Private invitation-only preview · Not a public release</p>
-      <p>Sabpuja Kundali Engine · <a href="https://github.com/sabpuja/Sabpuja-Kundali-Engine" target="_blank" rel="noopener noreferrer">AGPL-3.0 Corresponding Source</a> · Swiss Ephemeris (AGPL licence option). Place data: <a href="https://www.geonames.org/" target="_blank" rel="noopener noreferrer">GeoNames</a> (CC BY 4.0), Natural Earth (public domain). Fonts: Poppins and Inter (SIL OFL 1.1), served locally. English-only restricted preview.</p>
+      <p class="status-label" data-i18n="footer.status">Private invitation-only preview · Not a public release</p>
+      <p><span data-i18n="footer.engine">Sabpuja Kundali Engine · </span><a href="https://github.com/sabpuja/Sabpuja-Kundali-Engine" target="_blank" rel="noopener noreferrer" data-i18n="footer.agpl">AGPL-3.0 Corresponding Source</a><span data-i18n="footer.swiss"> · Swiss Ephemeris (AGPL licence option). Place data: </span><a href="https://www.geonames.org/" target="_blank" rel="noopener noreferrer">GeoNames</a><span data-i18n="footer.geonames"> (CC BY 4.0), Natural Earth (public domain). Fonts: Poppins and Inter (SIL OFL 1.1), served locally. </span><span data-i18n="footer.language">English and Hindi restricted preview.</span></p>
     </div>
   </footer>
   <script src="/static/chart.js"></script>

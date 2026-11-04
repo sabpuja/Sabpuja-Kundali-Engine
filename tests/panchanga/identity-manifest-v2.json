@@ -1,0 +1,305 @@
+{
+  "manifest_schema": "sabpuja-pan-qa-08-identity/2",
+  "note": "PAN-QA-08 identity manifest v2 (KUN-I18N-INT-001). Declares the 12 v1-baseline paths that the bilingual integration of PR #61 fee3967 (with PR #59 and PR #60) changes on purpose, with their v1 and v2 SHA-256, and inventories the 55 paths it adds. The v1 baseline is preserved unchanged and bound here by its own SHA-256. Generated from git objects only: python -m tests.panchanga.identity_v2 --check.",
+  "v1_baseline": {
+    "path": "tests/panchanga/baseline-hashes.json",
+    "sha256": "2e913eda7bb60f6159463ee219b4ad840a7fa971bf66e39ac30b871158cb007e",
+    "base_commit": "6722b5c46c3fb510495d8587b7b613f32691d97a",
+    "file_count": 222
+  },
+  "sources": {
+    "main": "3ba9f5b14739f08d5d07ef476bebb0584b463da0",
+    "integrated_head": "fee3967d62d0229e31de98682da9ada5d9190e93",
+    "merge_base": "fde3ec670618a02f2b913e9bbbedd1521d3840c7"
+  },
+  "modified": {
+    "prototype/README.md": {
+      "v1_sha256": "41e3e8df68cbd320c160586446739594aee989adf8f236953c9fe3f858568102",
+      "v2_sha256": "3c0289d290145f40ef1eaa6745e42123a7c8642af000d1aa276cc5506ec15af1",
+      "v2_git_blob": "f74bf3e4ccabaf838d705c3c17dd3906390cc3fe"
+    },
+    "prototype/kundali_prototype/server.py": {
+      "v1_sha256": "73a866a28fbc49323ef6bc8eacec125a77b5742fdea98c80143046a26a2de67d",
+      "v2_sha256": "d84f51181b71bfd14a5f2ed3c4808c6e0574e51cbd833f4542560891893b0d17",
+      "v2_git_blob": "8c28ee820e4c9010cc6d2702d5317c2cebfd0a84"
+    },
+    "prototype/kundali_prototype/static/app.css": {
+      "v1_sha256": "bd8bc247fcab207b1fbcbc3c996f799ae6f44244d179c1ab8bad8481401f6b53",
+      "v2_sha256": "a47dfe92701a67fdaa063ba42410f265fb5441b01822e4e557aa3f4679c5c1fe",
+      "v2_git_blob": "59b427b3bb621153cbec65b6b91e2b5b0989f307"
+    },
+    "prototype/kundali_prototype/static/app.js": {
+      "v1_sha256": "96f85b680d5ab70935258f1d0a7546e8e0e1eb52f907d0200fa2b7f0c41aba3a",
+      "v2_sha256": "5f8a7f54ef4f7a848f8fb2f1d1a0db03b05c9e7e0abe2fc3426163dd116a8a3f",
+      "v2_git_blob": "be236a80cb3a21a2832d1676e31d2e3eab574ca8"
+    },
+    "prototype/kundali_prototype/static/chart.js": {
+      "v1_sha256": "3f2d0d54cd0dd142df25eeaaf7e155089175fa2ac77cee4f293b4ed85e2ef502",
+      "v2_sha256": "34e2c0cd0de63b2dd8e559a00c8a23a9c0ac394f5a6b509920cb9939db982bf7",
+      "v2_git_blob": "73087669ec8c6623bda192dae8909021a23a5a75"
+    },
+    "prototype/kundali_prototype/static/fonts.css": {
+      "v1_sha256": "4eab089f09a51bb02926ef051f691efa491885235c1466a1caab663144be0c92",
+      "v2_sha256": "c0918d64c8b82e459364b1152c86c807c9bad8d8bcb45bd87562bfb0f8d17439",
+      "v2_git_blob": "ad1ccb6277942c870dcbe5c3f3382d9f0c1623fd"
+    },
+    "prototype/kundali_prototype/static/index.html": {
+      "v1_sha256": "bcfee9fa11ad8856dea2cb1ff603af0b87787446fb14c7cd7ff59c6a3b576025",
+      "v2_sha256": "db498dca6d1efad897617362cf5ed36e3f676d09a3bded5681ad0403d3fa1db1",
+      "v2_git_blob": "cd5aededd2ca45c3f241b4d6baeeb249a2e3d157"
+    },
+    "prototype/tests/browser/e2e.cjs": {
+      "v1_sha256": "10a84433f7a49ad58acab3e057d7e3b948f1d13edfc527c0c25e6fe757ec4436",
+      "v2_sha256": "ebd10f11057e41b33e5c1e7f7d62038c23d4a9f60003821f03e955b871867808",
+      "v2_git_blob": "964443853d0003c36223d6a5bbb85e7919a88b99"
+    },
+    "prototype/tests/browser/name_e2e.cjs": {
+      "v1_sha256": "19717da296e1b4ea770276994785579cd05ba1c36b8bad7cd6a8a2f796412d3e",
+      "v2_sha256": "8aa7d931cd98e137c5addc74f3d458066dc85e2f6a617259dc1c085a8ab56c07",
+      "v2_git_blob": "737229adbc5d82bc4aaab618878df1c2dd522f57"
+    },
+    "prototype/tests/test_http.py": {
+      "v1_sha256": "244e9cd0eae84a77a7e072ce3e31136abc6a068e94c6314cfe0e5b61e1fc4e34",
+      "v2_sha256": "785e981e284e9cd5a3170456df32f7af9965175a331f1985b940246e7bfc0146",
+      "v2_git_blob": "1151c140806cf85310399661515964ebd947c538"
+    },
+    "report/phase1/README.md": {
+      "v1_sha256": "af2bdd0d7e3d6fe105e5abf6e803c69b6b1e0c460375c7f25cc1bb61b5499a9e",
+      "v2_sha256": "3a43fffff0ca7eb25c7bdecea6b1f2f3a3981d49c216bff40cc7f5b2e885932f",
+      "v2_git_blob": "fc50f8e4bbabb0b19845a942788e897d61b6b7f3"
+    },
+    "report/phase1/premium_report.py": {
+      "v1_sha256": "34c2c9078096bf7bec0594bad89c72fbd97fd5b0c5fb1b6509d59fd5883b1521",
+      "v2_sha256": "974d3de753f0c6c0c8451235b15017a76e7711a79e14291ee7f742ce4647bf6d",
+      "v2_git_blob": "7004616de0da86da8e4b157b70b6bfa4a4c0e80d"
+    }
+  },
+  "added": {
+    "docs/i18n/KUN-I18N-002-ENGLISH-PAGE10-PROPOSAL.md": {
+      "sha256": "69d30287be62b113b5e0eef273c2c9be8a4826fe579620e5487a33729d03df35",
+      "git_blob": "4aa6bcdefaa12b78364b1e0270c89d39813451b4"
+    },
+    "docs/i18n/TERMINOLOGY.md": {
+      "sha256": "1b7d1fa55086e3aa7eb49c8b9f56a1007de8346f9b976a99ea98ca53cc5fc29f",
+      "git_blob": "4324f324ef74db756e2335e97141d171db5bb688"
+    },
+    "docs/i18n/review/kun-i18n-003/CHANGE-A-ENGLISH-PAGE10.md": {
+      "sha256": "a8fb9ad42586c5773d3ca46a2273574a0522f87c1eec867646ef1ab504c243b8",
+      "git_blob": "a75d284643f6f3c61a7cef1454944857574e404e"
+    },
+    "docs/i18n/review/kun-i18n-003/CHANGE-B-SCHEMA-WORDING.md": {
+      "sha256": "1f0379ce389b96897876bf0bc8663ef54f8f730cf395d085fe5b9d40d064c433",
+      "git_blob": "2f2201d6b4b300048bc196cef3ead9aba466297b"
+    },
+    "docs/i18n/review/kun-i18n-003/DECISION-SHEET.csv": {
+      "sha256": "412356996918908afa18af0aab5405d9d973a5310474cf797b02a57910ca1227",
+      "git_blob": "9368651be0cb0bdc353381e1ecdc51c1719cd6a1"
+    },
+    "docs/i18n/review/kun-i18n-003/DECISION-SHEET.md": {
+      "sha256": "ac0acd932a73427e412952cd94dd8d44736979bfb1748d1df036cf5f8b0f42ea",
+      "git_blob": "9219c3d4476023fb3b7d8ffbb3fb7124d40d3568"
+    },
+    "docs/i18n/review/kun-i18n-003/EDITORIAL-ACCEPTANCE-REGISTER.md": {
+      "sha256": "133b9a9180a77e4644f60dec0e7621bc1855b9a12171b30ef095987c087e6874",
+      "git_blob": "a2ce6fb8ff0c8b082c42d91fbb9119d36ab866e4"
+    },
+    "docs/i18n/review/kun-i18n-003/EVIDENCE-MANIFEST.md": {
+      "sha256": "88f7816e3bcd61665b3fb051a19ef0c7a29f9aff300ab14cdaf9163fa0c7988b",
+      "git_blob": "e60c6a7dbd22bf498c8e788c6e24309177aa5ecf"
+    },
+    "docs/i18n/review/kun-i18n-003/LOCATIONS.md": {
+      "sha256": "8db067ac9e4734625647a615735f6ae947100bec7ef87b8c17d26e9cba58ddba",
+      "git_blob": "c833e33949fdcb30051ae6e743dbed4ebb11b974"
+    },
+    "docs/i18n/review/kun-i18n-003/README.md": {
+      "sha256": "a19ec7a367c5c0eacbd398e1c9d264df1a1aacf0086438fc09a2a5031d307839",
+      "git_blob": "3b64290d7c471cb73e3c03e030c34603d9438a11"
+    },
+    "docs/i18n/review/kun-i18n-003/REVIEW-PACKET.md": {
+      "sha256": "c31b604616ec5008a170749204147f989d2d7045abb6fe749639dccc7901226d",
+      "git_blob": "663f91af9a1a4ee903ff7712922c566d74b63e47"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-01.png": {
+      "sha256": "732231a491cd70c4f9719001fef0bde1d63e39602f4e112eeef248a9ad32a66d",
+      "git_blob": "8c2de6c999cc21efc40140923ffec64d21e15e99"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-02.png": {
+      "sha256": "912c7b85e9241a9061f53ffc0ec714b4c217630faceff44288f79e944e5166d4",
+      "git_blob": "0ff85d9e0b470c03d0f8499801c2b6fbc92b8c1d"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-03.png": {
+      "sha256": "b5d5574356f9b202aac3f4c099a9404527af08a8bc3312628e07e8ce9625ecae",
+      "git_blob": "a50bfc8bf2b56d80cfd5bd6b60951f0a32c044cc"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-04.png": {
+      "sha256": "2fb3f8a8828597f652f0b664d379306459072aef52ba0699e24275fb5b6ec8f3",
+      "git_blob": "a9f6fb39754c14b59858c5e7b5c67a1d08894259"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-05.png": {
+      "sha256": "e924b186b3a41b9bcedd5b3ba239b75396f214544f8a1a2d425981a75f8e839e",
+      "git_blob": "d10fa37be2d3a5006ba1889353f9a6eadfd8fa38"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-06.png": {
+      "sha256": "5975f5fda4cfd680c9c573ece30835dedd6d0edca1a9e2152f475f6c5afe99ab",
+      "git_blob": "6bc3f3c46f7e30fc9012260d6ced32cba9ad2c2b"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-07.png": {
+      "sha256": "59782a41224f515b8bb9e39c8a58c833ae89f51cd539d174815599d076114322",
+      "git_blob": "79ddef4a73b15f795b368b253ea356ea2467baa2"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-08.png": {
+      "sha256": "d3fb7e2986921dabfdb279e5e1bdd6f6a4e0ae466e858d99a7c5f7b4b727921f",
+      "git_blob": "db5f7b9f30971729d84457ead41a23998f541a09"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-09.png": {
+      "sha256": "ed142a86b6a4560138dcb63c21e6c82eb9019a57cbafd69d9a628ad0933627d0",
+      "git_blob": "b2640c09744f07c9d9c9393eb52e4c2cd774e4e3"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-10.png": {
+      "sha256": "6fd9b048a3d100989cd947c1f16a82feeeda4b3f1b6f5cb6f73acd1a756a1f4d",
+      "git_blob": "2cab5776ccfcb09ea96d99621efd2d37d30092be"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/hi-before-after-page-03-zoom.png": {
+      "sha256": "e3035590f3e2d69d9347528ed4e89880c0557b9e9d6c590b9792857486cbfdc7",
+      "git_blob": "6fbaa48972c4844121707f590e096681d62a2567"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/hi-before-after-page-06-zoom.png": {
+      "sha256": "c361ecda56d916ff84578d310a08b9ce6c202ba95dcaeac828760d6fae841205",
+      "git_blob": "9d4b2259c0377f5bed6743b604f0a47c40ed4f05"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/hi-before-after-page-07-zoom.png": {
+      "sha256": "369b09bee4e8029985b1c40cdf2d053be5ab60d3d3c61ac006cbedc131af6f64",
+      "git_blob": "42d31c0cdf15ea813892209776a40d3f408851cb"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/sample-en-anonymous.pdf": {
+      "sha256": "37b77f9a4013d5fb6ccfa379ac71c2bcd186f28428f1b010ff52ee63426010ea",
+      "git_blob": "3b4c920786cdf7eb4aa0c47c540795e5751396b5"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/sample-hi-anonymous.pdf": {
+      "sha256": "7590ea3a5b094e1f92e27ea975af262219a3bef4cd49219e48882944282588c7",
+      "git_blob": "545abfeb7fd2bd52d37e4c972541107d8fc339ee"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/sample-hi-named-devanagari.pdf": {
+      "sha256": "ba10a0e9592ba8bfcb314323a5e0eaca89b7669ebc1a831de7d049855e56e442",
+      "git_blob": "97ada0ef82ac825ac3ad5459a45c778c792eb575"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-en-1440.png": {
+      "sha256": "8a3cebd57fb6496781198ba17646c7688492e1154049402bef3f63eb1ce9c573",
+      "git_blob": "4467716e345cd65b11ffea371d9fe85a63303c1d"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-en-280.png": {
+      "sha256": "32c734e949fc20251d58b60a4ac2eb4a759a0c93f4ecc6cb74c798738ad97873",
+      "git_blob": "7b29fa3c19d5971a2c6c4dfa1a84e1a73e2fb066"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-en-375.png": {
+      "sha256": "a3d6fc837e4612369ac29fbbdaf05b790ee95355e259915d0250bbebf4e8ac40",
+      "git_blob": "a2ae5138883643881e4e5a094ec3c3becc45e95b"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-en-768.png": {
+      "sha256": "53d59c494c7d3c30eb063705b29844159a284883341d6095aa75368080ceba4f",
+      "git_blob": "cc1bdc8decde66e266bdc6b2517128f71bfb4a5e"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-1440.png": {
+      "sha256": "850aaef924f9c9fe16ab3331639a140ac6651d609858667df9dba52092841298",
+      "git_blob": "69165498c57dc3dcb9a8e43530f39354866ab7ba"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-280.png": {
+      "sha256": "15d78a4e1f7ce1ba3b511f655833a992f34e24fb3e6ffb564f6548fc7c10b400",
+      "git_blob": "785510e0dcf76a423b302daacaa0868e82d76592"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-375.png": {
+      "sha256": "23daacd291fedfdf838f595fa6a501ff062d8c95c2d81fc2fe3a1d190d074e04",
+      "git_blob": "548c16fe997f2484be6d6977505a925eb345c6a4"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-768.png": {
+      "sha256": "7f59690c85c53609823cbc5e658a664288767f43ecd97e99993748c23b0ee877",
+      "git_blob": "75d9a4a4517b77781e6b515c6c9480ec69816bbc"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-form-1440.png": {
+      "sha256": "aaa9db9c1f892ef90d014aec473647a11f92170320cc96a998adc851fbe15db8",
+      "git_blob": "dff0b353354423c234735265208a7c57f0f41135"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-form-280.png": {
+      "sha256": "35bc27b3d3082c9cb677e17746d53f3a0d17738641c3129e1acee5c19e7c15ee",
+      "git_blob": "2a9efc5038f70e0e1542905a94caae4c3334ca18"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-form-375.png": {
+      "sha256": "fdd2d47f6132998d75a5732fa78ea9356436d3e0baa58fc8b9ac06bfbcd4787f",
+      "git_blob": "cde31c5f3e049363f6116401c9672f5d177826e9"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-form-768.png": {
+      "sha256": "1cae86ece38b489b11085cc789fa455071f8c8cdc80cc106112f52d15cfe0792",
+      "git_blob": "d9526ab3e432099218940e4427e93323a57fba7e"
+    },
+    "docs/i18n/review/kun-i18n-003/editorial-acceptance-register.json": {
+      "sha256": "f292c93d9495499c8e922eee681f372cb9bc8e763e642362a8c9dfe8e5cbc2d1",
+      "git_blob": "435b3345f7f4ae3a1914a01a919145b87751e1ba"
+    },
+    "docs/i18n/review/kun-i18n-003/locations.py": {
+      "sha256": "384b9a863e4b531418e38d858eaf735b94ce1e5da032342306e30d582f416e4d",
+      "git_blob": "85f498e987a98043225eafecfde79021f00da518"
+    },
+    "docs/i18n/review/kun-i18n-003/patches/change-a-english-page10.patch": {
+      "sha256": "b2f55fc5c1f728a0566379a91581b77366533aa0c9749518b9eaff67a7f14326",
+      "git_blob": "deec3e491ec8433102f05a216697a1df0019e73a"
+    },
+    "docs/i18n/review/kun-i18n-003/patches/change-b-schema-wording.patch": {
+      "sha256": "8998a9b0e06c8b4566b6cb7a64d28e7a07467e7b16d62b636c4f3afc2368af32",
+      "git_blob": "ea04a6b7ff76d5d5453fd2717b73a56cf5446754"
+    },
+    "docs/i18n/review/kun-i18n-003/refresh_manifest.py": {
+      "sha256": "415e271594c98388ef1435d8b9b7e7f01b39f1f7127158d8f2b3e0ee54b82f0d",
+      "git_blob": "f5359ae90a437e5a26568de4b2f84ec38ca3e061"
+    },
+    "preview/tests/locale-privacy-stack.sh": {
+      "sha256": "f5685c2c768b890bba6a72d3c1881117fe92947d87ebf57de399eb88100cce26",
+      "git_blob": "ed519517643324a2cefd01c17e6a906ed3fc7efc"
+    },
+    "prototype/kundali_prototype/static/fonts/poppins-devanagari-400-normal.woff2": {
+      "sha256": "6b986471df6084ba6f89749100b2731200a722d3de0e00f48e1967f21eb2adc0",
+      "git_blob": "1ad5724f980110017a0698cb6789a56988fdd93e"
+    },
+    "prototype/kundali_prototype/static/i18n.json": {
+      "sha256": "5cf9e5fcb4234dd971fa1c512c6c6da6567918d38a0c7e61c9e6d8cd496b17f1",
+      "git_blob": "f8b8059fa2bcfc87b20f1f891032aeaac29b9c8b"
+    },
+    "prototype/tests/browser/i18n_e2e.cjs": {
+      "sha256": "eaebfea6d29074600c3ac7ae4a844a0dfa297bdb0825b08ac7f14d8bebc47b4b",
+      "git_blob": "ca64a1d6ce3f3634a79cfcfd134b86eba73dd0b8"
+    },
+    "prototype/tests/test_report_locale_http.py": {
+      "sha256": "164baf3666358c48f10e3692a81e58033d19b5a2932c558228ce165d3d081166",
+      "git_blob": "ed8d1290b1ff596d3daa9697ae7581723d143dab"
+    },
+    "report/phase1/report_i18n.json": {
+      "sha256": "324b19ec2269b578f026b4b1dbebbd73d9b3b2f3d4879e2cca9dedb325ac0145",
+      "git_blob": "d59fbb4599a383212205a7860d4e4e756d586ad8"
+    },
+    "report/phase1/report_locale.py": {
+      "sha256": "2c6b939d55ed1c21309f85ac9b44b6c6d1f9dff87b3fcd9deb8b59e4b90b1d98",
+      "git_blob": "355b08f645a5d77634b0b70c81925bc3a78e7110"
+    },
+    "report/phase1/tests/test_editorial_register.py": {
+      "sha256": "093d031be559664e84e2dedbd1e5699476887a08a6f1bfcbded3af2dbdf35034",
+      "git_blob": "c521a161949c6cffa44ceedf8153d2c5bca738b3"
+    },
+    "report/phase1/tests/test_hindi_editorial.py": {
+      "sha256": "4daa54c7385b84a8fc0b309699cc56b30d0d5f16050ade2057d5a1022e21c145",
+      "git_blob": "4bb232e2db6a66306f5e060f2821a3142b47f176"
+    },
+    "report/phase1/tests/test_report_i18n.py": {
+      "sha256": "42ccda128269efe2ccc326018885363c3dab5c19c23498ab55b9e11254d1f49e",
+      "git_blob": "a5d28ee45edff4374b46ce31d9893f5691ee4c97"
+    },
+    "report/phase1/tests/test_review_packet_assets.py": {
+      "sha256": "61a97f519bc4b33280421550796651ac9d70323b3c13287f9db7409b2f30acd2",
+      "git_blob": "57f0773b36b7f423f1445f7c49a2490ca21fc2dd"
+    }
+  },
+  "counts": {
+    "v1": 222,
+    "modified": 12,
+    "unchanged": 210,
+    "added": 55
+  }
+}

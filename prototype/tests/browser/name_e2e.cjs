@@ -131,7 +131,7 @@ async function runView(browser, base, width) {
       .map((f) => f.weight + ":" + f.status);
   });
   check(view, "the bundled Poppins Devanagari face is loaded for the Hindi name",
-        devaFont.length === 3 && devaFont.some((f) => /loaded$/.test(f)), devaFont);
+        devaFont.length === 4 && devaFont.some((f) => /loaded$/.test(f)), devaFont);  // 400 added by KUN-I18N-001
   await page.screenshot({ path: path.join(OUT, `name-hindi-${width}.png`), fullPage: true });
   pdf = await downloadPdf(page);
   const lastChart = chartBodies[chartBodies.length - 1];

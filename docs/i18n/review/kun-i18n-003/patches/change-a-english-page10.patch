@@ -1,0 +1,132 @@
+diff --git a/docs/i18n/review/kun-i18n-003/editorial-acceptance-register.json b/docs/i18n/review/kun-i18n-003/editorial-acceptance-register.json
+index bced1f6..d9cd3c8 100644
+--- a/docs/i18n/review/kun-i18n-003/editorial-acceptance-register.json
++++ b/docs/i18n/review/kun-i18n-003/editorial-acceptance-register.json
+@@ -15,3 +15,3 @@
+     "pdf_catalog": "report/phase1/report_i18n.json",
+-    "pdf_catalog_sha256": "324b19ec2269b578f026b4b1dbebbd73d9b3b2f3d4879e2cca9dedb325ac0145"
++    "pdf_catalog_sha256": "1483e1fa666005a7182b791904dbb777f63a1a554b1407ff274d59c0b277f81e"
+   },
+diff --git a/report/phase1/report_i18n.json b/report/phase1/report_i18n.json
+index d59fbb4..9d222a4 100644
+--- a/report/phase1/report_i18n.json
++++ b/report/phase1/report_i18n.json
+@@ -203,3 +203,3 @@
+     "method.exc4": {"en": "Interpretations, predictions and remedies", "hi": "व्याख्या, भविष्यवाणी और उपाय"},
+-    "method.exc5": {"en": "Hindi edition", "hi": "अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध)"},
++    "method.exc5": {"en": "Hindi text (available as a separate edition)", "hi": "अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध)"},
+     "method.licences_title": {"en": "Source and licences", "hi": "स्रोत और लाइसेंस"},
+diff --git a/report/phase1/tests/test_owner_copy_change_a.py b/report/phase1/tests/test_owner_copy_change_a.py
+new file mode 100644
+index 0000000..4ff2022
+--- /dev/null
++++ b/report/phase1/tests/test_owner_copy_change_a.py
+@@ -0,0 +1,42 @@
++"""KUN-I18N-003 owner copy change A (applied only with explicit owner authorization)."""
++import sys
++import unittest
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[3]
++sys.path.insert(0, str(ROOT))
++from report.phase1 import report_locale as loc  # noqa: E402
++
++HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE))
++import test_report_i18n as i18n_tests  # noqa: E402
++
++UI = loc.REGISTER['ui']
++PDF = loc.STRINGS
++
++
++def squash(text):
++    return ' '.join(text.split())
++
++
++class ChangeAEnglishPage10(unittest.TestCase):
++    """Owner-approved Change A (KUN-I18N-003 spec): English page 10 no longer lists the Hindi
++    edition as unavailable. The Hindi value is unchanged."""
++
++    def test_exact_wording_and_hindi_unchanged(self):
++        self.assertEqual(PDF['method.exc5']['en'], 'Hindi text (available as a separate edition)')
++        self.assertEqual(PDF['method.exc5']['hi'], 'अंग्रेज़ी पाठ (अलग संस्करण में उपलब्ध)')
++
++    def test_page10_english_shows_the_new_line_once(self):
++        from report.phase1 import premium_report as premium
++        import fitz
++        for case in i18n_tests.SCENARIOS:
++            with self.subTest(case):
++                pdf = fitz.open(stream=premium.generate(i18n_tests.SCENARIOS[case], synthetic=True, palette='baseline'), filetype='pdf')
++                text = squash(pdf[premium.PAGE_OF['method'] - 1].get_text())
++                self.assertEqual(text.count('Hindi text (available as a separate edition)'), 1)
++                self.assertNotIn('Hindi edition', text)
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff --git a/report/phase1/tests/test_premium_name.py b/report/phase1/tests/test_premium_name.py
+index 668d9e8..5e92a1d 100644
+--- a/report/phase1/tests/test_premium_name.py
++++ b/report/phase1/tests/test_premium_name.py
+@@ -28,31 +28,33 @@ SCENARIOS = {c['id']: json.loads((SCENARIO_DIR / f'{c["id"]}.json').read_text())
+ 
+-# SHA-256 of generate(fixture, synthetic, palette='baseline') at c57747a (PR #56 head, before
+-# this feature), as [synthetic=False, synthetic=True]. The anonymous report must not change.
++# SHA-256 of generate(fixture, synthetic, palette='baseline'), as [synthetic=False, synthetic=True].
++# Owner-approved English baseline after Change A (KUN-I18N-003 spec): page 10 method.exc5 reads
++# "Hindi text (available as a separate edition)". Before that change these were the c57747a / PR #58
++# values. The anonymous report must not change.
+ BEFORE = {
+-    's01-first-supported-date': ['2792c9280e4463a86e45ff0592723132efc5c47786db3a6fae7d56d7b72a6b6b',
+-                                 'dbdae3c0000a982157a1ee1c330d1fc9cd5d4af8cf1ef70338d84ad695d32082'],
+-    's02-last-supported-date': ['fa60786cff080e5b2a959e410f01a5a71ebb973e5070bc64c84dad578e1ca117',
+-                                '2d20d96a7399058152f41f1c35e54ed934c5ef514744a883d84d0eaf643959a2'],
+-    's03-crowded-d1-house': ['e8d4677cbf46883e1b473804e38ad8d41f2363662791ffa82fd6f73ef23335d0',
+-                             'a5caf86aab1d6ced720ee348448be684676e7f28400d8b1fcf99e0c846c05b57'],
+-    's04-crowded-d9-house': ['690078d6590944ffbe9109ed9ae0694d4466e18ad3cedb5c88ad6c5a1baa5b5f',
+-                             '0af0ade1580542007835a7926003d764bebd239a36b5335308d80106f6d90c40'],
+-    's05-graha-near-boundary': ['58b277d65c28122c65aaa55d582dd8db7f06aeb4cd4482d9a204d08588d9958d',
+-                                '422e1ec8132e766cc60b4897598f288a86ea617a3843f65c64ffd07f8ae7bce1'],
+-    's06-lagna-near-boundary': ['3b45bc64acf25b2d0a7b52d37a766e5273ef9c6a0e81450ad922969585e942a1',
+-                                'ecfe57b3a56439eb8f6d25060cd49f4c5a141d7ca8b5c6b71728d85bc689169f'],
+-    's07-noon': ['ad7a1166a9efa0103bb5bd0f17a33d9b3dfd82f43ca8a85dfef59dc077bef6e4',
+-                 '86695b9fa7c8b47f8cd6afa6dea16992ff9d85e4f6701f591a23688fe37f02d5'],
+-    's08-dawn': ['485c2b422b6966c1e45abdbfadee59d37e04e89bce4b990a899f59116edbf53f',
+-                 'db11cac4084f4cb84305aba36369303d09ac3afd35eef15d41b1e161aeae4963'],
+-    's09-evening': ['e3efa9674763c8deefd3ea5059804ba0c4adc54be6b2706dfe4e43b578d4eb0b',
+-                    '968db823e7121141aad6abdbc931667067f0fdb9e406a37421f5af0fea39879e'],
+-    's10-late-night': ['dc196d5c49faa1f297860687bec067b48a1bf586cc402d57d976050514c08884',
+-                       'c1b0a5c2e7f8212e4ec95c148780abe614ada88c22b3489c905c0785f53135dd'],
+-    's11-afternoon': ['fd29641cd07a46ed90a65ceb9fbaea937edc807b2ec20f901f6a75c703025c39',
+-                      '37b77f9a4013d5fb6ccfa379ac71c2bcd186f28428f1b010ff52ee63426010ea'],
+-    's12-morning': ['aff5b8f8b3e7203e2ec0dee1ebb9157034a4eb3aef616b29014f1857eb09d2b8',
+-                    'bc3c4d826ca5acf09107c3ff576edf971409e9c621cb3632294dc1fc06f85c7b'],
+-    's13-remaining-lagna': ['9ce7406a55a10fa63062e8b3d4ced78c2d9ea11981f9ace643d3e9349d5d681d',
+-                            'f6fa9600670c65740fd40ac28069cca3226dd3028ab34eb7111029c1cf2a0dee'],
++    's01-first-supported-date': ['faabd39e74f29ef5f1ae8486ea15d201cfd6e762656260c59e4e34921b2c6c4c',
++                                'e421cb81bb0920757cd1f1e8ecc4d5ca22adb21dffaccd586ff69686a0ff1109'],
++    's02-last-supported-date': ['69c308f3b697167c31f5826e6d2fba0c1f7ecd6f3d47002fa148f124bdd99539',
++                               '26ff12fba637f00e3cb9a79e5cd894cee967f180c0ba7b19f487abd70ae9bcce'],
++    's03-crowded-d1-house': ['4727f547d8d61afec0549f3c112bb08fd061c30f403fb74f9b7c3a8ef3b47040',
++                            '8e8791b4b17fc42e8b62b02481582bcc76fc600d6a397ddbed1c471e12988b14'],
++    's04-crowded-d9-house': ['e0ebd8028dfe27aa86171dc7711a59387310ef6ec0afb5e246d41ef076f6caf4',
++                            'c865af51320e12ce2926231bb8507207e7de57943a7a97b8c387d07c8e36f2f3'],
++    's05-graha-near-boundary': ['fbdd58ec8c52172a9209075a548706670ac1c710b6ea72049017f87bbad30af5',
++                               'c09eaf9b15b6b4e69c069e2d8ba65df6eb5dd4faf42d36d102023b20b714d30b'],
++    's06-lagna-near-boundary': ['3e749daede35a3a95c8c1faecf0d4915b351e4b22d7e7ffb58dbab5031f3c977',
++                               'be84c18f880d9ce08bfc99d6d79c4daeffdbab1e8e5b9c3c885d5632d0f729f3'],
++    's07-noon': ['24bb5af8c366654cee93792325ab41fab35dd7368cfeb48454dfe422b6c678c1',
++                'dde07887faa4275bc55a321f56d53c1d844a5dc5c4952279bafb067c7547908c'],
++    's08-dawn': ['de63595e8ce5921b15e241fb00dc9727c44b4b214e0ce4412757d6b529475917',
++                'ea789a52984979da63dec8619fe7daf444f9e2c2ccfdfef5b23fec24bee0fea4'],
++    's09-evening': ['8a30b45790d4bf7fc2e5ca1258744c74c0051d17b1c6be128bcb1eea4fb5e90a',
++                   'd543252562971ac442087321651aaf18be7ce14994b621a0ff078bf6fcaf6cd0'],
++    's10-late-night': ['7890f3c08b9341b97bc8b57fdfa55ae933ca58a5ee185801b75dc35a9e34aacb',
++                      'e20d9503bfeae5f2e80329f002646cc792757effe16b10072be09e7e7125c1c5'],
++    's11-afternoon': ['793f18b0900c7b4a02086c67106b3321e4de76fa61b34621ffa5848be7838ae3',
++                     'c12c378b84839530e0267aad846253b9488fe89d3bfdb65a1ee256909f978278'],
++    's12-morning': ['c388d8db6b36079359f02348d557b023c41ddce4bf416b4844fa6a5ae68254ac',
++                   'e6e212d5c34f36613ed8c06cbbca1623ccd3603d2d262317b245fc524d48b942'],
++    's13-remaining-lagna': ['45f4a4fa775a2a63bab1eec2b86d0959b963e0afe8e2b4055d036475ca496876',
++                           'eb712dbd3b7c403b4d020683991dd1697d0fd707129c2425152c67fa4c8bfea8'],
+ }

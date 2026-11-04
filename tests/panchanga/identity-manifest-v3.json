@@ -1,0 +1,28 @@
+{
+  "manifest_schema": "sabpuja-pan-qa-08-identity/3",
+  "note": "PAN-QA-08 identity manifest v3 (KUN-I18N-INT-001A). Declares the one v2 path the HTTP report repeatability fix changes (the render slot is released before the response is written) and the one regression test it adds, relative to the independently audited v2 candidate be608d8. v1 and v2 are preserved and bound here by their SHA-256. Generated from git objects only: python -m tests.panchanga.identity_v3 --check.",
+  "task": "KUN-I18N-INT-001A",
+  "v2_manifest": {
+    "path": "tests/panchanga/identity-manifest-v2.json",
+    "sha256": "d2dea049b652df4ff3f02ce5064e211d3b7f0c97d222e085ce36826bc2f087da",
+    "base_commit": "be608d873fe9af22d91c3d87ccb6659337b215e3",
+    "v1_sha256": "2e913eda7bb60f6159463ee219b4ad840a7fa971bf66e39ac30b871158cb007e"
+  },
+  "modified": {
+    "prototype/kundali_prototype/server.py": {
+      "v2_sha256": "d84f51181b71bfd14a5f2ed3c4808c6e0574e51cbd833f4542560891893b0d17",
+      "v3_sha256": "18e19d4f6a9e62fe481b932dc29d17307c1ae6e20e9a424552a80090adb91dd4",
+      "v3_git_blob": "bdeab63ebbc19b46638d20ff052d2d08da6dba01"
+    }
+  },
+  "added": {
+    "prototype/tests/test_report_slot_release.py": {
+      "sha256": "bc0283e8d42723d51497aeb51c6804d65c0e1b4fa023a1261e863e4c118b9dee",
+      "git_blob": "849bb6447cfc21418daec31d16762dd29d9276e2"
+    }
+  },
+  "counts": {
+    "modified": 1,
+    "added": 1
+  }
+}
