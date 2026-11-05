@@ -22,6 +22,12 @@ form per glyph, reused), with the same words as invisible logical-order text on 
 search and extraction return the catalog Unicode. Latin runs (digits, codes, proper names)
 keep the brand Latin faces. Values, longitudes, houses and statuses are the same engine values
 in both languages.
+
+generate_extended(response, panchanga, ...) (KUN-PAN-RPT-001) is the separate, opt-in extended
+edition: the ten pages plus three birth-instant Panchanga pages before the methodology, drawn by
+panchanga_report.py from a validated `sabpuja-panchanga/1` document. Contents, page numbers and
+cross-references follow the page plan held by each Doc. Without a Panchanga document the output
+is the standard ten-page edition, byte-identical to the renderer before this option.
 """
 from __future__ import annotations
 
@@ -104,6 +110,11 @@ def pages(locale='en'):
 
 PAGES = pages('en')
 PAGE_OF = {key: i + 1 for i, (key, _, _) in enumerate(PAGES)}
+# KUN-PAN-RPT-001: the ten-page report is the standard edition and stays the default, byte for
+# byte. The extended edition adds the birth-instant Panchanga M1 pages before the methodology.
+EDITION_STANDARD = 'standard-10'
+EDITION_PANCHANGA = 'extended-panchanga-m1/1'
+EXTENDED_LAYOUT_ID = LAYOUT_ID + '+' + EDITION_PANCHANGA
 
 
 class Palette:
@@ -347,6 +358,13 @@ class Doc:
         self.glyph_forms = set()
         self.deva_runs = []
         self.drawn = []      # Hindi only: (page, text, size) of every string drawn, for the tests
+        # Page plan (KUN-PAN-RPT-001). The standard ten-page edition uses the module PAGES and
+        # PAGE_OF unchanged; the extended edition replaces them in render().
+        self.edition = EDITION_STANDARD
+        self.extension = None
+        self.contents = pages(self.locale)
+        self.page_of = dict(PAGE_OF)
+        self.total = len(PAGES)
 
     def t(self, key, **values):
         return self.tr.t(key, **values)
@@ -763,8 +781,8 @@ def _background(d):
 def _header(d, key):
     _background(d)
     d.logo(M, H - 58, 88)
-    number = PAGE_OF[key]
-    title = d.t(f'page.{key}.title')
+    number = d.page_of[key]
+    title = next(t for k, t, _ in d.contents if k == key)
     d.kicker(W - M, H - 44, d.t('header.kicker', title=title), 'muted', 'right')
     d.line(M, H - 70, W - M, H - 70, 'accent', 0.6)
     _footer(d, number)
@@ -775,11 +793,11 @@ def _footer(d, number):
     d.text(M, FOOTER_Y, d.t('footer.brand'), MIN_TEXT, 'Medium', 'muted')
     if d.synthetic:
         d.text(W / 2, FOOTER_Y, d.t('footer.sample'), MIN_TEXT, 'Medium', 'muted', 'center')
-    d.text(W - M, FOOTER_Y, d.t('footer.page', number=number, total=len(PAGES)), MIN_TEXT, 'Medium', 'muted', 'right')
+    d.text(W - M, FOOTER_Y, d.t('footer.page', number=number, total=d.total), MIN_TEXT, 'Medium', 'muted', 'right')
 
 
 def _title(d, key, title, intro):
-    number = PAGE_OF[key]
+    number = d.page_of[key]
     d.kicker(M, H - 104, d.t('title.section', number=number - 1), 'primary_text')
     d.text(M, H - 132, title, 23, 'Head', 'ink')
     d.diamond(M + d.width(title, 'Head', 23) + 12, H - 124, 3.2)
@@ -1048,12 +1066,12 @@ def _page_overview(d, response, positions):
     pl = chart['planets']
     tr = d.tr
     cards = [
-        (d.t('overview.d1_lagna'), tr.rashi(chart['lagna']['rashi']), d.t('overview.within', dms=positions['lagna'].dms()), PAGE_OF['positions']),
-        (d.t('overview.moon_rashi'), tr.rashi(pl['moon']['rashi']), d.t('overview.dms_house', dms=positions['moon'].dms(), house=pl['moon']['whole_sign_house']), PAGE_OF['positions']),
-        (d.t('overview.moon_nakshatra'), tr.nakshatra(chart['moon_nakshatra']['name']), d.t('overview.pada_of', pada=chart['moon_nakshatra']['pada']), PAGE_OF['positions']),
-        (d.t('overview.sun_rashi'), tr.rashi(pl['sun']['rashi']), d.t('overview.dms_house', dms=positions['sun'].dms(), house=pl['sun']['whole_sign_house']), PAGE_OF['positions']),
-        (d.t('overview.d9_lagna'), tr.rashi(chart['d9']['lagna_rashi']), d.t('overview.navamsa_house1'), PAGE_OF['d9']),
-        (d.t('overview.calculation'), d.t('overview.lahiri'), d.t('overview.method_sub'), PAGE_OF['method']),
+        (d.t('overview.d1_lagna'), tr.rashi(chart['lagna']['rashi']), d.t('overview.within', dms=positions['lagna'].dms()), d.page_of['positions']),
+        (d.t('overview.moon_rashi'), tr.rashi(pl['moon']['rashi']), d.t('overview.dms_house', dms=positions['moon'].dms(), house=pl['moon']['whole_sign_house']), d.page_of['positions']),
+        (d.t('overview.moon_nakshatra'), tr.nakshatra(chart['moon_nakshatra']['name']), d.t('overview.pada_of', pada=chart['moon_nakshatra']['pada']), d.page_of['positions']),
+        (d.t('overview.sun_rashi'), tr.rashi(pl['sun']['rashi']), d.t('overview.dms_house', dms=positions['sun'].dms(), house=pl['sun']['whole_sign_house']), d.page_of['positions']),
+        (d.t('overview.d9_lagna'), tr.rashi(chart['d9']['lagna_rashi']), d.t('overview.navamsa_house1'), d.page_of['d9']),
+        (d.t('overview.calculation'), d.t('overview.lahiri'), d.t('overview.method_sub'), d.page_of['method']),
     ]
     cw, ch, gap = (CW - 2 * 12) / 3, 84, 12
     top = y - 6
@@ -1070,9 +1088,12 @@ def _page_overview(d, response, positions):
     d.text(M, y, d.t('overview.contents'), 15, 'Head', 'ink')
     y -= 12
     d.line(M, y, W - M, y, 'accent', 0.8)
-    for key, title, desc in pages(d.locale)[1:]:
-        n = PAGE_OF[key]
-        y -= 34
+    # The ten-page edition keeps its original rows; the extended edition lists more pages in
+    # the same space, so its rows are closer together (same type sizes).
+    step = 34 if d.edition == EDITION_STANDARD else 23
+    for key, title, desc in d.contents[1:]:
+        n = d.page_of[key]
+        y -= step
         d.text(M, y + 4, f'{n - 1:02d}', 12, 'Head', 'primary_text')
         d.text(M + 34, y + 9, title, 10.6, 'Strong', 'ink')
         d.text(M + 34, y - 4.5, desc, 8.6, 'Body', 'muted')
@@ -1194,7 +1215,7 @@ def _page_birth(d, response, positions):
                    if resolution == 'user_selected_repeated_hour' else d.t('birth.offset_supplied'))
     y = _note(d, M, y, CW, d.t('birth.conversion_title'),
               d.t('birth.conversion', zone=birth['timezone'], offset_text=offset_text)) - 14
-    d.wrap(M, y, d.t('birth.method_ref', page=PAGE_OF['method']), CW, 8.4, 12, 'Body', 'muted')
+    d.wrap(M, y, d.t('birth.method_ref', page=d.page_of['method']), CW, 8.4, 12, 'Body', 'muted')
 
 
 def _page_chart(d, response, positions, mode):
@@ -1236,9 +1257,9 @@ def _page_chart(d, response, positions, mode):
         x += item
     y -= 26
     if mode == 'd1':
-        body = d.t('chart.d1_note', page=PAGE_OF['positions'])
+        body = d.t('chart.d1_note', page=d.page_of['positions'])
     else:
-        body = d.t('chart.d9_note', page=PAGE_OF['navamsa'])
+        body = d.t('chart.d9_note', page=d.page_of['navamsa'])
     _note(d, M, y, CW, d.t('chart.note_title'), body)
 
 
@@ -1288,7 +1309,7 @@ def _page_navamsa(d, response, positions):
                      _rashi_cell(body['navamsa_rashi'], 'Strong'),
                      _cell(str(body['navamsa_whole_sign_house']), 'Strong', 'primary_text')])
     y = _table(d, M, y - 4, columns, rows, row_h=38, header_h=28) - 24
-    _note(d, M, y, CW, d.t('navamsa.note_title'), d.t('navamsa.note', lagna=d.tr.rashi(l9), page=PAGE_OF['d9']))
+    _note(d, M, y, CW, d.t('navamsa.note_title'), d.t('navamsa.note', lagna=d.tr.rashi(l9), page=d.page_of['d9']))
 
 
 def _page_houses(d, response, positions):
@@ -1318,7 +1339,7 @@ def _page_houses(d, response, positions):
         rows.append([_cell(str(h), 'Head', 'primary_text', 11), _rashi_cell(layout.SIGNS[(l1 + h - 1) % 12]),
                      _members_cell(g1), _rashi_cell(layout.SIGNS[(l9 + h - 1) % 12]), _members_cell(g9)])
     y = _table(d, M, y - 4, columns, rows, row_h=34, header_h=28) - 22
-    _note(d, M, y, CW, d.t('houses.key_title'), d.t('houses.key', page=PAGE_OF['guide']))
+    _note(d, M, y, CW, d.t('houses.key_title'), d.t('houses.key', page=d.page_of['guide']))
 
 
 def _page_method(d, response, positions):
@@ -1357,8 +1378,11 @@ def _page_method(d, response, positions):
     half = CW / 2 - 10
     d.text(M, y, d.t('method.included'), 11, 'Head', 'ink')
     d.text(M + half + 20, y, d.t('method.excluded'), 11, 'Head', 'ink')
-    inc = [d.t(f'method.inc{i}') for i in range(1, 6)]
-    exc = [d.t(f'method.exc{i}') for i in range(1, 6)]
+    if d.edition == EDITION_STANDARD:
+        inc = [d.t(f'method.inc{i}') for i in range(1, 6)]
+        exc = [d.t(f'method.exc{i}') for i in range(1, 6)]
+    else:
+        inc, exc = d.extension.method_lists(d)
     yy = y - 18
     for a, b in zip(inc, exc):
         d.diamond(M + 3, yy + 3, 2.4)
@@ -1390,14 +1414,32 @@ def generate(response: dict, synthetic: bool = False, palette: str | None = None
     return render(response, synthetic, palette, display_name, locale)[0]
 
 
+def generate_extended(response: dict, panchanga: dict, synthetic: bool = False, palette: str | None = None,
+                      display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE) -> bytes:
+    """The extended edition (KUN-PAN-RPT-001): the ten pages plus the birth-instant Panchanga
+    pages. `panchanga` must be the `sabpuja-panchanga/1` document computed for the same request
+    as `response`; any mismatch, unsupported value or unaudited field raises before drawing."""
+    return render(response, synthetic, palette, display_name, locale, panchanga=panchanga)[0]
+
+
 def render(response: dict, synthetic: bool = False, palette: str | None = None,
-           display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE):
-    """generate() plus an audit of where chart labels were drawn, for the report tests."""
+           display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE, *, panchanga=None):
+    """generate() plus an audit of where chart labels were drawn, for the report tests.
+
+    panchanga=None (the default) renders the standard ten-page edition exactly as before.
+    A `sabpuja-panchanga/1` document renders the extended edition instead."""
     locale = loc.validate_locale(locale)
     if display_name is not None and names.normalize(display_name) != display_name:
         raise ValueError('report name must be validated and normalized before rendering')
     response = copy.deepcopy(response)
     positions = validate(response)
+    extension = None
+    if panchanga is not None:
+        try:
+            from . import panchanga_report
+        except ImportError:  # loaded by path or run as a script
+            import panchanga_report
+        extension = panchanga_report.Extension(response, copy.deepcopy(panchanga), locale)
     pal = Palette(palette or THEMES['default_palette'])
     cmaps = _register_fonts()
     drawing = _logo_drawing()
@@ -1408,11 +1450,13 @@ def render(response: dict, synthetic: bool = False, palette: str | None = None,
     tr = loc.Translator(locale)
     c.setTitle(tr.t('meta.title'))
     c.setAuthor('Sabpuja')
-    c.setSubject(tr.t('meta.subject'))
+    c.setSubject(tr.t('meta.subject') if extension is None else extension.t('meta.subject'))
     c.setCreator('Sabpuja Kundali report generator')
     c.setKeywords('')
     d = Doc(c, pal, cmaps, synthetic, locale)
     d.display_name = display_name
+    if extension is not None:
+        extension.apply(d)
     c.beginForm('sabpuja_logo', 0, 0, drawing.width, drawing.height)
     # The logo is paths only; keep the renderer's default font from adding an unembedded Times-Roman.
     default_font = STATE_DEFAULTS['fontName']
@@ -1426,14 +1470,22 @@ def render(response: dict, synthetic: bool = False, palette: str | None = None,
     pages = [_page_cover, _page_overview, _page_guide, _page_birth,
              lambda d, r, p: _page_chart(d, r, p, 'd1'), lambda d, r, p: _page_chart(d, r, p, 'd9'),
              _page_positions, _page_navamsa, _page_houses, _page_method]
+    if extension is not None:
+        at = pages.index(_page_method)
+        pages[at:at] = extension.page_drawers()
     for draw in pages:
         _new_page(d)
         draw(d, response, positions)
+    if d.page != d.total:
+        raise layout.LayoutError('Page plan and drawn pages disagree')
     c.save()
     data = memory.getvalue()
     if len(data) > MAX_PDF_BYTES:
         raise RuntimeError('controlled PDF size exceeded')
     audit = {'charts': d.chart_boxes, 'palette': pal.name}
+    if extension is not None:
+        audit.update(edition=d.edition, layout=EXTENDED_LAYOUT_ID, page_keys=[k for k, _, _ in d.contents],
+                     panchanga=extension.audit)
     if locale != loc.DEFAULT_LOCALE:
         audit.update(locale=locale, devanagari_runs=d.deva_runs, glyph_forms=len(d.glyph_forms), texts=d.drawn)
     if display_name is not None:
@@ -1450,8 +1502,14 @@ if __name__ == '__main__':
     parser.add_argument('--palette', choices=sorted(THEMES['palettes']), default=THEMES['default_palette'])
     parser.add_argument('--display-name', help='optional report name (synthetic names only in examples)')
     parser.add_argument('--locale', choices=loc.LOCALES, default=loc.DEFAULT_LOCALE)
+    parser.add_argument('--panchanga-json', help='extended edition: the sabpuja-panchanga/1 document for the '
+                                                 'same request (KUN-PAN-RPT-001)')
     args = parser.parse_args()
     response = json.loads(Path(args.chart_json).read_text())
     name = names.normalize(args.display_name)
-    Path(args.output_pdf).write_bytes(generate(response, synthetic=args.sample, palette=args.palette,
-                                               display_name=name, locale=args.locale))
+    options = dict(synthetic=args.sample, palette=args.palette, display_name=name, locale=args.locale)
+    if args.panchanga_json:
+        pdf = generate_extended(response, json.loads(Path(args.panchanga_json).read_text()), **options)
+    else:
+        pdf = generate(response, **options)
+    Path(args.output_pdf).write_bytes(pdf)
