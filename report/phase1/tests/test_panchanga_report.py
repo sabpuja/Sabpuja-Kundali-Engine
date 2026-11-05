@@ -80,6 +80,24 @@ def page_text(pdf, key, audit):
     return squash(pdf[audit['page_keys'].index(key)].get_text())
 
 
+SPAN_KEYS = {'tithi': ('tithi', 'start', 'end'), 'karana': ('karana', 'start', 'end'), 'yoga': ('yoga', 'start', 'end'),
+             'nakshatra': ('nakshatra', 'start', 'end'), 'pada': ('nakshatra', 'pada_start', 'pada_end')}
+
+
+def utc(instant):
+    return datetime.fromisoformat(instant['utc'].replace('Z', '+00:00'))
+
+
+def durations(doc, locale):
+    """Each span's length as the timeline prints it: whole hours and minutes from the UTC instants."""
+    out = {}
+    for element, (block, a, b) in SPAN_KEYS.items():
+        seconds = int((utc(doc[block][b]) - utc(doc[block][a])).total_seconds())
+        out[element] = squash(pan.STRINGS['tr.duration'][locale].format(
+            hours=seconds // 3600, minutes=f'{seconds % 3600 // 60:02d}'))
+    return out
+
+
 def refused(test, response, doc, locale='en'):
     with test.assertRaises(pan.PanchangaReportError):
         premium.generate_extended(response, doc, synthetic=True, palette='baseline', locale=locale)
@@ -243,6 +261,8 @@ class ExtendedEdition(unittest.TestCase):
                             local = datetime.fromisoformat(instant['local'])
                             self.assertIn(local.strftime('%H:%M:%S'), table)
                             self.assertIn(local.isoformat()[-6:], table)
+                    for element, text in durations(doc, locale).items():
+                        self.assertIn(text, table, element)
                     self.assertIn(pan.VALIDATION_STATUS, page_text(pdf, 'pmethod', audit))
             _CACHE.clear()
 
@@ -509,6 +529,17 @@ class LiveBoundaries(unittest.TestCase):
             self.assertIn('+01:00', table)
             self.assertIn(squash(pan.STRINGS['tr.offset_note'][locale].format(offset='+00:00')), table)
             self.assertIn('Europe/London', table)
+            for element, text in durations(doc, locale).items():   # lengths come from UTC, not wall clock
+                self.assertIn(text, table, element)
+        crossing = [el for el, (block, a, b) in SPAN_KEYS.items()
+                    if datetime.fromisoformat(doc[block][a]['local']).utcoffset()
+                    != datetime.fromisoformat(doc[block][b]['local']).utcoffset()]
+        self.assertTrue(crossing)
+        for el in crossing:
+            block, a, b = SPAN_KEYS[el]
+            wall = (datetime.fromisoformat(doc[block][b]['local']).replace(tzinfo=None)
+                    - datetime.fromisoformat(doc[block][a]['local']).replace(tzinfo=None))
+            self.assertEqual(utc(doc[block][b]) - utc(doc[block][a]), wall - timedelta(hours=1), el)
 
     def test_repeated_hour_second_occurrence(self):
         response, doc = self.case('gb-london', '2031-10-26', '01:30:00', '+00:00')

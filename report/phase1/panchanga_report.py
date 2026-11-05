@@ -523,7 +523,7 @@ class Extension:
                  for el, sp in v['spans'].items()}
         lo = math.floor(min(a for a, _ in hours.values()) / 12) * 12
         hi = math.ceil(max(b for _, b in hours.values()) / 12) * 12
-        x0, x1 = pr.M + 78, pr.W - pr.M - 16
+        x0, x1 = pr.M + 128, pr.W - pr.M - 16
         scale = (x1 - x0) / (hi - lo)
         X = lambda h: x0 + (h - lo) * scale
         top = y - 16
@@ -532,6 +532,11 @@ class Extension:
             a, b = hours[element]
             yy = top - i * row
             d.text(pr.M, yy - 8, self.t(f'tr.el.{element}'), 8.6, 'Strong', 'primary_text')
+            seconds = int((v['spans'][element]['end'][0] - v['spans'][element]['start'][0]).total_seconds())
+            lasted = self.t('tr.duration', hours=seconds // 3600, minutes=f'{seconds % 3600 // 60:02d}')
+            if d.width(self.t(f'tr.el.{element}'), 'Strong', 8.6) + d.width(lasted, 'Medium', pr.MIN_TEXT) > x0 - pr.M - 14:
+                raise layout.LayoutError('Timeline label and duration do not fit')
+            d.text(x0 - 8, yy - 8, lasted, pr.MIN_TEXT, 'Medium', 'muted', 'right')
             d.rect(x0, yy - 10, x1 - x0, 11, fill='tint_soft')
             d.rect(X(a), yy - 10, max(X(b) - X(a), 1.2), 11, fill='primary' if element == 'tithi' else 'accent',
                    radius=2)

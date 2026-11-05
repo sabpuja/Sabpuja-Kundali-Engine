@@ -26,12 +26,12 @@
   },
   "added": {
     "report/phase1/panchanga_report.py": {
-      "sha256": "bd20842d22cffef80e35afd0725677291cdd3a78b985122bb401e9645d3e2adb",
-      "git_blob": "2b1845960224803a9e813267fdb9baf764232518"
+      "sha256": "019fce61fb5c793d3423bae5543e265325f849073842b36991f1b12dfe4341f8",
+      "git_blob": "05131711cb6d999895b3e77663c76b4bf4fc8c44"
     },
     "report/phase1/report_panchanga_i18n.json": {
-      "sha256": "16d2c461021c244fc3e6943a52c322f3486258f62f4b0e35690b6a1f97ae5725",
-      "git_blob": "d89119fcc1fd429d37b1386239a3200c51a5bb4f"
+      "sha256": "926c665c846552868fde0d48c8b4f64a488c80fa52a95bd6a53c14f0cecae0af",
+      "git_blob": "badc05856728841a844e845a14df9c40a615987b"
     },
     "report/phase1/tests/fixtures/panchanga/s01-first-supported-date.json": {
       "sha256": "2d54b1e8c6906587dec0d84f25d078d2ff6f6ca47fbfd1fb57d3421e1493743c",
@@ -86,8 +86,8 @@
       "git_blob": "bf843f32b269a49eb4dff023c794a8aa6e34e18b"
     },
     "report/phase1/tests/test_panchanga_report.py": {
-      "sha256": "0b8f22afa828c20133c0d646821e1943f4f0f40cab6953d9f5ee2f473d91fefa",
-      "git_blob": "270a2b3018036f0e995bb61b478217343e772ed1"
+      "sha256": "3e65b61e4ea4b28e96f4de0f98e957652256fa1cf5135392193d08e4b5f84d3b",
+      "git_blob": "fb2d7675f58fba331806c5592e0eb95918742f79"
     },
     "report/phase1/tools/make_panchanga_fixtures.py": {
       "sha256": "9fb29f201932e3a975a8e618729c133b032d17f834036d3eda8a3b47d5ee19f8",

@@ -50,3 +50,6 @@ table. No proprietary Panchang text or layout was used.
 5. पूर्वार्ध / उत्तरार्ध in the transition table.
 6. "चंद्रमा की चार प्रमुख कलाएँ" for E = 0°, 90°, 180°, 270°, chosen to avoid Tithi names (अमावस्या, पूर्णिमा, अष्टमी).
 7. घं as the axis abbreviation for hours.
+8. भाग for an angular "step" (12° of E, 6°, 13°20′ of S). चरण is kept only for Pada, so the
+   same page never uses one word for two meanings.
+9. "{h} घं {m} मि" for the span lengths on the timeline, and अवधि for "length".
