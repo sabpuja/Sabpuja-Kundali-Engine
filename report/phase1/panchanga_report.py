@@ -137,6 +137,25 @@ def _int(value, low, high):
     return value
 
 
+DISPLAY_ROUNDING = timedelta(seconds=30)
+
+
+def display_instant(moment_utc, moment_local, zone):
+    """Customer display of one M1 transition: (UTC, local or None), both to the nearest minute.
+
+    The UTC instant (a whole second in the M1 document) is rounded once, half up (:29 down, :30 up),
+    and that same rounded instant is converted to the pinned zone, so the two printed clock times
+    never disagree, including across midnight, summer-time gaps and repeated hours. A local time M1
+    withheld stays withheld; a rounded local time that would fall outside the D13-A envelope is
+    withheld too, never shown. The M1 document itself keeps its whole seconds.
+    """
+    rounded = (moment_utc + DISPLAY_ROUNDING).replace(second=0, microsecond=0)
+    if moment_local is None:
+        return rounded, None
+    local = rounded.astimezone(zone)
+    return rounded, (local if LOCAL_FIRST <= local.date() <= LOCAL_LAST else None)
+
+
 def _instant(value, zone):
     """(utc datetime, local datetime or None) of one transition, checked."""
     if not isinstance(value, dict):
@@ -299,7 +318,8 @@ def validate(response, doc):
         _refuse('pada span is not inside the nakshatra span')
     return {'number': number, 'paksha': paksha, 'paksha_day': tithi['paksha_day'], 'karana': k, 'yoga': y,
             'nakshatra': dict(moon_nak), 'elongation': e, 'yoga_sum': s, 'birth_utc': t0,
-            'birth_local': t0.astimezone(zone), 'zone': birth['timezone'], 'spans': spans, 'provenance': prov,
+            'birth_local': t0.astimezone(zone), 'zone': birth['timezone'], 'zone_info': zone, 'spans': spans,
+            'provenance': prov,
             'search': doc['method']['transition_search'], 'method_id': doc['method']['method_id']}
 
 
@@ -349,7 +369,7 @@ class Extension:
         return self.t('pan.paksha.' + v['paksha'])
 
     def _date_time(self, d, moment):
-        return self.t('tr.local', date=d.date_text(moment.date().isoformat()), time=moment.strftime('%H:%M:%S'))
+        return self.t('tr.local', date=d.date_text(moment.date().isoformat()), time=moment.strftime('%H:%M'))
 
     @staticmethod
     def _offset(moment):
@@ -447,16 +467,18 @@ class Extension:
     # -- Page: transition times ------------------------------------------------------------
     def _time_cell(self, moment_local, moment_utc):
         ext = self
+        shown_utc, shown_local = display_instant(moment_utc, moment_local, self.values['zone_info'])
 
         def draw(d, x, base, width, align):
             if moment_local is None:
-                first = ext.t('tr.withheld')
-                second = ext.t('tr.utc_only', utc=moment_utc.strftime('%Y-%m-%d %H:%M:%S'))
                 ext.audit['withheld'].append(moment_utc.strftime('%Y-%m-%dT%H:%M:%SZ'))
+            if shown_local is None:
+                first = ext.t('tr.withheld')
+                second = ext.t('tr.utc_only', utc=shown_utc.strftime('%Y-%m-%d %H:%M'))
             else:
-                first = ext._date_time(d, moment_local)
-                second = ext.t('tr.utc', utc=moment_utc.strftime('%Y-%m-%d %H:%M:%S'),
-                               offset=ext._offset(moment_local))
+                first = ext._date_time(d, shown_local)
+                second = ext.t('tr.utc', utc=shown_utc.strftime('%Y-%m-%d %H:%M'),
+                               offset=ext._offset(shown_local))
             ext._two_lines(d, x, base, width, first, second)
         return draw
 
@@ -504,10 +526,11 @@ class Extension:
                      days=_num(v['search']['bracket_extent_max_days_each_direction']),
                      bracket=_num(v['search']['transition_bracket_max_seconds']))
         birth_offset = self._offset(v['birth_local'])
-        offsets = {self._offset(m) for span in spans.values() for _, m in span.values() if m is not None}
+        shown = [display_instant(u, m, v['zone_info']) for span in spans.values() for u, m in span.values()]
+        offsets = {self._offset(m) for _, m in shown if m is not None}
         if offsets - {birth_offset}:
             how += self.t('tr.offset_note', offset=birth_offset)
-        if any(m is None for span in spans.values() for _, m in span.values()):
+        if any(m is None for _, m in shown):
             how += self.t('tr.withheld_note', first=d.date_text(LOCAL_FIRST.isoformat()),
                           last=d.date_text(LOCAL_LAST.isoformat()))
         end = pr._note(d, pr.M, y - 6, pr.CW, self.t('tr.how_title'), how, size=8.4)

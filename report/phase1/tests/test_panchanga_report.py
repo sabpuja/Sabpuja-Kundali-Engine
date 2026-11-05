@@ -88,6 +88,14 @@ def utc(instant):
     return datetime.fromisoformat(instant['utc'].replace('Z', '+00:00'))
 
 
+def shown(instant, zone_name):
+    """Expected display: the UTC instant rounded half up to the minute, and that same instant in the zone."""
+    from sabpuja_kundali.timezones import get_zone
+    t = utc(instant)
+    r = t.replace(second=0) + (timedelta(minutes=1) if t.second >= 30 else timedelta(0))
+    return r, r.astimezone(get_zone(zone_name))
+
+
 def durations(doc, locale):
     """Each span's length as the timeline prints it: whole hours and minutes from the UTC instants."""
     out = {}
@@ -255,12 +263,16 @@ class ExtendedEdition(unittest.TestCase):
                     self.assertIn(f"{doc['angles']['yoga_sum_deg']:.8f}°", first)
                     instants = [doc[el][edge] for el in ('tithi', 'karana', 'yoga') for edge in ('start', 'end')]
                     instants += [doc['nakshatra'][k] for k in ('start', 'end', 'pada_start', 'pada_end')]
+                    self.assertIsNone(re.search(r'\d\d:\d\d:\d\d', table), 'no seconds are printed')
                     for instant in instants:
-                        self.assertIn('UTC ' + instant['utc'].replace('T', ' ').rstrip('Z'), table)
-                        if instant['local_rendering'] == 'rendered':
-                            local = datetime.fromisoformat(instant['local'])
-                            self.assertIn(local.strftime('%H:%M:%S'), table)
-                            self.assertIn(local.isoformat()[-6:], table)
+                        r_utc, r_local = shown(instant, doc['birth']['timezone'])
+                        word = 'about' if locale == 'en' else 'लगभग'
+                        if instant['local_rendering'] == 'rendered':   # cell marked once, on the local line
+                            self.assertIn(f"UTC {r_utc.strftime('%Y-%m-%d %H:%M')}", table)
+                            self.assertIn(f"{word} {r_local.strftime('%H:%M')}", table)
+                            self.assertIn(r_local.isoformat()[-6:], table)
+                        else:                                          # UTC only, marked on its own line
+                            self.assertIn(f"UTC {word} {r_utc.strftime('%Y-%m-%d %H:%M')}", table)
                     for element, text in durations(doc, locale).items():
                         self.assertIn(text, table, element)
                     self.assertIn(pan.VALIDATION_STATUS, page_text(pdf, 'pmethod', audit))
@@ -278,7 +290,7 @@ class ExtendedEdition(unittest.TestCase):
             self.assertEqual(sorted(audit['panchanga']['withheld']), sorted(withheld))
             self.assertEqual(table.count(squash(pan.STRINGS['tr.withheld'][locale])), 5)
             self.assertIn(squash(pan.STRINGS['tr.withheld_note'][locale].strip().split(' ')[0]), table)
-            self.assertNotIn('1969', re.sub(r'UTC 1969-\d\d-\d\d', '', table))   # no local 1969 date shown
+            self.assertNotIn('1969', re.sub(r'UTC ((about|लगभग) )?1969-\d\d-\d\d', '', table))   # no local 1969 date shown
 
     def test_no_unadopted_names_anywhere(self):
         for case in SCENARIOS:
@@ -487,6 +499,48 @@ class Refusals(unittest.TestCase):
 
 
 @unittest.skipUnless(os.environ.get('SABPUJA_TEST_EPHE_PATH'), 'set SABPUJA_TEST_EPHE_PATH for live boundary cases')
+class DisplayRounding(unittest.TestCase):
+    """KUN-PAN-RPT-001 QA: transition times are printed to the nearest minute. The UTC instant is rounded
+    once and the same rounded instant is converted to the zone; M1 seconds are not changed."""
+
+    @staticmethod
+    def at(text):
+        return datetime.strptime(text, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
+
+    def setUp(self):
+        from sabpuja_kundali.timezones import get_zone
+        self.kolkata, self.london = get_zone('Asia/Kolkata'), get_zone('Europe/London')
+
+    def check(self, utc_text, zone, want_utc, want_local, local=True):
+        moment = self.at(utc_text)
+        r_utc, r_local = pan.display_instant(moment, moment.astimezone(zone) if local else None, zone)
+        self.assertEqual(r_utc.strftime('%Y-%m-%d %H:%M:%S'), want_utc)
+        self.assertEqual(None if r_local is None else r_local.isoformat(), want_local)
+
+    def test_half_minute_rounds_up_and_29_seconds_down(self):
+        self.check('2039-07-31 00:13:29', self.kolkata, '2039-07-31 00:13:00', '2039-07-31T05:43:00+05:30')
+        self.check('2039-07-31 00:13:30', self.kolkata, '2039-07-31 00:14:00', '2039-07-31T05:44:00+05:30')
+        self.check('2039-07-31 00:13:00', self.kolkata, '2039-07-31 00:13:00', '2039-07-31T05:43:00+05:30')
+        self.check('2039-07-31 00:13:59', self.kolkata, '2039-07-31 00:14:00', '2039-07-31T05:44:00+05:30')
+
+    def test_midnight_and_year_roll_over_in_utc_and_local(self):
+        self.check('2039-07-31 18:29:30', self.kolkata, '2039-07-31 18:30:00', '2039-08-01T00:00:00+05:30')
+        self.check('2039-12-31 23:59:45', self.london, '2040-01-01 00:00:00', '2040-01-01T00:00:00+00:00')
+
+    def test_summer_time_gap_and_repeated_hour(self):
+        # Clocks go forward at 01:00 UTC on 30 March 2031: 00:59:30 UTC (00:59 GMT) is shown as 02:00 BST.
+        self.check('2031-03-30 00:59:30', self.london, '2031-03-30 01:00:00', '2031-03-30T02:00:00+01:00')
+        self.check('2031-03-30 00:59:29', self.london, '2031-03-30 00:59:00', '2031-03-30T00:59:00+00:00')
+        # Clocks go back at 01:00 UTC on 26 October 2031: 01:00 local occurs twice; the offset tells which.
+        self.check('2031-10-26 00:59:45', self.london, '2031-10-26 01:00:00', '2031-10-26T01:00:00+00:00')
+        self.check('2031-10-26 00:00:10', self.london, '2031-10-26 00:00:00', '2031-10-26T01:00:00+01:00')
+
+    def test_withheld_stays_withheld_and_rounding_never_leaves_the_envelope(self):
+        self.check('1969-12-31 18:29:40', self.kolkata, '1969-12-31 18:30:00', None, local=False)
+        self.check('2100-12-31 23:59:31', self.london, '2101-01-01 00:00:00', None)
+        self.check('2100-12-31 23:59:29', self.london, '2100-12-31 23:59:00', '2100-12-31T23:59:00+00:00')
+
+
 class LiveBoundaries(unittest.TestCase):
     """Synthetic requests computed live with the pinned ephemeris; nothing here is stored."""
 
@@ -557,12 +611,16 @@ class LiveBoundaries(unittest.TestCase):
         response, doc = self.case('in-jaipur', day, clock)
         self.assertEqual(doc['tithi']['number'], 12)
         self.assertEqual(doc['tithi']['start']['utc'], response['chart']['birth']['utc'])
-        self.render_both(response, doc)
+        for locale, (audit, pdf) in self.render_both(response, doc).items():
+            r_utc, _ = shown(doc['tithi']['start'], doc['birth']['timezone'])
+            self.assertIn(f"UTC {r_utc.strftime('%Y-%m-%d %H:%M')}", page_text(pdf, 'transitions', audit))
         before = (end_local - timedelta(seconds=1)).strftime('%H:%M:%S')
         response, doc = self.case('in-jaipur', day, before)
         self.assertEqual(doc['tithi']['number'], 11)
         self.assertEqual(doc['tithi']['end']['utc'], DOCS[PRIMARY]['tithi']['end']['utc'])
-        self.render_both(response, doc)
+        for locale, (audit, pdf) in self.render_both(response, doc).items():
+            r_utc, _ = shown(doc['tithi']['end'], doc['birth']['timezone'])
+            self.assertIn(f"UTC {r_utc.strftime('%Y-%m-%d %H:%M')}", page_text(pdf, 'transitions', audit))
 
     def test_last_supported_instant(self):
         response, doc = self.case('in-new-delhi', '2100-12-31', '23:59:59')

@@ -15,8 +15,8 @@
   "modified": {
     "report/phase1/README.md": {
       "before_sha256": "3a43fffff0ca7eb25c7bdecea6b1f2f3a3981d49c216bff40cc7f5b2e885932f",
-      "v6_sha256": "f4200cd4d01b412018d4f36e3a7c2b379045b584dfe8f7cf5d688d35206ebd1e",
-      "v6_git_blob": "68c0772592ebb525e328e156ae8619c0519239e6"
+      "v6_sha256": "85f84aaf84d576b13b825034eb141a5ebe855a35daf38b132ab5542f9edb2728",
+      "v6_git_blob": "df5c820b2a8949b2c82acea59693ea0ecad7b0c3"
     },
     "report/phase1/premium_report.py": {
       "before_sha256": "974d3de753f0c6c0c8451235b15017a76e7711a79e14291ee7f742ce4647bf6d",
@@ -26,12 +26,12 @@
   },
   "added": {
     "report/phase1/panchanga_report.py": {
-      "sha256": "019fce61fb5c793d3423bae5543e265325f849073842b36991f1b12dfe4341f8",
-      "git_blob": "05131711cb6d999895b3e77663c76b4bf4fc8c44"
+      "sha256": "cfc339ed2e085f0ba802395e962e7b1dc44950a6e1fc827da755979f7696915b",
+      "git_blob": "6d2d4097354f2dfb64a97752e2d30ebf84dd172d"
     },
     "report/phase1/report_panchanga_i18n.json": {
-      "sha256": "926c665c846552868fde0d48c8b4f64a488c80fa52a95bd6a53c14f0cecae0af",
-      "git_blob": "badc05856728841a844e845a14df9c40a615987b"
+      "sha256": "09f835737a31e6ae60c8132a5e0b34f23453417174175f2de01badfb8b106468",
+      "git_blob": "e45444d2b67be9691a75aa9ab87b95b1c301d9a4"
     },
     "report/phase1/tests/fixtures/panchanga/s01-first-supported-date.json": {
       "sha256": "2d54b1e8c6906587dec0d84f25d078d2ff6f6ca47fbfd1fb57d3421e1493743c",
@@ -86,8 +86,8 @@
       "git_blob": "bf843f32b269a49eb4dff023c794a8aa6e34e18b"
     },
     "report/phase1/tests/test_panchanga_report.py": {
-      "sha256": "3e65b61e4ea4b28e96f4de0f98e957652256fa1cf5135392193d08e4b5f84d3b",
-      "git_blob": "fb2d7675f58fba331806c5592e0eb95918742f79"
+      "sha256": "ff509e8e7d6b3e04a2f302e9cd25226da21e473065dd207d9796bff29438aae9",
+      "git_blob": "acfd72aedeaae868dd359ac63b66fd0132ed1d11"
     },
     "report/phase1/tools/make_panchanga_fixtures.py": {
       "sha256": "9fb29f201932e3a975a8e618729c133b032d17f834036d3eda8a3b47d5ee19f8",

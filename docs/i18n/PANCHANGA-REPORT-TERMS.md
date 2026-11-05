@@ -53,3 +53,5 @@ table. No proprietary Panchang text or layout was used.
 8. भाग for an angular "step" (12° of E, 6°, 13°20′ of S). चरण is kept only for Pada, so the
    same page never uses one word for two meanings.
 9. "{h} घं {m} मि" for the span lengths on the timeline, and अवधि for "length".
+10. लगभग ("about") to mark transition times rounded to the nearest minute, and "निकटतम मिनट तक
+    पूर्णांकित" in the page intro.

@@ -104,12 +104,14 @@ capture therefore needs one of two routes:
 
 ## 7. Display precision and near-boundary flag (PAN-D09 remainder)
 
-D09-A-M1 approved the machine output to the second. The local display rule was deferred. The KUN-PAN-RPT-001
-report prints the M1 seconds, with the statement that a second is resolution, not accuracy. An owner decision
-card for this report is open.
+D09-A-M1 approved the machine output to the second and deferred the local display rule. After independent
+QA (PR #79, comment 6659583110) the KUN-PAN-RPT-001 report prints transition times to the nearest minute,
+marked "about": the UTC instant is rounded once, half up, and the same instant is converted to local time.
+The machine output keeps its seconds. Recording this as the D09 display rule in `docs/DECISIONS.md` is an
+owner step.
 
 For M2 the proposal is:
-- **Times.** Lunar transition times stay at the M1 second unless the owner chooses minutes. Sunrise and sunset are shown to the minute.
+- **Times.** Lunar transition times follow the same minute rule. Sunrise and sunset are also shown to the minute.
 - **Near-boundary flag.** Extend the SCI-06 ±2 min disclosure to the Panchanga elements. When the birth is within ±2 min of a Tithi, Nakshatra, Yoga or Karana change, or of sunrise for the Vara, the report shows the existing near-boundary note. The window needs an owner decision, because SCI-06 covers six chart items only.
 
 ## 8. Masa and Samvat (PAN-D19, split into owner choices)

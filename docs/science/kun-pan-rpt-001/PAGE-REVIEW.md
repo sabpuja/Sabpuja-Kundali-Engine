@@ -69,13 +69,23 @@ the most likely customer question.
 - The timeline gave no length for each span. Each bar now has its length next to the name, for example "Tithi 21 h 15 m".
   - The length is calculated from the UTC instants, so a span that crosses a summer-time change is not off by an hour.
   - New tests check the lengths for all 13 scenarios in EN and HI, and that a span crossing the London change is one hour shorter than its wall-clock difference.
-  - Hours and minutes are truncated, and the seconds are in the table.
+  - Lengths come from the exact UTC times and are cut to whole minutes; the page says so.
 - The Hindi axis note left one word on a second line. The note is now shorter.
 
-**Open (owner decision posted in the thread):**
-- Times are printed to the second, as in the M1 document. The page says that a second is resolution, not accuracy.
-- The local display rule and a ±2 min near-boundary flag were deferred under D09-A-M1.
-- The proposal below carries both into M2.
+**Changed after independent QA (comment 6659583110, CHANGES REQUESTED, time display only):**
+- Began and ended times are printed to the nearest minute, marked "about" / "लगभग". The M1 document,
+  its UTC instants and its search records keep their whole seconds; nothing in the calculation changes.
+- The UTC instant is rounded once (half up: :29 down, :30 up) and that same rounded instant is converted
+  to the pinned zone, so the UTC and local lines can never disagree, including across midnight, the
+  London summer-time gap and the repeated hour. A local time M1 withheld stays withheld; a rounded
+  local time that would leave the 1970–2100 envelope is withheld too.
+- The ≈ sign suggested in the QA example is not in the approved Inter or Poppins fonts, so the
+  words "about" and "लगभग" are used instead. A cell with a local time carries the word once, on the
+  local line; a UTC-only cell carries it on the UTC line.
+- The intro and "How the times are found" no longer describe the printed time as a "first second".
+  They say the page rounds the calculated instant, and that even the calculated second is a numerical
+  resolution, not a proven accuracy.
+- The ±2 min near-boundary flag stays deferred (D09 remainder) and is carried into the M2 proposal.
 
 ## Page 12: Panchanga method and limits
 
