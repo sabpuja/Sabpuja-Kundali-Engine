@@ -26,7 +26,8 @@ PREMIUM = "report/phase1/premium_report.py"
 EXT = "report/phase1/panchanga_report.py"
 STD_CAT = "report/phase1/report_i18n.json"
 UI = "prototype/kundali_prototype/static/i18n.json"
-M1 = "src/sabpuja_kundali/panchanga/contract.py"
+ENGINE = "src/sabpuja_kundali/provenance.py"   # a v1-pinned engine file
+M1_PREFIX = "src/sabpuja_kundali/panchanga/"   # exempt from the v1 listing since PR #68 (see below)
 
 
 def _committed():
@@ -82,7 +83,7 @@ class ManifestStructureTest(unittest.TestCase):
             d[where][path] = ({"before_sha256": "1" * 64, "v6_sha256": "2" * 64, "v6_git_blob": "3" * 40}
                               if where == "modified" else {"sha256": "1" * 64, "git_blob": "2" * 40})
             d["counts"][where] += 1
-        for path in (STD_CAT, UI, M1, "pyproject.toml"):
+        for path in (STD_CAT, UI, ENGINE, M1_PREFIX + "contract.py", "pyproject.toml"):
             with self.subTest(path):
                 self.bad(lambda d: add(d, path, "modified"), "modified paths differ from the authorized")
         self.bad(lambda d: add(d, "report/phase1/tests/test_zz.py", "added"), "added paths differ")
@@ -157,10 +158,10 @@ class TreeVerificationTest(unittest.TestCase):
             f.write(b" ")
         self.refused(STD_CAT)
         (self.tmp / STD_CAT).write_bytes(self.blobs[STD_CAT])
-        with open(self.tmp / M1, "ab") as f:
+        with open(self.tmp / ENGINE, "ab") as f:
             f.write(b"\n")
-        self.refused(M1)
-        (self.tmp / M1).write_bytes(self.blobs[M1])
+        self.refused(f"undeclared change to a v1 file: {ENGINE}")
+        (self.tmp / ENGINE).write_bytes(self.blobs[ENGINE])
         p = "report/phase1/tests/fixtures/panchanga/s14-extra.json"
         (self.tmp / p).write_text("{}")
         self.refused(f"undeclared file in v1 scope: {p}")
@@ -201,6 +202,14 @@ class ExactCommitTest(unittest.TestCase):
     def test_a_commit_without_main_in_its_history_is_refused(self):
         with self.assertRaisesRegex(IdentityError, "not an ancestor"):
             iv6.verify_git_v6(*self.args(), commit=iv5.BASE_COMMIT)
+
+    def test_engine_data_preview_and_panchanga_m1_are_byte_identical_to_main(self):
+        """The Panchanga M1 package is exempt from the v1 listing (PR #68), so prove separately that
+        KUN-PAN-RPT-001 changes nothing under src/, data/, preview/ or prototype/ relative to 07da75e."""
+        out = subprocess.run(["git", "-C", str(REPO), "diff", "--name-only", iv6.BASE_COMMIT, "HEAD", "--",
+                              "src", "data", "preview", "prototype", "pyproject.toml", STD_CAT],
+                             capture_output=True, check=True, text=True).stdout
+        self.assertEqual(out, "")
 
     def test_not_a_git_clone_is_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
