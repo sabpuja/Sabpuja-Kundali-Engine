@@ -498,7 +498,6 @@ class Refusals(unittest.TestCase):
             premium.generate_extended(SCENARIOS[PRIMARY], DOCS[PRIMARY], display_name='  Asha  ')
 
 
-@unittest.skipUnless(os.environ.get('SABPUJA_TEST_EPHE_PATH'), 'set SABPUJA_TEST_EPHE_PATH for live boundary cases')
 class DisplayRounding(unittest.TestCase):
     """KUN-PAN-RPT-001 QA: transition times are printed to the nearest minute. The UTC instant is rounded
     once and the same rounded instant is converted to the zone; M1 seconds are not changed."""
@@ -541,6 +540,7 @@ class DisplayRounding(unittest.TestCase):
         self.check('2100-12-31 23:59:29', self.london, '2100-12-31 23:59:00', '2100-12-31T23:59:00+00:00')
 
 
+@unittest.skipUnless(os.environ.get('SABPUJA_TEST_EPHE_PATH'), 'set SABPUJA_TEST_EPHE_PATH for live boundary cases')
 class LiveBoundaries(unittest.TestCase):
     """Synthetic requests computed live with the pinned ephemeris; nothing here is stored."""
 

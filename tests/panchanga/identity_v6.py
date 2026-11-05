@@ -36,7 +36,7 @@ from . import identity_v5 as v5m
 from .identity_v2 import IdentityError, HEX40, HEX64, REPO, blob_id, sha256
 
 V6_PATH = "tests/panchanga/identity-manifest-v6.json"
-V6_SHA256 = "bc0d983f45ff5fc161274ca9807bdacd738f6d8c822d827c193f1217f67093a4"
+V6_SHA256 = "964f42f9c14916eebdedc5076c7cce57d5c3b2351bee3ec2aef6c68315039005"
 SCHEMA = "sabpuja-pan-qa-08-identity/6"
 TASK = "KUN-PAN-RPT-001"
 BASE_COMMIT = "07da75eebae6bb2f86d4c581229630962bda65fc"          # main after PR #76 (v5), issue #78 base

@@ -86,8 +86,8 @@
       "git_blob": "bf843f32b269a49eb4dff023c794a8aa6e34e18b"
     },
     "report/phase1/tests/test_panchanga_report.py": {
-      "sha256": "ff509e8e7d6b3e04a2f302e9cd25226da21e473065dd207d9796bff29438aae9",
-      "git_blob": "acfd72aedeaae868dd359ac63b66fd0132ed1d11"
+      "sha256": "e2084107226f6f23d48efbf2477be0c3bf34bd8ee96a137267e273947d99a698",
+      "git_blob": "91960d8a9a22004c285532b912ed08d821842ff7"
     },
     "report/phase1/tools/make_panchanga_fixtures.py": {
       "sha256": "9fb29f201932e3a975a8e618729c133b032d17f834036d3eda8a3b47d5ee19f8",
