@@ -1,6 +1,7 @@
 # KUN-I18N-003 Hindi / Jyotish reviewer decision sheet
 
-**To be completed and signed by the independent human reviewer(s). Not filled in by the developer.**
+**For the independent human reviewer(s). Not filled in by the developer. No signature is needed**
+(KUN-GOV-SIMPLE-001, issue #75): give your decisions as a GitHub issue or PR comment, or to the owner, who posts them there.
 The CSV copy (`DECISION-SHEET.csv`) has the same rows for spreadsheet use.
 
 Reviewed revision (write it exactly as shown; a review of any other revision must say so):
@@ -43,46 +44,12 @@ the key it replaces), **REJECT** (wording is wrong and no replacement is offered
 | C5 | KUN-I18N-002: चंद्र पात on pages 3 and 7 | J | ACCEPT | NA |   |  |  |  |
 | C6 | KUN-I18N-002: ellipsis character | L | ACCEPT |   | NA |  |  |  |
 
-## Reviewer attestation
+## Reviewer details
 
-Complete one block per reviewer. A decision without a complete, signed block is not recorded.
+No attestation block or signature is needed (KUN-GOV-SIMPLE-001, issue #75). With your decisions, give your
+name and the commit and catalog SHA-256 you reviewed (copy them from the table above). The developer records
+each decision in `editorial-acceptance-register.json` with your name and the GitHub record of your feedback.
+AI assistants (Claude, ChatGPT) cannot give a reviewer decision.
 
-**Hindi language reviewer**
-
-| | |
-|---|---|
-| Full name | |
-| Qualification (e.g. degree, professional editing experience) | |
-| Organisation / contact (optional) | |
-| Independence: "I did not write or translate the text under review and have no part in its development." | Yes / No |
-| Rows reviewed | All / list |
-| Commit and catalog SHA-256 reviewed (copy from the table above) | |
-| Date (YYYY-MM-DD) | |
-| Signature | |
-
-**Jyotish terminology reviewer**
-
-| | |
-|---|---|
-| Full name | |
-| Qualification (e.g. Jyotish training, years of practice, institution) | |
-| Organisation / contact (optional) | |
-| Independence statement (as above) | Yes / No |
-| Rows reviewed | All / list |
-| Commit and catalog SHA-256 reviewed | |
-| Date (YYYY-MM-DD) | |
-| Signature | |
-
-**Owner copy decisions (Sabpuja owner)**
-
-| Decision | Approve / Reject | Date | Signature |
-|---|---|---|---|
-| Change A: English page 10 "Hindi text (available as a separate edition)" (`CHANGE-A-ENGLISH-PAGE10.md`) | | | |
-| Change B: "Chart schema 0.3.0" / "चार्ट स्कीमा 0.3.0" (`CHANGE-B-SCHEMA-WORDING.md`) | | | |
-
-The owner may sign either this block or `OWNER-COPY-ATTESTATION.md` (same two decisions, with the exact commit
-and catalog hashes). Both changes are applied in the reviewed source above on the owner's chat approval for
-implementation (issue #73); the signed owner record is still pending.
-
-The signed sheet is the evidence the acceptance register cites. AI assistants (Claude, ChatGPT)
-cannot sign any block on this sheet.
+**Owner copy decisions (Changes A and B):** decided by the owner in chat (issue #73) and recorded as
+owner-accepted under issue #75. Nothing to sign.

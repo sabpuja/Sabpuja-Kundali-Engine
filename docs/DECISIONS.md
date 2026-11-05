@@ -219,3 +219,15 @@ Change request needed: YES | NO
 | SCI-06 | B-6 near-boundary disclosure | Approve recommended Option 1 | Keep calculated classifications. Show a brief birth-time sensitivity note when the Lagna Rashi, Lagna Navamsa, Moon Rashi, Moon Navamsa, Moon Nakshatra or Moon Pada would change within **±2 minutes** of the entered time, plus a near-exact-boundary note. Option 2's expanded explanation is an optional premium appendix. The window is a disclosure policy, not an assumption that the recorded time is wrong. **EN/HI wording not approved**: it needs human Hindi and Jyotish editorial review and owner copy sign-off | PR #63 `1b70927`; QA 5748551920 | **OWNER SELECTED PRE-MERGE - CANONICAL ADOPTION PENDING** |
 
 None of these rows authorizes a code change, a merge, a deployment, a release or customer copy. Implementation needs the separate tasks proposed in [`IMPLEMENTATION-TASKS.md`](science/kun-sci-pol-002/IMPLEMENTATION-TASKS.md). Chart schema 0.3.0, the calculations, the reference receipts, the boundary conventions, the customer PDF and the private preview are unchanged. PR #1 HOLD remains active. **Production NO-GO.**
+
+---
+
+## KUN-GOV-SIMPLE-001: owner chat approvals recorded in GitHub, no signatures (2026-11-04)
+
+*Append-only record. It changes no earlier row, status or date.*
+
+**Owner instruction** (chat, 2026-11-04, Asia/Kolkata, after PR #74 merged), recorded in [issue #75](https://github.com/sabpuja/Sabpuja-Kundali-Engine/issues/75): "this is going to add friction to our work we don't need this at all remove the governance rule we have so much to build if we stuck here it will consume so much time in chat approval is recorded as my approval in GitHub that's it no pdf signing".
+
+**Rule from now on:** the owner explicitly approves in chat; the decision, its date and scope are recorded accurately in the relevant GitHub issue or PR; work continues within that scope. No PDF, signed sheet, attestation form, digital signature, second owner confirmation or separate GitHub click is required. Merge, deployment and customer release remain separate actions that each need the owner's explicit instruction, which can be given in ordinary chat and recorded in GitHub. A GitHub record relaying a chat decision is an audit note, not cryptographic proof of identity. An AI may relay or record a decision, never make it or sign for the owner.
+
+**Applied to the editorial register** (`docs/i18n/review/kun-i18n-003/`): the signed-sheet procedure and `OWNER-COPY-ATTESTATION.md` are retired. Changes A and B (register items 13 and 15) are recorded as owner-accepted from the owner's chat decision (issue #73) and the owner-authorized merge of PR #74, with issue #75 as the audit reference. Human Hindi and Jyotish reviewers may give feedback as GitHub comments; their 19 + 8 decisions are not yet given and stay PENDING. `customer_release` stays PENDING. LEG-01 is unchanged. Production NO-GO.

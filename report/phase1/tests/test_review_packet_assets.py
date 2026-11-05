@@ -7,7 +7,9 @@ SHA-256 stated in the manifest or next to a path in the packet differs from the 
 three sample PDFs are not exactly what the current renderer produces from the synthetic fixture
 `s11-afternoon`, ten A4 pages each, with extractable Hindi and Devanagari name text and the
 synthetic-data marking. Removing a reference does not satisfy it: the manifest must list every file in
-the package and every listed file must exist.
+the package and every listed file must exist. The one exception is the live decision record
+`editorial-acceptance-register.json` (KUN-GOV-SIMPLE-001): recording a decision changes it, so it is
+validated by `test_editorial_register.py` and PAN-QA-08 v5 instead of a pinned hash here.
 """
 import hashlib
 import re
@@ -21,6 +23,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 PACKET = ROOT / 'docs/i18n/review/kun-i18n-003'
 MANIFEST = PACKET / 'EVIDENCE-MANIFEST.md'
+LIVE_RECORD = 'editorial-acceptance-register.json'
 DOCS = ('README.md', 'REVIEW-PACKET.md', 'EVIDENCE-MANIFEST.md', 'DECISION-SHEET.md',
         'EDITORIAL-ACCEPTANCE-REGISTER.md', 'CHANGE-A-ENGLISH-PAGE10.md', 'CHANGE-B-SCHEMA-WORDING.md')
 ROW = re.compile(r'^\| `([0-9a-f]{64})` \| `([^`]+)` \|$')
@@ -44,7 +47,8 @@ class PacketAssets(unittest.TestCase):
     def test_manifest_lists_every_package_file_and_only_those(self):
         on_disk = {p.relative_to(PACKET).as_posix() for p in PACKET.rglob('*')
                    if p.is_file() and p != MANIFEST and '__pycache__' not in p.parts}
-        self.assertEqual(set(manifest()), on_disk)
+        self.assertIn(LIVE_RECORD, on_disk)
+        self.assertEqual(set(manifest()), on_disk - {LIVE_RECORD})
 
     def test_every_manifest_hash_matches(self):
         for name, digest in manifest().items():

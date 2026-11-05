@@ -3,11 +3,11 @@
   "version": 1,
   "rules": [
     "Required layers are fixed by the canonical matrix in report/phase1/tests/test_editorial_register.py (Hindi language: 1, 3, 7, 8-18, C1-C4, C6; Jyotish: 1-7, C5; owner copy: 13, 15). A required layer is PENDING, ACCEPTED, REVISED or REJECTED, never NOT_APPLICABLE; every other layer is NOT_APPLICABLE.",
-    "A human or owner layer may leave PENDING only with a real, named human reviewer, their qualification and independence, an ISO decision date, the exact commit and catalog SHA-256 values reviewed, and evidence {path, sha256, commit} of a signed sheet under docs/i18n/review/kun-i18n-003/signed/ whose git blob at that commit (in the history of HEAD), at HEAD, in the index and in the working tree is identical; untracked, staged-only, modified, deleted, replaced or symlinked files fail, and without git a decided record fails closed.",
-    "AI assistants (Claude, ChatGPT or any other) never fill a human or owner layer or the release. Developer corrections and AI QA are recorded only in their own layers.",
-    "A decision is valid only for the catalog bytes it names; any later catalog change makes it stale until the reviewer re-confirms.",
-    "customer_release is PENDING or APPROVED. APPROVED requires every required layer of every item ACCEPTED (REVISED and REJECTED are never approvals) and a signed, attributed owner release record.",
-    "Exact git identity, not SHA format: every decision's reviewed_commit equals reviewed_source.commit; reviewed_source commit, tree and catalog blob IDs are checked against the git object database (blob IDs alone in a git archive, where any decided register is refused as unverifiable); an approved release names an explicit release_candidate {commit, tree, catalog hashes and blobs} that exists in git, contains the reviewed source and carries the reviewed catalogs, and customer_release.commit equals it."
+    "KUN-GOV-SIMPLE-001 (issue #75): no signed sheet, attestation form, signature, qualification statement or evidence-ingest commit is required. A decided owner_copy layer records the owner's decision as made in chat and recorded in GitHub: decided_by (a named human, never an AI), source, record (the GitHub issue, PR or comment URL in this repository), decision_date, decision_text, the exact reviewed_commit and both catalog SHA-256 values; recorded_by may name whoever transcribed it. A decided human_hindi_language or human_jyotish_terminology layer records a named human reviewer (never an AI, never the owner's copy decision), decision_date, the exact reviewed_commit and catalog SHA-256 values, and the GitHub record (for example the reviewer's issue or PR comment).",
+    "AI assistants (Claude, ChatGPT or any other) never decide a human or owner layer or the release; they may record a decision someone else made, naming it in recorded_by. Developer corrections and AI QA are recorded only in their own layers.",
+    "A decision is valid only for the catalog bytes it names; any later catalog change makes it stale until the decider re-confirms.",
+    "customer_release is PENDING or APPROVED. APPROVED requires every required layer of every item ACCEPTED (REVISED and REJECTED are never approvals) and a separate, explicit owner release directive recorded in GitHub (approved_by, source, record, date, decision_text); an owner copy decision is never a release.",
+    "Exact git identity, not SHA format: every decision's reviewed_commit equals reviewed_source.commit; reviewed_source commit, tree and catalog blob IDs are checked against the git object database (blob IDs alone in a git archive, where an approved release is refused as unverifiable); an approved release names an explicit release_candidate {commit, tree, catalog hashes and blobs} that exists in git, contains the reviewed source and carries the reviewed catalogs, and customer_release.commit equals it."
   ],
   "reviewed_source": {
     "commit": "84fe981c79573ab753b5d7baadf2ff4aa49e819c",
@@ -487,14 +487,16 @@
         "status": "NOT_APPLICABLE"
       },
       "owner_copy": {
-        "status": "PENDING",
-        "reviewer": null,
-        "decision_date": null,
-        "reviewed_commit": null,
-        "reviewed_ui_catalog_sha256": null,
-        "reviewed_pdf_catalog_sha256": null,
-        "evidence": null,
-        "decision_text": null
+        "status": "ACCEPTED",
+        "decided_by": "Sabpuja owner",
+        "source": "chat owner instruction recorded in GitHub issue",
+        "record": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/issues/75",
+        "decision_date": "2026-11-04",
+        "decision_text": "Change A approved exactly as documented: English method.exc5 \"Hindi edition\" becomes \"Hindi text (available as a separate edition)\"; the Hindi line is unchanged. The owner approved Changes A and B in chat on 2026-11-04 (\"i will go with your recommendation\", issue #73), authorized the normal merge of the independently tested implementation (PR #74, merge 4c57c7316615940c91a12cfbcf561c967888c5ab), and directed that this chat approval is the owner approval, with no PDF or signature (KUN-GOV-SIMPLE-001, issue #75).",
+        "reviewed_commit": "84fe981c79573ab753b5d7baadf2ff4aa49e819c",
+        "reviewed_ui_catalog_sha256": "06c0f071206ffc40a1f6c1eb254ce252bc8e91305568cf787a232f374f064627",
+        "reviewed_pdf_catalog_sha256": "1483e1fa666005a7182b791904dbb777f63a1a554b1407ff274d59c0b277f81e",
+        "recorded_by": "Claude (developer), transcribing the owner decision recorded in issue #75; not the decider"
       }
     },
     {
@@ -562,14 +564,16 @@
         "status": "NOT_APPLICABLE"
       },
       "owner_copy": {
-        "status": "PENDING",
-        "reviewer": null,
-        "decision_date": null,
-        "reviewed_commit": null,
-        "reviewed_ui_catalog_sha256": null,
-        "reviewed_pdf_catalog_sha256": null,
-        "evidence": null,
-        "decision_text": null
+        "status": "ACCEPTED",
+        "decided_by": "Sabpuja owner",
+        "source": "chat owner instruction recorded in GitHub issue",
+        "record": "https://github.com/sabpuja/Sabpuja-Kundali-Engine/issues/75",
+        "decision_date": "2026-11-04",
+        "decision_text": "Change B approved exactly as documented: the D9 footnote ends \"The D9 house fields use chart schema 0.3.0.\" in English and \"D9 भाव के फ़ील्ड चार्ट स्कीमा 0.3.0 के अनुसार हैं।\" in Hindi (also the index.html English fallback); schema 0.3.0 and /api/chart unchanged. The owner approved Changes A and B in chat on 2026-11-04 (\"i will go with your recommendation\", issue #73), authorized the normal merge of the independently tested implementation (PR #74, merge 4c57c7316615940c91a12cfbcf561c967888c5ab), and directed that this chat approval is the owner approval, with no PDF or signature (KUN-GOV-SIMPLE-001, issue #75). The Hindi wording still needs the human Hindi language decision (item 15, human_hindi_language).",
+        "reviewed_commit": "84fe981c79573ab753b5d7baadf2ff4aa49e819c",
+        "reviewed_ui_catalog_sha256": "06c0f071206ffc40a1f6c1eb254ce252bc8e91305568cf787a232f374f064627",
+        "reviewed_pdf_catalog_sha256": "1483e1fa666005a7182b791904dbb777f63a1a554b1407ff274d59c0b277f81e",
+        "recorded_by": "Claude (developer), transcribing the owner decision recorded in issue #75; not the decider"
       }
     },
     {

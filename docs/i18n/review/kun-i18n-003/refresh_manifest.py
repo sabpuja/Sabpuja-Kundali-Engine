@@ -4,13 +4,15 @@ Run from the repository root:  PYTHONPATH=src:prototype python docs/i18n/review/
 1. Regenerates the three sample PDFs from the synthetic fixture `s11-afternoon` with the current
    renderer and catalogs (Change A, for example, changes the English one).
 2. Rewrites every "`assets/...` SHA-256 `<hash>`" statement in the packet documents.
-3. Rewrites the file table in EVIDENCE-MANIFEST.md from the files on disk.
+3. Rewrites the file table in EVIDENCE-MANIFEST.md from the files on disk, except the live
+   decision record editorial-acceptance-register.json (KUN-GOV-SIMPLE-001).
 Options (facts read from git, never a decision):
   --pin-source COMMIT         after an approved catalog change is committed as COMMIT, re-pin the
                               register's reviewed_source (commit, tree, catalog SHA-256, blob IDs)
                               in a follow-up commit; earlier decisions then show as stale, by design.
   --release-candidate COMMIT  fill customer_release.release_candidate from COMMIT for the owner;
-                              status, commit, approver and evidence stay the owner's to record.
+                              status, commit and the owner's GitHub-recorded release directive are
+                              recorded separately, only on the owner's explicit instruction.
 Both refuse a commit whose catalogs differ from the catalogs in this tree.
 It records no review and changes no catalog. Page images (assets/en-hi-page-NN.png) are not
 regenerated here; after Change A, regenerate en-hi-page-10.png before asking for review.
@@ -29,7 +31,7 @@ ROOT = PACKET.parents[3]
 sys.path[:0] = [str(ROOT), str(ROOT / 'report/phase1/tests')]
 from report.phase1 import premium_report as premium  # noqa: E402
 import test_premium_name as fixtures  # noqa: E402
-from test_review_packet_assets import DOCS, SAMPLES  # noqa: E402
+from test_review_packet_assets import DOCS, LIVE_RECORD, SAMPLES  # noqa: E402
 
 
 def sha(path):
@@ -76,7 +78,7 @@ for doc in DOCS:
     path.write_text(text, encoding='utf-8')
 manifest = PACKET / 'EVIDENCE-MANIFEST.md'
 files = sorted(p.relative_to(PACKET).as_posix() for p in PACKET.rglob('*')
-               if p.is_file() and p != manifest and '__pycache__' not in p.parts)
+               if p.is_file() and p != manifest and p.name != LIVE_RECORD and '__pycache__' not in p.parts)
 rows = ''.join(f'| `{sha(PACKET / f)}` | `{f}` |\n' for f in files)
 manifest.write_text(re.sub(r'(\| SHA-256 \| File \|\n\|---\|---\|\n)(?:\| `[0-9a-f]{64}` \| `[^`]+` \|\n)+',
                            lambda m: m[1] + rows, manifest.read_text(encoding='utf-8')), encoding='utf-8')

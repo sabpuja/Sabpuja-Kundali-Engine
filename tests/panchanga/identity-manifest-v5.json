@@ -1,0 +1,266 @@
+{
+  "manifest_schema": "sabpuja-pan-qa-08-identity/5",
+  "note": "PAN-QA-08 identity manifest v5 (KUN-GOV-SIMPLE-001). One-time bridge to the simplified owner policy: declares the paths that drop the signed-paperwork requirement relative to main 4c57c73, the exact editorial packet inventory, and the live decision record, whose decision fields may change when a decision recorded in GitHub is copied in, while the rest of it is pinned by a projection SHA-256. v1 to v4 are preserved and bound here by their SHA-256. No calculation, ephemeris, tolerance or chart value is declared. Generated from git objects only: python -m tests.panchanga.identity_v5 --check.",
+  "task": "KUN-GOV-SIMPLE-001",
+  "v4_manifest": {
+    "path": "tests/panchanga/identity-manifest-v4.json",
+    "sha256": "6f39046e8fc57e0129f67f96410fa4c5a3b3fefa4db7d65c8f27a8aa9602686b",
+    "base_commit": "4c57c7316615940c91a12cfbcf561c967888c5ab",
+    "v3_sha256": "9a2051d9fd74ef016b5d48e9cd182714028dbbb017fda2a3df89f494276f0e77",
+    "v2_sha256": "d2dea049b652df4ff3f02ce5064e211d3b7f0c97d222e085ce36826bc2f087da",
+    "v1_sha256": "2e913eda7bb60f6159463ee219b4ad840a7fa971bf66e39ac30b871158cb007e"
+  },
+  "modified": {
+    "docs/i18n/review/kun-i18n-003/CHANGE-A-ENGLISH-PAGE10.md": {
+      "before_sha256": "cca69914637b1705ee19af8f076094d981bb16a43e0ee7871a5f37bd78862525",
+      "v5_sha256": "847a8838f29b89dc7827eba3937165a24bcc2dd8d1f8cf70074892d55b74c3f0",
+      "v5_git_blob": "797aa06d89834a6e7ef40c15436b69dcc28eeeff"
+    },
+    "docs/i18n/review/kun-i18n-003/CHANGE-B-SCHEMA-WORDING.md": {
+      "before_sha256": "a52150d17ab5f8f5ba2d2ad7cdda37ed229035a462e0d370dc66182f63fab5bc",
+      "v5_sha256": "782c087c77d2d25aba71895c1a059df03bcba0228de9936742337c699abe6456",
+      "v5_git_blob": "7d69e5f38f783862bf591a81b7a7d1209a35e654"
+    },
+    "docs/i18n/review/kun-i18n-003/DECISION-SHEET.md": {
+      "before_sha256": "c82b2566fcf960822e63a8c3dfd61cc09afdc6f8689d7d3950cdb89b81eeb2b3",
+      "v5_sha256": "4ac0e28dd55555888ea4b1e1e69c565e3184d7ff57a7b383ac61b967951a0d4d",
+      "v5_git_blob": "7fec416bf86cb6ecb68b710d97984b4916956ac5"
+    },
+    "docs/i18n/review/kun-i18n-003/EDITORIAL-ACCEPTANCE-REGISTER.md": {
+      "before_sha256": "d19d897407625b433b14d8ef5595e3c6a4b17c08ba112768a9f45b9186548465",
+      "v5_sha256": "a1c85668e304cb05c89b937725891a5a39e9442933010bee8b7e0010437cbbaa",
+      "v5_git_blob": "7cd32cea6b98c1c182d56fc0e70612494a62414a"
+    },
+    "docs/i18n/review/kun-i18n-003/EVIDENCE-MANIFEST.md": {
+      "before_sha256": "528146af52a4672b8e63d7be13df72baea9ba58143bb5ef4dc36b1b67f36d117",
+      "v5_sha256": "6899d7201e1a2a4674ff7678bc5377c3bee7f3f86dfa8061543db37bb65b52fe",
+      "v5_git_blob": "29906ce6374090088c4927e6f4e0fa69348f6f44"
+    },
+    "docs/i18n/review/kun-i18n-003/OWNER-COPY-ATTESTATION.md": {
+      "before_sha256": "c00d5c12319076c02e07158d1f0f2991876322fd9d9516c64e560ff0d566527f",
+      "v5_sha256": "f3d79fc5f1c4d8caf4d4ff6f2640ba78876c4826354139b55387008dbe43460f",
+      "v5_git_blob": "578b50e17bb7b59f2bc7fa826901e02155bf23e4"
+    },
+    "docs/i18n/review/kun-i18n-003/README.md": {
+      "before_sha256": "8385911664de51054ee1a3b50563dba78c5f2e560977a639c06fce896fbf51ce",
+      "v5_sha256": "0268758b4af28ccd6b4dc9a6573fcc796116b71f84dd5d3d15290b5e1d64328f",
+      "v5_git_blob": "8585d26c76ea77be7bb8d824630080d050b39b21"
+    },
+    "docs/i18n/review/kun-i18n-003/REVIEW-PACKET.md": {
+      "before_sha256": "e9f9b9718bc873bea3ccbc73b3772fa5eb0ae579a3ed0b6b2573b508bc820058",
+      "v5_sha256": "3a4bd12d0224d2ffb640037783d45f6c09fc3a509d40c688b4cb02e8a7ddbceb",
+      "v5_git_blob": "a67585270d83a21ce582b937b0469ecfc39d54a3"
+    },
+    "docs/i18n/review/kun-i18n-003/refresh_manifest.py": {
+      "before_sha256": "415e271594c98388ef1435d8b9b7e7f01b39f1f7127158d8f2b3e0ee54b82f0d",
+      "v5_sha256": "e9b16cef197a7438d3924637c4c372ac5df13e4b07bea528f6cd5479c7e9d71e",
+      "v5_git_blob": "fc52395e13c79fec000ff7b8825575bbf031269e"
+    },
+    "report/phase1/tests/test_editorial_register.py": {
+      "before_sha256": "093d031be559664e84e2dedbd1e5699476887a08a6f1bfcbded3af2dbdf35034",
+      "v5_sha256": "e8eb2d13e7eeb8b59e593091e6ddd4915c0b093493958a594d7cbeda1b80ca49",
+      "v5_git_blob": "e8ae09740c2b4e3d644f9904a4bda946fb95424f"
+    },
+    "report/phase1/tests/test_owner_copy_change_a.py": {
+      "before_sha256": "813361b39964595419a57b12ae41764b1fbb8ae3461b8c3aff38e8887c1fe037",
+      "v5_sha256": "e404f59fade7ba98bfda961a116b808d4ca5e859a8de3e6d23a7e0c4036745ec",
+      "v5_git_blob": "70ecae174c9e34db2b1bc46f3eb9ce7d051c5103"
+    },
+    "report/phase1/tests/test_owner_copy_change_b.py": {
+      "before_sha256": "bccb4eab259f6bae2f46b7692343091d42b438e3773142a3a6d157a095ed3fbf",
+      "v5_sha256": "5a30406cd89f4a4fbc347b3deeba9609d82b4c34db853bd47358efc872b007ca",
+      "v5_git_blob": "e4baf292037787d4cf5e99c924a4f8f912489b1e"
+    },
+    "report/phase1/tests/test_review_packet_assets.py": {
+      "before_sha256": "61a97f519bc4b33280421550796651ac9d70323b3c13287f9db7409b2f30acd2",
+      "v5_sha256": "bf5cb3ea91ba30334f4d746a8024fc52de14f0644359f1a29ab6600930bf2688",
+      "v5_git_blob": "5a7e1b353eb20b341dafae3ef1ca04f6f872cf68"
+    }
+  },
+  "record": {
+    "path": "docs/i18n/review/kun-i18n-003/editorial-acceptance-register.json",
+    "item_decision_fields": [
+      "human_hindi_language",
+      "human_jyotish_terminology",
+      "owner_copy"
+    ],
+    "top_decision_fields": [
+      "customer_release"
+    ],
+    "projection_sha256": "882e7638626fcbe37243719465bfba0e5f9084483addba3d04452800b4412844"
+  },
+  "packet": {
+    "docs/i18n/review/kun-i18n-003/CHANGE-A-ENGLISH-PAGE10.md": {
+      "sha256": "847a8838f29b89dc7827eba3937165a24bcc2dd8d1f8cf70074892d55b74c3f0",
+      "git_blob": "797aa06d89834a6e7ef40c15436b69dcc28eeeff"
+    },
+    "docs/i18n/review/kun-i18n-003/CHANGE-B-SCHEMA-WORDING.md": {
+      "sha256": "782c087c77d2d25aba71895c1a059df03bcba0228de9936742337c699abe6456",
+      "git_blob": "7d69e5f38f783862bf591a81b7a7d1209a35e654"
+    },
+    "docs/i18n/review/kun-i18n-003/DECISION-SHEET.csv": {
+      "sha256": "c99eae20648a787c64e0ea916c17ab276610c7d01c1e9f299f645af972b98c97",
+      "git_blob": "9783d8a63b6f730797c4ae5f06d045a1121f4202"
+    },
+    "docs/i18n/review/kun-i18n-003/DECISION-SHEET.md": {
+      "sha256": "4ac0e28dd55555888ea4b1e1e69c565e3184d7ff57a7b383ac61b967951a0d4d",
+      "git_blob": "7fec416bf86cb6ecb68b710d97984b4916956ac5"
+    },
+    "docs/i18n/review/kun-i18n-003/EDITORIAL-ACCEPTANCE-REGISTER.md": {
+      "sha256": "a1c85668e304cb05c89b937725891a5a39e9442933010bee8b7e0010437cbbaa",
+      "git_blob": "7cd32cea6b98c1c182d56fc0e70612494a62414a"
+    },
+    "docs/i18n/review/kun-i18n-003/EVIDENCE-MANIFEST.md": {
+      "sha256": "6899d7201e1a2a4674ff7678bc5377c3bee7f3f86dfa8061543db37bb65b52fe",
+      "git_blob": "29906ce6374090088c4927e6f4e0fa69348f6f44"
+    },
+    "docs/i18n/review/kun-i18n-003/LOCATIONS.md": {
+      "sha256": "9690c9afd5dc1f7ee9c10e6edc38033cd3017b5ad77422bb5b879f7f84803198",
+      "git_blob": "47796bd7bb32c5261e9a86e018bc54abdd030298"
+    },
+    "docs/i18n/review/kun-i18n-003/OWNER-COPY-ATTESTATION.md": {
+      "sha256": "f3d79fc5f1c4d8caf4d4ff6f2640ba78876c4826354139b55387008dbe43460f",
+      "git_blob": "578b50e17bb7b59f2bc7fa826901e02155bf23e4"
+    },
+    "docs/i18n/review/kun-i18n-003/README.md": {
+      "sha256": "0268758b4af28ccd6b4dc9a6573fcc796116b71f84dd5d3d15290b5e1d64328f",
+      "git_blob": "8585d26c76ea77be7bb8d824630080d050b39b21"
+    },
+    "docs/i18n/review/kun-i18n-003/REVIEW-PACKET.md": {
+      "sha256": "3a4bd12d0224d2ffb640037783d45f6c09fc3a509d40c688b4cb02e8a7ddbceb",
+      "git_blob": "a67585270d83a21ce582b937b0469ecfc39d54a3"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-01.png": {
+      "sha256": "732231a491cd70c4f9719001fef0bde1d63e39602f4e112eeef248a9ad32a66d",
+      "git_blob": "8c2de6c999cc21efc40140923ffec64d21e15e99"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-02.png": {
+      "sha256": "912c7b85e9241a9061f53ffc0ec714b4c217630faceff44288f79e944e5166d4",
+      "git_blob": "0ff85d9e0b470c03d0f8499801c2b6fbc92b8c1d"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-03.png": {
+      "sha256": "b5d5574356f9b202aac3f4c099a9404527af08a8bc3312628e07e8ce9625ecae",
+      "git_blob": "a50bfc8bf2b56d80cfd5bd6b60951f0a32c044cc"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-04.png": {
+      "sha256": "2fb3f8a8828597f652f0b664d379306459072aef52ba0699e24275fb5b6ec8f3",
+      "git_blob": "a9f6fb39754c14b59858c5e7b5c67a1d08894259"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-05.png": {
+      "sha256": "e924b186b3a41b9bcedd5b3ba239b75396f214544f8a1a2d425981a75f8e839e",
+      "git_blob": "d10fa37be2d3a5006ba1889353f9a6eadfd8fa38"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-06.png": {
+      "sha256": "5975f5fda4cfd680c9c573ece30835dedd6d0edca1a9e2152f475f6c5afe99ab",
+      "git_blob": "6bc3f3c46f7e30fc9012260d6ced32cba9ad2c2b"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-07.png": {
+      "sha256": "59782a41224f515b8bb9e39c8a58c833ae89f51cd539d174815599d076114322",
+      "git_blob": "79ddef4a73b15f795b368b253ea356ea2467baa2"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-08.png": {
+      "sha256": "d3fb7e2986921dabfdb279e5e1bdd6f6a4e0ae466e858d99a7c5f7b4b727921f",
+      "git_blob": "db5f7b9f30971729d84457ead41a23998f541a09"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-09.png": {
+      "sha256": "ed142a86b6a4560138dcb63c21e6c82eb9019a57cbafd69d9a628ad0933627d0",
+      "git_blob": "b2640c09744f07c9d9c9393eb52e4c2cd774e4e3"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/en-hi-page-10.png": {
+      "sha256": "a613e294fac2b41f91bd19b8d0470bd253a939e1895d9d87da40f367d2da2b86",
+      "git_blob": "86d2848566de92d583b323cab288c019f412ac05"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/hi-before-after-page-03-zoom.png": {
+      "sha256": "e3035590f3e2d69d9347528ed4e89880c0557b9e9d6c590b9792857486cbfdc7",
+      "git_blob": "6fbaa48972c4844121707f590e096681d62a2567"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/hi-before-after-page-06-zoom.png": {
+      "sha256": "c361ecda56d916ff84578d310a08b9ce6c202ba95dcaeac828760d6fae841205",
+      "git_blob": "9d4b2259c0377f5bed6743b604f0a47c40ed4f05"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/hi-before-after-page-07-zoom.png": {
+      "sha256": "369b09bee4e8029985b1c40cdf2d053be5ab60d3d3c61ac006cbedc131af6f64",
+      "git_blob": "42d31c0cdf15ea813892209776a40d3f408851cb"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/sample-en-anonymous.pdf": {
+      "sha256": "c12c378b84839530e0267aad846253b9488fe89d3bfdb65a1ee256909f978278",
+      "git_blob": "e0bc398ccb5b1d3d137de90599765311485b4657"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/sample-hi-anonymous.pdf": {
+      "sha256": "7590ea3a5b094e1f92e27ea975af262219a3bef4cd49219e48882944282588c7",
+      "git_blob": "545abfeb7fd2bd52d37e4c972541107d8fc339ee"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/sample-hi-named-devanagari.pdf": {
+      "sha256": "ba10a0e9592ba8bfcb314323a5e0eaca89b7669ebc1a831de7d049855e56e442",
+      "git_blob": "97ada0ef82ac825ac3ad5459a45c778c792eb575"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-en-1440.png": {
+      "sha256": "ccd988e5817d0b15708fdb617e4893211c245c91528c245ecc905aaa2e808d56",
+      "git_blob": "32838188d7cb2f70788a83d0a5e8820ac3626bef"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-en-280.png": {
+      "sha256": "d4e952e9c05e87c50aedcd90897b0d016f11eb6068022ebca6c7e7da3fa7f179",
+      "git_blob": "02ba93da49817481242d808f4b88585dff13ece2"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-en-375.png": {
+      "sha256": "db20c8fd64891c1ede3e5e0f59942544c9bfeb7290a0094452f6a5eb786d5e9a",
+      "git_blob": "52d9fcf46c826e2fccabbb8dac357c8f4a73024a"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-en-768.png": {
+      "sha256": "34ff8686caa1aa55d712c5eb6e2b87e1cfdaab215b28b137cebcfae2c640a6fb",
+      "git_blob": "7df9ca461f8f8318812994a8e80329a8e79fe90d"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-1440.png": {
+      "sha256": "041741536c5552412abef07eb901808523c56b33495a140b7f7b0f0466a8f3f8",
+      "git_blob": "2e8cd409890a4cb2dba38dbafb366efb6e67079f"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-280.png": {
+      "sha256": "bf12e4e4406adaba3fb500e038f4867e35cb5cedab879dc119b2b9d33bd97c97",
+      "git_blob": "f2c168e8e26502e5f94e969c6f81b840417776af"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-375.png": {
+      "sha256": "48f35a8eb590034f970e3c093bcf59a674b8724ef214bdcc78421a01aeddda57",
+      "git_blob": "f9959e0c20a6cde765a4a9ac260d0eaa73acb3b6"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-768.png": {
+      "sha256": "318ccf87352d86b8f5f6fc9410941485f9f9dc6b224e63df553f998a88e1d7ac",
+      "git_blob": "44323644753ca3da2dbf27a436740b4c8a5f5a86"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-form-1440.png": {
+      "sha256": "aaa9db9c1f892ef90d014aec473647a11f92170320cc96a998adc851fbe15db8",
+      "git_blob": "dff0b353354423c234735265208a7c57f0f41135"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-form-280.png": {
+      "sha256": "35bc27b3d3082c9cb677e17746d53f3a0d17738641c3129e1acee5c19e7c15ee",
+      "git_blob": "2a9efc5038f70e0e1542905a94caae4c3334ca18"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-form-375.png": {
+      "sha256": "fdd2d47f6132998d75a5732fa78ea9356436d3e0baa58fc8b9ac06bfbcd4787f",
+      "git_blob": "cde31c5f3e049363f6116401c9672f5d177826e9"
+    },
+    "docs/i18n/review/kun-i18n-003/assets/screens/i18n-hi-form-768.png": {
+      "sha256": "1cae86ece38b489b11085cc789fa455071f8c8cdc80cc106112f52d15cfe0792",
+      "git_blob": "d9526ab3e432099218940e4427e93323a57fba7e"
+    },
+    "docs/i18n/review/kun-i18n-003/locations.py": {
+      "sha256": "a579014eba39fed9ba8478fd3e46ff3301694f72c0b855f1af6958d3f04a038a",
+      "git_blob": "d56f4f2e6cad0595360854d53ab10a2d3a0b3e44"
+    },
+    "docs/i18n/review/kun-i18n-003/patches/change-a-english-page10.patch": {
+      "sha256": "b2f55fc5c1f728a0566379a91581b77366533aa0c9749518b9eaff67a7f14326",
+      "git_blob": "deec3e491ec8433102f05a216697a1df0019e73a"
+    },
+    "docs/i18n/review/kun-i18n-003/patches/change-b-schema-wording.patch": {
+      "sha256": "8998a9b0e06c8b4566b6cb7a64d28e7a07467e7b16d62b636c4f3afc2368af32",
+      "git_blob": "ea04a6b7ff76d5d5453fd2717b73a56cf5446754"
+    },
+    "docs/i18n/review/kun-i18n-003/refresh_manifest.py": {
+      "sha256": "e9b16cef197a7438d3924637c4c372ac5df13e4b07bea528f6cd5479c7e9d71e",
+      "git_blob": "fc52395e13c79fec000ff7b8825575bbf031269e"
+    }
+  },
+  "counts": {
+    "modified": 13,
+    "packet": 42
+  }
+}

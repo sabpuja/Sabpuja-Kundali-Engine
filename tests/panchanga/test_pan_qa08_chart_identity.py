@@ -15,8 +15,12 @@
         copy Changes A and B change, the two new copy tests and the exact editorial-packet
         inventory. v3 is now proved on the exact trees of 85f6a89 and main 7fc1702; the current
         tree must match v1/v2/v3 with the v4 overlay. See identity_v4.py.
+   v5 - `identity-manifest-v5.json` (KUN-GOV-SIMPLE-001) declares the paths that drop the signed-
+        paperwork rule, the exact packet inventory and the live decision record, whose decision
+        fields may change without a new version. v4 is now proved on the exact trees of b5e2fa7
+        and main 4c57c73; the current tree must match v1 to v4 with the v5 overlay. See identity_v5.py.
    Until KUN-I18N-INT-001 this test asserted v1 directly against the working tree, and
-   until KUN-I18N-INT-001A v2, until KUN-I18N-COPY-005 v3; each assertion is moved to its exact commit and the
+   until KUN-I18N-INT-001A v2, until KUN-I18N-COPY-005 v3, until KUN-GOV-SIMPLE-001 v4; each assertion is moved to its exact commit and the
    working-tree check to the next version, never skipped or relaxed.
 2. Charts are byte-identical with and without a preceding Panchanga call in the
    same process, for all 50 KUN-SCI-GOLD-001 chart fixtures.
@@ -33,7 +37,7 @@ import random
 import unittest
 
 from .common import EPHE, HERE, REPO, gold_chart_requests, parse_utc, real_data, request_at_utc
-from . import checkers, identity_v2, identity_v3, identity_v4
+from . import checkers, identity_v2, identity_v3, identity_v4, identity_v5
 from .phase_events import SideSwiss
 
 BASELINE = json.loads((HERE / "baseline-hashes.json").read_text(encoding="utf-8"))
@@ -98,18 +102,43 @@ class BaselineFilesTest(unittest.TestCase):
                                  {"unchanged": 210, "modified": 12, "added": 55, "v3_modified": 1, "v3_added": 1})
 
     def test_current_tree_matches_v4_identity_manifest(self):
-        """v4 (current tree): 209 v1 files unchanged, v2/v3 elsewhere, the 25 + 2 declared paths, the exact packet."""
+        """v4: on the exact trees of its audited commit b5e2fa7 and of main 4c57c73, 209 v1 files unchanged,
+        v2/v3 elsewhere, the 25 + 2 declared paths and the exact packet.
+
+        Before KUN-GOV-SIMPLE-001 this compared v1/v2/v3 + v4 with the working tree. The working-tree comparison
+        now runs through v1 to v4 with the v5 overlay (test_current_tree_matches_v5_identity_manifest)."""
         v1, v2, v3, v4 = identity_v4.load_committed(REPO)
-        self.assertEqual(identity_v4.verify_tree(REPO, v1, v2, v3, v4),
-                         {"v1_unchanged": 209, "v2_modified": 12, "v2_added": 55, "v3_modified": 1, "v3_added": 1,
-                          "v4_modified": 25, "v4_added": 2, "v4_packet": 43})
+        for commit in (identity_v4.V4_CANDIDATE_COMMIT, identity_v4.V4_MAIN_COMMIT):
+            with self.subTest(commit):
+                self.assertEqual(identity_v4.verify_commit(REPO, commit, v1, v2, v3, v4),
+                                 {"v1_unchanged": 209, "v2_modified": 12, "v2_added": 55, "v3_modified": 1,
+                                  "v3_added": 1, "v4_modified": 25, "v4_added": 2, "v4_packet": 43})
 
     def test_v4_manifest_reproduces_from_exact_commits(self):
-        """v4 regenerates byte for byte at HEAD; 7fc1702 satisfies v3; 7fc1702..HEAD is exactly the v4 declaration."""
+        """v4 regenerates byte for byte at b5e2fa7; 7fc1702..b5e2fa7 and 7fc1702..4c57c73 are exactly v4."""
         v1, v2, v3, v4 = identity_v4.load_committed(REPO)
-        self.assertEqual(identity_v4.generate(REPO), (REPO / identity_v4.V4_PATH).read_bytes())
-        result = identity_v4.verify_git_v4(REPO, v1, v2, v3, v4)
-        self.assertEqual(result["v4_modified"], 25)
+        self.assertEqual(identity_v4.generate(REPO, commit=identity_v4.V4_CANDIDATE_COMMIT),
+                         (REPO / identity_v4.V4_PATH).read_bytes())
+        for commit in (identity_v4.V4_CANDIDATE_COMMIT, identity_v4.V4_MAIN_COMMIT):
+            with self.subTest(commit):
+                result = identity_v4.verify_git_v4(REPO, v1, v2, v3, v4, commit=commit)
+                self.assertEqual(result["v4_modified"], 25)
+                self.assertEqual(result["v1_unchanged"], 209)
+
+    def test_current_tree_matches_v5_identity_manifest(self):
+        """v5 (current tree): 209 v1 files unchanged, v2 to v4 elsewhere, the 13 declared paths, the exact
+        packet and the decision record (frozen part by projection)."""
+        v1, v2, v3, v4, v5 = identity_v5.load_committed(REPO)
+        self.assertEqual(identity_v5.verify_tree(REPO, v1, v2, v3, v4, v5),
+                         {"v1_unchanged": 209, "v4_modified": 25, "v4_added": 2, "v5_modified": 13,
+                          "v5_packet": 42, "v5_record": 1})
+
+    def test_v5_manifest_reproduces_from_exact_commits(self):
+        """v5 regenerates byte for byte at HEAD; 4c57c73 satisfies v4; 4c57c73..HEAD is exactly v5 plus the record."""
+        v1, v2, v3, v4, v5 = identity_v5.load_committed(REPO)
+        self.assertEqual(identity_v5.generate(REPO), (REPO / identity_v5.V5_PATH).read_bytes())
+        result = identity_v5.verify_git_v5(REPO, v1, v2, v3, v4, v5)
+        self.assertEqual(result["v5_modified"], 13)
         self.assertEqual(result["v1_unchanged"], 209)
 
     def test_v2_manifest_reproduces_from_exact_commits(self):

@@ -64,6 +64,8 @@ each must be caught.
 | `identity_v3.py` | v3 validator, overlay tree check and exact-commit check (`python -m tests.panchanga.identity_v3 --check`) |
 | `identity-manifest-v4.json` | PAN-QA-08 v4 (KUN-I18N-COPY-005): the 25 paths the owner-approved copy Changes A and B change (previous and new SHA-256), the 2 new copy tests and the exact editorial-packet inventory, bound to v1/v2/v3 by SHA-256 and to main `7fc1702` |
 | `identity_v4.py` | v4 validator, overlay tree check and exact-commit check (`python -m tests.panchanga.identity_v4 --check`) |
+| `identity-manifest-v5.json` | PAN-QA-08 v5 (KUN-GOV-SIMPLE-001): the 13 paths that drop the signed-paperwork rule, the exact editorial-packet inventory, and the live decision record (frozen part pinned by a projection SHA-256), bound to v1 to v4 by SHA-256 and to main `4c57c73` |
+| `identity_v5.py` | v5 validator, overlay tree check and exact-commit check (`python -m tests.panchanga.identity_v5 --check`) |
 | `run.py` | Full numerical gate run, JSON and Markdown report; exit 0 PASS, 1 FAIL, 2 BLOCKED |
 
 ## Reproduce
@@ -133,3 +135,22 @@ under `signed/`, an edited attestation form or any other packet change is refuse
 signed-decision intake needs its own versioned overlay; v4 pre-approves no signature.
 `7fc1702..HEAD` restricted to the v1 scope, the v2/v3-declared paths and the packet must equal the v4
 declaration, and `7fc1702` itself must satisfy v3. `test_pan_qa08_identity_v4.py` seeds the v4 defects.
+Since KUN-GOV-SIMPLE-001, v4 is proved on the exact trees of its audited commit `b5e2fa7` and of main
+`4c57c73`; the working tree is checked by v5.
+
+### v5 (KUN-GOV-SIMPLE-001)
+
+v1 to v4 are kept byte for byte. Owner policy KUN-GOV-SIMPLE-001 (issue #75) removes the signed-paperwork
+requirement: the owner approves in chat, the approval is recorded in GitHub, and the register cites that
+record. `identity-manifest-v5.json` (pinned in `identity_v5.py`) is the **one-time** bridge. It declares the
+13 paths that change for this (the register gate and three report tests, and the packet documents that
+described signed sheets), the exact packet inventory without a `signed/` directory, and the live decision
+record `editorial-acceptance-register.json`. The record's decision fields (each item's
+`human_hindi_language`, `human_jyotish_terminology` and `owner_copy`, and `customer_release`) may change
+when a decision is recorded; the rest of it is pinned through the SHA-256 of a canonical projection without
+those fields, and the decision fields themselves are checked by `test_editorial_register.py`. Recording a
+decision therefore needs no v6, no regenerated packages and no signature. Catalogs, application code,
+tests, numerical manifests, the rest of the packet and the frozen part of the record are still refused.
+`4c57c73..HEAD` restricted to the v1 scope, the declared paths and the packet must equal the v5 declaration
+plus the record, and `4c57c73` itself must satisfy v4. `test_pan_qa08_identity_v5.py` seeds the v5 defects
+and shows a decision-only record edit passing.
