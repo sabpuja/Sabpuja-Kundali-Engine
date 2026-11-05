@@ -66,6 +66,8 @@ each must be caught.
 | `identity_v4.py` | v4 validator, overlay tree check and exact-commit check (`python -m tests.panchanga.identity_v4 --check`) |
 | `identity-manifest-v5.json` | PAN-QA-08 v5 (KUN-GOV-SIMPLE-001): the 13 paths that drop the signed-paperwork rule, the exact editorial-packet inventory, and the live decision record (frozen part pinned by a projection SHA-256), bound to v1 to v4 by SHA-256 and to main `4c57c73` |
 | `identity_v5.py` | v5 validator, overlay tree check and exact-commit check (`python -m tests.panchanga.identity_v5 --check`) |
+| `identity-manifest-v6.json` | PAN-QA-08 v6 (KUN-PAN-RPT-001): the 2 modified and 18 added report paths of the extended Panchanga edition (previous and new SHA-256, git blobs), bound to v1 to v5 by SHA-256 and to main `07da75e` |
+| `identity_v6.py` | v6 validator, overlay tree check and exact-commit check (`python -m tests.panchanga.identity_v6 --check`) |
 | `run.py` | Full numerical gate run, JSON and Markdown report; exit 0 PASS, 1 FAIL, 2 BLOCKED |
 
 ## Reproduce
@@ -153,4 +155,17 @@ decision therefore needs no v6, no regenerated packages and no signature. Catalo
 tests, numerical manifests, the rest of the packet and the frozen part of the record are still refused.
 `4c57c73..HEAD` restricted to the v1 scope, the declared paths and the packet must equal the v5 declaration
 plus the record, and `4c57c73` itself must satisfy v4. `test_pan_qa08_identity_v5.py` seeds the v5 defects
-and shows a decision-only record edit passing.
+and shows a decision-only record edit passing. Since KUN-PAN-RPT-001, v5 is proved on the exact trees of its
+audited commit `5e82f64` and of main `07da75e`; the working tree is checked by v6.
+
+### v6 (KUN-PAN-RPT-001)
+
+v1 to v5 are kept byte for byte. KUN-PAN-RPT-001 (issue #78) adds an opt-in extended report edition with
+birth-instant Panchanga M1 pages; the ten-page report stays byte-identical. `identity-manifest-v6.json`
+(pinned in `identity_v6.py`) declares the two existing report files it changes
+(`report/phase1/premium_report.py`, `report/phase1/README.md`) and the 18 report files it adds (the
+extension module and catalog, 13 synthetic Panchanga fixtures, the tests and two developer tools). The v5
+packet inventory and the frozen part of the decision record are carried over unchanged; its decision fields
+stay free as in v5. No engine, Panchanga M1, data, preview or catalog path is declared.
+`07da75e..HEAD` restricted to the v1 scope, the declared paths and the packet must equal the v6 declaration,
+and `07da75e` itself must satisfy v5. `test_pan_qa08_identity_v6.py` seeds the v6 defects.

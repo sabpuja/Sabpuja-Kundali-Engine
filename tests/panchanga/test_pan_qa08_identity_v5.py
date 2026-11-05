@@ -30,6 +30,7 @@ GATE = "report/phase1/tests/test_editorial_register.py"
 ATTEST = PKT + "OWNER-COPY-ATTESTATION.md"
 REG_MD = PKT + "EDITORIAL-ACCEPTANCE-REGISTER.md"
 PAGE10 = PKT + "assets/en-hi-page-10.png"
+TREE = "07da75eebae6bb2f86d4c581229630962bda65fc"   # main after PR #76: the v5 tree (same tree as 5e82f64)
 
 
 def _committed():
@@ -149,16 +150,19 @@ class ManifestStructureTest(unittest.TestCase):
 
 
 class TreeVerificationTest(unittest.TestCase):
-    """The v1 to v4 + v5 check on a private copy of the committed HEAD tree."""
+    """The v1 to v4 + v5 check on a private copy of the v5 tree (main 07da75e).
+
+    Before KUN-PAN-RPT-001 this copied HEAD. HEAD now carries the v6 overlay, which v5 alone must reject
+    (test_v6_tree_is_rejected_by_v5_alone); the working tree is checked through v6."""
 
     @classmethod
     def setUpClass(cls):
         cls.v1, cls.v2, cls.v3, cls.v4, _, _, cls.v5 = _committed()
-        out = subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", "HEAD"],
+        out = subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", TREE],
                              capture_output=True, check=True).stdout
         prior = iv5.v4_expectations(cls.v1, cls.v2, cls.v3, cls.v4)
         cls.paths = [p for p in out.decode().split("\0") if p and (iv2.in_scope(p) or p in prior or p.startswith(PKT))]
-        cls.blobs = iv2.Git(REPO).blobs("HEAD", cls.paths)
+        cls.blobs = iv2.Git(REPO).blobs(TREE, cls.paths)
         cls.main = iv2.Git(REPO).blobs(iv5.BASE_COMMIT, [GATE, REG_MD, ATTEST, RECORD])
 
     def setUp(self):
@@ -268,6 +272,20 @@ class TreeVerificationTest(unittest.TestCase):
         for p in (GATE, REG_MD, ATTEST, RECORD):
             self.assertIn(p, str(ctx.exception))
 
+    def test_v6_tree_is_rejected_by_v5_alone(self):
+        """The KUN-PAN-RPT-001 report files on top of the v5 tree fail v5 (they are declared only in v6)."""
+        from . import identity_v6 as iv6
+        head = iv2.Git(REPO).blobs("HEAD", list(iv6.AUTHORIZED_MODIFIED) + list(iv6.AUTHORIZED_ADDED))
+        for p, data in head.items():
+            (self.tmp / p).parent.mkdir(parents=True, exist_ok=True)
+            (self.tmp / p).write_bytes(data)
+        with self.assertRaises(IdentityError) as ctx:
+            self.verify()
+        for p in iv6.AUTHORIZED_MODIFIED:
+            self.assertIn(f"unexpected hash (declared v2 modified): {p}", str(ctx.exception))
+        for p in iv6.AUTHORIZED_ADDED:
+            self.assertIn(f"undeclared file in v1 scope: {p}", str(ctx.exception))
+
 
 class ExactCommitTest(unittest.TestCase):
     def setUp(self):
@@ -277,7 +295,7 @@ class ExactCommitTest(unittest.TestCase):
         doc = copy.deepcopy(self.v5)
         doc["modified"][GATE]["v5_git_blob"] = "1" * 40
         with self.assertRaisesRegex(IdentityError, f"v5 modified hash differs from the committed object: {GATE}"):
-            iv5.verify_git_v5(REPO, self.v1, self.v2, self.v3, self.v4, doc)
+            iv5.verify_git_v5(REPO, self.v1, self.v2, self.v3, self.v4, doc, commit=TREE)
 
     def test_main_itself_is_not_the_v5_tree(self):
         with self.assertRaisesRegex(IdentityError, "differs from the v5 declaration"):

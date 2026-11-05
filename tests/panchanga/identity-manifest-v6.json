@@ -1,0 +1,105 @@
+{
+  "manifest_schema": "sabpuja-pan-qa-08-identity/6",
+  "note": "PAN-QA-08 identity manifest v6 (KUN-PAN-RPT-001). Declares the report-only change relative to main 07da75e: two modified report files and the new extended-edition files (Panchanga M1 report pages, their catalog, synthetic fixtures, tests and tools). The v5 packet inventory and the frozen part of the decision record are carried over unchanged. v1 to v5 are preserved and bound here by their SHA-256. No engine, Panchanga M1, data, preview, catalog, calculation, ephemeris, tolerance or chart value is declared. Generated from git objects only: python -m tests.panchanga.identity_v6 --check.",
+  "task": "KUN-PAN-RPT-001",
+  "v5_manifest": {
+    "path": "tests/panchanga/identity-manifest-v5.json",
+    "sha256": "258312b69c9bf65ae6baf6cee0ef0b307fff22a1f6cd402a0f3f504a3d900d16",
+    "base_commit": "07da75eebae6bb2f86d4c581229630962bda65fc",
+    "v5_candidate_commit": "5e82f644c96352d1a973fc441c27e22085d7b7e8",
+    "v4_sha256": "6f39046e8fc57e0129f67f96410fa4c5a3b3fefa4db7d65c8f27a8aa9602686b",
+    "v3_sha256": "9a2051d9fd74ef016b5d48e9cd182714028dbbb017fda2a3df89f494276f0e77",
+    "v2_sha256": "d2dea049b652df4ff3f02ce5064e211d3b7f0c97d222e085ce36826bc2f087da",
+    "v1_sha256": "2e913eda7bb60f6159463ee219b4ad840a7fa971bf66e39ac30b871158cb007e"
+  },
+  "modified": {
+    "report/phase1/README.md": {
+      "before_sha256": "3a43fffff0ca7eb25c7bdecea6b1f2f3a3981d49c216bff40cc7f5b2e885932f",
+      "v6_sha256": "f4200cd4d01b412018d4f36e3a7c2b379045b584dfe8f7cf5d688d35206ebd1e",
+      "v6_git_blob": "68c0772592ebb525e328e156ae8619c0519239e6"
+    },
+    "report/phase1/premium_report.py": {
+      "before_sha256": "974d3de753f0c6c0c8451235b15017a76e7711a79e14291ee7f742ce4647bf6d",
+      "v6_sha256": "13307184e569efeb39ce8fb77e498f2d7f8d663fec5c2d8dd341c549f03e7b30",
+      "v6_git_blob": "79bc22f0d7aa596e912d22b442a9771f59479684"
+    }
+  },
+  "added": {
+    "report/phase1/panchanga_report.py": {
+      "sha256": "bd20842d22cffef80e35afd0725677291cdd3a78b985122bb401e9645d3e2adb",
+      "git_blob": "2b1845960224803a9e813267fdb9baf764232518"
+    },
+    "report/phase1/report_panchanga_i18n.json": {
+      "sha256": "16d2c461021c244fc3e6943a52c322f3486258f62f4b0e35690b6a1f97ae5725",
+      "git_blob": "d89119fcc1fd429d37b1386239a3200c51a5bb4f"
+    },
+    "report/phase1/tests/fixtures/panchanga/s01-first-supported-date.json": {
+      "sha256": "2d54b1e8c6906587dec0d84f25d078d2ff6f6ca47fbfd1fb57d3421e1493743c",
+      "git_blob": "5bc5dac43c009ed02843d59907e862680c4e5c68"
+    },
+    "report/phase1/tests/fixtures/panchanga/s02-last-supported-date.json": {
+      "sha256": "f05b288eabb0b06a1f9188f7bd5a54d753035788231cc94075d7fb85b1a0fac3",
+      "git_blob": "087767e3af04a5c37b1c8b0f9a05aa80b57a16fe"
+    },
+    "report/phase1/tests/fixtures/panchanga/s03-crowded-d1-house.json": {
+      "sha256": "460bf56bfc21c286d10e8fa3f43f2c3009981d478aaebc4e3fef97090d7f3c82",
+      "git_blob": "55626836f901f16ab1049045a7607ad0e511dcd5"
+    },
+    "report/phase1/tests/fixtures/panchanga/s04-crowded-d9-house.json": {
+      "sha256": "41ca87ed80a675063997ebe7e9349af864e0dac0ca1cfeaa1155cbf7a1eb2165",
+      "git_blob": "f21b5199f543c53484df345bec6de056be411611"
+    },
+    "report/phase1/tests/fixtures/panchanga/s05-graha-near-boundary.json": {
+      "sha256": "6d517130dafd940e58f2a7c2d2d0eb91f240c588beccefbf5f722b8eac4b306f",
+      "git_blob": "ceb7be9e587c6026da7b0bc53555bf521911c242"
+    },
+    "report/phase1/tests/fixtures/panchanga/s06-lagna-near-boundary.json": {
+      "sha256": "2b076c8b76e768659f6d430a95a4a61e697bc5b642ddbbb66cd205426dd5b558",
+      "git_blob": "51018b247d8ecdde74435a3805f5f3039180d442"
+    },
+    "report/phase1/tests/fixtures/panchanga/s07-noon.json": {
+      "sha256": "f808492e3b804073d0b5aed4bb728afc16676d390c40048cdea3302578fd2b28",
+      "git_blob": "7b8b584ab63e471cf55be924d77f3347746aea66"
+    },
+    "report/phase1/tests/fixtures/panchanga/s08-dawn.json": {
+      "sha256": "a84367c10a92774451976fb187ab4b48bb6317671827ea47475f0d5a4a7431bc",
+      "git_blob": "511a12a9bbd97e2df8b576e05fe93e03a6b89725"
+    },
+    "report/phase1/tests/fixtures/panchanga/s09-evening.json": {
+      "sha256": "d709244405a07beb515d6304391eaa5e981fbd798dc75e52044ba36dc95db86f",
+      "git_blob": "f4f96c585a25029fd0ab94ecb52af2c8b6f5fe20"
+    },
+    "report/phase1/tests/fixtures/panchanga/s10-late-night.json": {
+      "sha256": "cecd97cdadacc62859f97c2842cf79edcfab6bbd2993d16a9bf98267b5e1c3b6",
+      "git_blob": "95bc7c45124d6376d5bb050410905e0b62731788"
+    },
+    "report/phase1/tests/fixtures/panchanga/s11-afternoon.json": {
+      "sha256": "9f5288cb92c487296b3f46d206d5d295429f96a6d4bd76e29d507f51a0d9daaa",
+      "git_blob": "ea3de91600224ab16e09f285459bac4498f0f994"
+    },
+    "report/phase1/tests/fixtures/panchanga/s12-morning.json": {
+      "sha256": "ea01bb9982e295da4669ee58e66126e6fefe3d35e6cb2f76766f10251e7e78e4",
+      "git_blob": "ba26f53749e5fa112160edef75dd6da62560c606"
+    },
+    "report/phase1/tests/fixtures/panchanga/s13-remaining-lagna.json": {
+      "sha256": "e5795f2d52976072c776959758eb4dfceeb80a0f7e97398ead89f46fd6782c25",
+      "git_blob": "bf843f32b269a49eb4dff023c794a8aa6e34e18b"
+    },
+    "report/phase1/tests/test_panchanga_report.py": {
+      "sha256": "0b8f22afa828c20133c0d646821e1943f4f0f40cab6953d9f5ee2f473d91fefa",
+      "git_blob": "270a2b3018036f0e995bb61b478217343e772ed1"
+    },
+    "report/phase1/tools/make_panchanga_fixtures.py": {
+      "sha256": "9fb29f201932e3a975a8e618729c133b032d17f834036d3eda8a3b47d5ee19f8",
+      "git_blob": "09432a0e8497d195b39096b567266c52185d0fd9"
+    },
+    "report/phase1/tools/panchanga_review.py": {
+      "sha256": "95449d0edc23fa5b6f73e57b36e2951aa2cb19ec02fa1913f804b78c2688ba7a",
+      "git_blob": "6460c5c77de8824bd74db27cdc10cb0585c1e60e"
+    }
+  },
+  "counts": {
+    "modified": 2,
+    "added": 18
+  }
+}
