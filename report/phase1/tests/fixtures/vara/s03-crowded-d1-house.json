@@ -1,0 +1,87 @@
+{
+ "schema": "sabpuja-panchanga-vara/1",
+ "status": "DEVELOPMENT_PREVIEW_NOT_FOR_CUSTOMERS",
+ "claim_boundary": "Development output for independent QA only. Not customer-facing. Sunrise and sunset are calculated for the birthplace with a sea-level, level-horizon, geocentric model under the IMD 47' definition; they do not establish when the Sun was actually visible. Times are approximate to the minute. Published USNO and IMD times agree within a coarse 120 s screen, which is not an accuracy claim, and IMD's four-city tables are not reproduced by one depression angle.",
+ "method": {
+  "method_id": "KUN-PAN-RPT-002",
+  "sun_module": {
+   "method_id": "KUN-PAN-M2-SUN-001",
+   "accepted_at": "c759c412b22753f7f5b6134e2aaaad0f04412007",
+   "functions": "sun.vara and sun.sun_day only"
+  },
+  "convention": "SUN-D-IMD-47",
+  "convention_decision": "PAN-D03 SUN-D-IMD-47 at the birthplace, adopted for the development stage only (PR #82 comment 6681108990); not released to customers",
+  "depression_arcmin": 47,
+  "refraction_arcmin": 31,
+  "semidiameter_arcmin": 16,
+  "place": "birthplace latitude and longitude of the chart request",
+  "observer": "sea level, level horizon, geocentric; no weather, elevation, terrain or dip model",
+  "vara_rule": "PAN-D05: weekday of the local civil date of the latest sunrise at or before the birth instant, [sunrise_D, sunrise_D+1); the civil weekday is shown separately, never substituted",
+  "day_end": "the Vara is withheld when the next sunrise is physically undefined; a next sunrise after the supported local dates is not computed",
+  "sunset": "PAN-D17: first setting after the governing sunrise, same 47' rule",
+  "unavailable": "PAN-D11-B: typed unavailable, never inferred",
+  "near_sunrise": "birth within 300 s (inclusive) of the governing or next sunrise, on unrounded instants; a presentation heuristic, not an accuracy bound",
+  "display": "instants are whole UTC seconds here; reports round to the minute and mark them approximate"
+ },
+ "birth": {
+  "utc": "2030-06-11T22:47:32Z",
+  "timezone": "Asia/Kolkata",
+  "latitude": 22.56263,
+  "longitude": 88.36304
+ },
+ "civil": {
+  "date": "2030-06-12",
+  "weekday": "wednesday"
+ },
+ "vara": {
+  "status": "available",
+  "vara_id": "mangalavara",
+  "sunrise_local_date": "2030-06-11"
+ },
+ "vara_differs_from_civil_weekday": true,
+ "governing_sunrise": {
+  "status": "available",
+  "utc_us": 1907364097866662,
+  "utc": "2030-06-10T23:21:38Z",
+  "local": "2030-06-11T04:51:38+05:30",
+  "local_date": "2030-06-11"
+ },
+ "sunset": {
+  "status": "available",
+  "utc_us": 1907412651746574,
+  "utc": "2030-06-11T12:50:52Z",
+  "local": "2030-06-11T18:20:52+05:30",
+  "local_date": "2030-06-11"
+ },
+ "next_sunrise": {
+  "status": "available",
+  "utc_us": 1907450501848173,
+  "utc": "2030-06-11T23:21:42Z",
+  "local": "2030-06-12T04:51:42+05:30",
+  "local_date": "2030-06-12"
+ },
+ "boundary": {
+  "status": "assessed",
+  "window_seconds": 300,
+  "after_governing_sunrise_us": 84354133338,
+  "before_next_sunrise_us": 2049848173,
+  "near_sunrise": false,
+  "nearest": null
+ },
+ "provenance": {
+  "swiss_ephemeris": {
+   "library_version": "2.10.03",
+   "python_binding": "pyswisseph",
+   "python_binding_version": "2.10.3.2"
+  },
+  "ephemeris_manifest_sha256": "1aaca24868bb9cde8558f891038ae239d8dce64beb77b90f963bb185e99b2e34",
+  "timezone_data": {
+   "package_version": "2026.5",
+   "iana_version": "2026e",
+   "manifest_sha256": "11e070e7a29c0c79a495d8bf9517215f0f1e6c8e7c92f3e75d8a485773953532"
+  },
+  "swiss_calls": 2928,
+  "chart_schema_version_unchanged": "0.3.0",
+  "calculation_metadata_schema_unchanged": "sabpuja-calculation-metadata/3"
+ }
+}

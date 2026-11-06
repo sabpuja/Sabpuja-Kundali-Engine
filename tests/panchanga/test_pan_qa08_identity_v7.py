@@ -98,17 +98,22 @@ class ManifestStructureTest(unittest.TestCase):
 
 
 class TreeVerificationTest(unittest.TestCase):
-    """The v1 to v6 + v7 check on a private copy of the committed HEAD tree."""
+    """The v1 to v6 + v7 check on a private copy of the tree of a8c3108, the audited v7 commit.
+
+    Before KUN-PAN-RPT-002 this copied HEAD. HEAD now carries the v9 overlay (two v7 report files modified),
+    which v7 alone must reject (test_v9_tree_is_rejected_by_v7_alone); the working tree is checked through v9."""
 
     @classmethod
     def setUpClass(cls):
         cls.v1, cls.v2, cls.v3, cls.v4, cls.v5, cls.v6, _, _, cls.v7 = _committed()
-        out = subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", "HEAD"],
+        from . import identity_v8 as iv8
+        cls.commit = iv8.BASE_COMMIT
+        out = subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", cls.commit],
                              capture_output=True, check=True).stdout
         prior = iv7.v6_expectations(cls.v1, cls.v2, cls.v3, cls.v4, cls.v5, cls.v6)
         cls.paths = [p for p in out.decode().split("\0")
                      if p and (iv2.in_scope(p) or p in prior or p.startswith(iv7.PACKET_PREFIX))]
-        cls.blobs = iv2.Git(REPO).blobs("HEAD", cls.paths)
+        cls.blobs = iv2.Git(REPO).blobs(cls.commit, cls.paths)
         cls.base = iv2.Git(REPO).blobs(iv7.BASE_COMMIT, list(iv7.AUTHORIZED_MODIFIED))
 
     def setUp(self):
@@ -129,6 +134,12 @@ class TreeVerificationTest(unittest.TestCase):
     def test_pristine_copy_passes(self):
         self.assertEqual(self.verify(), {"v1_unchanged": 209, "v5_packet": 42, "v5_record": 1, "v6_modified": 2,
                                          "v6_added": 18, "v7_modified": 2, "v7_added": 5})
+
+    def test_v9_tree_is_rejected_by_v7_alone(self):
+        from . import identity_v9 as iv9
+        head = iv2.Git(REPO).blobs("HEAD", list(iv9.AUTHORIZED_MODIFIED))
+        (self.tmp / EXT).write_bytes(head[EXT])
+        self.refused(f"unexpected hash (declared v7 modified): {EXT}")
 
     def test_recording_a_decision_needs_no_new_version(self):
         doc = json.loads(self.blobs[RECORD])
@@ -171,6 +182,9 @@ class TreeVerificationTest(unittest.TestCase):
         self.refused(f"undeclared file in v1 scope: {p}")
 
 
+A8C = "a8c31081dfc631f5a0a960c699aaabc24b05d7fe"   # the audited v7 commit (draft PR #81 head)
+
+
 class ExactCommitTest(unittest.TestCase):
     def setUp(self):
         self.v1, self.v2, self.v3, self.v4, self.v5, self.v6, _, _, self.v7 = _committed()
@@ -182,11 +196,11 @@ class ExactCommitTest(unittest.TestCase):
         doc = copy.deepcopy(self.v7)
         doc["modified"][EXT]["v7_git_blob"] = "1" * 40
         with self.assertRaisesRegex(IdentityError, f"v7 modified hash differs from the committed object: {EXT}"):
-            iv7.verify_git_v7(*self.args(doc))
+            iv7.verify_git_v7(*self.args(doc), commit=A8C)
         doc = copy.deepcopy(self.v7)
         doc["added"][NAMES]["sha256"] = "1" * 64
         with self.assertRaisesRegex(IdentityError, f"v7 added hash differs from the committed object: {NAMES}"):
-            iv7.verify_git_v7(*self.args(doc))
+            iv7.verify_git_v7(*self.args(doc), commit=A8C)
 
     def test_base_itself_is_not_the_v7_tree(self):
         with self.assertRaisesRegex(IdentityError, "differs from the v7 declaration"):

@@ -75,3 +75,25 @@ pdf = generate_extended(engine_response, panchanga_document, synthetic=False, pa
 - **Tests:** `tests/test_panchanga_report.py` (fixtures `tests/fixtures/panchanga/`, captured from the 13 existing synthetic scenarios by `tools/make_panchanga_fixtures.py`). With `SABPUJA_TEST_EPHE_PATH` it also recomputes every fixture and runs live boundary cases (London summer-time start and end, repeated hour, birth exactly on a transition and one second before, last supported instant; minute rounding of displayed times at :29/:30, midnight, the summer-time gap and the repeated hour, failed and stricter-limit searches, refused inputs).
 - **Review set:** `python report/phase1/tools/panchanga_review.py OUT_DIR` writes EN/HI extended and standard PDFs, page images and SHA-256 sums outside Git.
 - **CLI:** `python report/phase1/premium_report.py CHART.json OUT.pdf --sample --panchanga-json PANCHANGA.json [--locale hi]`.
+
+## Sunrise and Vara edition (KUN-PAN-RPT-002, draft, not for customers)
+
+A further, separate opt-in edition, `extended-panchanga-m2-vara/1`: the 13-page Panchanga edition plus one page, *Sunrise and Vara / सूर्योदय और वार*, after the transition times (14 pages). Without a Vara document nothing changes: the ten-page and default 13-page PDFs stay byte-identical (pinned hashes, all scenarios, EN/HI, also after a Vara render).
+
+```python
+from sabpuja_kundali.panchanga import vara           # engine side: sabpuja-panchanga-vara/1
+from report.phase1.premium_report import generate_extended
+doc = vara.calculate(chart_request, ephe_path)
+pdf = generate_extended(engine_response, panchanga_document, synthetic=False, palette='baseline',
+                        locale='en', vara=doc)          # or locale='hi'
+```
+
+- **Convention:** `SUN-D-IMD-47` at the birthplace (PAN-D03, adopted for development only on PR #82 comment 6681108990): IMD's definition, upper limb with 31′ refraction and 16′ semidiameter, the Sun's centre 47′ below a level sea-level horizon, geocentric. Not a reproduction of IMD's Central Station or city tables. `SUN-A-USNO-50` stays test-only. Instants come from the QA-accepted `sun.py` (PR #82, c759c41), called only through `sun.vara()` and `sun.sun_day()`; `vara.py` adds no astronomy.
+- **Shown:** the Vara (sunrise weekday, PAN-D05, half-open [sunrise, next sunrise)) with its governing sunrise date; the civil weekday of the birth date, separately and never substituted; sunrise, sunset (PAN-D17) and the next sunrise, rounded to the minute and marked *about / लगभग*, local and UTC; the time from the governing sunrise or to the next one; a day strip; and the method and limits (sea-level geocentric model, no weather, elevation or terrain; 120 s USNO/IMD screen is not an accuracy claim; IMD's four-city 47′–52′ discrepancy).
+- **Near-sunrise caution:** when the birth is within 300 s (inclusive, on unrounded microsecond instants) of the governing or the next sunrise, a saffron caution asks the reader to check the birth time. The band is a presentation heuristic, not an accuracy claim.
+- **Unavailable, never invented:** polar day or night, no sunrise on the date, a next sunrise that never comes (`VARA_DAY_END_UNDEFINED`), or a governing sunrise before 1 January 1970 show "Vara not given" with the typed reason and the civil weekday alone. A next sunrise after 31 December 2100 is not calculated and the caution says so.
+- **Fail closed** (`vara_report.VaraReportError`) on any other schema, status, claim, method block (pinned SHA-256), birth instant, zone or coordinates; different Swiss Ephemeris, ephemeris or tzdata; a civil date or weekday that is not the birth instant's; a Vara that is not its sunrise date's weekday; event order or local times that do not match the UTC instants; a near-sunrise record that is not the instants; unknown reasons; or an unavailable Vara carrying events or a comparison.
+- **Three M1 sentences** that would be untrue in this edition are replaced only here (`override.*` in `report_vara_i18n.json`): the birth-instant note now points to the sunrise page, the M1 exclusion "Sunrise, sunset and Vara" becomes "Panchanga at sunrise of the birth date", and the methodology lists the pages as "Panchanga, sunrise and Vara". Tithi, Karana and Yoga names stay QA-only (`names='qa_preview'` still combines with this edition).
+- **Text:** `report_vara_i18n.json`, developer draft pending human Hindi, Jyotish and owner review.
+- **Tests:** `tests/test_vara_report.py` (fixtures `tests/fixtures/vara/` for the 13 scenarios and `tests/fixtures/vara-cases/` for 12 synthetic boundary cases, from `tools/make_vara_fixtures.py`; 100 pinned 14-page hashes from `tools/make_vara_pins.py`) and `tests/panchanga/test_vara_doc.py` (engine document).
+- **CLI:** `python report/phase1/premium_report.py CHART.json OUT.pdf --sample --panchanga-json PANCHANGA.json --vara-json VARA.json [--locale hi]`; `python -m sabpuja_kundali.panchanga.vara < request.json`.

@@ -115,6 +115,9 @@ PAGE_OF = {key: i + 1 for i, (key, _, _) in enumerate(PAGES)}
 EDITION_STANDARD = 'standard-10'
 EDITION_PANCHANGA = 'extended-panchanga-m1/1'
 EXTENDED_LAYOUT_ID = LAYOUT_ID + '+' + EDITION_PANCHANGA
+# KUN-PAN-RPT-002: a further, separate opt-in edition with the sunrise and Vara page (14 pages). The
+# ten-page and 13-page editions are unchanged byte for byte.
+EDITION_VARA = 'extended-panchanga-m2-vara/1'
 
 
 class Palette:
@@ -1073,18 +1076,21 @@ def _page_overview(d, response, positions):
         (d.t('overview.d9_lagna'), tr.rashi(chart['d9']['lagna_rashi']), d.t('overview.navamsa_house1'), d.page_of['d9']),
         (d.t('overview.calculation'), d.t('overview.lahiri'), d.t('overview.method_sub'), d.page_of['method']),
     ]
-    cw, ch, gap = (CW - 2 * 12) / 3, 84, 12
+    # (card height, kicker, value and sub-line offsets, gap before the contents). The 14-page sunrise and Vara
+    # edition (KUN-PAN-RPT-002) uses shorter cards so one more contents row fits; the others are unchanged.
+    ch, k_off, v_off, s_off, after = (84, 22, 47, 15, 22) if d.edition != EDITION_VARA else (70, 20, 42, 12, 14)
+    cw, gap = (CW - 2 * 12) / 3, 12
     top = y - 6
     for i, (label, value, sub, page) in enumerate(cards):
         x = M + (i % 3) * (cw + gap)
         yy = top - (i // 3) * (ch + gap) - ch
         _card(d, x, yy, cw, ch)
         d.rect(x, yy + ch - 3, cw, 3, fill='accent')
-        d.kicker(x + 14, yy + ch - 22, label, 'primary_text')
-        d.text(x + cw - 14, yy + ch - 22, d.t('overview.page_ref', page=page), MIN_TEXT, 'Medium', 'muted', 'right')
-        d.fitted(x + 14, yy + ch - 47, value, cw - 28, 16, 'Head', 'ink', minimum=11, max_lines=1)
-        d.fitted(x + 14, yy + 15, sub, cw - 28, 8.6, 'Body', 'muted', minimum=MIN_TEXT, max_lines=1)
-    y = top - 2 * (ch + gap) - 22
+        d.kicker(x + 14, yy + ch - k_off, label, 'primary_text')
+        d.text(x + cw - 14, yy + ch - k_off, d.t('overview.page_ref', page=page), MIN_TEXT, 'Medium', 'muted', 'right')
+        d.fitted(x + 14, yy + ch - v_off, value, cw - 28, 16, 'Head', 'ink', minimum=11, max_lines=1)
+        d.fitted(x + 14, yy + s_off, sub, cw - 28, 8.6, 'Body', 'muted', minimum=MIN_TEXT, max_lines=1)
+    y = top - 2 * (ch + gap) - after
     d.text(M, y, d.t('overview.contents'), 15, 'Head', 'ink')
     y -= 12
     d.line(M, y, W - M, y, 'accent', 0.8)
@@ -1103,6 +1109,8 @@ def _page_overview(d, response, positions):
         d.c.setDash()
         y -= 6
         d.line(M, y - 4, W - M, y - 4, 'rule', 0.5)
+    if d.edition == EDITION_VARA and y - 4 < FOOTER_Y + 18:
+        raise layout.LayoutError('Contents reach the footer')
 
 
 def _page_guide(d, response, positions):
@@ -1416,7 +1424,7 @@ def generate(response: dict, synthetic: bool = False, palette: str | None = None
 
 def generate_extended(response: dict, panchanga: dict, synthetic: bool = False, palette: str | None = None,
                       display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE,
-                      names: str | None = None) -> bytes:
+                      names: str | None = None, vara: dict | None = None) -> bytes:
     """The extended edition (KUN-PAN-RPT-001): the ten pages plus the birth-instant Panchanga
     pages. `panchanga` must be the `sabpuja-panchanga/1` document computed for the same request
     as `response`; any mismatch, unsupported value or unaudited field raises before drawing.
@@ -1424,13 +1432,18 @@ def generate_extended(response: dict, panchanga: dict, synthetic: bool = False, 
     names=None (the default) keeps the numeric M1 display byte for byte. names='qa_preview' draws
     Tithi, Karana and Yoga names for internal QA only, marked as not for customers;
     names='customer' is refused until panchanga_names.release_problems() is empty
-    (KUN-PAN-M2-NAMES-001)."""
-    return render(response, synthetic, palette, display_name, locale, panchanga=panchanga, panchanga_names=names)[0]
+    (KUN-PAN-M2-NAMES-001).
+
+    vara=None (the default) keeps the 13-page edition byte for byte. A `sabpuja-panchanga-vara/1` document
+    for the same request renders the separate edition extended-panchanga-m2-vara/1 instead: the same pages
+    plus the sunrise and Vara page after the transition times (KUN-PAN-RPT-002)."""
+    return render(response, synthetic, palette, display_name, locale, panchanga=panchanga, panchanga_names=names,
+                  vara=vara)[0]
 
 
 def render(response: dict, synthetic: bool = False, palette: str | None = None,
            display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE, *, panchanga=None,
-           panchanga_names=None):
+           panchanga_names=None, vara=None):
     """generate() plus an audit of where chart labels were drawn, for the report tests.
 
     panchanga=None (the default) renders the standard ten-page edition exactly as before.
@@ -1443,13 +1456,16 @@ def render(response: dict, synthetic: bool = False, palette: str | None = None,
     extension = None
     if panchanga_names is not None and panchanga is None:
         raise ValueError('Panchanga names need the extended edition')
+    if vara is not None and panchanga is None:
+        raise ValueError('The sunrise and Vara page needs the extended edition')
     if panchanga is not None:
         try:
             from . import panchanga_report
         except ImportError:  # loaded by path or run as a script
             import panchanga_report
+        extra = {} if vara is None else {'vara': copy.deepcopy(vara)}
         extension = panchanga_report.Extension(response, copy.deepcopy(panchanga), locale,
-                                                   names=panchanga_names)
+                                                   names=panchanga_names, **extra)
     pal = Palette(palette or THEMES['default_palette'])
     cmaps = _register_fonts()
     drawing = _logo_drawing()
@@ -1496,6 +1512,8 @@ def render(response: dict, synthetic: bool = False, palette: str | None = None,
     if extension is not None:
         audit.update(edition=d.edition, layout=EXTENDED_LAYOUT_ID, page_keys=[k for k, _, _ in d.contents],
                      panchanga=extension.audit)
+        if extension.vara is not None:
+            audit.update(layout=LAYOUT_ID + '+' + EDITION_VARA, vara=extension.vara.audit)
     if locale != loc.DEFAULT_LOCALE:
         audit.update(locale=locale, devanagari_runs=d.deva_runs, glyph_forms=len(d.glyph_forms), texts=d.drawn)
     if display_name is not None:
@@ -1514,6 +1532,8 @@ if __name__ == '__main__':
     parser.add_argument('--locale', choices=loc.LOCALES, default=loc.DEFAULT_LOCALE)
     parser.add_argument('--panchanga-json', help='extended edition: the sabpuja-panchanga/1 document for the '
                                                  'same request (KUN-PAN-RPT-001)')
+    parser.add_argument('--vara-json', help='sunrise and Vara edition: the sabpuja-panchanga-vara/1 document for '
+                                            'the same request (KUN-PAN-RPT-002); needs --panchanga-json')
     parser.add_argument('--names-qa-preview', action='store_true',
                         help='internal QA only: draw Tithi, Karana and Yoga names marked "not for customers" '
                              '(KUN-PAN-M2-NAMES-001); needs --panchanga-json')
@@ -1522,8 +1542,11 @@ if __name__ == '__main__':
     name = names.normalize(args.display_name)
     options = dict(synthetic=args.sample, palette=args.palette, display_name=name, locale=args.locale)
     if args.panchanga_json:
+        extra = {} if not args.vara_json else {'vara': json.loads(Path(args.vara_json).read_text())}
         pdf = generate_extended(response, json.loads(Path(args.panchanga_json).read_text()), **options,
-                                names='qa_preview' if args.names_qa_preview else None)
+                                names='qa_preview' if args.names_qa_preview else None, **extra)
+    elif args.vara_json:
+        parser.error('--vara-json needs --panchanga-json')
     elif args.names_qa_preview:
         parser.error('--names-qa-preview needs --panchanga-json')
     else:
