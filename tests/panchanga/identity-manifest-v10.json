@@ -1,0 +1,105 @@
+{
+  "manifest_schema": "sabpuja-pan-qa-08-identity/10",
+  "note": "PAN-QA-08 identity manifest v10 (KUN-RC-ESS-001). Declares the change relative to 7d9d10a (draft PR #84, the v9 tree) inside the v1 scope: four modified report files that gain an opt-in catalog overlay, and the added files of the frozen English Janam Kundali Essentials edition (module, English catalog, edition manifest, pinned hashes, tests and pin tool). The Panchanga package at 7d9d10a (M1, sun and vara modules) is pinned unchanged. v1 to v9 are preserved and bound here by their SHA-256. Generated from git objects only: python -m tests.panchanga.identity_v10 --check.",
+  "task": "KUN-RC-ESS-001",
+  "v9_manifest": {
+    "path": "tests/panchanga/identity-manifest-v9.json",
+    "sha256": "2cc5185269dfcefcd6f52a9c9df583ec7c8bd2fc8fbeec3c68f8d271a7ef9f4f",
+    "base_commit": "7d9d10aeca82380946fe5435ee6d0b0c5fe79273",
+    "v8_sha256": "403a33310684feeb2a1f8251d6b132c812047f84b3171652b35dacce511b9cd3",
+    "v7_sha256": "e4bfc37ae5ec23be843d50418f3586161bc2be527dfec0dfcc1984136e96dd73",
+    "v6_sha256": "964f42f9c14916eebdedc5076c7cce57d5c3b2351bee3ec2aef6c68315039005",
+    "v5_sha256": "258312b69c9bf65ae6baf6cee0ef0b307fff22a1f6cd402a0f3f504a3d900d16",
+    "v4_sha256": "6f39046e8fc57e0129f67f96410fa4c5a3b3fefa4db7d65c8f27a8aa9602686b",
+    "v3_sha256": "9a2051d9fd74ef016b5d48e9cd182714028dbbb017fda2a3df89f494276f0e77",
+    "v2_sha256": "d2dea049b652df4ff3f02ce5064e211d3b7f0c97d222e085ce36826bc2f087da",
+    "v1_sha256": "2e913eda7bb60f6159463ee219b4ad840a7fa971bf66e39ac30b871158cb007e"
+  },
+  "package": {
+    "src/sabpuja_kundali/panchanga/__init__.py": {
+      "sha256": "ba0ed56c56bee95544ca82ed37771e4158a9dd7d6f5b52ba926b360063a6cdf1",
+      "git_blob": "64cac54bd3fb0873b165d5ff9c8435201749ef79"
+    },
+    "src/sabpuja_kundali/panchanga/__main__.py": {
+      "sha256": "a88c87bd9828ed05567f7c8eae44a4c5bb709130f688baf69e9ece84287fa44f",
+      "git_blob": "931acd04a30df8857805cba4e01d99aa351c235f"
+    },
+    "src/sabpuja_kundali/panchanga/astro.py": {
+      "sha256": "8a0e22e76589e747228ccf473377b2a818ee579d8803259b8af25c45bd031845",
+      "git_blob": "c520e1cfc658ec934661bc7ef282e9e20157199b"
+    },
+    "src/sabpuja_kundali/panchanga/contract.py": {
+      "sha256": "13d4a728f1433ad643ab7ad73d3cbbae848b63fb94721915ea2b00b43b2957fd",
+      "git_blob": "c0abfb63e7d1fdf3691a6cd0ecc79c9554cb109f"
+    },
+    "src/sabpuja_kundali/panchanga/rules.py": {
+      "sha256": "0ce2b94be3b9a68beb6467d4c654ad2fafe71f3e15a386120e3feadc340a8923",
+      "git_blob": "ae2bfff9a72d1ad1218f141e47ef46159fb5a933"
+    },
+    "src/sabpuja_kundali/panchanga/search.py": {
+      "sha256": "90bf47ad424004e4e39f67000cec087212ebb5cfe8f17ee72909f8ba735b536c",
+      "git_blob": "a85a36ab7ec58afed481ef4a26f272b38612e37f"
+    },
+    "src/sabpuja_kundali/panchanga/sun.py": {
+      "sha256": "901e31d58cd87d860f155880b6a8c8ab306dc3ed992273ac9039d8c9463c6f53",
+      "git_blob": "3a10e92b75aca061cd7fef39cce96ed5aa71279a"
+    },
+    "src/sabpuja_kundali/panchanga/vara.py": {
+      "sha256": "709d6f8676c921561e60a058a32d82eeca5e0613477ddb3e7d832ba2584e5ac6",
+      "git_blob": "87b81befc28e9977e72869d2635762cf5c93b340"
+    }
+  },
+  "modified": {
+    "report/phase1/README.md": {
+      "before_sha256": "3ae56ea0adf8662b19878e90d727342940b80f6ff0364d47a1c0d66def75ed03",
+      "v10_sha256": "df8e9aa84ef1cce76080b3ba028b38a7deb50f7cf3d24e9cd6844af7e83d838f",
+      "v10_git_blob": "406830c6e6b93c2dac34d645b51cc05e46221b29"
+    },
+    "report/phase1/panchanga_report.py": {
+      "before_sha256": "d4681c47e16b7ff473b0a2a7ebf871c795f4a51ab973b4745b88327389c00621",
+      "v10_sha256": "88f32b7e73f2b49e05b4db71d186bdcb9f3b00c88d97743b2841b88d62f5fa1f",
+      "v10_git_blob": "643b12f9dc9cf6b8eb276b56d052539c6277f3c9"
+    },
+    "report/phase1/premium_report.py": {
+      "before_sha256": "4ae5b524f60f8176caf88e5e79aa5c9fc6b56841c5c35175ef56d5588aadb218",
+      "v10_sha256": "5588fba5052129f75ac9445db7621ae87e08f5cefe9a3f4a01669d62fe59f451",
+      "v10_git_blob": "546f800518c6bbaf973b9de93db5faaec24cbe40"
+    },
+    "report/phase1/vara_report.py": {
+      "before_sha256": "99f7a3784b6e78da9875b1a558dd96db49b3ef91a984729b22d0e288dcfebaf4",
+      "v10_sha256": "af4bc3e87a930c0e54bf27a0eb2b7c531530429ad1fba3e4a3b499c24a773abe",
+      "v10_git_blob": "8cb9eed69d95d23e668f533a90c8bfb111289748"
+    }
+  },
+  "added": {
+    "report/phase1/essentials-edition-manifest.json": {
+      "sha256": "9b0576de76111ef1cc1e15801ab11481ec42718de543327fa0812f4710ae8852",
+      "git_blob": "7ce673bf7a19ac5ca89f5d6552580d0586689bd0"
+    },
+    "report/phase1/essentials.py": {
+      "sha256": "fec4f634a3fb56913e45a6742b954bfa6c0af2fa5857208ac1aa69f43aa9f055",
+      "git_blob": "6ae0696911ec52176e24e082b5367d0374c257bf"
+    },
+    "report/phase1/essentials_en.json": {
+      "sha256": "52b37d72e3a33af99bca279695a85612237ab3a0a978bde944a1d01c7e0f480a",
+      "git_blob": "2b2d3a5fa051f41a827de71a7c1a7c92b7e5c65f"
+    },
+    "report/phase1/tests/fixtures/essentials-en-sha256.json": {
+      "sha256": "a1a70b201d4b654bbd729ce065403285cd8e4c69b8e64493fec3ee8495c37191",
+      "git_blob": "26911fb0250e7c38665f594bcc54b4bebfe300b1"
+    },
+    "report/phase1/tests/test_essentials.py": {
+      "sha256": "6c878ea7386b7fce2ad2cc9c3de3430f7f1a4c346e16579b835d9549ec1b8981",
+      "git_blob": "9196a98424025c14ca4e88ff8881ccba794909f9"
+    },
+    "report/phase1/tools/make_essentials_pins.py": {
+      "sha256": "b3920d05f586ad92a23dddb56884f15ad7c5ff2f9ee28648ac8007af72fa9def",
+      "git_blob": "2b4390b682d346d995d7f6d55b4b8480aa1e9709"
+    }
+  },
+  "counts": {
+    "modified": 4,
+    "added": 6,
+    "package": 8
+  }
+}

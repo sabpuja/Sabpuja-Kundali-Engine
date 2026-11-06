@@ -1,0 +1,32 @@
+{
+ "note": "SHA-256 of essentials.generate(response, panchanga, vara, display_name) for every synthetic case of test_essentials (KUN-RC-ESS-001). Regenerate with report/phase1/tools/make_essentials_pins.py only for a deliberate, reviewed change to the frozen edition.",
+ "edition": "janam-kundali-essentials-en/1",
+ "sha256": {
+  "s01-first-supported-date|-": "d4cdbded1c2968c47aaf13c4dd5310ae15ae510b84f160a486ca6eec7ca0d35f",
+  "s02-last-supported-date|-": "0d56e44b9e7e8d00f9c89fc4759376f058bd4d03af3640ed28c07109b2494ef7",
+  "s03-crowded-d1-house|-": "7b225ac240a5e0aa630a940c7d372bef1ac81ad839448a5a14cb9067c9076513",
+  "s04-crowded-d9-house|-": "a22ab0dfbba20193ac01f08267bb017f7747f1035b108e8a70303101c3dd75fc",
+  "s05-graha-near-boundary|-": "fd8bc56e2817ac3dbba16852358d2270f65bc2733c7e70c53e58ea3825269f02",
+  "s06-lagna-near-boundary|-": "98468989d17cf04341645fa0df6ace8d9f1d58e1e182ad52395c1ace4e04772c",
+  "s07-noon|-": "767fd1329ec2a44ceaff36bc2e1405cba746273251ef9321302c1c3df5753ec9",
+  "s08-dawn|-": "e44398ee0ba84974c60728cfa26de5b479d019f00234f3c498073b4535a267db",
+  "s09-evening|-": "d79b96d86706b13de6c81efcd442cfc305427d8a80275facb5f8ebf749a116aa",
+  "s10-late-night|-": "e748e62f2c457509c3721013830128cd9b746e4d77e14307f173b5ec51f625ea",
+  "s11-afternoon|-": "ecb75628ec864923277fc8f8ed10ac353c86c4988ecbbffb0cfb8b0477e3a796",
+  "s12-morning|-": "7a0cb0093dba8a4531859c1d3e53e83b2912d15d669eb85c344cb87778c9dc47",
+  "s13-remaining-lagna|-": "02f1a9e8f8fa086be9194cd145affbc6d791348cc2fb09f3528dcc70c43ab414",
+  "v01-typical-afternoon|-": "2762a04f9cc2bcb0ed69515f8edc99ea49da7447a75256405d4ecbe87e361119",
+  "v02-pre-sunrise-previous-vara|-": "410bea4359dd2f9a81717325152c74ba328fd8dcb20042ed80f16a2b3c5cf8b4",
+  "v03-first-second-after-sunrise|-": "37b54f5d442272e67d2c1e3a46daec1054246b1bc02027780eb5110ccae08739",
+  "v04-last-second-before-sunrise|-": "1e4bc04b0524ddd8e26b74bcdff9c1796f989edd01ec74d66b3f3e6931715049",
+  "v05-inside-band-after|-": "dfdba8857b0be3f9d421065a8614aa13e2bf1923fa2de10b3cc5d757b1e12343",
+  "v06-outside-band-after|-": "ae82918dc4c4da473ad8e50ddf1ecafb03f013f42fc741c25431df64e7c75a65",
+  "v07-london-clocks-forward|-": "f5b1f95a621b792f1ce31272e4558297f6f22eac3db2d177ed750f3cbf6ec5e9",
+  "v08-london-repeated-hour|-": "01e6849562cd81035f2a4b419381cad45a547842819f6fc92c82e2dfca848fea",
+  "v09-dateline-kiritimati|-": "adc4da35a4e55c8c1cfdfaafa483ab8cffbf3602067dbed1bdacb9d8e3cf13b8",
+  "v10-polar-day-unavailable|-": "ab4175ce52000ff84468422db477620adcba87ed8b08386b13395fab013fc469",
+  "v11-vara-day-end-undefined|-": "bebc88e69ad797b8682ab08759ad0fa937d2da35b054f9c434ba8c81cb7f3f73",
+  "v12-sunset-after-midnight|-": "4008cd400a74fe38d91157912a31085ed0a59ffa115a356b9f454c6f7f8bd7d9",
+  "s07-noon|Asha Verma": "267cd21ae42e4f2076b12d33cfded71d4a12e531ec51a91bef74d206bd6e6187"
+ }
+}

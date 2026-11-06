@@ -1443,11 +1443,13 @@ def generate_extended(response: dict, panchanga: dict, synthetic: bool = False, 
 
 def render(response: dict, synthetic: bool = False, palette: str | None = None,
            display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE, *, panchanga=None,
-           panchanga_names=None, vara=None):
+           panchanga_names=None, vara=None, catalog_overlay=None):
     """generate() plus an audit of where chart labels were drawn, for the report tests.
 
     panchanga=None (the default) renders the standard ten-page edition exactly as before.
-    A `sabpuja-panchanga/1` document renders the extended edition instead."""
+    A `sabpuja-panchanga/1` document renders the extended edition instead.
+    catalog_overlay=None (the default) changes nothing; report.phase1.essentials passes its own
+    validated English sentences for the frozen Essentials edition (KUN-RC-ESS-001)."""
     locale = loc.validate_locale(locale)
     if display_name is not None and names.normalize(display_name) != display_name:
         raise ValueError('report name must be validated and normalized before rendering')
@@ -1458,12 +1460,16 @@ def render(response: dict, synthetic: bool = False, palette: str | None = None,
         raise ValueError('Panchanga names need the extended edition')
     if vara is not None and panchanga is None:
         raise ValueError('The sunrise and Vara page needs the extended edition')
+    if catalog_overlay is not None and panchanga is None:
+        raise ValueError('A catalog overlay needs the extended edition')
     if panchanga is not None:
         try:
             from . import panchanga_report
         except ImportError:  # loaded by path or run as a script
             import panchanga_report
         extra = {} if vara is None else {'vara': copy.deepcopy(vara)}
+        if catalog_overlay is not None:
+            extra['overlay'] = copy.deepcopy(catalog_overlay)
         extension = panchanga_report.Extension(response, copy.deepcopy(panchanga), locale,
                                                    names=panchanga_names, **extra)
     pal = Palette(palette or THEMES['default_palette'])
