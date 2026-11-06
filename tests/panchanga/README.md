@@ -68,6 +68,8 @@ each must be caught.
 | `identity_v5.py` | v5 validator, overlay tree check and exact-commit check (`python -m tests.panchanga.identity_v5 --check`) |
 | `identity-manifest-v6.json` | PAN-QA-08 v6 (KUN-PAN-RPT-001): the 2 modified and 18 added report paths of the extended Panchanga edition (previous and new SHA-256, git blobs), bound to v1 to v5 by SHA-256 and to main `07da75e` |
 | `identity_v6.py` | v6 validator, overlay tree check and exact-commit check (`python -m tests.panchanga.identity_v6 --check`) |
+| `identity-manifest-v7.json` | PAN-QA-08 v7 (KUN-PAN-M2-NAMES-001): the 2 modified and 5 added report paths of the Panchanga names QA preview, bound to v1 to v6 by SHA-256 and to `f26dd10` (draft PR #79) |
+| `identity_v7.py` | v7 validator, overlay tree check and exact-commit check (`python -m tests.panchanga.identity_v7 --check`) |
 | `run.py` | Full numerical gate run, JSON and Markdown report; exit 0 PASS, 1 FAIL, 2 BLOCKED |
 
 ## Reproduce
@@ -169,3 +171,14 @@ packet inventory and the frozen part of the decision record are carried over unc
 stay free as in v5. No engine, Panchanga M1, data, preview or catalog path is declared.
 `07da75e..HEAD` restricted to the v1 scope, the declared paths and the packet must equal the v6 declaration,
 and `07da75e` itself must satisfy v5. `test_pan_qa08_identity_v6.py` seeds the v6 defects.
+
+### v7 (KUN-PAN-M2-NAMES-001)
+
+Issue #80 adds source-checked Tithi, Karana and Yoga names, drawn only in an internal QA preview; the
+ten-page report and the default 13-page edition stay byte-identical. `identity-manifest-v7.json` (pinned in
+`identity_v7.py`) declares the two v6 report files it changes (`panchanga_report.py`, `premium_report.py`)
+and the five files it adds (the names catalog and module, the pinned f26dd10 13-page hashes, the tests and
+the crosswalk tool). No catalog, engine, Panchanga M1, data or preview path is declared. `f26dd10..HEAD`
+restricted to the v1 scope, the declared paths and the packet must equal the v7 declaration, and `f26dd10`
+itself must satisfy v6, which is now proved on that exact tree. `test_pan_qa08_identity_v7.py` seeds the v7
+defects.

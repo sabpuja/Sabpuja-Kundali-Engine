@@ -28,6 +28,7 @@ STD_CAT = "report/phase1/report_i18n.json"
 UI = "prototype/kundali_prototype/static/i18n.json"
 ENGINE = "src/sabpuja_kundali/provenance.py"   # a v1-pinned engine file
 M1_PREFIX = "src/sabpuja_kundali/panchanga/"   # exempt from the v1 listing since PR #68 (see below)
+TREE = "f26dd10829200e34fa6290bf19a5cebd44ced6a1"   # draft PR #79 head after independent QA: the v6 tree
 
 
 def _committed():
@@ -95,17 +96,20 @@ class ManifestStructureTest(unittest.TestCase):
 
 
 class TreeVerificationTest(unittest.TestCase):
-    """The v1 to v5 + v6 check on a private copy of the committed HEAD tree."""
+    """The v1 to v5 + v6 check on a private copy of the v6 tree (f26dd10).
+
+    Before KUN-PAN-M2-NAMES-001 this copied HEAD. HEAD now carries the v7 overlay, which v6 alone must reject
+    (test_v7_tree_is_rejected_by_v6_alone); the working tree is checked through v7."""
 
     @classmethod
     def setUpClass(cls):
         cls.v1, cls.v2, cls.v3, cls.v4, cls.v5, _, _, cls.v6 = _committed()
-        out = subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", "HEAD"],
+        out = subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", TREE],
                              capture_output=True, check=True).stdout
         prior = iv6.v5_expectations(cls.v1, cls.v2, cls.v3, cls.v4, cls.v5)
         cls.paths = [p for p in out.decode().split("\0")
                      if p and (iv2.in_scope(p) or p in prior or p.startswith(iv6.PACKET_PREFIX))]
-        cls.blobs = iv2.Git(REPO).blobs("HEAD", cls.paths)
+        cls.blobs = iv2.Git(REPO).blobs(TREE, cls.paths)
         cls.base = iv2.Git(REPO).blobs(iv6.BASE_COMMIT, list(iv6.AUTHORIZED_MODIFIED))
 
     def setUp(self):
@@ -171,6 +175,20 @@ class TreeVerificationTest(unittest.TestCase):
         (self.tmp / q).write_text("x")
         self.refused(f"undeclared file in the editorial packet: {q}")
 
+    def test_v7_tree_is_rejected_by_v6_alone(self):
+        """The KUN-PAN-M2-NAMES-001 report files on top of the v6 tree fail v6 (they are declared only in v7)."""
+        from . import identity_v7 as iv7
+        head = iv2.Git(REPO).blobs("HEAD", list(iv7.AUTHORIZED_MODIFIED) + list(iv7.AUTHORIZED_ADDED))
+        for p, data in head.items():
+            (self.tmp / p).parent.mkdir(parents=True, exist_ok=True)
+            (self.tmp / p).write_bytes(data)
+        with self.assertRaises(IdentityError) as ctx:
+            self.verify()
+        for p in iv7.AUTHORIZED_MODIFIED:
+            self.assertIn(f"unexpected hash (declared v6 modified): {p}", str(ctx.exception))
+        for p in iv7.AUTHORIZED_ADDED:
+            self.assertIn(f"undeclared file in v1 scope: {p}", str(ctx.exception))
+
     def test_v5_alone_rejects_the_v6_tree(self):
         with self.assertRaises(IdentityError) as ctx:
             iv5.verify_tree(self.tmp, self.v1, self.v2, self.v3, self.v4, self.v5)
@@ -189,11 +207,11 @@ class ExactCommitTest(unittest.TestCase):
         doc = copy.deepcopy(self.v6)
         doc["modified"][PREMIUM]["v6_git_blob"] = "1" * 40
         with self.assertRaisesRegex(IdentityError, f"v6 modified hash differs from the committed object: {PREMIUM}"):
-            iv6.verify_git_v6(*self.args(doc))
+            iv6.verify_git_v6(*self.args(doc), commit=TREE)
         doc = copy.deepcopy(self.v6)
         doc["added"][EXT]["sha256"] = "1" * 64
         with self.assertRaisesRegex(IdentityError, f"v6 added hash differs from the committed object: {EXT}"):
-            iv6.verify_git_v6(*self.args(doc))
+            iv6.verify_git_v6(*self.args(doc), commit=TREE)
 
     def test_main_itself_is_not_the_v6_tree(self):
         with self.assertRaisesRegex(IdentityError, "differs from the v6 declaration"):
@@ -206,7 +224,7 @@ class ExactCommitTest(unittest.TestCase):
     def test_engine_data_preview_and_panchanga_m1_are_byte_identical_to_main(self):
         """The Panchanga M1 package is exempt from the v1 listing (PR #68), so prove separately that
         KUN-PAN-RPT-001 changes nothing under src/, data/, preview/ or prototype/ relative to 07da75e."""
-        out = subprocess.run(["git", "-C", str(REPO), "diff", "--name-only", iv6.BASE_COMMIT, "HEAD", "--",
+        out = subprocess.run(["git", "-C", str(REPO), "diff", "--name-only", iv6.BASE_COMMIT, TREE, "--",
                               "src", "data", "preview", "prototype", "pyproject.toml", STD_CAT],
                              capture_output=True, check=True, text=True).stdout
         self.assertEqual(out, "")
