@@ -23,7 +23,7 @@ orders/cancelled, refunds/create ──▶ entitlement revoked, sessions ended (
 | One-time e-mail code | 6 digits from `secrets`, stored as HMAC, 10 min, single use, 5 wrong tries lock it, 60 s resend cooldown, 5 codes per order per day, per-client rate limit, identical response for every claim |
 | Secure session | 256-bit random token, stored as HMAC, `__Host-` cookie: `Secure; HttpOnly; SameSite=Strict`, exact Origin check, JSON only |
 | Private birth form | `static/`: same refusal rules as the prototype (exact time required, no guessed place/offset, repeated-hour choice) |
-| In-memory PDF | `renderer.EssentialsRenderer` → `report.phase1.essentials.render_for_form` (KUN-RC-ESS-001). Fails closed with 503 if that module is absent: it never falls back to a development edition |
+| In-memory PDF | `renderer.EssentialsRenderer` → `report.phase1.essentials.render_for_form` (KUN-RC-ESS-001). Fails closed with 503 if that module is absent or its `release_problems()` is non-empty (wording not yet owner-approved); it never falls back to a development edition. `allow_unreleased_edition: true` lifts the release gate for staging QA only |
 | Refund / revocation | Cancel and refund revoke and end sessions; a refund during rendering blocks the delivery; tombstones beat a late `orders/paid` |
 | Regeneration policy | `initial_generations=1`, `additional_generations=3`, `generation_window_days=30` from the first delivered PDF; configurable; stored per entitlement at purchase |
 | English-only paid output | `renderer.screen`: any `report_locale` other than `en`, or any `locale`, `names`, `panchanga_names`, `edition`, `palette`, `synthetic` key, is refused with 422 before rendering |
@@ -49,14 +49,13 @@ PYTHONPATH=src:prototype:.:commerce:commerce/tests SABPUJA_TEST_EPHE_PATH=$HOME/
 ```
 
 Without `SABPUJA_TEST_EPHE_PATH` the engine-backed tests in `test_end_to_end.py` are skipped; the handoff evidence is
-run with the pinned data and has no skips. `tests/helpers.PipelineRenderer` is a **QA-only** stand-in for the
-Essentials entry point that runs the real chart, Panchanga M1, Vara and 14-page English renderer; production code
-never calls it.
+run with the pinned data and has no skips. The end-to-end tests use the production `EssentialsRenderer` with the
+release gate off (`tests/helpers.essentials_renderer`); `ReleaseGate` checks that the default refuses with 503.
 
 ## Remaining external actions (each needs separate owner authorization)
 
-1. **Essentials entry point:** rebase onto KUN-RC-ESS-001 once it has a SHA, and switch the end-to-end tests from the
-   QA stand-in to `EssentialsRenderer`.
+1. **Essentials wording release:** the owner approves the Essentials replacement wording so that
+   `essentials.release_problems()` is empty; until then paid generation returns 503 by design.
 2. **Shopify (dev or unpublished staging store):** create the digital product (no shipping) and a custom app with
    `read_orders` (plus `write_fulfillments` if fulfilment is marked); subscribe `orders/paid`, `orders/cancelled`,
    `refunds/create`; put the webhook secret in a file. Add a "Prepare your Janam Kundali" link to the order status

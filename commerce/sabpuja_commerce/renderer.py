@@ -2,7 +2,9 @@
 
 Paid output always goes through the frozen Essentials entry point
 (`report.phase1.essentials.render_for_form`, KUN-RC-ESS-001). If that module is not present the
-service refuses to generate (503) instead of falling back to a development edition. The request
+service refuses to generate (503) instead of falling back to a development edition. It also refuses
+while `essentials.release_problems()` is non-empty (wording not yet owner-approved), unless staging QA
+explicitly sets `enforce_release=False` (`allow_unreleased_edition` in the settings). The request
 the customer sends is reduced to the four birth fields plus an optional display name; a language
 or Panchanga-names choice is refused outright, so Hindi and unapproved traditional names can not
 be requested on the paid route.
@@ -10,7 +12,6 @@ be requested on the paid route.
 from __future__ import annotations
 
 import importlib
-import json
 
 ALLOWED_KEYS = {"place_id", "birth_date", "birth_time", "utc_offset", "display_name"}
 FORBIDDEN_KEYS = {"report_locale", "locale", "names", "panchanga_names", "edition", "palette", "synthetic"}
@@ -45,8 +46,10 @@ def screen(body: object) -> dict:
 class EssentialsRenderer:
     """Calls the frozen Essentials pipeline. `module` is overridable for tests only."""
 
-    def __init__(self, places: dict, ephe_path: str, module: str = "report.phase1.essentials"):
+    def __init__(self, places: dict, ephe_path: str, module: str = "report.phase1.essentials",
+                 enforce_release: bool = True):
         self._places, self._ephe, self._module = places, ephe_path, module
+        self._enforce_release = enforce_release
 
     def _entry(self):
         try:
@@ -56,6 +59,10 @@ class EssentialsRenderer:
         fn = getattr(mod, "render_for_form", None)
         if fn is None or getattr(mod, "EDITION", None) != "janam-kundali-essentials-en/1":
             raise RendererUnavailable("essentials edition mismatch")
+        if self._enforce_release:
+            problems = getattr(mod, "release_problems", None)
+            if problems is None or problems():
+                raise RendererUnavailable("essentials edition not released for sale")
         return mod, fn
 
     def __call__(self, body: dict) -> bytes:
@@ -73,9 +80,9 @@ class EssentialsRenderer:
         try:
             pdf = fn(form, self._places, self._ephe, display_name=name)
         except Exception as exc:  # map the edition's typed refusals; anything else is a server fault
-            if refusal is not None and isinstance(exc, refusal):
+            if refusal is not None and isinstance(exc, refusal) and exc.status < 500:
                 raise InputRefused(exc.status, exc.code, exc.message, getattr(exc, "extra", None)) from None
-            raise
+            raise RuntimeError("essentials render failed") from None
         return check_pdf(pdf)
 
 
@@ -83,14 +90,3 @@ def check_pdf(pdf: bytes) -> bytes:
     if not isinstance(pdf, (bytes, bytearray)) or not pdf.startswith(b"%PDF-") or len(pdf) > MAX_PDF_BYTES:
         raise RuntimeError("controlled PDF check failed")
     return bytes(pdf)
-
-
-def chart_refusal(status: int, payload: dict) -> InputRefused:
-    """Turn the prototype's controlled error JSON into InputRefused (fixed codes and messages only)."""
-    err = payload.get("error", {})
-    extra = {"choices": err["choices"]} if "choices" in err else None
-    return InputRefused(status, str(err.get("code", "REQUEST_INVALID")), str(err.get("message", "")), extra)
-
-
-def dumps(body: dict) -> bytes:
-    return json.dumps(body, ensure_ascii=False).encode("utf-8")

@@ -1,7 +1,8 @@
 """Real engine, real HTTP on loopback: webhook -> code -> session -> 14-page English PDF.
 
 Needs SABPUJA_TEST_EPHE_PATH (the pinned .se1 directory), like the other engine-backed suites.
-Uses the QA-only PipelineRenderer until the frozen Essentials entry point (KUN-RC-ESS-001) lands.
+Uses the production EssentialsRenderer over report.phase1.essentials (KUN-RC-ESS-001), with the
+release gate off because the edition wording is not owner-approved yet; the gate itself is tested below.
 """
 import http.client
 import json
@@ -27,7 +28,7 @@ class Pipeline(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.places = _places()
-        cls.render = h.PipelineRenderer(cls.places, h.EPHE)
+        cls.render = h.essentials_renderer(cls.places)
 
     def setUp(self):
         self.h = h.Harness(render=self.render)
@@ -47,6 +48,8 @@ class Pipeline(unittest.TestCase):
         self.assertGreater(len(text), 2000)                 # real text, not images: searchable/screen-readable
         self.assertIsNone(DEVANAGARI.search(text))
         self.assertIn("Swiss Ephemeris", text)
+        for development_line in ("not for customers", "ENGINEERING_UNVERIFIED", "Development preview"):
+            self.assertNotIn(development_line, text)
         for page in doc:
             fonts = page.get_fonts()
             self.assertTrue(fonts)
@@ -89,7 +92,7 @@ class OverHttp(unittest.TestCase):
         cls.s = h.settings(public_origin="https://kundali.synthetic.invalid")
         cls.store = Store(":memory:", cls.s.pepper, clock=cls.clock)
         cls.mail = mailer.MockMailer()
-        cls.app = app_mod.App(cls.s, cls.store, cls.mail, h.PipelineRenderer(cls.places, h.EPHE), cls.places,
+        cls.app = app_mod.App(cls.s, cls.store, cls.mail, h.essentials_renderer(cls.places), cls.places,
                               async_mail=False)
         cls.httpd = server.serve(cls.app, 0)
         cls.port = cls.httpd.server_address[1]
@@ -155,17 +158,48 @@ class OverHttp(unittest.TestCase):
         self.assertNotIn(b"1990", data)
 
 
+@needs_data
+class ReleaseGate(unittest.TestCase):
+    def test_refuses_until_wording_released(self):
+        from report.phase1 import essentials
+        self.assertTrue(essentials.release_problems())          # wording not yet owner-approved
+        hh = h.Harness(render=renderer.EssentialsRenderer(_places(), h.EPHE))   # production default
+        hh.paid()
+        cookie = hh.login()
+        resp = hh.generate(cookie)
+        self.assertEqual((resp.status, resp.json()["error"]["code"]), (503, "REPORT_UNAVAILABLE"))
+        self.assertEqual(hh.store.order_status(h.SHOP, 5001)["remaining"], 4)
+
+    def test_repeated_hour_choices_pass_through(self):
+        r = h.essentials_renderer({k: v for k, v in __import__("kundali_prototype.places", fromlist=["x"])
+                                   .load_places().items()})
+        with self.assertRaises(renderer.InputRefused) as ctx:
+            r({"place_id": "gb-london", "birth_date": "2020-10-25", "birth_time": "01:30:00"})
+        self.assertEqual(ctx.exception.code, "TIME_AMBIGUOUS_LOCAL")
+        self.assertEqual(len(ctx.exception.extra["choices"]), 2)
+
+    def test_server_fault_is_not_an_input_refusal(self):
+        from report.phase1 import essentials
+        orig = essentials.generate
+        essentials.generate = lambda *a, **k: (_ for _ in ()).throw(ValueError("x"))
+        try:
+            with self.assertRaises(RuntimeError):
+                h.essentials_renderer(_places())(dict(h.BIRTH))
+        finally:
+            essentials.generate = orig
+
+
 class Isolation(unittest.TestCase):
     def test_only_loopback(self):
         self.assertEqual(server.HOST, "127.0.0.1")
 
-    def test_pipeline_renderer_is_test_only(self):
+    def test_paid_path_only_uses_essentials(self):
         import sabpuja_commerce
         import pathlib
         src = "".join(p.read_text() for p in pathlib.Path(sabpuja_commerce.__file__).parent.glob("*.py"))
-        self.assertNotIn("generate_extended", src)
-        self.assertNotIn("PipelineRenderer", src)
-        self.assertIn("report.phase1.essentials", renderer.__doc__ + src)
+        for other in ("generate_extended", "premium_report", "handle_report"):
+            self.assertNotIn(other, src)
+        self.assertIn('"report.phase1.essentials"', src)
 
 
 if __name__ == "__main__":

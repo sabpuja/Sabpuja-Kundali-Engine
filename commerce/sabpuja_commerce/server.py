@@ -113,7 +113,8 @@ def main(argv=None) -> int:
         mail = mailer.MockMailer()
     store = Store(settings.db_path, settings.pepper)
     verifier = shopify.AdminOrderVerifier(settings) if settings.verify_orders_with_admin_api else None
-    app = App(settings, store, mail, renderer.EssentialsRenderer(places, settings.ephe_path), places,
+    app = App(settings, store, mail, renderer.EssentialsRenderer(
+        places, settings.ephe_path, enforce_release=not settings.allow_unreleased_edition), places,
               verifier=verifier, public_places=lambda: [pl.public_place(places[k]) | {"id": k}
                                                          for k in places])
     httpd = serve(app, args.port)

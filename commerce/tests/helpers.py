@@ -136,38 +136,7 @@ class Harness:
         return resp
 
 
-class PipelineRenderer:
-    """QA-only stand-in for the frozen Essentials entry point, built from the current stack.
-
-    Runs the real chart handler, Panchanga M1 and Vara calculations and the 14-page English
-    renderer (synthetic=False, names off) entirely in memory. It exists so the commerce flow is
-    exercised end to end against the real engine before KUN-RC-ESS-001 lands. Production code
-    only calls renderer.EssentialsRenderer.
-    """
-
-    def __init__(self, places: dict, ephe: str):
-        self.places, self.ephe = places, ephe
-
-    def __call__(self, body: dict) -> bytes:
-        from kundali_prototype import server
-        from report.phase1 import premium_report
-        from sabpuja_kundali.panchanga import contract as panchanga, vara
-        body = renderer.screen(body)
-        name = body.pop("display_name", None)
-        if name is not None:
-            from report.phase1.display_name import DisplayNameError, normalize
-            try:
-                name = normalize(name)
-            except DisplayNameError as exc:
-                raise renderer.InputRefused(exc.status, exc.code, exc.message) from None
-        status, response = server.handle_chart(renderer.dumps(body), self.places, self.ephe)
-        if status != 200:
-            raise renderer.chart_refusal(status, response)
-        info, place = response["input"], response["input"]["place"]
-        request = {"birth_datetime": f"{info['local_date']}T{info['local_time']}{info['utc_offset']}",
-                   "timezone": place["timezone"], "latitude": place["latitude"], "longitude": place["longitude"]}
-        opts = {} if name is None else {"display_name": name}
-        pdf = premium_report.generate_extended(response, panchanga.calculate(request, self.ephe), synthetic=False,
-                                               palette="baseline", locale="en", names=None,
-                                               vara=vara.calculate(request, self.ephe), **opts)
-        return renderer.check_pdf(pdf)
+def essentials_renderer(places: dict) -> renderer.EssentialsRenderer:
+    """The production renderer over the frozen Essentials edition. Release gating is off here only because
+    the edition's wording is not owner-approved yet; test_end_to_end separately checks the gate is on by default."""
+    return renderer.EssentialsRenderer(places, EPHE, enforce_release=False)

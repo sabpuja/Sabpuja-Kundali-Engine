@@ -34,6 +34,7 @@ class Settings:
     public_origin: str                 # exact browser Origin, e.g. https://kundali.example
     ephe_path: str = ""
     allow_test_orders: bool = False    # Shopify `test: true` orders; staging only
+    allow_unreleased_edition: bool = False  # staging QA only: render before the wording is owner-approved
     # Regeneration policy (owner proposal 2026-11-06, not commercially final): 1 + 3 within 30 days.
     initial_generations: int = 1
     additional_generations: int = 3
