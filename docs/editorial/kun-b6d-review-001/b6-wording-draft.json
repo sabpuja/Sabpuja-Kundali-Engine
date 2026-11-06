@@ -1,0 +1,229 @@
+{
+  "catalog": "sabpuja-b6-birth-time-disclosure-draft",
+  "catalog_version": 1,
+  "status": "DEVELOPER RECOMMENDATION ONLY. Written by Claude (developer). Not reviewed by any human Hindi editor or Jyotish reviewer. Not owner-approved. Must not be loaded by any renderer or interface.",
+  "policy": "SCI-06 (OWNER APPROVED / CANONICAL per PR #64 adoption receipt 6598563378): window W = 2 minutes, either direction, for Lagna Rashi, Lagna Navamsa, Moon Rashi, Moon Navamsa, Moon Nakshatra and Moon Pada; classifications unchanged; plus a near-exact-boundary note; optional expanded premium appendix.",
+  "placeholder_syntax": "Python str.format named fields, as in report/phase1/report_i18n.json. Every value is inserted already localised from the existing catalog terms (Rashi, Nakshatra) or from the offset/item keys below. No free text is ever inserted.",
+  "strings": {
+    "label.note": {
+      "en": "Birth-time note",
+      "hi": "जन्म समय टिप्पणी"
+    },
+    "label.boundary": {
+      "en": "Boundary note",
+      "hi": "सीमा टिप्पणी"
+    },
+    "label.more": {
+      "en": "What does this mean?",
+      "hi": "इसका क्या अर्थ है?"
+    },
+    "tag.note.pdf": {
+      "en": "Birth-time note · p. {page}",
+      "hi": "जन्म समय टिप्पणी · पृ. {page}"
+    },
+    "tag.boundary.pdf": {
+      "en": "Boundary note · p. {page}",
+      "hi": "सीमा टिप्पणी · पृ. {page}"
+    },
+    "offset.later.lt1": {
+      "en": "less than a minute later",
+      "hi": "एक मिनट से भी कम समय बाद का"
+    },
+    "offset.later.m1": {
+      "en": "about 1 minute later",
+      "hi": "लगभग 1 मिनट बाद का"
+    },
+    "offset.later.m2": {
+      "en": "about 2 minutes later",
+      "hi": "लगभग 2 मिनट बाद का"
+    },
+    "offset.earlier.lt1": {
+      "en": "less than a minute earlier",
+      "hi": "एक मिनट से भी कम समय पहले का"
+    },
+    "offset.earlier.m1": {
+      "en": "about 1 minute earlier",
+      "hi": "लगभग 1 मिनट पहले का"
+    },
+    "offset.earlier.m2": {
+      "en": "about 2 minutes earlier",
+      "hi": "लगभग 2 मिनट पहले का"
+    },
+    "note.lagna_rashi.one": {
+      "en": "For the time entered, your Lagna is {from_rashi}. If the actual birth time were {offset} than the time entered, the Lagna would be {to_rashi}. Houses are counted from the Lagna, so every house in the D1 and D9 charts would then have a different Rashi.",
+      "hi": "दर्ज समय के अनुसार आपका लग्न {from_rashi} है। यदि वास्तविक जन्म समय दर्ज समय के {offset} हो, तो लग्न {to_rashi} होगा। भाव लग्न से गिने जाते हैं, इसलिए तब D1 और D9 दोनों कुंडलियों के हर भाव की राशि बदल जाएगी।"
+    },
+    "note.lagna_rashi.both": {
+      "en": "For the time entered, your Lagna is {from_rashi}. It would be {to_rashi_earlier} if the actual birth time were {offset_earlier} than the time entered, or {to_rashi_later} if it were {offset_later}. Houses are counted from the Lagna, so either change would give every house in the D1 and D9 charts a different Rashi.",
+      "hi": "दर्ज समय के अनुसार आपका लग्न {from_rashi} है। यदि वास्तविक जन्म समय दर्ज समय के {offset_earlier} हो, तो लग्न {to_rashi_earlier} होगा, और यदि {offset_later} हो, तो {to_rashi_later}। भाव लग्न से गिने जाते हैं, इसलिए इनमें से किसी भी बदलाव पर D1 और D9 दोनों कुंडलियों के हर भाव की राशि बदल जाएगी।"
+    },
+    "note.lagna_navamsa.one": {
+      "en": "For the time entered, your D9 Lagna is {from_rashi}. If the actual birth time were {offset} than the time entered, the D9 Lagna would be {to_rashi}. Houses in the D9 chart are counted from the D9 Lagna, so each of them would then have a different Rashi.",
+      "hi": "दर्ज समय के अनुसार आपका D9 लग्न {from_rashi} है। यदि वास्तविक जन्म समय दर्ज समय के {offset} हो, तो D9 लग्न {to_rashi} होगा। D9 कुंडली के भाव D9 लग्न से गिने जाते हैं, इसलिए तब उसके हर भाव की राशि बदल जाएगी।"
+    },
+    "note.lagna_navamsa.both": {
+      "en": "For the time entered, your D9 Lagna is {from_rashi}. It would be {to_rashi_earlier} if the actual birth time were {offset_earlier} than the time entered, or {to_rashi_later} if it were {offset_later}. Houses in the D9 chart are counted from the D9 Lagna, so either change would give each of them a different Rashi.",
+      "hi": "दर्ज समय के अनुसार आपका D9 लग्न {from_rashi} है। यदि वास्तविक जन्म समय दर्ज समय के {offset_earlier} हो, तो D9 लग्न {to_rashi_earlier} होगा, और यदि {offset_later} हो, तो {to_rashi_later}। D9 कुंडली के भाव D9 लग्न से गिने जाते हैं, इसलिए इनमें से किसी भी बदलाव पर उसके हर भाव की राशि बदल जाएगी।"
+    },
+    "note.lagna_navamsa.multiple": {
+      "en": "For the time entered, your D9 Lagna is {from_rashi}. At this birthplace the Lagna is moving quickly at this time, and the D9 Lagna changes more than once between 2 minutes before and 2 minutes after the time entered.",
+      "hi": "दर्ज समय के अनुसार आपका D9 लग्न {from_rashi} है। इस जन्म स्थान पर इस समय लग्न तेज़ी से आगे बढ़ रहा है, और दर्ज समय से 2 मिनट पहले से 2 मिनट बाद तक के बीच D9 लग्न एक से अधिक बार बदलता है।"
+    },
+    "note.moon_rashi.one": {
+      "en": "For the time entered, the Moon is in {from_rashi}. If the actual birth time were {offset} than the time entered, the Moon would be in {to_rashi}.",
+      "hi": "दर्ज समय के अनुसार चंद्र {from_rashi} राशि में है। यदि वास्तविक जन्म समय दर्ज समय के {offset} हो, तो चंद्र {to_rashi} राशि में होगा।"
+    },
+    "note.moon_navamsa.one": {
+      "en": "For the time entered, the Moon's D9 Rashi is {from_rashi}. If the actual birth time were {offset} than the time entered, it would be {to_rashi}.",
+      "hi": "दर्ज समय के अनुसार चंद्र की D9 राशि {from_rashi} है। यदि वास्तविक जन्म समय दर्ज समय के {offset} हो, तो यह {to_rashi} होगी।"
+    },
+    "note.moon_nakshatra.change": {
+      "en": "For the time entered, the Moon is in {from_nakshatra} Nakshatra, Pada {from_pada}. If the actual birth time were {offset} than the time entered, the Moon would be in {to_nakshatra} Nakshatra, Pada {to_pada}.",
+      "hi": "दर्ज समय के अनुसार चंद्र {from_nakshatra} नक्षत्र के चरण {from_pada} में है। यदि वास्तविक जन्म समय दर्ज समय के {offset} हो, तो चंद्र {to_nakshatra} नक्षत्र के चरण {to_pada} में होगा।"
+    },
+    "note.moon_pada.change": {
+      "en": "For the time entered, the Moon is in {nakshatra} Nakshatra, Pada {from_pada}. If the actual birth time were {offset} than the time entered, the Moon would be in Pada {to_pada} of the same Nakshatra.",
+      "hi": "दर्ज समय के अनुसार चंद्र {nakshatra} नक्षत्र के चरण {from_pada} में है। यदि वास्तविक जन्म समय दर्ज समय के {offset} हो, तो चंद्र इसी नक्षत्र के चरण {to_pada} में होगा।"
+    },
+    "boundary.rashi": {
+      "en": "At the time entered, the {body} is at the boundary between {rashi_before} and {rashi_after}. A difference of less than one second in birth time decides which side it falls on. It is shown in {shown}, the Rashi it occupies at the time entered.",
+      "hi": "दर्ज समय पर {body} {rashi_before} और {rashi_after} राशियों की सीमा पर है। जन्म समय में एक सेकंड से भी कम का अंतर तय करता है कि यह सीमा के किस ओर होगा। इसे {shown} में दिखाया गया है, क्योंकि दर्ज समय पर यह उसी राशि में है।"
+    },
+    "boundary.navamsa": {
+      "en": "At the time entered, the {body} is at the boundary between two Navamsas, D9 {rashi_before} and D9 {rashi_after}. A difference of less than one second in birth time decides which side it falls on. It is shown in D9 {shown}, the Navamsa it occupies at the time entered.",
+      "hi": "दर्ज समय पर {body} दो नवांशों, D9 {rashi_before} और D9 {rashi_after}, की सीमा पर है। जन्म समय में एक सेकंड से भी कम का अंतर तय करता है कि यह सीमा के किस ओर होगा। इसे D9 {shown} में दिखाया गया है, क्योंकि दर्ज समय पर यह उसी नवांश में है।"
+    },
+    "boundary.nakshatra_pada": {
+      "en": "At the time entered, the Moon is at the boundary between {nakshatra_before} Nakshatra, Pada {pada_before} and {nakshatra_after} Nakshatra, Pada {pada_after}. A difference of less than one second in birth time decides which side it falls on. It is shown in {shown_nakshatra} Nakshatra, Pada {shown_pada}, where it is at the time entered.",
+      "hi": "दर्ज समय पर चंद्र {nakshatra_before} नक्षत्र के चरण {pada_before} और {nakshatra_after} नक्षत्र के चरण {pada_after} की सीमा पर है। जन्म समय में एक सेकंड से भी कम का अंतर तय करता है कि यह सीमा के किस ओर होगा। इसे {shown_nakshatra} नक्षत्र के चरण {shown_pada} में दिखाया गया है, क्योंकि दर्ज समय पर यह वहीं है।"
+    },
+    "boundary.convention": {
+      "en": "By the convention used in this report, a position exactly at a boundary is counted in the division that begins there.",
+      "hi": "इस रिपोर्ट की परिपाटी के अनुसार, ठीक सीमा पर स्थित स्थिति को उस भाग में गिना जाता है जो वहीं से आरंभ होता है।"
+    },
+    "boundary.rounding": {
+      "en": "The printed longitude is rounded, so it can appear to be exactly on the boundary. The classification uses the unrounded value.",
+      "hi": "छपा हुआ भोगांश पूर्णांकित है, इसलिए वह ठीक सीमा पर दिख सकता है। वर्गीकरण बिना पूर्णांकन वाले मान से किया जाता है।"
+    },
+    "body.lagna": {
+      "en": "Lagna",
+      "hi": "लग्न"
+    },
+    "body.moon": {
+      "en": "Moon",
+      "hi": "चंद्र"
+    },
+    "item.lagna_rashi": {
+      "en": "Lagna",
+      "hi": "लग्न"
+    },
+    "item.lagna_navamsa": {
+      "en": "D9 Lagna",
+      "hi": "D9 लग्न"
+    },
+    "item.moon_rashi": {
+      "en": "Moon Rashi",
+      "hi": "चंद्र राशि"
+    },
+    "item.moon_navamsa": {
+      "en": "Moon D9 Rashi",
+      "hi": "चंद्र की D9 राशि"
+    },
+    "item.moon_nakshatra": {
+      "en": "Moon Nakshatra and Pada",
+      "hi": "चंद्र नक्षत्र और चरण"
+    },
+    "item.moon_pada": {
+      "en": "Moon Pada",
+      "hi": "चंद्र का चरण"
+    },
+    "list.join": {
+      "en": ", ",
+      "hi": ", "
+    },
+    "list.join_last": {
+      "en": " and ",
+      "hi": " और "
+    },
+    "summary.body": {
+      "en": "Some placements in this chart would be different if the actual birth time were up to 2 minutes earlier or later than the time entered: {item_list}. Each one is marked where it appears. The chart itself is calculated for the time entered.",
+      "hi": "यदि वास्तविक जन्म समय दर्ज समय से 2 मिनट तक पहले या बाद का हो, तो इस कुंडली की कुछ स्थितियाँ अलग होंगी: {item_list}। हर ऐसी स्थिति के पास टिप्पणी दी गई है। कुंडली की गणना दर्ज समय के लिए ही की गई है।"
+    },
+    "summary.record": {
+      "en": "A recorded birth time is usually given to the minute, and is sometimes approximate. If you have an official birth record, you can compare its time with the time shown here.",
+      "hi": "दर्ज जन्म समय प्रायः मिनट तक ही लिखा होता है, और कभी-कभी अनुमानित होता है। यदि आपके पास जन्म का आधिकारिक रिकॉर्ड है, तो उसमें लिखे समय को यहाँ दिखाए गए समय से मिला सकते हैं।"
+    },
+    "appendix.title": {
+      "en": "Birth time and this chart",
+      "hi": "जन्म समय और यह कुंडली"
+    },
+    "appendix.p1": {
+      "en": "This chart is calculated for the birth time you entered. Some parts of a Kundali change faster than others. On average the Lagna moves into the next Rashi about every two hours and into the next Navamsa about every 13 minutes; the actual pace depends on the Rashi and the birthplace. The Moon moves more slowly: its Pada changes roughly every six hours and its Nakshatra roughly once a day.",
+      "hi": "यह कुंडली आपके द्वारा दर्ज जन्म समय के लिए गणना की गई है। कुंडली के कुछ भाग दूसरों की तुलना में जल्दी बदलते हैं। लग्न औसतन लगभग हर दो घंटे में अगली राशि में और लगभग हर 13 मिनट में अगले नवांश में जाता है; वास्तविक गति राशि और जन्म स्थान पर निर्भर करती है। चंद्र इससे धीरे चलता है: उसका चरण लगभग हर छह घंटे में और नक्षत्र लगभग दिन में एक बार बदलता है।"
+    },
+    "appendix.p2": {
+      "en": "The placements listed below would be different if the actual birth time were up to 2 minutes earlier or later than the time entered. This is not a correction, and it is not a measure of calculation accuracy. It shows how closely these placements depend on the birth time.",
+      "hi": "यदि वास्तविक जन्म समय दर्ज समय से 2 मिनट तक पहले या बाद का हो, तो नीचे दी गई स्थितियाँ अलग होंगी। यह कोई सुधार नहीं है, और न ही गणना की सटीकता का माप है। यह केवल दिखाता है कि ये स्थितियाँ जन्म समय पर कितनी बारीकी से निर्भर हैं।"
+    },
+    "appendix.col.placement": {
+      "en": "Placement",
+      "hi": "स्थिति"
+    },
+    "appendix.col.entered": {
+      "en": "For the time entered",
+      "hi": "दर्ज समय के अनुसार"
+    },
+    "appendix.col.alternative": {
+      "en": "Would become",
+      "hi": "बदलकर होगी"
+    },
+    "appendix.col.when": {
+      "en": "If the actual birth time were",
+      "hi": "यदि वास्तविक जन्म समय हो"
+    },
+    "appendix.cell.boundary": {
+      "en": "at the boundary (less than one second)",
+      "hi": "सीमा पर (एक सेकंड से भी कम)"
+    },
+    "appendix.cell.multiple": {
+      "en": "changes more than once within 2 minutes",
+      "hi": "2 मिनट के भीतर एक से अधिक बार बदलता है"
+    },
+    "appendix.p3": {
+      "en": "The 2-minute range is a fixed reporting rule applied to every chart. It does not mean that your recorded birth time is wrong. A recorded birth time is usually given to the minute, and is sometimes approximate. If you have an official birth record, you can compare its time with the time on {birth_details_ref}. Nothing in this section changes the placements shown in the rest of this report.",
+      "hi": "2 मिनट की यह सीमा हर कुंडली पर लागू होने वाला एक निश्चित नियम है। इसका अर्थ यह नहीं है कि आपका दर्ज जन्म समय गलत है। दर्ज जन्म समय प्रायः मिनट तक ही लिखा होता है, और कभी-कभी अनुमानित होता है। यदि आपके पास जन्म का आधिकारिक रिकॉर्ड है, तो उसमें लिखे समय को {birth_details_ref} पर दिए समय से मिला सकते हैं। इस खंड से इस रिपोर्ट के बाकी भागों में दिखाई गई कोई भी स्थिति नहीं बदलती।"
+    },
+    "appendix.p4_boundary": {
+      "en": "A placement marked as a boundary case is less than one second of birth time away from a boundary. It is shown in the division it occupies at the time entered. By the convention used in this report, a position exactly at a boundary is counted in the division that begins there.",
+      "hi": "सीमा वाली स्थिति के रूप में चिह्नित स्थिति, जन्म समय के हिसाब से, किसी सीमा से एक सेकंड से भी कम दूर है। इसे उसी भाग में दिखाया गया है जिसमें यह दर्ज समय पर है। इस रिपोर्ट की परिपाटी के अनुसार, ठीक सीमा पर स्थित स्थिति को उस भाग में गिना जाता है जो वहीं से आरंभ होता है।"
+    },
+    "appendix.p5_scope": {
+      "en": "The positions themselves are calculated with Swiss Ephemeris and checked by the engine's own conformance tests. The validation status of those calculations is stated on {method_ref}.",
+      "hi": "ग्रह स्थितियाँ स्वयं Swiss Ephemeris से गणना की जाती हैं और इंजन के अपने अनुरूपता परीक्षणों द्वारा जाँची जाती हैं। इन गणनाओं की सत्यापन स्थिति {method_ref} पर बताई गई है।"
+    },
+    "ref.birth_details.pdf": {
+      "en": "page {page}",
+      "hi": "पृष्ठ {page}"
+    },
+    "ref.birth_details.web": {
+      "en": "Confirmed birth details",
+      "hi": "पुष्टि किया गया जन्म विवरण"
+    },
+    "ref.method.pdf": {
+      "en": "page {page}",
+      "hi": "पृष्ठ {page}"
+    },
+    "ref.method.web": {
+      "en": "Method and transparency",
+      "hi": "गणना पद्धति और पारदर्शिता"
+    },
+    "method.row.label": {
+      "en": "Birth-time notes",
+      "hi": "जन्म समय टिप्पणियाँ"
+    },
+    "method.row.value": {
+      "en": "Shown when the Lagna, the D9 Lagna, or the Moon's Rashi, D9 Rashi, Nakshatra or Pada would change within 2 minutes before or after the time entered. Every placement is calculated for the time entered.",
+      "hi": "तब दिखाई जाती हैं जब दर्ज समय से 2 मिनट पहले या बाद तक के भीतर लग्न, D9 लग्न, या चंद्र की राशि, D9 राशि, नक्षत्र या चरण बदलता हो। हर स्थिति की गणना दर्ज समय के लिए ही की जाती है।"
+    }
+  }
+}
