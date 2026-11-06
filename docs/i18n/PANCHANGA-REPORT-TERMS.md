@@ -22,6 +22,11 @@ spellings from SOURCE-REGISTER.md section 2 and the IMD candidates) appears in t
 Panchanga pages. Adopting names needs a primary-source name table and a separate owner decision
 (the open remainder of PAN-D07 / PAN-D16).
 
+KUN-PAN-M2-NAMES-001 adds the source-checked names in a separate catalog,
+`report/phase1/panchanga_names.json`, shown only in an internal QA preview
+(`names='qa_preview'`). This catalog and the default 13-page output are unchanged. See
+`PANCHANGA-NAMES-REVIEW.md` and `PANCHANGA-NAMES-CROSSWALK.md`.
+
 ## Terms and the documented sources checked (accessed 2026-11-05)
 
 | Concept | English | Hindi | Checked against |

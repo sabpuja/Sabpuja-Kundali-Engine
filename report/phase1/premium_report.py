@@ -1415,15 +1415,21 @@ def generate(response: dict, synthetic: bool = False, palette: str | None = None
 
 
 def generate_extended(response: dict, panchanga: dict, synthetic: bool = False, palette: str | None = None,
-                      display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE) -> bytes:
+                      display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE,
+                      names: str | None = None) -> bytes:
     """The extended edition (KUN-PAN-RPT-001): the ten pages plus the birth-instant Panchanga
     pages. `panchanga` must be the `sabpuja-panchanga/1` document computed for the same request
-    as `response`; any mismatch, unsupported value or unaudited field raises before drawing."""
-    return render(response, synthetic, palette, display_name, locale, panchanga=panchanga)[0]
+    as `response`; any mismatch, unsupported value or unaudited field raises before drawing.
+
+    names=None (the default) keeps the numeric M1 display byte for byte. names='qa_preview' draws
+    Tithi, Karana and Yoga names for internal QA only, marked as not for customers;
+    names='customer' is refused until panchanga_names.release_problems() is empty
+    (KUN-PAN-M2-NAMES-001)."""
+    return render(response, synthetic, palette, display_name, locale, panchanga=panchanga, names=names)[0]
 
 
 def render(response: dict, synthetic: bool = False, palette: str | None = None,
-           display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE, *, panchanga=None):
+           display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE, *, panchanga=None, names=None):
     """generate() plus an audit of where chart labels were drawn, for the report tests.
 
     panchanga=None (the default) renders the standard ten-page edition exactly as before.
@@ -1434,12 +1440,14 @@ def render(response: dict, synthetic: bool = False, palette: str | None = None,
     response = copy.deepcopy(response)
     positions = validate(response)
     extension = None
+    if names is not None and panchanga is None:
+        raise ValueError('Panchanga names need the extended edition')
     if panchanga is not None:
         try:
             from . import panchanga_report
         except ImportError:  # loaded by path or run as a script
             import panchanga_report
-        extension = panchanga_report.Extension(response, copy.deepcopy(panchanga), locale)
+        extension = panchanga_report.Extension(response, copy.deepcopy(panchanga), locale, names=names)
     pal = Palette(palette or THEMES['default_palette'])
     cmaps = _register_fonts()
     drawing = _logo_drawing()
@@ -1450,7 +1458,7 @@ def render(response: dict, synthetic: bool = False, palette: str | None = None,
     tr = loc.Translator(locale)
     c.setTitle(tr.t('meta.title'))
     c.setAuthor('Sabpuja')
-    c.setSubject(tr.t('meta.subject') if extension is None else extension.t('meta.subject'))
+    c.setSubject(tr.t('meta.subject') if extension is None else extension.subject())
     c.setCreator('Sabpuja Kundali report generator')
     c.setKeywords('')
     d = Doc(c, pal, cmaps, synthetic, locale)
@@ -1504,12 +1512,18 @@ if __name__ == '__main__':
     parser.add_argument('--locale', choices=loc.LOCALES, default=loc.DEFAULT_LOCALE)
     parser.add_argument('--panchanga-json', help='extended edition: the sabpuja-panchanga/1 document for the '
                                                  'same request (KUN-PAN-RPT-001)')
+    parser.add_argument('--names-qa-preview', action='store_true',
+                        help='internal QA only: draw Tithi, Karana and Yoga names marked "not for customers" '
+                             '(KUN-PAN-M2-NAMES-001); needs --panchanga-json')
     args = parser.parse_args()
     response = json.loads(Path(args.chart_json).read_text())
     name = names.normalize(args.display_name)
     options = dict(synthetic=args.sample, palette=args.palette, display_name=name, locale=args.locale)
     if args.panchanga_json:
-        pdf = generate_extended(response, json.loads(Path(args.panchanga_json).read_text()), **options)
+        pdf = generate_extended(response, json.loads(Path(args.panchanga_json).read_text()), **options,
+                                names='qa_preview' if args.names_qa_preview else None)
+    elif args.names_qa_preview:
+        parser.error('--names-qa-preview needs --panchanga-json')
     else:
         pdf = generate(response, **options)
     Path(args.output_pdf).write_bytes(pdf)
