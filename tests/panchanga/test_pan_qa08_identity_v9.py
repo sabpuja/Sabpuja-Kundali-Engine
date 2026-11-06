@@ -56,7 +56,7 @@ class ManifestStructure(unittest.TestCase):
         cases.append((d, "added paths differ"))
         d = copy.deepcopy(self.v9); d["added"].pop(VARA); cases.append((d, "added paths differ"))
         d = copy.deepcopy(self.v9); d["package"][SUN]["sha256"] = "0" * 64; cases.append((d, "not the v8 pin"))
-        d = copy.deepcopy(self.v9); d["package"] = {}; cases.append((d, "must list"))
+        d = copy.deepcopy(self.v9); d["package"] = {}; d["counts"]["package"] = 0; cases.append((d, "must list"))
         d = copy.deepcopy(self.v9); d["modified"][PREMIUM]["before_sha256"] = "0" * 64
         cases.append((d, "before_sha256 differs"))
         d = copy.deepcopy(self.v9)
