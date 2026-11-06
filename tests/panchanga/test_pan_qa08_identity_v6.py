@@ -185,7 +185,8 @@ class TreeVerificationTest(unittest.TestCase):
         with self.assertRaises(IdentityError) as ctx:
             self.verify()
         for p in iv7.AUTHORIZED_MODIFIED:
-            self.assertIn(f"unexpected hash (declared v6 modified): {p}", str(ctx.exception))
+            label = "v6 modified" if p in iv6.AUTHORIZED_MODIFIED else "v6 added"
+            self.assertIn(f"unexpected hash (declared {label}): {p}", str(ctx.exception))
         for p in iv7.AUTHORIZED_ADDED:
             self.assertIn(f"undeclared file in v1 scope: {p}", str(ctx.exception))
 
