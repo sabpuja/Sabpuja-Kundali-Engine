@@ -332,13 +332,24 @@ def validate(response, doc):
 # The extension object used by premium_report.render.
 
 class Extension:
-    def __init__(self, response, doc, locale, names=None):
+    def __init__(self, response, doc, locale, names=None, vara=None):
         self.locale = loc.validate_locale(locale)
         try:
             self.names = pn.check_mode(names)
         except pn.NamesError as exc:
             raise PanchangaReportError(str(exc)) from None
         self.values = validate(response, doc)
+        # KUN-PAN-RPT-002: the separate sunrise/Vara edition adds one page after the transition times.
+        # Without a Vara document nothing below changes, so the 13-page edition is byte-identical.
+        self.vara = None
+        self.page_keys = PAGE_KEYS
+        if vara is not None:
+            try:
+                from . import vara_report
+            except ImportError:  # loaded by path or run as a script
+                import vara_report
+            self.vara = vara_report.VaraPage(response, vara, self.locale)
+            self.page_keys = PAGE_KEYS[:2] + (vara_report.PAGE_KEY,) + PAGE_KEYS[2:]
         self.audit = {'schema': SCHEMA, 'validation_status': VALIDATION_STATUS,
                       'method_sha256': METHOD_SHA256, 'withheld': [], 'texts': []}
         if self.names is not None:
@@ -354,6 +365,8 @@ class Extension:
     def subject(self):
         if self.names == 'qa_preview':
             return self.n('qa.subject')
+        if self.vara is not None:
+            return self.vara.t('meta.subject')
         return self.t('meta.subject')
 
     def _qa(self, text):
@@ -361,6 +374,11 @@ class Extension:
         return text + self.n('qa.notice') if self.names == 'qa_preview' else text
 
     def t(self, key, **values):
+        if self.vara is not None and self.vara.has('override.' + key):
+            # Sentences of the M1 pages that would be untrue in the sunrise/Vara edition.
+            if key == 'pan.instant':
+                values = {**values, 'sunrise': self._page_of['sunrise']}
+            return self.vara.t('override.' + key, **values)
         entry = STRINGS.get(key)
         if entry is None:
             raise loc.ReportLocaleError(f'Missing Panchanga report string {key}')
@@ -369,19 +387,26 @@ class Extension:
     def apply(self, d):
         base = pr.pages(d.locale)
         at = [k for k, _, _ in base].index('method')
-        extra = [(key, self.t(f'page.{key}.title'), self.t(f'page.{key}.desc')) for key in PAGE_KEYS]
+        if self.vara is None:
+            extra = [(key, self.t(f'page.{key}.title'), self.t(f'page.{key}.desc')) for key in PAGE_KEYS]
+        else:
+            extra = [(key, (self.vara if key == 'sunrise' else self).t(f'page.{key}.title'),
+                      (self.vara if key == 'sunrise' else self).t(f'page.{key}.desc')) for key in self.page_keys]
         d.contents = base[:at] + extra + base[at:]
         d.page_of = {key: i + 1 for i, (key, _, _) in enumerate(d.contents)}
         d.total = len(d.contents)
-        d.edition = pr.EDITION_PANCHANGA
+        d.edition = pr.EDITION_PANCHANGA if self.vara is None else pr.EDITION_VARA
         d.extension = self
+        self._page_of = d.page_of
 
     def page_drawers(self):
+        if self.vara is not None:
+            return [self._page_panchanga, self._page_transitions, self.vara.draw, self._page_method]
         return [self._page_panchanga, self._page_transitions, self._page_method]
 
     def method_lists(self, d):
         """Inclusions and exclusions of the methodology page in the extended edition."""
-        first, last = d.page_of[PAGE_KEYS[0]], d.page_of[PAGE_KEYS[-1]]
+        first, last = d.page_of[self.page_keys[0]], d.page_of[self.page_keys[-1]]
         inc = [d.t(f'method.inc{i}') for i in range(1, 6)] + [self.t('method.inc6', first=first, last=last)]
         exc = [self.t('method.exc1'), self.t('method.exc2'), d.t('method.exc3'), d.t('method.exc4'),
                d.t('method.exc5'), self.t('method.exc6')]

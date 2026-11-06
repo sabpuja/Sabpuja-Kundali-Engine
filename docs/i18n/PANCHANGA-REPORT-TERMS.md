@@ -60,3 +60,32 @@ table. No proprietary Panchang text or layout was used.
 9. "{h} घं {m} मि" for the span lengths on the timeline, and अवधि for "length".
 10. लगभग ("about") to mark transition times rounded to the nearest minute, and "निकटतम मिनट तक
     पूर्णांकित" in the page intro.
+
+## Sunrise and Vara (KUN-PAN-RPT-002, developer draft)
+
+The opt-in 14-page edition adds one page, "Sunrise and Vara" / "सूर्योदय और वार". Its 77 strings are in
+`report/phase1/report_vara_i18n.json` (status DEVELOPER DRAFT). They have not had human Hindi review and are
+not for customers.
+
+| Concept | English | Hindi | Source checked |
+|---|---|---|---|
+| Panchanga weekday | Vara, e.g. "Somavara (Monday)" | वार, e.g. सोमवार | the ordinary Hindi weekday names; the sunrise-to-sunrise day is the accepted rule PAN-D05. No external source was newly checked for this row. |
+| Calendar weekday | Calendar weekday | कैलेंडर का दिन | plain description, not a technical term |
+| Sunrise, sunset | Sunrise, Sunset, Next sunrise | सूर्योदय, सूर्यास्त, अगला सूर्योदय | standard Hindi |
+| Sunrise rule | Sunrise rule (SUN-D-IMD-47) | सूर्योदय नियम | the IMD upper-limb definition, as adopted for development in PAN-D17 |
+| Refraction, semidiameter | refraction, semidiameter | अपवर्तन, अर्धव्यास | standard Hindi astronomy terms |
+| Polar day / night | polar day, polar night | ध्रुवीय दिन, ध्रुवीय रात | standard Hindi |
+| "about" a rounded time | about {time} | लगभग {time} | as in item 10 above |
+
+A Hindi Vara name repeats the Hindi calendar weekday for most births. The page keeps both cards because they
+can differ: a birth before sunrise keeps the previous Vara. The English name gives the Sanskrit form with the
+weekday in brackets for the same reason.
+
+Review items for the human Hindi editor (Sunrise and Vara page):
+
+11. कैलेंडर का दिन for "calendar weekday", next to वार.
+12. "सूर्योदय रेखा" for the sunrise line (the Sun's centre 47′ below the horizon) in the polar notes.
+13. "सावधानी सीमा" for the ±5-minute caution band. It is a review prompt, not an accuracy.
+14. "जन्म सूर्योदय के निकट: कृपया जन्म समय जाँचें" as the warning heading.
+15. "{hours} घंटे {minutes} मिनट बाद / पहले" on the Birth and sunrise card.
+

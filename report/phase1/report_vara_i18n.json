@@ -1,0 +1,318 @@
+{
+ "catalog": "sabpuja-premium-report-vara-i18n",
+ "catalog_version": "1",
+ "status": "DEVELOPER DRAFT: English and Hindi text of the sunrise and Vara page of the extended edition, written by the developer (Claude) for KUN-PAN-RPT-002 and pending independent QA and human Hindi and Jyotish editorial review. Not owner-approved and not for customers. No other catalog is changed.",
+ "layout": "phase2a-premium+extended-panchanga-m2-vara/1",
+ "terms_sources": "docs/i18n/PANCHANGA-REPORT-TERMS.md, section \"Sunrise and Vara (KUN-PAN-RPT-002)\"",
+ "note": "Placeholders use Python str.format and must be the same set in both locales. Vara display forms are Sanskrit day names with the English weekday in English, and the standard Hindi day names in Hindi. override.* keys replace three M1-edition strings only in this edition.",
+ "strings": {
+  "page.sunrise.title": {
+   "en": "Sunrise and Vara",
+   "hi": "सूर्योदय और वार"
+  },
+  "page.sunrise.desc": {
+   "en": "The Vara by local sunrise, the calendar weekday, sunrise and sunset at the birthplace",
+   "hi": "स्थानीय सूर्योदय से वार, कैलेंडर का दिन, जन्म स्थान पर सूर्योदय और सूर्यास्त"
+  },
+  "meta.subject": {
+   "en": "Vedic birth chart: D1, D9, Panchanga, sunrise and Vara at birth",
+   "hi": "वैदिक जन्म कुंडली: D1, D9, पंचांग, सूर्योदय और जन्म का वार"
+  },
+  "override.pan.instant": {
+   "en": "Printed Panchang calendars usually list, for each day, the Tithi, Nakshatra, Yoga and Karana in force at local sunrise. The values here are for the birth instant itself, so they can differ from the entry printed for the birth date. Sunrise and the Vara are on page {sunrise}; Masa and Samvat are not calculated in this edition.",
+   "hi": "छपे हुए पंचांग प्रायः हर दिन के लिए वे तिथि, नक्षत्र, योग और करण देते हैं जो स्थानीय सूर्योदय के समय चल रहे हों। यहाँ के मान स्वयं जन्म के क्षण के हैं, इसलिए जन्म तिथि के लिए छपी प्रविष्टि से भिन्न हो सकते हैं। सूर्योदय और वार पृष्ठ {sunrise} पर हैं; मास और संवत की गणना इस संस्करण में नहीं की गई है।"
+  },
+  "override.pm.exc1": {
+   "en": "Panchanga at sunrise of the birth date",
+   "hi": "जन्म दिनांक के सूर्योदय का पंचांग"
+  },
+  "override.method.inc6": {
+   "en": "Panchanga, sunrise and Vara, pages {first} to {last}",
+   "hi": "पंचांग, सूर्योदय और वार, पृष्ठ {first} से {last}"
+  },
+  "v.title": {
+   "en": "Sunrise and Vara at birth",
+   "hi": "जन्म के समय सूर्योदय और वार"
+  },
+  "v.intro": {
+   "en": "The Vara is the weekday of the Panchanga. It runs from one local sunrise to the next, so a birth before sunrise keeps the Vara of the previous day. Sunrise and sunset are calculated for the birthplace on page {birth}.",
+   "hi": "वार पंचांग का दिन है। यह एक स्थानीय सूर्योदय से अगले सूर्योदय तक चलता है, इसलिए सूर्योदय से पहले हुआ जन्म पिछले दिन के वार में आता है। सूर्योदय और सूर्यास्त की गणना पृष्ठ {birth} पर दिए जन्म स्थान के लिए की गई है।"
+  },
+  "v.card.vara": {
+   "en": "Vara",
+   "hi": "वार"
+  },
+  "v.card.civil": {
+   "en": "Calendar weekday",
+   "hi": "कैलेंडर का दिन"
+  },
+  "v.card.position": {
+   "en": "Birth and sunrise",
+   "hi": "जन्म और सूर्योदय"
+  },
+  "v.card.sunrise": {
+   "en": "Sunrise",
+   "hi": "सूर्योदय"
+  },
+  "v.card.sunset": {
+   "en": "Sunset",
+   "hi": "सूर्यास्त"
+  },
+  "v.card.next": {
+   "en": "Next sunrise",
+   "hi": "अगला सूर्योदय"
+  },
+  "v.page_ref": {
+   "en": "p. {page}",
+   "hi": "पृ. {page}"
+  },
+  "vara.ravivara": {
+   "en": "Ravivara (Sunday)",
+   "hi": "रविवार"
+  },
+  "vara.somavara": {
+   "en": "Somavara (Monday)",
+   "hi": "सोमवार"
+  },
+  "vara.mangalavara": {
+   "en": "Mangalavara (Tuesday)",
+   "hi": "मंगलवार"
+  },
+  "vara.budhavara": {
+   "en": "Budhavara (Wednesday)",
+   "hi": "बुधवार"
+  },
+  "vara.guruvara": {
+   "en": "Guruvara (Thursday)",
+   "hi": "गुरुवार"
+  },
+  "vara.shukravara": {
+   "en": "Shukravara (Friday)",
+   "hi": "शुक्रवार"
+  },
+  "vara.shanivara": {
+   "en": "Shanivara (Saturday)",
+   "hi": "शनिवार"
+  },
+  "civil.sunday": {
+   "en": "Sunday",
+   "hi": "रविवार"
+  },
+  "civil.monday": {
+   "en": "Monday",
+   "hi": "सोमवार"
+  },
+  "civil.tuesday": {
+   "en": "Tuesday",
+   "hi": "मंगलवार"
+  },
+  "civil.wednesday": {
+   "en": "Wednesday",
+   "hi": "बुधवार"
+  },
+  "civil.thursday": {
+   "en": "Thursday",
+   "hi": "गुरुवार"
+  },
+  "civil.friday": {
+   "en": "Friday",
+   "hi": "शुक्रवार"
+  },
+  "civil.saturday": {
+   "en": "Saturday",
+   "hi": "शनिवार"
+  },
+  "v.vara_sub": {
+   "en": "From sunrise, {date}",
+   "hi": "{date} के सूर्योदय से"
+  },
+  "v.civil_sub": {
+   "en": "Local date {date}",
+   "hi": "स्थानीय दिनांक {date}"
+  },
+  "v.after": {
+   "en": "{hours} h {minutes} min after",
+   "hi": "{hours} घंटे {minutes} मिनट बाद"
+  },
+  "v.before": {
+   "en": "{hours} h {minutes} min before",
+   "hi": "{hours} घंटे {minutes} मिनट पहले"
+  },
+  "v.within": {
+   "en": "Under 1 minute",
+   "hi": "1 मिनट से कम"
+  },
+  "v.after_sub": {
+   "en": "after this Vara's sunrise",
+   "hi": "इस वार के सूर्योदय के"
+  },
+  "v.before_sub": {
+   "en": "before the next sunrise",
+   "hi": "अगले सूर्योदय से"
+  },
+  "v.time": {
+   "en": "about {time}",
+   "hi": "लगभग {time}"
+  },
+  "v.time_sub": {
+   "en": "{date} · UTC {utc}",
+   "hi": "{date} · UTC {utc}"
+  },
+  "v.unavailable": {
+   "en": "Not available",
+   "hi": "उपलब्ध नहीं"
+  },
+  "v.not_calculated": {
+   "en": "Not calculated",
+   "hi": "गणना नहीं की गई"
+  },
+  "v.sub.undefined": {
+   "en": "No sunrise or sunset to give",
+   "hi": "देने के लिए सूर्योदय या सूर्यास्त नहीं"
+  },
+  "v.sub.outside": {
+   "en": "Outside the supported dates",
+   "hi": "समर्थित दिनांकों से बाहर"
+  },
+  "v.sub.no_vara": {
+   "en": "See the note below",
+   "hi": "नीचे दी गई टिप्पणी देखें"
+  },
+  "v.sub.no_sunset": {
+   "en": "No sunset within 24 hours",
+   "hi": "24 घंटे के भीतर सूर्यास्त नहीं"
+  },
+  "v.strip_title": {
+   "en": "The Vara day at the birthplace",
+   "hi": "जन्म स्थान पर वार का दिन"
+  },
+  "v.strip.birth": {
+   "en": "Birth",
+   "hi": "जन्म"
+  },
+  "v.strip.sunrise": {
+   "en": "Sunrise {time}",
+   "hi": "सूर्योदय {time}"
+  },
+  "v.strip.sunset": {
+   "en": "Sunset {time}",
+   "hi": "सूर्यास्त {time}"
+  },
+  "v.strip.next": {
+   "en": "Next sunrise {time}",
+   "hi": "अगला सूर्योदय {time}"
+  },
+  "v.strip.next_none": {
+   "en": "Next sunrise not calculated",
+   "hi": "अगले सूर्योदय की गणना नहीं"
+  },
+  "v.strip_note": {
+   "en": "Local time, from the sunrise that began the Vara to the next sunrise. Daylight is saffron. The dark marks on each side of a sunrise are the 5-minute caution band.",
+   "hi": "स्थानीय समय में, वार आरंभ करने वाले सूर्योदय से अगले सूर्योदय तक। दिन का भाग केसरिया है। हर सूर्योदय के दोनों ओर के गहरे चिह्न 5 मिनट की सावधानी सीमा हैं।"
+  },
+  "v.near_title": {
+   "en": "Birth close to sunrise: please check the birth time",
+   "hi": "जन्म सूर्योदय के निकट: कृपया जन्म समय जाँचें"
+  },
+  "v.near": {
+   "en": "The recorded birth time is within {minutes} minutes of the calculated sunrise. A small error in the recorded time, another sunrise convention or the real horizon at the birthplace could put the birth on the other side of sunrise and change the Vara. The {minutes}-minute band is a cautious review prompt, not a measured accuracy.",
+   "hi": "दर्ज जन्म समय गणना किए गए सूर्योदय से {minutes} मिनट के भीतर है। दर्ज समय में छोटी त्रुटि, सूर्योदय की कोई अन्य परिपाटी या जन्म स्थान का वास्तविक क्षितिज जन्म को सूर्योदय के दूसरी ओर रख सकते हैं और वार बदल सकता है। {minutes} मिनट की यह सीमा सावधानी के लिए समीक्षा संकेत है, मापी गई सटीकता नहीं।"
+  },
+  "v.clear_title": {
+   "en": "Sunrise boundary check",
+   "hi": "सूर्योदय सीमा जाँच"
+  },
+  "v.clear": {
+   "en": "The birth is more than {minutes} minutes from both the sunrise that began this Vara and the next sunrise. Sunrise times are approximate, so if the recorded birth time is itself uncertain by more than that, please check it.",
+   "hi": "जन्म इस वार को आरंभ करने वाले सूर्योदय और अगले सूर्योदय, दोनों से {minutes} मिनट से अधिक दूर है। सूर्योदय के समय लगभग हैं, इसलिए यदि दर्ज जन्म समय में ही इससे अधिक अनिश्चितता हो, तो कृपया उसे जाँचें।"
+  },
+  "v.partial": {
+   "en": "The birth is more than {minutes} minutes after the sunrise that began this Vara. The next sunrise falls after {last}, outside the supported dates, so it was not calculated and closeness to it was not checked.",
+   "hi": "जन्म इस वार को आरंभ करने वाले सूर्योदय से {minutes} मिनट से अधिक बाद है। अगला सूर्योदय {last} के बाद, समर्थित दिनांकों से बाहर पड़ता है, इसलिए उसकी गणना और उससे निकटता की जाँच नहीं की गई।"
+  },
+  "v.na_title": {
+   "en": "Vara not given",
+   "hi": "वार नहीं दिया गया"
+  },
+  "v.na.SUN_ABOVE_DEPRESSION_ALL_DAY": {
+   "en": "At this place and date the Sun stays above the sunrise line all day (polar day), so there is no sunrise. The Vara is not given rather than guessed; the calendar weekday is shown alone.",
+   "hi": "इस स्थान और दिनांक पर सूर्य पूरे दिन सूर्योदय रेखा से ऊपर रहता है (ध्रुवीय दिन), इसलिए सूर्योदय नहीं होता। वार अनुमान से नहीं दिया गया; केवल कैलेंडर का दिन दिखाया गया है।"
+  },
+  "v.na.SUN_BELOW_DEPRESSION_ALL_DAY": {
+   "en": "At this place and date the Sun stays below the sunrise line all day (polar night), so there is no sunrise. The Vara is not given rather than guessed; the calendar weekday is shown alone.",
+   "hi": "इस स्थान और दिनांक पर सूर्य पूरे दिन सूर्योदय रेखा से नीचे रहता है (ध्रुवीय रात), इसलिए सूर्योदय नहीं होता। वार अनुमान से नहीं दिया गया; केवल कैलेंडर का दिन दिखाया गया है।"
+  },
+  "v.na.NO_SUNRISE_ON_LOCAL_DATE": {
+   "en": "No sunrise falls on this local date at this place, near the start of a polar day or night. The Vara is not given rather than guessed; the calendar weekday is shown alone.",
+   "hi": "इस स्थान पर इस स्थानीय दिनांक को कोई सूर्योदय नहीं होता, ध्रुवीय दिन या रात के आरंभ के निकट। वार अनुमान से नहीं दिया गया; केवल कैलेंडर का दिन दिखाया गया है।"
+  },
+  "v.na.VARA_DAY_END_UNDEFINED": {
+   "en": "The sunrise after this one does not occur at this place (a polar day or night begins), so this Vara day has no end. The Vara is not given rather than guessed; the calendar weekday is shown alone.",
+   "hi": "इस स्थान पर इसके बाद का सूर्योदय नहीं होता (ध्रुवीय दिन या रात आरंभ होती है), इसलिए इस वार के दिन का अंत नहीं है। वार अनुमान से नहीं दिया गया; केवल कैलेंडर का दिन दिखाया गया है।"
+  },
+  "v.na.GOVERNING_SUNRISE_BEFORE_1970_01_01": {
+   "en": "The sunrise that began this Vara falls before {first}, outside the supported dates, so it was not calculated and the Vara is not given. The calendar weekday is shown alone.",
+   "hi": "इस वार को आरंभ करने वाला सूर्योदय {first} से पहले, समर्थित दिनांकों से बाहर पड़ता है, इसलिए उसकी गणना नहीं की गई और वार नहीं दिया गया। केवल कैलेंडर का दिन दिखाया गया है।"
+  },
+  "v.na.BIRTH_LOCAL_DATE_OUTSIDE_D13_A": {
+   "en": "Sunrise is calculated only for local dates from {first} to {last}, so the Vara is not given for this birth date. The calendar weekday is shown alone.",
+   "hi": "सूर्योदय की गणना केवल {first} से {last} तक के स्थानीय दिनांकों के लिए होती है, इसलिए इस जन्म दिनांक के लिए वार नहीं दिया गया। केवल कैलेंडर का दिन दिखाया गया है।"
+  },
+  "v.m_title": {
+   "en": "How sunrise and the Vara are calculated",
+   "hi": "सूर्योदय और वार की गणना कैसे हुई"
+  },
+  "v.m.convention": {
+   "en": "Sunrise rule",
+   "hi": "सूर्योदय नियम"
+  },
+  "v.m.convention_value": {
+   "en": "SUN-D-IMD-47, the IMD definition: the upper edge of the Sun on the horizon, with 31′ refraction and 16′ semidiameter, so the Sun's centre is 47′ below the horizon. Sunset uses the same rule.",
+   "hi": "SUN-D-IMD-47, IMD की परिभाषा: सूर्य का ऊपरी किनारा क्षितिज पर, 31′ अपवर्तन और 16′ अर्धव्यास के साथ, यानी सूर्य का केंद्र क्षितिज से 47′ नीचे। सूर्यास्त में भी यही नियम है।"
+  },
+  "v.m.place": {
+   "en": "Place",
+   "hi": "स्थान"
+  },
+  "v.m.place_value": {
+   "en": "The birthplace latitude and longitude, at sea level with a level horizon. Weather, elevation, hills and buildings are not modelled, so the Sun may be seen earlier or later than shown.",
+   "hi": "जन्म स्थान का अक्षांश और देशांतर, समुद्र तल पर और समतल क्षितिज के साथ। मौसम, ऊँचाई, पहाड़ और इमारतें शामिल नहीं हैं, इसलिए सूर्य दिखाए गए समय से पहले या बाद में दिख सकता है।"
+  },
+  "v.m.vara": {
+   "en": "Vara",
+   "hi": "वार"
+  },
+  "v.m.vara_value": {
+   "en": "The weekday of the latest sunrise at or before birth; it lasts until the next sunrise. The calendar weekday is shown separately and never replaces it.",
+   "hi": "जन्म के समय या उससे पहले के अंतिम सूर्योदय का दिन; यह अगले सूर्योदय तक रहता है। कैलेंडर का दिन अलग दिखाया गया है और कभी इसकी जगह नहीं लेता।"
+  },
+  "v.m.times": {
+   "en": "Times",
+   "hi": "समय"
+  },
+  "v.m.times_value": {
+   "en": "Rounded to the nearest minute and marked \"about\". The calculation resolves seconds, but that is numerical resolution, not accuracy.",
+   "hi": "निकटतम मिनट तक पूर्णांकित और \"लगभग\" लिखे गए। गणना सेकंड तक जाती है, पर वह केवल संख्यात्मक विभेदन है, सटीकता नहीं।"
+  },
+  "v.m.checks": {
+   "en": "Comparisons",
+   "hi": "तुलना"
+  },
+  "v.m.checks_value": {
+   "en": "Published USNO and IMD times were used only as a coarse 120-second screen, not as an accuracy claim. IMD's four-city tables imply 47′ to 52′ and are not reproduced by one angle; these are not IMD's published times for any place.",
+   "hi": "प्रकाशित USNO और IMD समयों का उपयोग केवल 120 सेकंड की मोटी जाँच के रूप में हुआ, सटीकता के दावे के रूप में नहीं। IMD की चार शहरों की तालिकाएँ 47′ से 52′ दर्शाती हैं और एक कोण से पुनः प्राप्त नहीं होतीं; ये किसी स्थान के लिए IMD के प्रकाशित समय नहीं हैं।"
+  },
+  "v.m.data": {
+   "en": "Data",
+   "hi": "डेटा"
+  },
+  "v.m.data_value": {
+   "en": "{schema}; Swiss Ephemeris {library}; ephemeris {manifest}; tzdata {package} (IANA {iana}); {calls} Swiss calls.",
+   "hi": "{schema}; Swiss Ephemeris {library}; ephemeris {manifest}; tzdata {package} (IANA {iana}); {calls} Swiss गणनाएँ।"
+  },
+  "v.status": {
+   "en": "Development preview. The sunrise convention is adopted for development only; this page and its English and Hindi wording await independent QA and human review and are not for customers.",
+   "hi": "विकास पूर्वावलोकन। सूर्योदय की परिपाटी केवल विकास के लिए अपनाई गई है; यह पृष्ठ और इसकी अंग्रेज़ी व हिंदी भाषा स्वतंत्र QA और मानव समीक्षा की प्रतीक्षा में हैं और ग्राहकों के लिए नहीं हैं।"
+  }
+ }
+}

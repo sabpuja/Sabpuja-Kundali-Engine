@@ -182,3 +182,20 @@ the crosswalk tool). No catalog, engine, Panchanga M1, data or preview path is d
 restricted to the v1 scope, the declared paths and the packet must equal the v7 declaration, and `f26dd10`
 itself must satisfy v6, which is now proved on that exact tree. `test_pan_qa08_identity_v7.py` seeds the v7
 defects.
+
+### v9 (KUN-PAN-RPT-002)
+
+Issue #83 adds the opt-in sunrise and Vara page (the 14-page edition) on top of the accepted KUN-PAN-M2-SUN-001
+module. `identity-manifest-v9.json` (pinned in `identity_v9.py`) declares the three report files it changes
+(`report/phase1/README.md`, `panchanga_report.py`, `premium_report.py`) and the 32 files it adds: the
+`panchanga.vara` document module, the page, its string catalog, its tests, the two fixture tools, the 100
+pinned 14-page hashes, and 25 synthetic Vara fixtures. The whole Panchanga package at c759c41 (M1 and
+`sun.py`) is pinned byte for byte, so `vara.py` is the only new package file. `c759c41..HEAD` restricted to the
+v1 scope, the declared paths and the packet must equal the v9 declaration, and c759c41 itself must satisfy v8.
+
+Because HEAD now changes report files that v7 pins, v7 is proved on its own commit (a8c3108) and v8 on its
+own commit (c759c41); the working tree is checked through v9. Each older version still rejects the v9 tree on
+its own, which the tests assert. `test_pan_qa08_identity_v9.py` seeds the v9 defects.
+
+    python -m tests.panchanga.identity_v9 --check
+

@@ -1,0 +1,672 @@
+{
+ "case": "v04-last-second-before-sunrise",
+ "description": "Last whole second before the computed sunrise: previous Vara, warning",
+ "response": {
+  "input": {
+   "place": {
+    "id": "in-jaipur",
+    "name": "Jaipur",
+    "region": "Rajasthan",
+    "country": "India",
+    "latitude": 26.91962,
+    "longitude": 75.78781,
+    "timezone": "Asia/Kolkata",
+    "in_supported_latitude_band": true,
+    "source": "GeoNames 1269515; Natural Earth cross-check 2.04 km"
+   },
+   "local_date": "2039-07-31",
+   "local_time": "05:50:48",
+   "utc_offset": "+05:30",
+   "offset_resolution": "unique"
+  },
+  "chart": {
+   "schema_version": "0.3.0",
+   "validation_status": "UNVERIFIED_GOLDEN_CHARTS",
+   "method": {
+    "ayanamsa": "Lahiri",
+    "nodes": "mean",
+    "houses": "whole_sign",
+    "ephemeris": "Swiss Ephemeris, local .se1",
+    "binding_version": "2.10.03"
+   },
+   "birth": {
+    "utc": "2039-07-31T00:20:48Z",
+    "timezone": "Asia/Kolkata",
+    "latitude": 26.91962,
+    "longitude": 75.78781
+   },
+   "lagna": {
+    "longitude_deg": 102.49181729,
+    "rashi": "Karka",
+    "navamsa_rashi": "Tula"
+   },
+   "moon_nakshatra": {
+    "index": 16,
+    "name": "Anuradha",
+    "pada": 4
+   },
+   "planets": {
+    "sun": {
+     "longitude_deg": 103.30029462,
+     "rashi": "Karka",
+     "navamsa_rashi": "Tula",
+     "whole_sign_house": 1,
+     "navamsa_whole_sign_house": 1
+    },
+    "moon": {
+     "longitude_deg": 223.37135728,
+     "rashi": "Vrischika",
+     "navamsa_rashi": "Vrischika",
+     "whole_sign_house": 5,
+     "navamsa_whole_sign_house": 2
+    },
+    "mars": {
+     "longitude_deg": 35.29689246,
+     "rashi": "Vrishabha",
+     "navamsa_rashi": "Kumbha",
+     "whole_sign_house": 11,
+     "navamsa_whole_sign_house": 5
+    },
+    "mercury": {
+     "longitude_deg": 85.59071897,
+     "rashi": "Mithuna",
+     "navamsa_rashi": "Vrishabha",
+     "whole_sign_house": 12,
+     "navamsa_whole_sign_house": 8
+    },
+    "jupiter": {
+     "longitude_deg": 130.06606044,
+     "rashi": "Simha",
+     "navamsa_rashi": "Karka",
+     "whole_sign_house": 2,
+     "navamsa_whole_sign_house": 10
+    },
+    "venus": {
+     "longitude_deg": 116.73415554,
+     "rashi": "Karka",
+     "navamsa_rashi": "Meena",
+     "whole_sign_house": 1,
+     "navamsa_whole_sign_house": 6
+    },
+    "saturn": {
+     "longitude_deg": 151.56449838,
+     "rashi": "Kanya",
+     "navamsa_rashi": "Makara",
+     "whole_sign_house": 3,
+     "navamsa_whole_sign_house": 4
+    },
+    "rahu_mean": {
+     "longitude_deg": 55.16091407,
+     "rashi": "Vrishabha",
+     "navamsa_rashi": "Simha",
+     "whole_sign_house": 11,
+     "navamsa_whole_sign_house": 11
+    },
+    "ketu_mean": {
+     "longitude_deg": 235.16091407,
+     "rashi": "Vrischika",
+     "navamsa_rashi": "Kumbha",
+     "whole_sign_house": 5,
+     "navamsa_whole_sign_house": 5
+    }
+   },
+   "calculation_metadata": {
+    "metadata_schema": "sabpuja-calculation-metadata/3",
+    "conventions": {
+     "zodiac": "sidereal",
+     "ayanamsa": {
+      "name": "Lahiri",
+      "swiss_mode": "SIDM_LAHIRI",
+      "swiss_mode_number": 1,
+      "swiss_call": "set_sid_mode(SIDM_LAHIRI, 0, 0)",
+      "kind": "true_ayanamsha",
+      "definition": "Lahiri (Chitrapaksha), Swiss Ephemeris SE_SIDM_LAHIRI (mode 1), IAE 1985 definition, true ayanamsha, Swiss default precession; no SIDBIT options"
+     },
+     "planetary_positions": {
+      "center": "geocentric",
+      "position": "apparent",
+      "frame": "true ecliptic and equinox of date, minus the true ayanamsha",
+      "swiss_function": "calc_ut",
+      "swiss_flags": [
+       "FLG_SWIEPH",
+       "FLG_SIDEREAL"
+      ],
+      "swiss_flags_value": 65538,
+      "swiss_bodies": [
+       "SUN",
+       "MOON",
+       "MARS",
+       "MERCURY",
+       "JUPITER",
+       "VENUS",
+       "SATURN",
+       "MEAN_NODE"
+      ],
+      "moshier_fallback": "refused"
+     },
+     "nodes": {
+      "rahu": "mean",
+      "rahu_swiss_body": "MEAN_NODE",
+      "ketu": "exactly opposite the unrounded mean Rahu; categories from the exact sum Rahu + 180"
+     },
+     "houses": {
+      "d1_model": "whole_sign",
+      "rule": "house = ((rashi(body) - rashi(lagna)) mod 12) + 1"
+     },
+     "ascendant": {
+      "definition": "eastern rising point of the ecliptic, minus the true Lahiri ayanamsha",
+      "swiss_function": "houses_ex",
+      "swiss_house_system": "W",
+      "swiss_flags": [
+       "FLG_SIDEREAL"
+      ],
+      "swiss_flags_value": 65536,
+      "value": "ascmc[0]",
+      "note": "The house-system argument selects the Swiss call only; the D1 house model is whole_sign. Cusps are not used."
+     },
+     "swiss_state": {
+      "reset_per_request_under_lock": [
+       "set_ephe_path(verified directory)",
+       "set_sid_mode(SIDM_LAHIRI, 0, 0)",
+       "set_delta_t_userdef(DELTAT_AUTOMATIC)"
+      ]
+     },
+     "longitude_display": {
+      "range": "[0, 360)",
+      "decimals": 8,
+      "note": "360 is shown as 0"
+     },
+     "classification": "Rashi, Navamsa, Nakshatra, Pada and houses use unrounded longitudes on half-open segments, never the 8-decimal display"
+    },
+    "swiss_ephemeris": {
+     "library_version": "2.10.03",
+     "python_binding": "pyswisseph",
+     "python_binding_version": "2.10.3.2"
+    },
+    "ephemeris_data": {
+     "source_repository": "https://github.com/aloistr/swisseph",
+     "source_commit": "c69c14adb7a0f94829586ffd92cd422aacb21e86",
+     "manifest_version": "1.0.0",
+     "manifest_sha256": "1aaca24868bb9cde8558f891038ae239d8dce64beb77b90f963bb185e99b2e34",
+     "manifest_sha256_method": "SHA-256 of the packaged ephemeris-manifest.json as canonical JSON (sorted keys, separators ',' and ':')",
+     "required_files": [
+      {
+       "name": "sepl_18.se1",
+       "size_bytes": 484061,
+       "sha256": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+      },
+      {
+       "name": "semo_18.se1",
+       "size_bytes": 1304771,
+       "sha256": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7"
+      }
+     ],
+     "verified_before_calculation": true,
+     "verification": "every required file matched its size and SHA-256 before any Swiss call",
+     "coverage_years": [
+      1800,
+      2399
+     ]
+    },
+    "timezone_data": {
+     "source": "PyPI tzdata",
+     "package_version": "2026.5",
+     "iana_version": "2026e",
+     "manifest_sha256": "11e070e7a29c0c79a495d8bf9517215f0f1e6c8e7c92f3e75d8a485773953532",
+     "host_timezone_database_used": false,
+     "verification": "the zone file matched the pinned manifest SHA-256 before use"
+    },
+    "time_scale": {
+     "pipeline": "local civil time + explicit offset -> validated against the pinned IANA zone -> civil UTC -> swe.julday (Gregorian) -> Swiss UT-based calculation; TT from the Swiss automatic Delta T",
+     "ut1_assumption": "civil UTC is treated as UT1 (an assumption, not a measured UT1 correction)",
+     "measured_ut1_minus_utc_used": false,
+     "earth_orientation_data_used": false,
+     "delta_t": {
+      "source": "Swiss Ephemeris automatic Delta T (DELTAT_AUTOMATIC, reset per request)",
+      "user_override_used": false,
+      "measured_series_used": false,
+      "note": "Swiss 2.10.03 tabulates Delta T to 2028 and extrapolates afterwards; future Delta T is a model projection"
+     },
+     "era": "AFTER_LEAP_SECOND_LIST_EXPIRY",
+     "era_basis": "converted UTC instant",
+     "era_description": "After the pinned IERS leap-second list expiry (2027-06-28): continuous UTC under BIPM CGPM 2026 Resolution 5, whose 3 600 s maximum for |UT1-UTC| is a policy ceiling, not a measured value. Civil-time rules and UT1-UTC are not known; the converted UTC is treated as UT1 by projection, and Swiss Delta T is extrapolated.",
+     "leap_second_list_expiry_utc": "2027-06-28T00:00:00Z",
+     "leap_second_list_source": "IERS leap-seconds.list as shipped in tz 2026e (pinned research value; later IERS publications are not reflected)",
+     "sidereal_time_model": {
+      "switch_ut": "2050-01-01T00:00:00Z",
+      "recorded_step_arcsec": -1.908,
+      "chart_side": "before_switch",
+      "note": "Swiss 2.10.03 switches its default sidereal-time model at 2050-01-01 0h UT (recorded step about -1.908 arcsec, Lagna about -1.7 arcsec at New Delhi). Version-specific model behaviour, not a precision guarantee."
+     }
+    },
+    "input_policy": {
+     "local_date_window": {
+      "first": "1900-01-01",
+      "last": "2100-12-31",
+      "basis": "local civil date as written, before conversion"
+     },
+     "historical_clock": {
+      "policy": "SCI-03 RG-HIST Option B, version 1",
+      "mode": "fail_closed",
+      "refused_local_dates": [
+       {
+        "zone": "*",
+        "first_local_date": null,
+        "last_local_date": "1969-12-31"
+       }
+      ],
+      "exceptions": []
+     },
+     "latitude_band_deg": {
+      "min": -66.0,
+      "max": 66.0,
+      "inclusive": true
+     },
+     "timezone_identifier": {
+      "policy": "KUN-03 D3 location-based birthplace timezone, version 2",
+      "mode": "fail_closed",
+      "rule": "geographic IANA timezone identifier required (exact match)",
+      "refused_identifiers": [
+       "UTC",
+       "UCT",
+       "Universal",
+       "Zulu",
+       "GMT",
+       "GMT+0",
+       "GMT-0",
+       "GMT0",
+       "Greenwich",
+       "Factory",
+       "CST6CDT",
+       "EST5EDT",
+       "MST7MDT",
+       "PST8PDT"
+      ],
+      "refused_prefixes": [
+       "Etc/"
+      ],
+      "zone_matches_coordinates_verified": false
+     },
+     "time_offset": "explicit UTC offset required and must be an offset the pinned IANA zone gives for that wall time; nonexistent local times are refused; a repeated hour is resolved by the offset",
+     "refusal_order": "fixed P5 order (docs/api-contract.md)"
+    },
+    "disclosures": [
+     {
+      "code": "FUTURE_CIVIL_TIME_PROJECTED",
+      "description": "The birth instant is after the pinned IERS leap-second list expiry (2027-06-28): civil-time rules, leap seconds, UT1-UTC and Delta T are projections, not records."
+     }
+    ],
+    "validation": {
+     "status": "UNVERIFIED_GOLDEN_CHARTS",
+     "claim_boundary": "Swiss-on-Swiss integration conformance only; not independent astronomical validation, mathematical verification or historical clock verification"
+    }
+   },
+   "d9": {
+    "house_system": "whole_sign",
+    "lagna_rashi": "Tula",
+    "houses": [
+     {
+      "house": 1,
+      "rashi": "Tula",
+      "grahas": [
+       "sun"
+      ]
+     },
+     {
+      "house": 2,
+      "rashi": "Vrischika",
+      "grahas": [
+       "moon"
+      ]
+     },
+     {
+      "house": 3,
+      "rashi": "Dhanu",
+      "grahas": []
+     },
+     {
+      "house": 4,
+      "rashi": "Makara",
+      "grahas": [
+       "saturn"
+      ]
+     },
+     {
+      "house": 5,
+      "rashi": "Kumbha",
+      "grahas": [
+       "mars",
+       "ketu_mean"
+      ]
+     },
+     {
+      "house": 6,
+      "rashi": "Meena",
+      "grahas": [
+       "venus"
+      ]
+     },
+     {
+      "house": 7,
+      "rashi": "Mesha",
+      "grahas": []
+     },
+     {
+      "house": 8,
+      "rashi": "Vrishabha",
+      "grahas": [
+       "mercury"
+      ]
+     },
+     {
+      "house": 9,
+      "rashi": "Mithuna",
+      "grahas": []
+     },
+     {
+      "house": 10,
+      "rashi": "Karka",
+      "grahas": [
+       "jupiter"
+      ]
+     },
+     {
+      "house": 11,
+      "rashi": "Simha",
+      "grahas": [
+       "rahu_mean"
+      ]
+     },
+     {
+      "house": 12,
+      "rashi": "Kanya",
+      "grahas": []
+     }
+    ]
+   }
+  }
+ },
+ "panchanga": {
+  "schema": "sabpuja-panchanga/1",
+  "validation_status": "ENGINEERING_UNVERIFIED_PENDING_INDEPENDENT_QA",
+  "claim_boundary": "Engineering output for independent QA only. Not customer-facing. Tithi and Karana transitions at E = 0, 90, 180, 270 deg are compared with USNO/NASA published minutes; everything else is rule-oracle and Swiss-on-Swiss conformance, not independent astronomical accuracy.",
+  "method": {
+   "method_id": "KUN-PAN-M1",
+   "method_revision": "SCI-PAN-01 rev 0.5 with KUN-PAN-M1-DEC-001 owner selections (adopted at main 25cfde4)",
+   "decisions": [
+    "D01-A",
+    "D02-M1",
+    "D07-A",
+    "D08-A",
+    "D09-A-M1",
+    "D10-A (TS-1 only)",
+    "D12-A",
+    "D13-A",
+    "D14-A-M1",
+    "D15-a-R",
+    "D15-b-R",
+    "D16-M1-INDEX",
+    "D18-A",
+    "D20-M1-SCOPED"
+   ],
+   "longitude_frame": "SCI-01d geocentric apparent sidereal, Lahiri (SIDM_LAHIRI), calc_ut with FLG_SWIEPH | FLG_SIDEREAL; the chart's call path",
+   "elongation": "E = (Moon - Sun) mod 360 on exact unrounded values",
+   "yoga_sum": "S = (Sun + Moon) mod 360 on exact unrounded values",
+   "boundary_rule": "half-open [start, end) on exact unrounded values; an edge value belongs to the higher sector",
+   "tithi_rule": "number = sector(E, 30) + 1; paksha shukla for 1-15, krishna for 16-30; paksha_day = ((number - 1) mod 15) + 1",
+   "karana_rule": "index = sector(E, 60) + 1; names not adopted",
+   "yoga_rule": "index = sector(S, 27) + 1; names not adopted",
+   "nakshatra_rule": "the chart moon_nakshatra rule: pada sector(Moon, 108), nakshatra = pada div 4",
+   "transition_search": {
+    "method": "TS-1 bounded bracketing and bisection",
+    "bracket_step_hours": 6.0,
+    "bracket_extent_max_days_each_direction": 2.5,
+    "bisection_max_iterations": 64,
+    "transition_bracket_max_seconds": 0.5,
+    "output": "first whole UTC second in the new half-open sector, verified at that second and the second before",
+    "extrapolation": "never"
+   },
+   "time_scale": "civil UTC treated as UT1 (SCI-01h), as for the chart; Swiss automatic Delta T",
+   "precision_note": "whole-second output is a resolution, not an accuracy claim"
+  },
+  "birth": {
+   "utc": "2039-07-31T00:20:48Z",
+   "timezone": "Asia/Kolkata"
+  },
+  "angles": {
+   "elongation_deg": 120.07106265,
+   "yoga_sum_deg": 326.6716519,
+   "note": "8-decimal display only; classification uses the unrounded values"
+  },
+  "tithi": {
+   "number": 11,
+   "paksha": "shukla",
+   "paksha_day": 11,
+   "start": {
+    "utc": "2039-07-31T00:13:13Z",
+    "local": "2039-07-31T05:43:13+05:30",
+    "local_rendering": "rendered",
+    "search": {
+     "bracket_steps": 1,
+     "iterations": 16,
+     "final_bracket_us": 329590
+    }
+   },
+   "end": {
+    "utc": "2039-07-31T21:29:10Z",
+    "local": "2039-08-01T02:59:10+05:30",
+    "local_rendering": "rendered",
+    "search": {
+     "bracket_steps": 4,
+     "iterations": 16,
+     "final_bracket_us": 329589
+    }
+   }
+  },
+  "karana": {
+   "index": 21,
+   "name_omitted": "PANCHANGA_METHOD_NOT_ADOPTED",
+   "start": {
+    "utc": "2039-07-31T00:13:13Z",
+    "local": "2039-07-31T05:43:13+05:30",
+    "local_rendering": "rendered",
+    "search": {
+     "bracket_steps": 1,
+     "iterations": 16,
+     "final_bracket_us": 329590
+    }
+   },
+   "end": {
+    "utc": "2039-07-31T10:52:48Z",
+    "local": "2039-07-31T16:22:48+05:30",
+    "local_rendering": "rendered",
+    "search": {
+     "bracket_steps": 2,
+     "iterations": 16,
+     "final_bracket_us": 329590
+    }
+   }
+  },
+  "yoga": {
+   "index": 25,
+   "name_omitted": "PANCHANGA_METHOD_NOT_ADOPTED",
+   "start": {
+    "utc": "2039-07-30T13:54:39Z",
+    "local": "2039-07-30T19:24:39+05:30",
+    "local_rendering": "rendered",
+    "search": {
+     "bracket_steps": 2,
+     "iterations": 16,
+     "final_bracket_us": 329590
+    }
+   },
+   "end": {
+    "utc": "2039-07-31T10:42:53Z",
+    "local": "2039-07-31T16:12:53+05:30",
+    "local_rendering": "rendered",
+    "search": {
+     "bracket_steps": 2,
+     "iterations": 16,
+     "final_bracket_us": 329590
+    }
+   }
+  },
+  "nakshatra": {
+   "index": 16,
+   "name": "Anuradha",
+   "pada": 4,
+   "start": {
+    "utc": "2039-07-30T07:34:18Z",
+    "local": "2039-07-30T13:04:18+05:30",
+    "local_rendering": "rendered",
+    "search": {
+     "bracket_steps": 3,
+     "iterations": 16,
+     "final_bracket_us": 329590
+    }
+   },
+   "end": {
+    "utc": "2039-07-31T05:49:15Z",
+    "local": "2039-07-31T11:19:15+05:30",
+    "local_rendering": "rendered",
+    "search": {
+     "bracket_steps": 1,
+     "iterations": 16,
+     "final_bracket_us": 329589
+    }
+   },
+   "pada_start": {
+    "utc": "2039-07-31T00:17:01Z",
+    "local": "2039-07-31T05:47:01+05:30",
+    "local_rendering": "rendered",
+    "search": {
+     "bracket_steps": 1,
+     "iterations": 16,
+     "final_bracket_us": 329590
+    }
+   },
+   "pada_end": {
+    "utc": "2039-07-31T05:49:15Z",
+    "local": "2039-07-31T11:19:15+05:30",
+    "local_rendering": "rendered",
+    "search": {
+     "bracket_steps": 1,
+     "iterations": 16,
+     "final_bracket_us": 329589
+    }
+   }
+  },
+  "local_rendering": {
+   "zone": "Asia/Kolkata",
+   "offset_rule": "pinned IANA tzdata (SCI-03), converted from the UTC instant; no rounding",
+   "envelope_local_dates": {
+    "first": "1970-01-01",
+    "last": "2100-12-31"
+   },
+   "outside_envelope": "withheld_outside_envelope (D13-A); the UTC instant is still reported"
+  },
+  "provenance": {
+   "swiss_ephemeris": {
+    "library_version": "2.10.03",
+    "python_binding": "pyswisseph",
+    "python_binding_version": "2.10.3.2"
+   },
+   "ephemeris_manifest_sha256": "1aaca24868bb9cde8558f891038ae239d8dce64beb77b90f963bb185e99b2e34",
+   "timezone_data": {
+    "package_version": "2026.5",
+    "iana_version": "2026e",
+    "manifest_sha256": "11e070e7a29c0c79a495d8bf9517215f0f1e6c8e7c92f3e75d8a485773953532"
+   },
+   "swiss_calls": 288,
+   "chart_schema_version_unchanged": "0.3.0",
+   "calculation_metadata_schema_unchanged": "sabpuja-calculation-metadata/3"
+  }
+ },
+ "vara": {
+  "schema": "sabpuja-panchanga-vara/1",
+  "status": "DEVELOPMENT_PREVIEW_NOT_FOR_CUSTOMERS",
+  "claim_boundary": "Development output for independent QA only. Not customer-facing. Sunrise and sunset are calculated for the birthplace with a sea-level, level-horizon, geocentric model under the IMD 47' definition; they do not establish when the Sun was actually visible. Times are approximate to the minute. Published USNO and IMD times agree within a coarse 120 s screen, which is not an accuracy claim, and IMD's four-city tables are not reproduced by one depression angle.",
+  "method": {
+   "method_id": "KUN-PAN-RPT-002",
+   "sun_module": {
+    "method_id": "KUN-PAN-M2-SUN-001",
+    "accepted_at": "c759c412b22753f7f5b6134e2aaaad0f04412007",
+    "functions": "sun.vara and sun.sun_day only"
+   },
+   "convention": "SUN-D-IMD-47",
+   "convention_decision": "PAN-D03 SUN-D-IMD-47 at the birthplace, adopted for the development stage only (PR #82 comment 6681108990); not released to customers",
+   "depression_arcmin": 47,
+   "refraction_arcmin": 31,
+   "semidiameter_arcmin": 16,
+   "place": "birthplace latitude and longitude of the chart request",
+   "observer": "sea level, level horizon, geocentric; no weather, elevation, terrain or dip model",
+   "vara_rule": "PAN-D05: weekday of the local civil date of the latest sunrise at or before the birth instant, [sunrise_D, sunrise_D+1); the civil weekday is shown separately, never substituted",
+   "day_end": "the Vara is withheld when the next sunrise is physically undefined; a next sunrise after the supported local dates is not computed",
+   "sunset": "PAN-D17: first setting after the governing sunrise, same 47' rule",
+   "unavailable": "PAN-D11-B: typed unavailable, never inferred",
+   "near_sunrise": "birth within 300 s (inclusive) of the governing or next sunrise, on unrounded instants; a presentation heuristic, not an accuracy bound",
+   "display": "instants are whole UTC seconds here; reports round to the minute and mark them approximate"
+  },
+  "birth": {
+   "utc": "2039-07-31T00:20:48Z",
+   "timezone": "Asia/Kolkata",
+   "latitude": 26.91962,
+   "longitude": 75.78781
+  },
+  "civil": {
+   "date": "2039-07-31",
+   "weekday": "sunday"
+  },
+  "vara": {
+   "status": "available",
+   "vara_id": "shanivara",
+   "sunrise_local_date": "2039-07-30"
+  },
+  "vara_differs_from_civil_weekday": true,
+  "governing_sunrise": {
+   "status": "available",
+   "utc_us": 2195598017201586,
+   "utc": "2039-07-30T00:20:17Z",
+   "local": "2039-07-30T05:50:17+05:30",
+   "local_date": "2039-07-30"
+  },
+  "sunset": {
+   "status": "available",
+   "utc_us": 2195646366990149,
+   "utc": "2039-07-30T13:46:07Z",
+   "local": "2039-07-30T19:16:07+05:30",
+   "local_date": "2039-07-30"
+  },
+  "next_sunrise": {
+   "status": "available",
+   "utc_us": 2195684448376834,
+   "utc": "2039-07-31T00:20:48Z",
+   "local": "2039-07-31T05:50:48+05:30",
+   "local_date": "2039-07-31"
+  },
+  "boundary": {
+   "status": "assessed",
+   "window_seconds": 300,
+   "after_governing_sunrise_us": 86430798414,
+   "before_next_sunrise_us": 376834,
+   "near_sunrise": true,
+   "nearest": "next"
+  },
+  "provenance": {
+   "swiss_ephemeris": {
+    "library_version": "2.10.03",
+    "python_binding": "pyswisseph",
+    "python_binding_version": "2.10.3.2"
+   },
+   "ephemeris_manifest_sha256": "1aaca24868bb9cde8558f891038ae239d8dce64beb77b90f963bb185e99b2e34",
+   "timezone_data": {
+    "package_version": "2026.5",
+    "iana_version": "2026e",
+    "manifest_sha256": "11e070e7a29c0c79a495d8bf9517215f0f1e6c8e7c92f3e75d8a485773953532"
+   },
+   "swiss_calls": 2930,
+   "chart_schema_version_unchanged": "0.3.0",
+   "calculation_metadata_schema_unchanged": "sabpuja-calculation-metadata/3"
+  }
+ }
+}
