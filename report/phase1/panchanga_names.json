@@ -1,0 +1,1356 @@
+{
+ "catalog": "sabpuja-panchanga-names",
+ "catalog_version": "1",
+ "task": "KUN-PAN-M2-NAMES-001 (issue #80)",
+ "status": "SOURCE_MAPPED_DISPLAY_PENDING_HUMAN_REVIEW: index-to-name mappings are checked against IMD primary-source facts (research/panchanga/names/imd-names-evidence.json). English and Hindi display forms are developer proposals awaiting human Hindi language and Jyotish terminology review; they are NOT customer-facing.",
+ "evidence": "research/panchanga/names/imd-names-evidence.json",
+ "note": "Machine ids are stable and never displayed. source_spelling is the publisher spelling exactly as printed; display.en is the proposed Sabpuja transliteration; display.hi is the proposed Hindi (Devanagari). A Panchanga Yoga (type panchanga_yoga) is not a planetary Yoga. Paksha display stays in report_panchanga_i18n.json.",
+ "customer_release": {
+  "status": "PENDING",
+  "record": null
+ },
+ "terms": {
+  "tithi_name.pratipada": {
+   "id": "tithi_name.pratipada",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Pratipad",
+    "alternates": []
+   },
+   "display": {
+    "en": "Pratipada",
+    "hi": "प्रतिपदा"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.dvitiya": {
+   "id": "tithi_name.dvitiya",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Dvitiya",
+    "alternates": []
+   },
+   "display": {
+    "en": "Dvitiya",
+    "hi": "द्वितीया"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.tritiya": {
+   "id": "tithi_name.tritiya",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Tritiya",
+    "alternates": []
+   },
+   "display": {
+    "en": "Tritiya",
+    "hi": "तृतीया"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.chaturthi": {
+   "id": "tithi_name.chaturthi",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Chaturthi",
+    "alternates": []
+   },
+   "display": {
+    "en": "Chaturthi",
+    "hi": "चतुर्थी"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.panchami": {
+   "id": "tithi_name.panchami",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Panchami",
+    "alternates": []
+   },
+   "display": {
+    "en": "Panchami",
+    "hi": "पंचमी"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.shashthi": {
+   "id": "tithi_name.shashthi",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Shashthi",
+    "alternates": []
+   },
+   "display": {
+    "en": "Shashthi",
+    "hi": "षष्ठी"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.saptami": {
+   "id": "tithi_name.saptami",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Saptami",
+    "alternates": []
+   },
+   "display": {
+    "en": "Saptami",
+    "hi": "सप्तमी"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.ashtami": {
+   "id": "tithi_name.ashtami",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Ashtami",
+    "alternates": []
+   },
+   "display": {
+    "en": "Ashtami",
+    "hi": "अष्टमी"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.navami": {
+   "id": "tithi_name.navami",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Navami",
+    "alternates": []
+   },
+   "display": {
+    "en": "Navami",
+    "hi": "नवमी"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.dashami": {
+   "id": "tithi_name.dashami",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Dasami",
+    "alternates": []
+   },
+   "display": {
+    "en": "Dashami",
+    "hi": "दशमी"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.ekadashi": {
+   "id": "tithi_name.ekadashi",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Ekadasi",
+    "alternates": []
+   },
+   "display": {
+    "en": "Ekadashi",
+    "hi": "एकादशी"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.dvadashi": {
+   "id": "tithi_name.dvadashi",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Dvadasi",
+    "alternates": []
+   },
+   "display": {
+    "en": "Dvadashi",
+    "hi": "द्वादशी"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.trayodashi": {
+   "id": "tithi_name.trayodashi",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Trayodasi",
+    "alternates": []
+   },
+   "display": {
+    "en": "Trayodashi",
+    "hi": "त्रयोदशी"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.chaturdashi": {
+   "id": "tithi_name.chaturdashi",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Chaturdasi",
+    "alternates": []
+   },
+   "display": {
+    "en": "Chaturdashi",
+    "hi": "चतुर्दशी"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.purnima": {
+   "id": "tithi_name.purnima",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Purnima",
+    "alternates": []
+   },
+   "display": {
+    "en": "Purnima",
+    "hi": "पूर्णिमा"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "tithi_name.amavasya": {
+   "id": "tithi_name.amavasya",
+   "type": "tithi_name",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Amavasya",
+    "alternates": []
+   },
+   "display": {
+    "en": "Amavasya",
+    "hi": "अमावस्या"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "karana.bava": {
+   "id": "karana.bava",
+   "type": "karana",
+   "karana_kind": "repeating",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Bava",
+    "alternates": []
+   },
+   "display": {
+    "en": "Bava",
+    "hi": "बव"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "karana.balava": {
+   "id": "karana.balava",
+   "type": "karana",
+   "karana_kind": "repeating",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Balava",
+    "alternates": []
+   },
+   "display": {
+    "en": "Balava",
+    "hi": "बालव"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "karana.kaulava": {
+   "id": "karana.kaulava",
+   "type": "karana",
+   "karana_kind": "repeating",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Kaulava",
+    "alternates": []
+   },
+   "display": {
+    "en": "Kaulava",
+    "hi": "कौलव"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "karana.taitila": {
+   "id": "karana.taitila",
+   "type": "karana",
+   "karana_kind": "repeating",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Taitila",
+    "alternates": []
+   },
+   "display": {
+    "en": "Taitila",
+    "hi": "तैतिल"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "karana.gara": {
+   "id": "karana.gara",
+   "type": "karana",
+   "karana_kind": "repeating",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Gara",
+    "alternates": []
+   },
+   "display": {
+    "en": "Gara",
+    "hi": "गर"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "karana.vanija": {
+   "id": "karana.vanija",
+   "type": "karana",
+   "karana_kind": "repeating",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Vanij",
+    "alternates": []
+   },
+   "display": {
+    "en": "Vanija",
+    "hi": "वणिज"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "karana.vishti": {
+   "id": "karana.vishti",
+   "type": "karana",
+   "karana_kind": "repeating",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Vishti",
+    "alternates": []
+   },
+   "display": {
+    "en": "Vishti",
+    "hi": "विष्टि"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "karana.shakuni": {
+   "id": "karana.shakuni",
+   "type": "karana",
+   "karana_kind": "fixed",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Sakuni",
+    "alternates": []
+   },
+   "display": {
+    "en": "Shakuni",
+    "hi": "शकुनि"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "karana.chatushpada": {
+   "id": "karana.chatushpada",
+   "type": "karana",
+   "karana_kind": "fixed",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Chatuspada",
+    "alternates": []
+   },
+   "display": {
+    "en": "Chatushpada",
+    "hi": "चतुष्पद"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "karana.naga": {
+   "id": "karana.naga",
+   "type": "karana",
+   "karana_kind": "fixed",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Naga",
+    "alternates": []
+   },
+   "display": {
+    "en": "Naga",
+    "hi": "नाग"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "karana.kimstughna": {
+   "id": "karana.kimstughna",
+   "type": "karana",
+   "karana_kind": "fixed",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Kimstughna",
+    "alternates": [
+     "Kinstughna"
+    ]
+   },
+   "display": {
+    "en": "Kimstughna",
+    "hi": "किंस्तुघ्न"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.vishkambha": {
+   "id": "panchanga_yoga.vishkambha",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Viskumbha",
+    "alternates": []
+   },
+   "display": {
+    "en": "Vishkambha",
+    "hi": "विष्कम्भ"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.priti": {
+   "id": "panchanga_yoga.priti",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Priti",
+    "alternates": []
+   },
+   "display": {
+    "en": "Priti",
+    "hi": "प्रीति"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.ayushman": {
+   "id": "panchanga_yoga.ayushman",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Ayusman",
+    "alternates": []
+   },
+   "display": {
+    "en": "Ayushman",
+    "hi": "आयुष्मान"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.saubhagya": {
+   "id": "panchanga_yoga.saubhagya",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Saubhagya",
+    "alternates": []
+   },
+   "display": {
+    "en": "Saubhagya",
+    "hi": "सौभाग्य"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.shobhana": {
+   "id": "panchanga_yoga.shobhana",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Sobhana",
+    "alternates": []
+   },
+   "display": {
+    "en": "Shobhana",
+    "hi": "शोभन"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.atiganda": {
+   "id": "panchanga_yoga.atiganda",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Atiganda",
+    "alternates": []
+   },
+   "display": {
+    "en": "Atiganda",
+    "hi": "अतिगण्ड"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.sukarma": {
+   "id": "panchanga_yoga.sukarma",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Sukarma",
+    "alternates": []
+   },
+   "display": {
+    "en": "Sukarma",
+    "hi": "सुकर्मा"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.dhriti": {
+   "id": "panchanga_yoga.dhriti",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Dhriti",
+    "alternates": []
+   },
+   "display": {
+    "en": "Dhriti",
+    "hi": "धृति"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.shula": {
+   "id": "panchanga_yoga.shula",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Sula",
+    "alternates": []
+   },
+   "display": {
+    "en": "Shula",
+    "hi": "शूल"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.ganda": {
+   "id": "panchanga_yoga.ganda",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Ganda",
+    "alternates": []
+   },
+   "display": {
+    "en": "Ganda",
+    "hi": "गण्ड"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.vriddhi": {
+   "id": "panchanga_yoga.vriddhi",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Vriddhi",
+    "alternates": []
+   },
+   "display": {
+    "en": "Vriddhi",
+    "hi": "वृद्धि"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.dhruva": {
+   "id": "panchanga_yoga.dhruva",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Dhruva",
+    "alternates": []
+   },
+   "display": {
+    "en": "Dhruva",
+    "hi": "ध्रुव"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.vyaghata": {
+   "id": "panchanga_yoga.vyaghata",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Vyaghata",
+    "alternates": []
+   },
+   "display": {
+    "en": "Vyaghata",
+    "hi": "व्याघात"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.harshana": {
+   "id": "panchanga_yoga.harshana",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Harshana",
+    "alternates": []
+   },
+   "display": {
+    "en": "Harshana",
+    "hi": "हर्षण"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.vajra": {
+   "id": "panchanga_yoga.vajra",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Vajra",
+    "alternates": []
+   },
+   "display": {
+    "en": "Vajra",
+    "hi": "वज्र"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.siddhi": {
+   "id": "panchanga_yoga.siddhi",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Siddhi",
+    "alternates": [
+     "Siddhi (Asrik)"
+    ]
+   },
+   "display": {
+    "en": "Siddhi",
+    "hi": "सिद्धि"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.vyatipata": {
+   "id": "panchanga_yoga.vyatipata",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Vyatipata",
+    "alternates": []
+   },
+   "display": {
+    "en": "Vyatipata",
+    "hi": "व्यतीपात"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.variyan": {
+   "id": "panchanga_yoga.variyan",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Variyan",
+    "alternates": []
+   },
+   "display": {
+    "en": "Variyan",
+    "hi": "वरीयान"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.parigha": {
+   "id": "panchanga_yoga.parigha",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Parigha",
+    "alternates": []
+   },
+   "display": {
+    "en": "Parigha",
+    "hi": "परिघ"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.shiva": {
+   "id": "panchanga_yoga.shiva",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Siva",
+    "alternates": []
+   },
+   "display": {
+    "en": "Shiva",
+    "hi": "शिव"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.siddha": {
+   "id": "panchanga_yoga.siddha",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Siddha",
+    "alternates": []
+   },
+   "display": {
+    "en": "Siddha",
+    "hi": "सिद्ध"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.sadhya": {
+   "id": "panchanga_yoga.sadhya",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Sadhya",
+    "alternates": []
+   },
+   "display": {
+    "en": "Sadhya",
+    "hi": "साध्य"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.shubha": {
+   "id": "panchanga_yoga.shubha",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Subha",
+    "alternates": []
+   },
+   "display": {
+    "en": "Shubha",
+    "hi": "शुभ"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.shukla": {
+   "id": "panchanga_yoga.shukla",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Sukla",
+    "alternates": [
+     "Sukla (Sukra)"
+    ]
+   },
+   "display": {
+    "en": "Shukla",
+    "hi": "शुक्ल"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.brahma": {
+   "id": "panchanga_yoga.brahma",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Brahma",
+    "alternates": []
+   },
+   "display": {
+    "en": "Brahma",
+    "hi": "ब्रह्म"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.indra": {
+   "id": "panchanga_yoga.indra",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Indra",
+    "alternates": []
+   },
+   "display": {
+    "en": "Indra",
+    "hi": "इन्द्र"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "panchanga_yoga.vaidhriti": {
+   "id": "panchanga_yoga.vaidhriti",
+   "type": "panchanga_yoga",
+   "source_spelling": {
+    "publisher": "IMD-NAMES",
+    "text": "Vaidhriti",
+    "alternates": []
+   },
+   "display": {
+    "en": "Vaidhriti",
+    "hi": "वैधृति"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  }
+ },
+ "tithi": {
+  "1": {
+   "paksha": "shukla",
+   "paksha_day": 1,
+   "name": "tithi_name.pratipada"
+  },
+  "2": {
+   "paksha": "shukla",
+   "paksha_day": 2,
+   "name": "tithi_name.dvitiya"
+  },
+  "3": {
+   "paksha": "shukla",
+   "paksha_day": 3,
+   "name": "tithi_name.tritiya"
+  },
+  "4": {
+   "paksha": "shukla",
+   "paksha_day": 4,
+   "name": "tithi_name.chaturthi"
+  },
+  "5": {
+   "paksha": "shukla",
+   "paksha_day": 5,
+   "name": "tithi_name.panchami"
+  },
+  "6": {
+   "paksha": "shukla",
+   "paksha_day": 6,
+   "name": "tithi_name.shashthi"
+  },
+  "7": {
+   "paksha": "shukla",
+   "paksha_day": 7,
+   "name": "tithi_name.saptami"
+  },
+  "8": {
+   "paksha": "shukla",
+   "paksha_day": 8,
+   "name": "tithi_name.ashtami"
+  },
+  "9": {
+   "paksha": "shukla",
+   "paksha_day": 9,
+   "name": "tithi_name.navami"
+  },
+  "10": {
+   "paksha": "shukla",
+   "paksha_day": 10,
+   "name": "tithi_name.dashami"
+  },
+  "11": {
+   "paksha": "shukla",
+   "paksha_day": 11,
+   "name": "tithi_name.ekadashi"
+  },
+  "12": {
+   "paksha": "shukla",
+   "paksha_day": 12,
+   "name": "tithi_name.dvadashi"
+  },
+  "13": {
+   "paksha": "shukla",
+   "paksha_day": 13,
+   "name": "tithi_name.trayodashi"
+  },
+  "14": {
+   "paksha": "shukla",
+   "paksha_day": 14,
+   "name": "tithi_name.chaturdashi"
+  },
+  "15": {
+   "paksha": "shukla",
+   "paksha_day": 15,
+   "name": "tithi_name.purnima"
+  },
+  "16": {
+   "paksha": "krishna",
+   "paksha_day": 1,
+   "name": "tithi_name.pratipada"
+  },
+  "17": {
+   "paksha": "krishna",
+   "paksha_day": 2,
+   "name": "tithi_name.dvitiya"
+  },
+  "18": {
+   "paksha": "krishna",
+   "paksha_day": 3,
+   "name": "tithi_name.tritiya"
+  },
+  "19": {
+   "paksha": "krishna",
+   "paksha_day": 4,
+   "name": "tithi_name.chaturthi"
+  },
+  "20": {
+   "paksha": "krishna",
+   "paksha_day": 5,
+   "name": "tithi_name.panchami"
+  },
+  "21": {
+   "paksha": "krishna",
+   "paksha_day": 6,
+   "name": "tithi_name.shashthi"
+  },
+  "22": {
+   "paksha": "krishna",
+   "paksha_day": 7,
+   "name": "tithi_name.saptami"
+  },
+  "23": {
+   "paksha": "krishna",
+   "paksha_day": 8,
+   "name": "tithi_name.ashtami"
+  },
+  "24": {
+   "paksha": "krishna",
+   "paksha_day": 9,
+   "name": "tithi_name.navami"
+  },
+  "25": {
+   "paksha": "krishna",
+   "paksha_day": 10,
+   "name": "tithi_name.dashami"
+  },
+  "26": {
+   "paksha": "krishna",
+   "paksha_day": 11,
+   "name": "tithi_name.ekadashi"
+  },
+  "27": {
+   "paksha": "krishna",
+   "paksha_day": 12,
+   "name": "tithi_name.dvadashi"
+  },
+  "28": {
+   "paksha": "krishna",
+   "paksha_day": 13,
+   "name": "tithi_name.trayodashi"
+  },
+  "29": {
+   "paksha": "krishna",
+   "paksha_day": 14,
+   "name": "tithi_name.chaturdashi"
+  },
+  "30": {
+   "paksha": "krishna",
+   "paksha_day": 15,
+   "name": "tithi_name.amavasya"
+  }
+ },
+ "karana": {
+  "1": "karana.kimstughna",
+  "2": "karana.bava",
+  "3": "karana.balava",
+  "4": "karana.kaulava",
+  "5": "karana.taitila",
+  "6": "karana.gara",
+  "7": "karana.vanija",
+  "8": "karana.vishti",
+  "9": "karana.bava",
+  "10": "karana.balava",
+  "11": "karana.kaulava",
+  "12": "karana.taitila",
+  "13": "karana.gara",
+  "14": "karana.vanija",
+  "15": "karana.vishti",
+  "16": "karana.bava",
+  "17": "karana.balava",
+  "18": "karana.kaulava",
+  "19": "karana.taitila",
+  "20": "karana.gara",
+  "21": "karana.vanija",
+  "22": "karana.vishti",
+  "23": "karana.bava",
+  "24": "karana.balava",
+  "25": "karana.kaulava",
+  "26": "karana.taitila",
+  "27": "karana.gara",
+  "28": "karana.vanija",
+  "29": "karana.vishti",
+  "30": "karana.bava",
+  "31": "karana.balava",
+  "32": "karana.kaulava",
+  "33": "karana.taitila",
+  "34": "karana.gara",
+  "35": "karana.vanija",
+  "36": "karana.vishti",
+  "37": "karana.bava",
+  "38": "karana.balava",
+  "39": "karana.kaulava",
+  "40": "karana.taitila",
+  "41": "karana.gara",
+  "42": "karana.vanija",
+  "43": "karana.vishti",
+  "44": "karana.bava",
+  "45": "karana.balava",
+  "46": "karana.kaulava",
+  "47": "karana.taitila",
+  "48": "karana.gara",
+  "49": "karana.vanija",
+  "50": "karana.vishti",
+  "51": "karana.bava",
+  "52": "karana.balava",
+  "53": "karana.kaulava",
+  "54": "karana.taitila",
+  "55": "karana.gara",
+  "56": "karana.vanija",
+  "57": "karana.vishti",
+  "58": "karana.shakuni",
+  "59": "karana.chatushpada",
+  "60": "karana.naga"
+ },
+ "yoga": {
+  "1": "panchanga_yoga.vishkambha",
+  "2": "panchanga_yoga.priti",
+  "3": "panchanga_yoga.ayushman",
+  "4": "panchanga_yoga.saubhagya",
+  "5": "panchanga_yoga.shobhana",
+  "6": "panchanga_yoga.atiganda",
+  "7": "panchanga_yoga.sukarma",
+  "8": "panchanga_yoga.dhriti",
+  "9": "panchanga_yoga.shula",
+  "10": "panchanga_yoga.ganda",
+  "11": "panchanga_yoga.vriddhi",
+  "12": "panchanga_yoga.dhruva",
+  "13": "panchanga_yoga.vyaghata",
+  "14": "panchanga_yoga.harshana",
+  "15": "panchanga_yoga.vajra",
+  "16": "panchanga_yoga.siddhi",
+  "17": "panchanga_yoga.vyatipata",
+  "18": "panchanga_yoga.variyan",
+  "19": "panchanga_yoga.parigha",
+  "20": "panchanga_yoga.shiva",
+  "21": "panchanga_yoga.siddha",
+  "22": "panchanga_yoga.sadhya",
+  "23": "panchanga_yoga.shubha",
+  "24": "panchanga_yoga.shukla",
+  "25": "panchanga_yoga.brahma",
+  "26": "panchanga_yoga.indra",
+  "27": "panchanga_yoga.vaidhriti"
+ },
+ "paksha_prefix": {
+  "shukla": {
+   "display": {
+    "en": "Shukla",
+    "hi": "शुक्ल"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "krishna": {
+   "display": {
+    "en": "Krishna",
+    "hi": "कृष्ण"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  }
+ },
+ "karana_kind_label": {
+  "repeating": {
+   "display": {
+    "en": "repeating",
+    "hi": "चर"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  },
+  "fixed": {
+   "display": {
+    "en": "fixed",
+    "hi": "स्थिर"
+   },
+   "review": {
+    "en_display": "PENDING_HUMAN_REVIEW",
+    "hi_display": "PENDING_HUMAN_REVIEW",
+    "jyotish_terminology": "PENDING_HUMAN_REVIEW"
+   }
+  }
+ },
+ "strings": {
+  "qa.subject": {
+   "en": "QA PREVIEW, NOT FOR CUSTOMERS: Panchanga names pending review",
+   "hi": "QA पूर्वावलोकन, ग्राहकों के लिए नहीं: पंचांग नाम समीक्षा के लिए लंबित"
+  },
+  "qa.notice": {
+   "en": " QA PREVIEW, NOT FOR CUSTOMERS: the Tithi, Karana and Yoga names on these pages are pending human Hindi language and Jyotish terminology review.",
+   "hi": " QA पूर्वावलोकन, ग्राहकों के लिए नहीं: इन पृष्ठों पर तिथि, करण और योग के नाम हिंदी भाषा और ज्योतिष शब्दावली की मानवीय समीक्षा के लिए लंबित हैं।"
+  },
+  "card.tithi_sub": {
+   "en": "{name}, day {day} of 15",
+   "hi": "{name}, पक्ष का दिन {day}"
+  },
+  "card.karana_sub": {
+   "en": "{name}, {kind} Karana",
+   "hi": "{name}, {kind} करण"
+  },
+  "card.yoga_sub": {
+   "en": "{name}, Panchanga Yoga",
+   "hi": "{name}, पंचांग योग"
+  },
+  "tr.karana_first": {
+   "en": "{name}, 1st half",
+   "hi": "{name}, पूर्वार्ध"
+  },
+  "tr.karana_second": {
+   "en": "{name}, 2nd half",
+   "hi": "{name}, उत्तरार्ध"
+  },
+  "pm.karana_value": {
+   "en": "Number of whole 6° steps of E, plus 1 (1 to 60). Names follow the IMD Rashtriya Panchang: {first} at 1, the seven repeating Karanas {rep_first} to {rep_last} eight times from 2 to 57, then {k58}, {k59} and {k60}.",
+   "hi": "E के पूरे 6° भागों की संख्या, धन 1 (1 से 60)। नाम IMD राष्ट्रीय पंचांग के अनुसार: 1 पर {first}, 2 से 57 तक सात चर करण {rep_first} से {rep_last} आठ बार, फिर {k58}, {k59} और {k60}।"
+  },
+  "pm.yoga_value": {
+   "en": "S = (Sun + Moon) mod 360°. Yoga = number of whole 13°20′ steps of S, plus 1 (1 to 27), named in the IMD Rashtriya Panchang order from {first} to {last}.",
+   "hi": "S = (सूर्य + चंद्र) mod 360°। योग = S के पूरे 13°20′ भागों की संख्या, धन 1 (1 से 27), IMD राष्ट्रीय पंचांग के क्रम में {first} से {last} तक नामित।"
+  },
+  "pm.inc1": {
+   "en": "Tithi number and name, Paksha, day",
+   "hi": "तिथि क्रमांक और नाम, पक्ष, दिन"
+  },
+  "pm.inc2": {
+   "en": "Karana number and name",
+   "hi": "करण क्रमांक और नाम"
+  },
+  "pm.inc3": {
+   "en": "Yoga number and name",
+   "hi": "योग क्रमांक और नाम"
+  },
+  "pm.exc3": {
+   "en": "Reviewed, customer-approved names",
+   "hi": "समीक्षित, ग्राहक-अनुमोदित नाम"
+  },
+  "def.karana": {
+   "en": "Karana: half of a Tithi, 6° of E, so there are 60 in a lunar month. It is shown by its number, 1 to 60, and its name.",
+   "hi": "करण: तिथि का आधा भाग, E के 6°, इसलिए चंद्र मास में 60 करण होते हैं। यहाँ इसका क्रमांक, 1 से 60, और नाम दिया गया है।"
+  },
+  "def.yoga": {
+   "en": "Yoga: one of 27 spans of 13°20′ of the sum S of the sidereal Sun and Moon longitudes, shown by its number 1 to 27 and its name. It is not a planetary Yoga.",
+   "hi": "योग: निरयन सूर्य और चंद्र भोगांशों के जोड़ S के 13°20′ के 27 खंडों में से एक, जिसका क्रमांक 1 से 27 और नाम दिया गया है। यह ग्रह-योग नहीं है।"
+  }
+ }
+}

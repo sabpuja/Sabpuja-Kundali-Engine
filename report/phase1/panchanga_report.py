@@ -18,7 +18,10 @@ The only derived display values are a calendar-formatted local date, hours relat
 the timeline, and drawing positions. Local times are re-derived from the UTC instant with the
 pinned IANA data only to check that the document's local time is the correct one.
 
-No Tithi, Karana or Yoga name is displayed (D07-A, D16-M1-INDEX): they are shown by number. The
+By default no Tithi, Karana or Yoga name is displayed (D07-A, D16-M1-INDEX): they are shown by
+number. names='qa_preview' (KUN-PAN-M2-NAMES-001) adds the source-mapped names from
+panchanga_names for internal QA, with a not-for-customers notice; names='customer' is refused
+until the human review and owner release recorded in panchanga_names.json are complete. The
 document's validation status ENGINEERING_UNVERIFIED_PENDING_INDEPENDENT_QA is printed with a
 plain-language limitation on the Method and limits page.
 """
@@ -39,11 +42,13 @@ try:
     from . import premium_report as pr
     from . import premium_layout as layout
     from . import report_locale as loc
+    from . import panchanga_names as pn
 except ImportError:  # loaded by path or run as a script
     sys.path.insert(0, str(ROOT))
     import premium_report as pr
     import premium_layout as layout
     import report_locale as loc
+    import panchanga_names as pn
 
 CATALOG_PATH = ROOT / 'report_panchanga_i18n.json'
 CATALOG = json.loads(CATALOG_PATH.read_text(encoding='utf-8'))
@@ -327,11 +332,33 @@ def validate(response, doc):
 # The extension object used by premium_report.render.
 
 class Extension:
-    def __init__(self, response, doc, locale):
+    def __init__(self, response, doc, locale, names=None):
         self.locale = loc.validate_locale(locale)
+        try:
+            self.names = pn.check_mode(names)
+        except pn.NamesError as exc:
+            raise PanchangaReportError(str(exc)) from None
         self.values = validate(response, doc)
         self.audit = {'schema': SCHEMA, 'validation_status': VALIDATION_STATUS,
                       'method_sha256': METHOD_SHA256, 'withheld': [], 'texts': []}
+        if self.names is not None:
+            v = self.values
+            self.audit['names'] = {'mode': self.names, 'tithi': pn.term_id('tithi', v['number']),
+                                   'karana': pn.term_id('karana', v['karana']),
+                                   'yoga': pn.term_id('yoga', v['yoga'])}
+
+    def n(self, key, **values):
+        """A string of the named display (panchanga_names.json); only used when names are on."""
+        return pn.text(key, self.locale, **values)
+
+    def subject(self):
+        if self.names == 'qa_preview':
+            return self.n('qa.subject')
+        return self.t('meta.subject')
+
+    def _qa(self, text):
+        """The not-for-customers notice, appended in QA preview mode only."""
+        return text + self.n('qa.notice') if self.names == 'qa_preview' else text
 
     def t(self, key, **values):
         entry = STRINGS.get(key)
@@ -383,12 +410,19 @@ class Extension:
         y = pr._title(d, 'panchanga', self.t('pan.title'), self.t('pan.intro', positions=d.page_of['positions']))
         nak = v['nakshatra']
         transitions = d.page_of['transitions']
+        if self.names is None:
+            subs = (self.t('pan.tithi_sub', day=v['paksha_day']), self.t('pan.karana_sub'), self.t('pan.yoga_sub'))
+        else:
+            loc_ = self.locale
+            subs = (self.n('card.tithi_sub', name=pn.tithi_label(v['number'], loc_), day=v['paksha_day']),
+                    self.n('card.karana_sub', name=pn.name('karana', v['karana'], loc_),
+                           kind=pn.karana_kind(v['karana'], loc_)),
+                    self.n('card.yoga_sub', name=pn.name('yoga', v['yoga'], loc_)))
         cards = [
-            (self.t('pan.tithi'), self.t('pan.tithi_value', number=v['number']),
-             self.t('pan.tithi_sub', day=v['paksha_day'])),
+            (self.t('pan.tithi'), self.t('pan.tithi_value', number=v['number']), subs[0]),
             (self.t('pan.paksha'), self._paksha(v), self.t('pan.paksha_sub.' + v['paksha'])),
-            (self.t('pan.karana'), self.t('pan.karana_value', index=v['karana']), self.t('pan.karana_sub')),
-            (self.t('pan.yoga'), self.t('pan.yoga_value', index=v['yoga']), self.t('pan.yoga_sub')),
+            (self.t('pan.karana'), self.t('pan.karana_value', index=v['karana']), subs[1]),
+            (self.t('pan.yoga'), self.t('pan.yoga_value', index=v['yoga']), subs[2]),
             (self.t('pan.nakshatra'), d.tr.nakshatra(nak['name']),
              self.t('pan.nakshatra_sub', pada=nak['pada'])),
             (self.t('pan.angle'), f"{v['elongation']:.8f}°", self.t('pan.angle_sub', sum=f"{v['yoga_sum']:.8f}")),
@@ -419,10 +453,12 @@ class Extension:
         width = pr.W - pr.M - x
         yy = y - 22
         for key in ('tithi', 'paksha', 'karana', 'yoga', 'nakshatra'):
-            yy = d.wrap(x, yy, self.t(f'pan.def.{key}', positions=d.page_of['positions']), width, 8.6, 12.2,
+            text = (self.n(f'def.{key}') if self.names is not None and key in ('karana', 'yoga')
+                    else self.t(f'pan.def.{key}', positions=d.page_of['positions']))
+            yy = d.wrap(x, yy, text, width, 8.6, 12.2,
                         'Body', 'ink', max_lines=4) - 5
         bottom = min(yy, caption_end) - 8
-        end = pr._note(d, pr.M, bottom, pr.CW, self.t('pan.instant_title'), self.t('pan.instant'), size=8.4)
+        end = pr._note(d, pr.M, bottom, pr.CW, self.t('pan.instant_title'), self._qa(self.t('pan.instant')), size=8.4)
         if end < pr.FOOTER_Y + 22:
             raise layout.LayoutError('Panchanga page content reaches the footer')
 
@@ -512,8 +548,16 @@ class Extension:
             'nakshatra': (d.tr.nakshatra(nak['name']), self.t('tr.val.nakshatra', index=nak['index'])),
             'pada': (self.t('tr.val.pada', pada=nak['pada']), d.tr.nakshatra(nak['name'])),
         }
-        columns = [(self.t('tr.col.element'), 66, 'left'), (self.t('tr.col.value'), 101, 'left'),
-                   (self.t('tr.col.start'), 166, 'left'), (self.t('tr.col.end'), 166, 'left')]
+        if self.names is not None:
+            half = 'first' if v['karana'] % 2 else 'second'
+            values['tithi'] = (values['tithi'][0], pn.tithi_label(v['number'], self.locale))
+            values['karana'] = (values['karana'][0],
+                                self.n('tr.karana_' + half, name=pn.name('karana', v['karana'], self.locale)))
+            values['yoga'] = (values['yoga'][0], pn.name('yoga', v['yoga'], self.locale))
+        # Named display: a wider value column for names such as "Chatushpada, 2nd half" (same total width).
+        value_w, time_w = (101, 166) if self.names is None else (117, 158)
+        columns = [(self.t('tr.col.element'), 66, 'left'), (self.t('tr.col.value'), value_w, 'left'),
+                   (self.t('tr.col.start'), time_w, 'left'), (self.t('tr.col.end'), time_w, 'left')]
         rows = []
         for element in ELEMENTS:
             (s_utc, s_loc), (e_utc, e_loc) = spans[element]['start'], spans[element]['end']
@@ -533,7 +577,7 @@ class Extension:
         if any(m is None for _, m in shown):
             how += self.t('tr.withheld_note', first=d.date_text(LOCAL_FIRST.isoformat()),
                           last=d.date_text(LOCAL_LAST.isoformat()))
-        end = pr._note(d, pr.M, y - 6, pr.CW, self.t('tr.how_title'), how, size=8.4)
+        end = pr._note(d, pr.M, y - 6, pr.CW, self.t('tr.how_title'), self._qa(how), size=8.4)
         if end < pr.FOOTER_Y + 22:
             raise layout.LayoutError('Transition page content reaches the footer')
 
@@ -582,8 +626,8 @@ class Extension:
         rows = [
             (self.t('pm.positions'), self.t('pm.positions_value')),
             (self.t('pm.tithi'), self.t('pm.tithi_value')),
-            (self.t('pm.karana'), self.t('pm.karana_value')),
-            (self.t('pm.yoga'), self.t('pm.yoga_value')),
+            (self.t('pm.karana'), self._karana_method()),
+            (self.t('pm.yoga'), self._yoga_method()),
             (self.t('pm.nakshatra'), self.t('pm.nakshatra_value')),
             (self.t('pm.boundary'), self.t('pm.boundary_value')),
             (self.t('pm.time'), self.t('pm.time_value')),
@@ -601,14 +645,14 @@ class Extension:
             d.line(pr.M, rule, pr.W - pr.M, rule, 'rule', 0.5)
             y = rule - 14
         y -= 6
-        y = pr._note(d, pr.M, y, pr.CW, self.t('pm.status_title', status=VALIDATION_STATUS), self.t('pm.status'),
+        y = pr._note(d, pr.M, y, pr.CW, self.t('pm.status_title', status=VALIDATION_STATUS), self._qa(self.t('pm.status')),
                      size=8.4) - 18
         half = pr.CW / 2 - 10
         d.text(pr.M, y, self.t('pm.included'), 11, 'Head', 'ink')
         d.text(pr.M + half + 20, y, self.t('pm.excluded'), 11, 'Head', 'ink')
         yy = y - 18
         for i in range(1, 6):
-            a, b = self.t(f'pm.inc{i}'), self.t(f'pm.exc{i}')
+            a, b = self._pm_item(f'pm.inc{i}'), self._pm_item(f'pm.exc{i}')
             for text in (a, b):
                 if d.width(text, 'Body', 8.6) > half - 14:
                     raise layout.LayoutError('Panchanga list item too long')
@@ -619,6 +663,23 @@ class Extension:
             yy -= 14.5
         if yy < pr.FOOTER_Y + 22:
             raise layout.LayoutError('Panchanga method page content reaches the footer')
+
+
+    def _pm_item(self, key):
+        if self.names is not None and key in pn.CATALOG['strings']:
+            return self.n(key)
+        return self.t(key)
+
+    def _karana_method(self):
+        if self.names is None:
+            return self.t('pm.karana_value')
+        k = lambda i: pn.name('karana', i, self.locale)
+        return self.n('pm.karana_value', first=k(1), rep_first=k(2), rep_last=k(8), k58=k(58), k59=k(59), k60=k(60))
+
+    def _yoga_method(self):
+        if self.names is None:
+            return self.t('pm.yoga_value')
+        return self.n('pm.yoga_value', first=pn.name('yoga', 1, self.locale), last=pn.name('yoga', 27, self.locale))
 
 
 def _num(value):

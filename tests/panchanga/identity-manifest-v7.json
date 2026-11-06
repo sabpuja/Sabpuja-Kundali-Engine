@@ -1,0 +1,53 @@
+{
+  "manifest_schema": "sabpuja-pan-qa-08-identity/7",
+  "note": "PAN-QA-08 identity manifest v7 (KUN-PAN-M2-NAMES-001). Declares the report-only change relative to f26dd10 (draft PR #79, the v6 tree): two modified report files and the new Panchanga names files (catalog, module, pinned 13-page hashes, tests and crosswalk tool). The v5 packet inventory and the frozen part of the decision record are carried over unchanged. v1 to v6 are preserved and bound here by their SHA-256. No engine, Panchanga M1, data, preview, catalog, calculation, ephemeris, tolerance or chart value is declared. Generated from git objects only: python -m tests.panchanga.identity_v7 --check.",
+  "task": "KUN-PAN-M2-NAMES-001",
+  "v6_manifest": {
+    "path": "tests/panchanga/identity-manifest-v6.json",
+    "sha256": "964f42f9c14916eebdedc5076c7cce57d5c3b2351bee3ec2aef6c68315039005",
+    "base_commit": "f26dd10829200e34fa6290bf19a5cebd44ced6a1",
+    "v5_sha256": "258312b69c9bf65ae6baf6cee0ef0b307fff22a1f6cd402a0f3f504a3d900d16",
+    "v4_sha256": "6f39046e8fc57e0129f67f96410fa4c5a3b3fefa4db7d65c8f27a8aa9602686b",
+    "v3_sha256": "9a2051d9fd74ef016b5d48e9cd182714028dbbb017fda2a3df89f494276f0e77",
+    "v2_sha256": "d2dea049b652df4ff3f02ce5064e211d3b7f0c97d222e085ce36826bc2f087da",
+    "v1_sha256": "2e913eda7bb60f6159463ee219b4ad840a7fa971bf66e39ac30b871158cb007e"
+  },
+  "modified": {
+    "report/phase1/panchanga_report.py": {
+      "before_sha256": "cfc339ed2e085f0ba802395e962e7b1dc44950a6e1fc827da755979f7696915b",
+      "v7_sha256": "24228b38a4bf5a7b6635e34cf0015bb6fe126fe8f52c52523f6af86b6f7d7a83",
+      "v7_git_blob": "d13b687a51746d0d914e9707ff5985d624df56f4"
+    },
+    "report/phase1/premium_report.py": {
+      "before_sha256": "13307184e569efeb39ce8fb77e498f2d7f8d663fec5c2d8dd341c549f03e7b30",
+      "v7_sha256": "0404cd1e9fa3671b43905e197b2252dbf4aa30a6cfa650c7a62e4e2a9a556148",
+      "v7_git_blob": "1ba2e8d2418087d588f854a687beb6b4f9ad7455"
+    }
+  },
+  "added": {
+    "report/phase1/panchanga_names.json": {
+      "sha256": "5a36628737fb5b89884a2c57db9679a5362cc62ac8004dd2950ac30a6b5e3dd3",
+      "git_blob": "ee7ea029d301ac3053096a49dfe4c4776084a1ca"
+    },
+    "report/phase1/panchanga_names.py": {
+      "sha256": "3c73fa4ada52b83642a4327ac7f72399f1e46e863efa982f490fc6d9b6375c91",
+      "git_blob": "a51b9edcd90779bd317f63b622d39fc8bc2a0c5f"
+    },
+    "report/phase1/tests/fixtures/extended-13-page-sha256-f26dd10.json": {
+      "sha256": "d6b6ee6e8d04cb99844a399c3f29d19795d416d2cb144ae9527c4ad391ad7eee",
+      "git_blob": "53d78480d439ced7e9288d6716bb94ad08e86d44"
+    },
+    "report/phase1/tests/test_panchanga_names.py": {
+      "sha256": "e0ecdeb196aa37214e003aa9471aa4f432134fc2efc19d52f50ffe30a433562c",
+      "git_blob": "cd87445f04ffaef0cf5b71ef4707ff3eb5c48d52"
+    },
+    "report/phase1/tools/panchanga_names_crosswalk.py": {
+      "sha256": "50968c34371119db090d0d3910a6f309b21039441bdbeec0698dbb7c8689b383",
+      "git_blob": "855dc51aae2f7f1169231c23f2fd6658d26ff7a0"
+    }
+  },
+  "counts": {
+    "modified": 2,
+    "added": 5
+  }
+}

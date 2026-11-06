@@ -1,0 +1,91 @@
+{
+  "evidence": "sabpuja-panchanga-names-evidence/1",
+  "task": "KUN-PAN-M2-NAMES-001 (issue #80)",
+  "status": "SOURCE_FACTS_CAPTURED_PENDING_INDEPENDENT_QA_REREAD",
+  "captured": "2026-11-06",
+  "captured_by": "Claude (Lead Developer), through an automated page-reading tool. Direct download from the development container is refused by its network policy, so no page copy exists and no SHA-256 of an archived page is given.",
+  "rights": "Every page shows '© Government of India | All Rights Reserved'. Reuse permission is unresolved (SOURCE-REGISTER.md 5.2). Only minimal factual fields are recorded here: names, their order, the printed ending times needed to place each Karana in its Tithi, and the short method sentences quoted for citation. No page text, layout, screenshot or PDF is committed.",
+  "independence": "Nothing here was computed by the Sabpuja engine or Swiss Ephemeris. The mapping tests use these facts as the reference; the optional live cross-check compares the engine with them, never the other way round.",
+  "sources": {
+    "IMD-NAMES": {
+      "publisher": "Positional Astronomy Centre, India Meteorological Department (Ministry of Earth Sciences), Government of India",
+      "url": "https://packolkata.imd.gov.in/panchang/ta/tithi-nakshatra",
+      "page_title": "Rashtriya Panchanga",
+      "section_heading": "Names of Tithis, Nakshatras, Yogas, Karanas and Rasis",
+      "accessed": "2026-11-06",
+      "note": "The /ta/ path serves an English names table. No Devanagari text on the page."
+    },
+    "IMD-EXPLANATION": {
+      "publisher": "Positional Astronomy Centre, India Meteorological Department",
+      "url": "https://packolkata.imd.gov.in/panchang/en/explanation",
+      "page_title": "Rashtriya Panchanga",
+      "section_heading": "Explanation",
+      "accessed": "2026-11-06"
+    },
+    "IMD-DAILY-KARTIKA-1948": {
+      "publisher": "Positional Astronomy Centre, India Meteorological Department",
+      "url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
+      "page_title": "Rashtriya Panchanga",
+      "edition": "1948 Saka Era, 2026-2027 A.D.; month Kartika (30 days), 23 October to 21 November 2026",
+      "accessed": "2026-11-06",
+      "note": "English body text under the /bn/ path. Times are IST, printed as 'h. HH-MM'; 24 h or more means the next civil date (IMD rule, SOURCE-REGISTER.md 5.3). Every printed time is an ending moment (IMD-EXPLANATION)."
+    }
+  },
+  "names_page": {
+    "tithi": {"1": "Pratipad", "2": "Dvitiya", "3": "Tritiya", "4": "Chaturthi", "5": "Panchami", "6": "Shashthi",
+              "7": "Saptami", "8": "Ashtami", "9": "Navami", "10": "Dasami", "11": "Ekadasi", "12": "Dvadasi",
+              "13": "Trayodasi", "14": "Chaturdasi", "15": "Purnima", "30": "Amavasya"},
+    "tithi_note": "The page gives a 15-day pattern plus 30 Amavasya, with no Paksha headings. The daily pages print Krishna days 1 to 14 with the same names (for example '(Asvina Krishna) Tritiya').",
+    "yoga_in_order": ["Viskumbha", "Priti", "Ayusman", "Saubhagya", "Sobhana", "Atiganda", "Sukarma", "Dhriti", "Sula",
+                      "Ganda", "Vriddhi", "Dhruva", "Vyaghata", "Harshana", "Vajra", "Siddhi", "Vyatipata", "Variyan",
+                      "Parigha", "Siva", "Siddha", "Sadhya", "Subha", "Sukla", "Brahma", "Indra", "Vaidhriti"],
+    "karana_in_printed_order": ["Bava", "Balava", "Kaulava", "Taitila", "Gara", "Vanij", "Vishti", "Sakuni", "Chatuspada",
+                                "Naga", "Kimstughna"],
+    "karana_note": "One unnumbered line. The page alone does not say which Karana is repeating or fixed or where each falls."
+  },
+  "explanation_quotes": {
+    "tithi": "Tithi is the time period during which the moon gains 12 degrees or its integral multiples in longitude on the sun.",
+    "ending_moments": "The timings given against tithi, nakshatra, yoga and karana are their ending moments (i.e., when the span of the phenomena is completed).",
+    "karana": "Karana is the time period during which the moon gains 6 degrees in longitude on the sun, and thus there are two karanas covering two half periods of tithimana.",
+    "karana_repeating": "There are 7 karanas which repeat in a cyclic order starting from 2nd half of sukla pratipada and ending at 1st half of Krishna chaturdasi.",
+    "karana_fixed": "There are 4 sthira or non-recurring karanas which cover the period from 2nd half of Krishna chaturdasi to 1st half of sukla pratipada.",
+    "yoga": "Yoga is calculated from the sum of the nirayana longitudes of the sun and moon.",
+    "yoga_first": "When this sum amounts to 13° 20' the first yoga ends, when it amounts to 26° 40’ the second yoga ends and so on.",
+    "yoga_count": "There are in all 27 yogas covering 360°."
+  },
+  "daily_kartika_1948": {
+    "note": "One row per civil date, in printed order. Tithi entries are [paksha as printed, name as printed, ending time]; Karana and Yoga entries are [name as printed, ending time]. 'ahoratra' means no ending in that sunrise-to-sunrise day. Nakshatra and astronomy fields are not recorded.",
+    "rows": [
+      {"date": "2026-10-23", "tithi": [["Asvina Sukla", "Dvadasi", "14-36"]], "yoga": [["Dhruva", "22-09"]], "karana": [["Balava", "14-36"], ["Kaulava", "26-13"]]},
+      {"date": "2026-10-24", "tithi": [["Asvina Sukla", "Trayodasi", "13-37"]], "yoga": [["Vyaghata", "20-01"]], "karana": [["Taitila", "13-37"], ["Gara", "24-52"]]},
+      {"date": "2026-10-25", "tithi": [["Asvina Sukla", "Chaturdasi", "11-57"]], "yoga": [["Harshana", "17-22"]], "karana": [["Vanij", "11-57"], ["Vishti", "22-53"]]},
+      {"date": "2026-10-26", "tithi": [["Asvina Sukla", "Purnima", "9-42"]], "yoga": [["Vajra", "14-17"]], "karana": [["Bava", "9-42"], ["Balava", "20-24"]]},
+      {"date": "2026-10-27", "tithi": [["Asvina Krishna", "Pratipad", "7-02"], ["Asvina Krishna", "Dvitiya", "28-07"]], "yoga": [["Siddhi (Asrik)", "10-53"]], "karana": [["Kaulava", "7-02"], ["Taitila", "17-36"], ["Gara", "28-07"]]},
+      {"date": "2026-10-28", "tithi": [["Asvina Krishna", "Tritiya", "25-07"]], "yoga": [["Vyatipata", "7-19"], ["Variyan", "27-41"]], "karana": [["Vanij", "14-37"], ["Vishti", "25-07"]]},
+      {"date": "2026-10-29", "tithi": [["Asvina Krishna", "Chaturthi", "22-11"]], "yoga": [["Parigha", "24-06"]], "karana": [["Bava", "11-38"], ["Balava", "22-11"]]},
+      {"date": "2026-10-30", "tithi": [["Asvina Krishna", "Panchami", "19-26"]], "yoga": [["Siva", "20-42"]], "karana": [["Kaulava", "8-46"], ["Taitila", "19-26"]]},
+      {"date": "2026-10-31", "tithi": [["Asvina Krishna", "Shashthi", "16-58"]], "yoga": [["Siddha", "17-32"]], "karana": [["Gara", "6-09"], ["Vanij", "16-58"], ["Vishti", "27-52"]]},
+      {"date": "2026-11-01", "tithi": [["Asvina Krishna", "Saptami", "14-52"]], "yoga": [["Sadhya", "14-40"]], "karana": [["Bava", "14-52"], ["Balava", "25-59"]]},
+      {"date": "2026-11-02", "tithi": [["Asvina Krishna", "Ashtami", "13-11"]], "yoga": [["Subha", "12-07"]], "karana": [["Kaulava", "13-11"], ["Taitila", "24-30"]]},
+      {"date": "2026-11-03", "tithi": [["Asvina Krishna", "Navami", "11-55"]], "yoga": [["Sukla (Sukra)", "9-54"]], "karana": [["Gara", "11-55"], ["Vanij", "23-26"]]},
+      {"date": "2026-11-04", "tithi": [["Asvina Krishna", "Dasami", "11-04"]], "yoga": [["Brahma", "8-01"]], "karana": [["Vishti", "11-04"], ["Bava", "22-47"]]},
+      {"date": "2026-11-05", "tithi": [["Asvina Krishna", "Ekadasi", "10-36"]], "yoga": [["Indra", "6-27"], ["Vaidhriti", "29-10"]], "karana": [["Balava", "10-36"], ["Kaulava", "22-31"]]},
+      {"date": "2026-11-06", "tithi": [["Asvina Krishna", "Dvadasi", "10-31"]], "yoga": [["Viskumbha", "28-10"]], "karana": [["Taitila", "10-31"], ["Gara", "22-37"]]},
+      {"date": "2026-11-07", "tithi": [["Asvina Krishna", "Trayodasi", "10-48"]], "yoga": [["Priti", "27-28"]], "karana": [["Vanij", "10-48"], ["Vishti", "23-06"]]},
+      {"date": "2026-11-08", "tithi": [["Asvina Krishna", "Chaturdasi", "11-28"]], "yoga": [["Ayusman", "27-03"]], "karana": [["Sakuni", "11-28"], ["Chatuspada", "23-57"]]},
+      {"date": "2026-11-09", "tithi": [["Asvina Krishna", "Amavasya", "12-32"]], "yoga": [["Saubhagya", "26-57"]], "karana": [["Naga", "12-32"], ["Kinstughna", "25-13"]]},
+      {"date": "2026-11-10", "tithi": [["Kartika Sukla", "Pratipad", "14-01"]], "yoga": [["Sobhana", "27-10"]], "karana": [["Bava", "14-01"], ["Balava", "26-54"]]},
+      {"date": "2026-11-11", "tithi": [["Kartika Sukla", "Dvitiya", "15-54"]], "yoga": [["Atiganda", "27-41"]], "karana": [["Kaulava", "15-54"], ["Taitila", "28-59"]]},
+      {"date": "2026-11-12", "tithi": [["Kartika Sukla", "Tritiya", "18-10"]], "yoga": [["Sukarma", "28-27"]], "karana": [["Gara", "18-10"]]},
+      {"date": "2026-11-13", "tithi": [["Kartika Sukla", "Chaturthi", "20-43"]], "yoga": [["Dhriti", "29-23"]], "karana": [["Vanij", "7-25"], ["Vishti", "20-43"]]},
+      {"date": "2026-11-14", "tithi": [["Kartika Sukla", "Panchami", "23-25"]], "yoga": [["Sula", "ahoratra"]], "karana": [["Bava", "10-04"], ["Balava", "23-25"]]},
+      {"date": "2026-11-15", "tithi": [["Kartika Sukla", "Shashthi", "26-02"]], "yoga": [["Sula", "6-23"]], "karana": [["Kaulava", "12-45"], ["Taitila", "26-02"]]},
+      {"date": "2026-11-16", "tithi": [["Kartika Sukla", "Saptami", "28-20"]], "yoga": [["Ganda", "7-17"]], "karana": [["Gara", "15-14"], ["Vanij", "28-20"]]},
+      {"date": "2026-11-17", "tithi": [["Kartika Sukla", "Ashtami", "30-06"]], "yoga": [["Vriddhi", "7-54"]], "karana": [["Vishti", "17-18"], ["Bava", "30-06"]]},
+      {"date": "2026-11-18", "tithi": [["Kartika Sukla", "Navami", "ahoratra"]], "yoga": [["Dhruva", "8-06"]], "karana": [["Balava", "18-42"]]},
+      {"date": "2026-11-19", "tithi": [["Kartika Sukla", "Navami", "7-07"]], "yoga": [["Vyaghata", "7-43"]], "karana": [["Kaulava", "7-07"], ["Taitila", "19-18"]]},
+      {"date": "2026-11-20", "tithi": [["Kartika Sukla", "Dasami", "7-16"]], "yoga": [["Harshana", "6-40"], ["Vajra", "28-56"]], "karana": [["Gara", "7-16"], ["Vanij", "19-01"]]},
+      {"date": "2026-11-21", "tithi": [["Kartika Sukla", "Ekadasi", "6-32"], ["Kartika Sukla", "Dvadasi", "28-57"]], "yoga": [["Siddhi (Asrik)", "26-31"]], "karana": [["Vishti", "6-32"], ["Bava", "17-50"], ["Balava", "28-57"]]}
+    ]
+  }
+}

@@ -127,3 +127,23 @@ Columns A to D are the stages above. The printed value is exactly as transcribed
 | PAN-CAND-IMD-44 | 2026-10-28 | kartika | karana | Vishti | `h. 25-07` | 2026-10-29T01:07+05:30 | Opened HTML | Done | Done (same reviewer) | Pending | Pending |
 | PAN-CAND-IMD-45 | 2026-10-28 | kartika | sunrise | — | `6:03 AM` | 2026-10-28T06:03+05:30 | Opened HTML | Done | Done (same reviewer) | Pending | Pending |
 | PAN-CAND-IMD-46 | 2026-10-28 | kartika | sunset | — | `5:24 PM` | 2026-10-28T17:24+05:30 | Opened HTML | Done | Done (same reviewer) | Pending | Pending |
+
+## 6. KUN-PAN-M2-NAMES-001: IMD name sources read by Claude (2026-11-06)
+
+Section 3 recorded SRC-IMD-NAMES, SRC-IMD-RP (explanation) and SRC-IMD-DAILY as not retrieved by
+Claude. On 2026-11-06 the three pages below were read through an automated page-reading tool (HTTP
+200). Direct download from the development container is still refused by its network policy, so no
+page copy or SHA-256 of an archived page exists. The pages show "© Government of India | All Rights
+Reserved"; only minimal factual fields (names, order, printed ending times) and short method
+sentences are recorded, in `research/panchanga/names/imd-names-evidence.json`.
+
+| ID | URL | What it gave | Role |
+|---|---|---|---|
+| SRC-IMD-NAMES | <https://packolkata.imd.gov.in/panchang/ta/tithi-nakshatra> | Tithi names (1-15, 30), 27 Yoga names in order, 11 Karana names in one printed line | Reference (names, Yoga order) |
+| SRC-IMD-RP | <https://packolkata.imd.gov.in/panchang/en/explanation> | Tithi 12°, Karana 6°; 7 repeating Karanas from the 2nd half of Shukla Pratipada to the 1st half of Krishna Chaturdashi; 4 fixed Karanas from the 2nd half of Krishna Chaturdashi to the 1st half of Shukla Pratipada; Yoga from the nirayana sum, first ends at 13°20′ | Method (Karana slot rule) |
+| SRC-IMD-DAILY-KARTIKA | <https://packolkata.imd.gov.in/panchang/bn/kartika> (Saka 1948, 23 Oct to 21 Nov 2026) | Every Tithi, Yoga and Karana name with its printed IST ending time for 30 days: all 30 Tithi, 60 Karana and 27 Yoga slots | Reference (independent check of the full slot sequence) |
+
+These are Claude's own reads, not a Stage C second-person verification (section 5.1). The 46
+reviewer-sourced candidates of section 5.3 agree with the names and slots read here (for example
+PAN-CAND-IMD-19/20: Naga ends with Amavasya, Kinstughna follows). The names catalog is
+`report/phase1/panchanga_names.json`; the crosswalk is `docs/i18n/PANCHANGA-NAMES-CROSSWALK.md`.
