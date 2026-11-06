@@ -398,7 +398,7 @@ def render(case, locale, names=QA, synthetic=True):
     key = (case, locale, names, synthetic)
     if key not in _CACHE:
         data, audit = premium.render(SCENARIOS[case], synthetic, 'baseline', None, locale, panchanga=DOCS[case],
-                                     names=names)
+                                     panchanga_names=names)
         _CACHE[key] = data, audit, fitz.open(stream=data, filetype='pdf')
     return _CACHE[key]
 
@@ -442,7 +442,7 @@ class DefaultUnchanged(unittest.TestCase):
 
     def test_ten_page_edition_refuses_names(self):
         with self.assertRaises(ValueError):
-            premium.render(SCENARIOS['s07-noon'], True, 'baseline', None, 'en', names=QA)
+            premium.render(SCENARIOS['s07-noon'], True, 'baseline', None, 'en', panchanga_names=QA)
 
     def test_preview_server_and_prototype_do_not_use_names(self):
         for path in (ROOT / 'prototype').rglob('*.py'):
@@ -578,6 +578,16 @@ class QAPreview(unittest.TestCase):
         self.assertEqual(a, b)
         self.assertEqual((response, doc), (SCENARIOS['s07-noon'], DOCS['s07-noon']))
 
+    def test_with_a_report_name_in_both_scripts(self):
+        """The QA preview keeps the report-name path (a regression found in this task: the render
+        argument once shadowed the display-name module)."""
+        for locale in ('en', 'hi'):
+            for person in ('Zoë-Anne O’Brien', 'क्षत्रिय प्रियंका सिद्धार्थ'):
+                data, audit = premium.render(SCENARIOS['s07-noon'], True, 'baseline', person, locale,
+                                             panchanga=DOCS['s07-noon'], panchanga_names=QA)
+                self.assertEqual(fitz.open(stream=data, filetype='pdf').page_count, 13)
+                self.assertNotIn(person, json.dumps(audit['panchanga']['names'], ensure_ascii=False))
+
     def test_cli_flag_needs_the_extended_edition(self):
         run = subprocess.run([sys.executable, str(ROOT / 'report/phase1/premium_report.py'),
                               str(HERE / 'fixtures/premium/s07-noon.json'), os.devnull, '--names-qa-preview'],
@@ -652,7 +662,7 @@ class LiveFixedKaranaReports(unittest.TestCase):
             for locale in ('en', 'hi'):
                 with self.subTest(day=day, clock=clock, locale=locale):
                     default = premium.generate_extended(response, doc, synthetic=True, palette='baseline', locale=locale)
-                    data, audit = premium.render(response, True, 'baseline', None, locale, panchanga=doc, names=QA)
+                    data, audit = premium.render(response, True, 'baseline', None, locale, panchanga=doc, panchanga_names=QA)
                     pdf = fitz.open(stream=data, filetype='pdf')
                     self.assertEqual(pdf.page_count, 13)
                     self.assertNotEqual(data, default)

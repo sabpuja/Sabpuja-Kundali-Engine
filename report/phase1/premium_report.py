@@ -1425,11 +1425,12 @@ def generate_extended(response: dict, panchanga: dict, synthetic: bool = False, 
     Tithi, Karana and Yoga names for internal QA only, marked as not for customers;
     names='customer' is refused until panchanga_names.release_problems() is empty
     (KUN-PAN-M2-NAMES-001)."""
-    return render(response, synthetic, palette, display_name, locale, panchanga=panchanga, names=names)[0]
+    return render(response, synthetic, palette, display_name, locale, panchanga=panchanga, panchanga_names=names)[0]
 
 
 def render(response: dict, synthetic: bool = False, palette: str | None = None,
-           display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE, *, panchanga=None, names=None):
+           display_name: str | None = None, locale: str = loc.DEFAULT_LOCALE, *, panchanga=None,
+           panchanga_names=None):
     """generate() plus an audit of where chart labels were drawn, for the report tests.
 
     panchanga=None (the default) renders the standard ten-page edition exactly as before.
@@ -1440,14 +1441,15 @@ def render(response: dict, synthetic: bool = False, palette: str | None = None,
     response = copy.deepcopy(response)
     positions = validate(response)
     extension = None
-    if names is not None and panchanga is None:
+    if panchanga_names is not None and panchanga is None:
         raise ValueError('Panchanga names need the extended edition')
     if panchanga is not None:
         try:
             from . import panchanga_report
         except ImportError:  # loaded by path or run as a script
             import panchanga_report
-        extension = panchanga_report.Extension(response, copy.deepcopy(panchanga), locale, names=names)
+        extension = panchanga_report.Extension(response, copy.deepcopy(panchanga), locale,
+                                                   names=panchanga_names)
     pal = Palette(palette or THEMES['default_palette'])
     cmaps = _register_fonts()
     drawing = _logo_drawing()
