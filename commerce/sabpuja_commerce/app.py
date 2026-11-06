@@ -14,6 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from importlib import resources
 import json
+import queue
 import re
 import secrets
 import sys
@@ -57,11 +58,29 @@ class Response:
     body: bytes = b""
     content_type: str = "application/json; charset=utf-8"
     headers: list = field(default_factory=list)
-    # Called by the transport with True once every byte was written, False if sending failed.
+    # Called by the transport immediately before writing; False means do not send this body.
+    before: object = None
+    # Called by the transport with True once every byte was written, False if sending failed or was withheld.
     after: object = None
 
     def json(self):
         return json.loads(self.body.decode("utf-8"))
+
+    def deliver(self, write) -> "Response":
+        """The one send path for every transport: re-check eligibility at send time, write, then settle.
+        `write(response) -> bool` must return True only after every byte was handed to the client socket.
+        A refund that arrives after this check cannot recall bytes already sent; it only stops them being
+        counted (commit_delivery) and stops every later generation."""
+        if self.before is not None and not self.before():
+            withheld = _error(403, "ORDER_NOT_ACTIVE", "this order can no longer be fulfilled; contact support")
+            write(withheld)
+            if self.after is not None:
+                self.after(False)
+            return withheld
+        sent = write(self)
+        if self.after is not None:
+            self.after(sent)
+        return self
 
 
 def _json(status: int, payload: dict, headers=None) -> Response:
@@ -111,7 +130,9 @@ class App:
         self._render_slots = threading.BoundedSemaphore(settings.max_concurrent_renders)
         self._claim_limit = RateLimiter(settings.claim_rate_per_minute, store._clock)
         self._async_mail = async_mail
-        self._mail_threads: list[threading.Thread] = []
+        self._mail_queue: queue.Queue = queue.Queue(maxsize=settings.mail_queue_size)
+        self._mail_worker: threading.Thread | None = None
+        self._mail_lock = threading.Lock()
 
     # ---- transport entry ------------------------------------------------------------------
     def handle(self, method: str, path: str, headers, body: bytes, peer: str) -> Response:
@@ -222,23 +243,64 @@ class App:
             return False
         return self.store.otp_count_since(self.s.shop_domain, order_id, now - 86400) < self.s.otp_max_per_order_per_day
 
-    def _send_mail(self, msg) -> None:
-        def run():
+    def _deliver_mail(self, msg) -> None:
+        try:
+            self.mail.send(msg)
+        except Exception as exc:  # noqa: BLE001 - delivery failure is logged as a type only
+            security_log("MAIL_FAILED:" + type(exc).__name__, 0, "claim_start")
+
+    def _mail_loop(self) -> None:
+        while True:
+            msg = self._mail_queue.get()
             try:
-                self.mail.send(msg)
-            except Exception as exc:  # noqa: BLE001 - delivery failure is logged as a type only
-                security_log("MAIL_FAILED:" + type(exc).__name__, 0, "claim_start")
+                self._deliver_mail(msg)
+            finally:
+                self._mail_queue.task_done()
+
+    def _send_mail(self, msg) -> None:
+        """One bounded queue and one long-lived worker thread: memory and threads stay constant under load.
+        A full queue drops the message (the buyer can ask again after the cooldown) and logs a bounded event."""
         if not self._async_mail:
-            run()
+            self._deliver_mail(msg)
             return
-        t = threading.Thread(target=run, daemon=True)
-        self._mail_threads.append(t)
-        t.start()
+        with self._mail_lock:
+            if self._mail_worker is None or not self._mail_worker.is_alive():
+                self._mail_worker = threading.Thread(target=self._mail_loop, name="sabpuja-mail", daemon=True)
+                self._mail_worker.start()
+        try:
+            self._mail_queue.put_nowait(msg)
+        except queue.Full:
+            security_log("MAIL_QUEUE_FULL", 503, "claim_start")
 
     def flush_mail(self) -> None:
-        for t in self._mail_threads:
-            t.join(5)
-        self._mail_threads.clear()
+        self._mail_queue.join()
+
+    # ---- live order re-check ----------------------------------------------------------------
+    def reconcile(self, order_id: int) -> str:
+        """Re-check one order with Shopify and revoke whatever Shopify no longer allows.
+
+        Returns "ok" (something is still fulfillable), "inactive" (nothing is) or "unavailable" (Shopify could
+        not be asked; the caller fails closed). With verification disabled (offline QA only) returns "ok"."""
+        if self.verifier is None:
+            return "unavailable" if self.s.require_order_verification else "ok"
+        remote = self.verifier.lines(order_id)
+        if remote is None:
+            security_log("ORDER_CHECK_UNAVAILABLE", 503, "reconcile")
+            return "unavailable"
+        shop = self.s.shop_domain
+        local = self.store.active_lines(shop, order_id)
+        for line_id, variant in local.items():
+            if remote.get(line_id) != variant:
+                self.store.revoke_now(shop, order_id, line_id, "reconciled")
+                security_log("ENTITLEMENT_RECONCILED", 0, "reconcile")
+        return "ok" if self.store.active_lines(shop, order_id) else "inactive"
+
+    def reconcile_all(self) -> dict:
+        """One reconciliation pass over every active entitlement (for an operator-run job, not a daemon)."""
+        out = {"ok": 0, "inactive": 0, "unavailable": 0}
+        for order_id in self.store.active_order_ids(self.s.shop_domain):
+            out[self.reconcile(order_id)] += 1
+        return out
 
     def claim_verify(self, body: bytes, client: str) -> Response:
         if not self._claim_limit.allow("verify:" + client):
@@ -255,7 +317,10 @@ class App:
         if not ok:
             security_log("OTP_REJECTED", 401, "claim_verify")
             return _error(401, "CODE_INVALID", "the code is not valid; it may have expired or been used")
-        if self.verifier is not None and not self.verifier.order_ok(order_id):
+        check = self.reconcile(order_id)
+        if check == "unavailable":
+            return _error(503, "ORDER_CHECK_UNAVAILABLE", "we cannot confirm your order right now; try again shortly")
+        if check == "inactive":
             return _error(403, "ORDER_NOT_ACTIVE", "this order can no longer be fulfilled; contact support")
         token = secrets.token_urlsafe(32)
         self.store.new_session(token, self.s.shop_domain, order_id, self.s.session_ttl_seconds)
@@ -297,7 +362,10 @@ class App:
             return _error(400, "REQUEST_INVALID", "the request must be one UTF-8 JSON object")
         except InputRefused as exc:
             return _error(exc.status, exc.code, exc.message)
-        if self.verifier is not None and not self.verifier.order_ok(order_id):
+        check = self.reconcile(order_id)
+        if check == "unavailable":
+            return _error(503, "ORDER_CHECK_UNAVAILABLE", "we cannot confirm your order right now; nothing was used")
+        if check == "inactive":
             return _error(403, "ORDER_NOT_ACTIVE", "this order can no longer be fulfilled; contact support")
         entitlement, reason = self.store.reserve(shop, order_id)
         if entitlement is None:
@@ -326,15 +394,24 @@ class App:
             return _error(503, "REPORT_UNAVAILABLE", "the report cannot be prepared right now; nothing was used")
         finally:
             self._render_slots.release()
-        if not self.store.still_active(entitlement):
+        if not self.store.deliverable(entitlement):
             self.store.release(entitlement)
             return _error(403, "ORDER_NOT_ACTIVE", "this order can no longer be fulfilled; contact support")
 
+        token = self._token(headers)
+
+        def before() -> bool:
+            # Send-time re-check: reservation still held (a refund or cancel drops it) and the session still valid.
+            return (self.store.deliverable(entitlement) and token is not None
+                    and self.store.session_order(token) == order)
+
         def after(sent: bool) -> None:
-            (self.store.commit_delivery if sent else self.store.release)(entitlement)
             if not sent:
-                security_log("DELIVERY_FAILED", 0, "generate")
+                self.store.release(entitlement)
+                security_log("DELIVERY_NOT_SENT", 0, "generate")
+            elif not self.store.commit_delivery(entitlement):
+                security_log("DELIVERY_NOT_COUNTED_REVOKED", 0, "generate")
 
         return Response(200, pdf, "application/pdf",
                         headers=[("Content-Disposition", 'attachment; filename="Sabpuja-Janam-Kundali.pdf"')],
-                        after=after)
+                        before=before, after=after)

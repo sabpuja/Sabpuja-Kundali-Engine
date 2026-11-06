@@ -51,12 +51,13 @@ class AtRest(unittest.TestCase):
 
     def test_schema_has_no_personal_columns(self):
         db = sqlite3.connect(self.db)
-        columns = {row[1] for table in ("entitlements", "otp_challenges", "sessions", "webhook_events", "revocations")
+        columns = {row[1] for table in ("entitlements", "otp_challenges", "sessions", "webhook_events", "revocations",
+                                                  "order_exceptions")
                    for row in db.execute(f"PRAGMA table_info({table})")}
         db.close()
         allowed = {"id", "shop", "order_id", "order_number", "line_item_id", "edition", "email_hash", "capacity",
                    "used", "status", "revoke_reason", "created_at", "claim_expires_at", "window_days",
-                   "first_delivered_at", "in_flight_since", "code_hash", "expires_at", "attempts", "state",
+                   "first_delivered_at", "in_flight_since", "variant_id", "hard_expires_at", "kind", "resolved_at", "code_hash", "expires_at", "attempts", "state",
                    "token_hash", "webhook_id", "topic", "received_at", "outcome", "reason", "at"}
         self.assertEqual(columns - allowed, set())
 

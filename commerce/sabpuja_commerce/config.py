@@ -39,7 +39,10 @@ class Settings:
     initial_generations: int = 1
     additional_generations: int = 3
     generation_window_days: int = 30   # counted from the first delivered PDF
-    claim_validity_days: int = 180     # how long an unused entitlement can be claimed
+    claim_validity_days: int = 30      # how long an unused entitlement can be claimed
+    # Shopify apps read only the last 60 days of orders without read_all_orders. Every entitlement hard-expires
+    # at this horizon so the live re-check below can always see its order.
+    order_read_horizon_days: int = 60
     otp_ttl_seconds: int = 600
     otp_max_attempts: int = 5
     otp_resend_cooldown_seconds: int = 60
@@ -49,12 +52,15 @@ class Settings:
     webhook_id_retention_days: int = 90
     claim_rate_per_minute: int = 10    # per client address, in memory
     max_concurrent_renders: int = 1
-    verify_orders_with_admin_api: bool = False
+    # Paid release requires a live Shopify order re-check (GraphQL Admin API) before claim and generation.
+    # Offline tests and isolated QA may turn it off explicitly; there is no silent default.
+    require_order_verification: bool = True
     admin_api_token: str = field(default="", repr=False)
     admin_api_version: str = "2025-10"
     trusted_proxies: tuple[str, ...] = ()   # peers whose last X-Forwarded-For entry is the client
     source_url: str = "https://github.com/sabpuja/Sabpuja-Kundali-Engine"  # AGPL-3.0 Corresponding Source
     mail_from: str = "Sabpuja <no-reply@sabpuja.com>"
+    mail_queue_size: int = 100
 
     @property
     def generations_per_unit(self) -> int:
@@ -90,8 +96,12 @@ class Settings:
                 raise ConfigError(f"{name} must be positive")
         if self.additional_generations < 0:
             raise ConfigError("additional_generations must not be negative")
-        if self.verify_orders_with_admin_api and not self.admin_api_token:
-            raise ConfigError("admin api verification needs a token")
+        if self.require_order_verification and not self.admin_api_token:
+            raise ConfigError("live order verification needs an Admin API token file")
+        if self.claim_validity_days + self.generation_window_days > self.order_read_horizon_days:
+            raise ConfigError("claim window plus generation window must fit inside the order-read horizon")
+        if self.mail_queue_size < 1:
+            raise ConfigError("mail_queue_size must be positive")
         return self
 
 

@@ -57,9 +57,7 @@ class Handler(BaseHTTPRequestHandler):
                                    "application/json; charset=utf-8", [])
             body = self.rfile.read(length)
         resp = self.app.handle(method, self.path, self.headers, body, self.client_address[0])
-        sent = self._write(resp.status, resp.body, resp.content_type, resp.headers)
-        if resp.after is not None:
-            resp.after(sent)
+        resp.deliver(lambda r: self._write(r.status, r.body, r.content_type, r.headers))
 
     def do_GET(self):
         self._dispatch("GET")
@@ -92,6 +90,10 @@ def main(argv=None) -> int:
     parser.add_argument("--config", required=True)
     parser.add_argument("--port", type=int, default=8770)
     parser.add_argument("--smtp-config", help="JSON with host, port, username, password_file")
+    parser.add_argument("--reconcile-once", action="store_true",
+                        help="re-check every active entitlement with Shopify once, print counts and exit")
+    parser.add_argument("--list-exceptions", action="store_true",
+                        help="print open paid-order exceptions (ids and kinds only) and exit")
     args = parser.parse_args(argv)
     import json
     from . import config as cfg, mailer, renderer, shopify
@@ -112,11 +114,17 @@ def main(argv=None) -> int:
         print("no --smtp-config: codes go to an in-memory mock mailer (offline use only)", file=sys.stderr)
         mail = mailer.MockMailer()
     store = Store(settings.db_path, settings.pepper)
-    verifier = shopify.AdminOrderVerifier(settings) if settings.verify_orders_with_admin_api else None
+    verifier = shopify.GraphQLOrderVerifier(settings) if settings.require_order_verification else None
     app = App(settings, store, mail, renderer.EssentialsRenderer(
         places, settings.ephe_path, enforce_release=not settings.allow_unreleased_edition), places,
               verifier=verifier, public_places=lambda: [pl.public_place(places[k]) | {"id": k}
                                                          for k in places])
+    if args.list_exceptions:
+        print(json.dumps(store.open_exceptions()))
+        return 0
+    if args.reconcile_once:
+        print(json.dumps(app.reconcile_all()))
+        return 0
     httpd = serve(app, args.port)
     print(f"listening on {HOST}:{args.port}", file=sys.stderr)
     try:

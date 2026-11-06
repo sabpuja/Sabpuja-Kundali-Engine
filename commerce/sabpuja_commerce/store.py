@@ -3,7 +3,8 @@
 There is deliberately no column for a name, birth date, time, place, PDF or raw e-mail address.
 E-mails, one-time codes and session tokens are stored only as keyed HMACs (the pepper is outside
 the database), so a copied database or backup cannot be used to claim or to read a customer's
-address. `secure_delete` overwrites deleted rows.
+address. Entitlements and the keyed e-mail hash are still customer-linked order data and need the
+same backup, access and retention care as other order records. `secure_delete` overwrites deleted rows.
 """
 from __future__ import annotations
 
@@ -15,7 +16,7 @@ import threading
 import time
 import unicodedata
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
@@ -24,13 +25,13 @@ CREATE TABLE IF NOT EXISTS webhook_events (
 CREATE TABLE IF NOT EXISTS entitlements (
     id INTEGER PRIMARY KEY,
     shop TEXT NOT NULL, order_id INTEGER NOT NULL, order_number INTEGER NOT NULL,
-    line_item_id INTEGER NOT NULL, edition TEXT NOT NULL,
+    line_item_id INTEGER NOT NULL, variant_id INTEGER NOT NULL, edition TEXT NOT NULL,
     email_hash BLOB,
     capacity INTEGER NOT NULL CHECK (capacity >= 1),
     used INTEGER NOT NULL DEFAULT 0 CHECK (used >= 0 AND used <= capacity),
     status TEXT NOT NULL CHECK (status IN ('active', 'revoked')),
     revoke_reason TEXT,
-    created_at INTEGER NOT NULL, claim_expires_at INTEGER NOT NULL,
+    created_at INTEGER NOT NULL, claim_expires_at INTEGER NOT NULL, hard_expires_at INTEGER NOT NULL,
     window_days INTEGER NOT NULL, first_delivered_at INTEGER,
     in_flight_since INTEGER,
     UNIQUE (shop, order_id, line_item_id));
@@ -46,7 +47,13 @@ CREATE INDEX IF NOT EXISTS otp_order ON otp_challenges (shop, order_id);
 CREATE TABLE IF NOT EXISTS sessions (
     token_hash BLOB PRIMARY KEY, shop TEXT NOT NULL, order_id INTEGER NOT NULL,
     created_at INTEGER NOT NULL, expires_at INTEGER NOT NULL);
+-- Paid purchases that could not become a claimable entitlement. Ids and a bounded kind only, no PII.
+CREATE TABLE IF NOT EXISTS order_exceptions (
+    id INTEGER PRIMARY KEY, at INTEGER NOT NULL, kind TEXT NOT NULL, order_id INTEGER, webhook_id TEXT,
+    resolved_at INTEGER);
 """
+
+EXCEPTION_KINDS = frozenset({"paid_without_email", "sellable_line_rejected", "malformed_paid_webhook"})
 
 # A reservation older than this is treated as abandoned (process crash mid-render).
 STALE_RESERVATION_SECONDS = 300
@@ -64,11 +71,13 @@ class Store:
         self._db = sqlite3.connect(path, isolation_level=None, check_same_thread=False)
         self._db.row_factory = sqlite3.Row
         self._db.execute("PRAGMA secure_delete = ON")
-        self._db.execute("PRAGMA foreign_keys = ON")
         if path != ":memory:":
             self._db.execute("PRAGMA journal_mode = WAL")
         self._db.executescript(_SCHEMA)
         self._db.execute("INSERT OR IGNORE INTO meta VALUES ('schema_version', ?)", (str(SCHEMA_VERSION),))
+        version = self._db.execute("SELECT value FROM meta WHERE key = 'schema_version'").fetchone()[0]
+        if version != str(SCHEMA_VERSION):
+            raise RuntimeError("entitlement database schema version mismatch")
 
     # ---- keyed hashes -------------------------------------------------------------------
     def digest(self, purpose: str, value: str | bytes) -> bytes:
@@ -112,36 +121,74 @@ class Store:
     def set_webhook_outcome(self, db, webhook_id: str, outcome: str) -> None:
         db.execute("UPDATE webhook_events SET outcome = ? WHERE webhook_id = ?", (outcome, webhook_id))
 
+    def add_exception(self, db, kind: str, order_id: int | None, webhook_id: str | None) -> None:
+        if kind not in EXCEPTION_KINDS:
+            raise ValueError("unknown exception kind")
+        db.execute("INSERT INTO order_exceptions (at, kind, order_id, webhook_id) VALUES (?, ?, ?, ?)",
+                   (self.now(), kind, order_id, webhook_id))
+
+    def open_exceptions(self) -> list[dict]:
+        with self._lock:
+            rows = self._db.execute("SELECT id, at, kind, order_id, webhook_id FROM order_exceptions "
+                                    "WHERE resolved_at IS NULL ORDER BY id").fetchall()
+        return [dict(r) for r in rows]
+
+    def resolve_exception(self, exception_id: int) -> bool:
+        with self.tx() as db:
+            return db.execute("UPDATE order_exceptions SET resolved_at = ? WHERE id = ? AND resolved_at IS NULL",
+                              (self.now(), exception_id)).rowcount == 1
+
     def is_revoked(self, db, shop: str, order_id: int, line_item_id: int) -> bool:
         row = db.execute("SELECT 1 FROM revocations WHERE shop = ? AND order_id = ? AND line_item_id IN (0, ?)",
                          (shop, order_id, line_item_id)).fetchone()
         return row is not None
 
-    def add_entitlement(self, db, *, shop, order_id, order_number, line_item_id, edition, email_hash,
-                        capacity, claim_days, window_days) -> str:
+    def add_entitlement(self, db, *, shop, order_id, order_number, line_item_id, variant_id, edition, email_hash,
+                        capacity, claim_days, window_days, horizon_days) -> str:
         if self.is_revoked(db, shop, order_id, line_item_id):
             return "revoked_before_paid"
         now = self.now()
         cur = db.execute(
-            "INSERT OR IGNORE INTO entitlements (shop, order_id, order_number, line_item_id, edition, email_hash,"
-            " capacity, status, created_at, claim_expires_at, window_days) VALUES (?,?,?,?,?,?,?,'active',?,?,?)",
-            (shop, order_id, order_number, line_item_id, edition, email_hash, capacity, now,
-             now + claim_days * 86400, window_days))
+            "INSERT OR IGNORE INTO entitlements (shop, order_id, order_number, line_item_id, variant_id, edition,"
+            " email_hash, capacity, status, created_at, claim_expires_at, hard_expires_at, window_days)"
+            " VALUES (?,?,?,?,?,?,?,?,'active',?,?,?,?)",
+            (shop, order_id, order_number, line_item_id, variant_id, edition, email_hash, capacity, now,
+             now + claim_days * 86400, now + horizon_days * 86400, window_days))
         return "created" if cur.rowcount == 1 else "already_present"
 
     def revoke(self, db, shop: str, order_id: int, line_item_id: int, reason: str) -> int:
-        """Revoke one line (or the whole order with line_item_id 0) and keep a tombstone."""
+        """Revoke one line (or the whole order with line_item_id 0), keep a tombstone and drop any reservation,
+        so an in-flight delivery can no longer be counted. Ends the order's sessions when nothing stays active."""
         db.execute("INSERT OR IGNORE INTO revocations VALUES (?, ?, ?, ?, ?)",
                    (shop, order_id, line_item_id, reason, self.now()))
-        if line_item_id == 0:
-            cur = db.execute("UPDATE entitlements SET status = 'revoked', revoke_reason = ? "
-                             "WHERE shop = ? AND order_id = ? AND status = 'active'", (reason, shop, order_id))
+        where, args = ("shop = ? AND order_id = ?", [shop, order_id])
+        if line_item_id:
+            where, args = where + " AND line_item_id = ?", args + [line_item_id]
+        cur = db.execute(f"UPDATE entitlements SET status = 'revoked', revoke_reason = ?, in_flight_since = NULL "
+                         f"WHERE {where} AND status = 'active'", [reason, *args])
+        left = db.execute("SELECT COUNT(*) FROM entitlements WHERE shop = ? AND order_id = ? AND status = 'active'",
+                          (shop, order_id)).fetchone()[0]
+        if left == 0:
             db.execute("DELETE FROM sessions WHERE shop = ? AND order_id = ?", (shop, order_id))
-        else:
-            cur = db.execute("UPDATE entitlements SET status = 'revoked', revoke_reason = ? WHERE shop = ? AND "
-                             "order_id = ? AND line_item_id = ? AND status = 'active'",
-                             (reason, shop, order_id, line_item_id))
         return cur.rowcount
+
+    def revoke_now(self, shop: str, order_id: int, line_item_id: int, reason: str) -> int:
+        with self.tx() as db:
+            return self.revoke(db, shop, order_id, line_item_id, reason)
+
+    def active_lines(self, shop: str, order_id: int) -> dict[int, int]:
+        """line_item_id -> variant_id of the order's active entitlements."""
+        with self._lock:
+            rows = self._db.execute("SELECT line_item_id, variant_id FROM entitlements WHERE shop = ? AND "
+                                    "order_id = ? AND status = 'active'", (shop, order_id)).fetchall()
+        return {r["line_item_id"]: r["variant_id"] for r in rows}
+
+    def active_order_ids(self, shop: str) -> list[int]:
+        now = self.now()
+        with self._lock:
+            rows = self._db.execute("SELECT DISTINCT order_id FROM entitlements WHERE shop = ? AND status = 'active' "
+                                    "AND hard_expires_at > ? ORDER BY order_id", (shop, now)).fetchall()
+        return [r[0] for r in rows]
 
     # ---- claim -------------------------------------------------------------------------
     def claimable_order(self, shop: str, order_number: int, email_hash: bytes) -> int | None:
@@ -161,10 +208,10 @@ class Store:
     def _window_end(row) -> int | None:
         if row["first_delivered_at"] is None:
             return None
-        return row["first_delivered_at"] + row["window_days"] * 86400
+        return min(row["first_delivered_at"] + row["window_days"] * 86400, row["hard_expires_at"])
 
     def _usable(self, row, now: int) -> bool:
-        if row["status"] != "active" or row["used"] >= row["capacity"]:
+        if row["status"] != "active" or row["used"] >= row["capacity"] or now >= row["hard_expires_at"]:
             return False
         end = self._window_end(row)
         return now < row["claim_expires_at"] if end is None else now < end
@@ -264,16 +311,25 @@ class Store:
         with self.tx() as db:
             db.execute("UPDATE entitlements SET in_flight_since = NULL WHERE id = ?", (entitlement_id,))
 
-    def still_active(self, entitlement_id: int) -> bool:
+    def deliverable(self, entitlement_id: int) -> bool:
+        """The send-time check: still active and still holding its reservation (a revoke drops it)."""
         with self._lock:
-            row = self._db.execute("SELECT status FROM entitlements WHERE id = ?", (entitlement_id,)).fetchone()
-        return row is not None and row["status"] == "active"
+            row = self._db.execute("SELECT status, in_flight_since FROM entitlements WHERE id = ?",
+                                   (entitlement_id,)).fetchone()
+        return row is not None and row["status"] == "active" and row["in_flight_since"] is not None
 
-    def commit_delivery(self, entitlement_id: int) -> None:
+    def commit_delivery(self, entitlement_id: int) -> bool:
+        """Count a delivered PDF, atomically and only if the entitlement is still active and still reserved.
+        A revocation that landed while the bytes were being sent wins: nothing is counted or recorded."""
         now = self.now()
         with self.tx() as db:
-            db.execute("UPDATE entitlements SET used = used + 1, in_flight_since = NULL, "
-                       "first_delivered_at = COALESCE(first_delivered_at, ?) WHERE id = ?", (now, entitlement_id))
+            cur = db.execute("UPDATE entitlements SET used = used + 1, in_flight_since = NULL, "
+                             "first_delivered_at = COALESCE(first_delivered_at, ?) WHERE id = ? AND status = 'active'"
+                             " AND in_flight_since IS NOT NULL AND used < capacity", (now, entitlement_id))
+            if cur.rowcount == 1:
+                return True
+            db.execute("UPDATE entitlements SET in_flight_since = NULL WHERE id = ?", (entitlement_id,))
+            return False
 
     # ---- housekeeping -------------------------------------------------------------------
     def purge(self, webhook_retention_days: int) -> None:

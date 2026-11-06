@@ -45,9 +45,13 @@ class Signature(unittest.TestCase):
         big = b"{" + b" " * (256 * 1024) + b"}"
         self.assertEqual(self.send(h.webhook_headers("orders/paid", big, "wh-a"), big).status, 413)
 
-    def test_invalid_json_with_valid_signature(self):
+    def test_invalid_json_with_valid_signature_is_kept_as_exception(self):
+        # Authentic but unusable paid webhook: acknowledged (a retry would not fix it) and kept for an operator.
         body = b"not json"
-        self.assertEqual(self.send(h.webhook_headers("orders/paid", body, "wh-a"), body).status, 400)
+        resp = self.send(h.webhook_headers("orders/paid", body, "wh-a"), body)
+        self.assertEqual((resp.status, resp.json()["outcome"]), (200, "malformed"))
+        self.assertEqual([(e["kind"], e["webhook_id"]) for e in self.h.store.open_exceptions()],
+                         [("malformed_paid_webhook", "wh-a")])
 
     def test_stale_webhook_rejected_when_freshness_enabled(self):
         hh = h.Harness(webhook_max_age_seconds=600)
@@ -96,11 +100,29 @@ class Orders(unittest.TestCase):
         payload["cancelled_at"] = "2027-01-15T08:00:00Z"
         self.assertEqual(self.h.hook("orders/paid", payload).json()["outcome"], "ignored_not_sellable")
 
-    def test_wrong_variant_sku_currency_or_price_ignored(self):
+    def test_wrong_variant_sku_currency_or_price_rejected_and_recorded(self):
         cases = [dict(variant=999), dict(sku="OTHER"), dict(currency="USD"), dict(price="0.00"), dict(price="-1")]
         for i, kw in enumerate(cases):
             resp = self.h.paid(order_id=7000 + i, **kw)
-            self.assertEqual(resp.json()["outcome"], "ignored_not_sellable", kw)
+            self.assertEqual(resp.json()["outcome"], "rejected_sellable_line", kw)
+            self.assertEqual(self.remaining(7000 + i), 0)
+        self.assertEqual([(e["kind"], e["order_id"]) for e in self.h.store.open_exceptions()],
+                         [("sellable_line_rejected", 7000 + i) for i in range(5)])
+
+    def test_exception_can_be_resolved_and_holds_no_pii(self):
+        self.h.paid(email=None)
+        [exc] = self.h.store.open_exceptions()
+        self.assertEqual(set(exc), {"id", "at", "kind", "order_id", "webhook_id"})
+        self.assertTrue(self.h.store.resolve_exception(exc["id"]))
+        self.assertEqual(self.h.store.open_exceptions(), [])
+        self.assertFalse(self.h.store.resolve_exception(exc["id"]))
+
+    def test_other_products_and_test_orders_are_not_exceptions(self):
+        other = {"id": 1, "product_id": 1, "variant_id": 1, "sku": "PUJA-KIT", "quantity": 3, "price": "10"}
+        self.h.paid(extra_lines=[other])
+        self.h.paid(order_id=5009, number=1009, test=True)
+        self.h.paid(order_id=5010, number=1010, status="pending")
+        self.assertEqual(self.h.store.open_exceptions(), [])
 
     def test_other_products_on_order_are_not_entitlements(self):
         other = {"id": 1, "product_id": 1, "variant_id": 1, "sku": "PUJA-KIT", "quantity": 3, "price": "10"}
@@ -125,7 +147,9 @@ class Orders(unittest.TestCase):
         self.assertEqual(self.h.hook("orders/paid", payload).json()["outcome"], "ignored_not_sellable")
 
     def test_missing_email_creates_unclaimable_entitlement(self):
+        # e.g. the app lacks protected-customer-data access for e-mail: recorded, never silently lost.
         self.assertEqual(self.h.paid(email=None).json()["outcome"], "created_without_email")
+        self.assertEqual([e["kind"] for e in self.h.store.open_exceptions()], ["paid_without_email"])
         self.assertEqual(self.h.start().status, 202)
         self.assertEqual(self.h.mail.sent, [])
 
@@ -144,8 +168,16 @@ class Orders(unittest.TestCase):
         cookie = self.h.login()
         refund = {"id": 1, "order_id": 5001, "refund_line_items": [{"line_item_id": 50011, "quantity": 1}]}
         self.assertEqual(self.h.hook("refunds/create", refund).json()["outcome"], "revoked_refunded")
-        resp = self.h.generate(cookie)
-        self.assertEqual((resp.status, resp.json()["error"]["code"]), (403, "ORDER_NOT_ACTIVE"))
+        self.assertEqual(self.h.generate(cookie).status, 401)   # nothing active left: sessions ended
+
+    def test_refund_of_one_line_keeps_other_line(self):
+        second = {"id": 50012, "product_id": h.PRODUCT.product_id, "variant_id": h.PRODUCT.variant_id,
+                  "sku": h.PRODUCT.sku, "quantity": 1, "price": "499.00"}
+        self.h.paid(extra_lines=[second])
+        cookie = self.h.login()
+        self.h.hook("refunds/create", {"id": 1, "order_id": 5001, "refund_line_items": [{"line_item_id": 50011}]})
+        self.assertEqual(self.remaining(), 4)
+        self.assertEqual(self.h.generate(cookie).status, 200)
 
     def test_money_only_refund_revokes_whole_order(self):
         self.h.paid()

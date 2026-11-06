@@ -48,7 +48,7 @@ class Restart(unittest.TestCase):
     def test_schema_creation_is_idempotent(self):
         Store(self.db, h.PEPPER).close()
         s = Store(self.db, h.PEPPER)
-        self.assertEqual(s._db.execute("SELECT value FROM meta WHERE key='schema_version'").fetchone()[0], "1")
+        self.assertEqual(s._db.execute("SELECT value FROM meta WHERE key='schema_version'").fetchone()[0], "2")
         s.close()
 
     def test_rollback_disable_switch(self):

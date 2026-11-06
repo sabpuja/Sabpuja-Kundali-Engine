@@ -38,8 +38,9 @@ class Clock:
 
 
 def settings(**kw) -> Settings:
+    # Offline tests turn the live Shopify re-check off explicitly; test_verifier covers it with a fake endpoint.
     base = dict(shop_domain=SHOP, webhook_secret=SECRET, pepper=PEPPER, products=(PRODUCT,), db_path=":memory:",
-                public_origin=ORIGIN)
+                public_origin=ORIGIN, require_order_verification=False)
     base.update(kw)
     return Settings(**base).validate()
 
@@ -129,11 +130,19 @@ class Harness:
         self.clock.advance(61)  # past the resend cooldown for later tests
         return cookie
 
-    def generate(self, cookie, body=None, sent=True):
+    def generate(self, cookie, body=None, sent=True, during_send=None):
+        """POST /api/generate and run the transport's send path (Response.deliver). `during_send` runs while
+        the bytes are being written; `sent=False` simulates a mid-stream disconnect. Returns what was written."""
         resp = self.post("/api/generate", BIRTH if body is None else body, cookie=cookie)
-        if resp.after is not None:
-            resp.after(sent)
-        return resp
+        written = []
+
+        def write(r):
+            written.append(r)
+            if during_send is not None and r is resp:
+                during_send()
+            return sent
+        resp.deliver(write)
+        return written[-1] if written else resp
 
 
 def essentials_renderer(places: dict) -> renderer.EssentialsRenderer:
