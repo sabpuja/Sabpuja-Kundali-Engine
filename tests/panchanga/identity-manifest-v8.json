@@ -1,0 +1,53 @@
+{
+  "manifest_schema": "sabpuja-pan-qa-08-identity/8",
+  "note": "PAN-QA-08 identity manifest v8 (KUN-PAN-M2-SUN-001). Declares the change relative to a8c3108 (draft PR #81, the v7 tree) inside the v1 scope: no modified file and one added file, the sunrise/sunset/Vara validation module, which nothing in the engine, Panchanga M1, chart or reports imports. v1 to v7 are preserved and bound here by their SHA-256. Generated from git objects only: python -m tests.panchanga.identity_v8 --check.",
+  "task": "KUN-PAN-M2-SUN-001",
+  "v7_manifest": {
+    "path": "tests/panchanga/identity-manifest-v7.json",
+    "sha256": "e4bfc37ae5ec23be843d50418f3586161bc2be527dfec0dfcc1984136e96dd73",
+    "base_commit": "a8c31081dfc631f5a0a960c699aaabc24b05d7fe",
+    "v6_sha256": "964f42f9c14916eebdedc5076c7cce57d5c3b2351bee3ec2aef6c68315039005",
+    "v5_sha256": "258312b69c9bf65ae6baf6cee0ef0b307fff22a1f6cd402a0f3f504a3d900d16",
+    "v4_sha256": "6f39046e8fc57e0129f67f96410fa4c5a3b3fefa4db7d65c8f27a8aa9602686b",
+    "v3_sha256": "9a2051d9fd74ef016b5d48e9cd182714028dbbb017fda2a3df89f494276f0e77",
+    "v2_sha256": "d2dea049b652df4ff3f02ce5064e211d3b7f0c97d222e085ce36826bc2f087da",
+    "v1_sha256": "2e913eda7bb60f6159463ee219b4ad840a7fa971bf66e39ac30b871158cb007e"
+  },
+  "m1_package": {
+    "src/sabpuja_kundali/panchanga/__init__.py": {
+      "sha256": "ba0ed56c56bee95544ca82ed37771e4158a9dd7d6f5b52ba926b360063a6cdf1",
+      "git_blob": "64cac54bd3fb0873b165d5ff9c8435201749ef79"
+    },
+    "src/sabpuja_kundali/panchanga/__main__.py": {
+      "sha256": "a88c87bd9828ed05567f7c8eae44a4c5bb709130f688baf69e9ece84287fa44f",
+      "git_blob": "931acd04a30df8857805cba4e01d99aa351c235f"
+    },
+    "src/sabpuja_kundali/panchanga/astro.py": {
+      "sha256": "8a0e22e76589e747228ccf473377b2a818ee579d8803259b8af25c45bd031845",
+      "git_blob": "c520e1cfc658ec934661bc7ef282e9e20157199b"
+    },
+    "src/sabpuja_kundali/panchanga/contract.py": {
+      "sha256": "13d4a728f1433ad643ab7ad73d3cbbae848b63fb94721915ea2b00b43b2957fd",
+      "git_blob": "c0abfb63e7d1fdf3691a6cd0ecc79c9554cb109f"
+    },
+    "src/sabpuja_kundali/panchanga/rules.py": {
+      "sha256": "0ce2b94be3b9a68beb6467d4c654ad2fafe71f3e15a386120e3feadc340a8923",
+      "git_blob": "ae2bfff9a72d1ad1218f141e47ef46159fb5a933"
+    },
+    "src/sabpuja_kundali/panchanga/search.py": {
+      "sha256": "90bf47ad424004e4e39f67000cec087212ebb5cfe8f17ee72909f8ba735b536c",
+      "git_blob": "a85a36ab7ec58afed481ef4a26f272b38612e37f"
+    }
+  },
+  "modified": {},
+  "added": {
+    "src/sabpuja_kundali/panchanga/sun.py": {
+      "sha256": "901e31d58cd87d860f155880b6a8c8ab306dc3ed992273ac9039d8c9463c6f53",
+      "git_blob": "3a10e92b75aca061cd7fef39cce96ed5aa71279a"
+    }
+  },
+  "counts": {
+    "modified": 0,
+    "added": 1
+  }
+}

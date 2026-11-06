@@ -197,8 +197,12 @@ class ExactCommitTest(unittest.TestCase):
             iv7.verify_git_v7(*self.args(), commit=iv6.BASE_COMMIT)
 
     def test_engine_data_preview_panchanga_m1_and_catalogs_are_byte_identical_to_the_base(self):
-        """No change under src/, data/, preview/ or prototype/, nor to either report catalog, relative to f26dd10."""
-        out = subprocess.run(["git", "-C", str(REPO), "diff", "--name-only", iv7.BASE_COMMIT, "HEAD", "--",
+        """No change under src/, data/, preview/ or prototype/, nor to either report catalog, f26dd10..a8c3108.
+
+        Before KUN-PAN-M2-SUN-001 this compared f26dd10 with HEAD. The v7 tree is now its audited commit a8c3108;
+        the later change (one added Panchanga module) is declared and checked by v8 (test_pan_qa08_identity_v8)."""
+        from . import identity_v8 as iv8
+        out = subprocess.run(["git", "-C", str(REPO), "diff", "--name-only", iv7.BASE_COMMIT, iv8.BASE_COMMIT, "--",
                               "src", "data", "preview", "prototype", "pyproject.toml", STD_CAT, M1_CAT],
                              capture_output=True, check=True, text=True).stdout
         self.assertEqual(out, "")
