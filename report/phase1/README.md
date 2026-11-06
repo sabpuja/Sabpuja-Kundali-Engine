@@ -97,3 +97,19 @@ pdf = generate_extended(engine_response, panchanga_document, synthetic=False, pa
 - **Text:** `report_vara_i18n.json`, developer draft pending human Hindi, Jyotish and owner review.
 - **Tests:** `tests/test_vara_report.py` (fixtures `tests/fixtures/vara/` for the 13 scenarios and `tests/fixtures/vara-cases/` for 12 synthetic boundary cases, from `tools/make_vara_fixtures.py`; 100 pinned 14-page hashes from `tools/make_vara_pins.py`) and `tests/panchanga/test_vara_doc.py` (engine document).
 - **CLI:** `python report/phase1/premium_report.py CHART.json OUT.pdf --sample --panchanga-json PANCHANGA.json --vara-json VARA.json [--locale hi]`; `python -m sabpuja_kundali.panchanga.vara < request.json`.
+
+## Janam Kundali Essentials, English (KUN-RC-ESS-001, frozen edition, wording pending owner approval)
+
+The first paid edition, `janam-kundali-essentials-en/1`: the 14-page sunrise and Vara edition above, frozen, with three fixed choices and four sentences replaced. English only (any other locale is refused), traditional names off (`names` is refused), customer mode and the owner's `baseline` palette.
+
+```python
+from report.phase1 import essentials
+pdf = essentials.generate(engine_response, panchanga_document, vara_document, display_name=None)
+pdf = essentials.render_for_form(form_body, places, ephe_path, display_name=None)   # whole in-memory pipeline
+```
+
+- **Replaced sentences** (`essentials_en.json`, pinned by SHA-256 in `essentials.py`): the development-preview notice of the sunrise page (`v.status`), the Panchanga validation title and note (`pm.status_title`, `pm.status`) and the ten-page exclusion "Hindi text (available as a separate edition)" (`method.exc5`), which would be untrue of an English-only paid edition. The renderers take them through an opt-in `catalog_overlay`; without it every 10-, 13- and 14-page PDF is byte-identical (pinned). The engine's own claim boundary (`UNVERIFIED_GOLDEN_CHARTS`) on the last page is kept as it is on the live report.
+- **Wording status:** `PROPOSED_PENDING_OWNER_AND_INDEPENDENT_ENGLISH_QA`; `essentials.release_problems()` is non-empty until the owner approves it.
+- **Refusals:** `essentials.EssentialsError` with a fixed status, code, message and category, never the birth details or name. `render_for_form` validates the form through the unchanged `/api/chart` handler, so the same refusals apply, and writes and logs nothing.
+- **Freeze:** `essentials-edition-manifest.json` pins every source file of the edition (renderers, catalogs, fonts, logo, chart engine, Panchanga package, places, form handler). Check with `python -m report.phase1.essentials --check`.
+- **Tests:** `tests/test_essentials.py`, 26 pinned PDFs (`tests/fixtures/essentials-en-sha256.json`, from `tools/make_essentials_pins.py`).

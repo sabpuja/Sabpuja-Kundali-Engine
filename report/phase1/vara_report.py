@@ -337,8 +337,9 @@ def hours_minutes(span_us):
 # The page.
 
 class VaraPage:
-    def __init__(self, response, doc, locale):
+    def __init__(self, response, doc, locale, overlay=None):
         self.locale = loc.validate_locale(locale)
+        self.overlay = overlay
         self.values = validate(response, doc)
         self.audit = {'schema': SCHEMA, 'status': STATUS, 'method_sha256': METHOD_SHA256,
                       'vara': self.values.get('vara_id'), 'available': self.values['available'],
@@ -346,7 +347,7 @@ class VaraPage:
                       'texts': []}
 
     def t(self, key, **values):
-        entry = STRINGS.get(key)
+        entry = STRINGS.get(key) if self.overlay is None else self.overlay.get(key, STRINGS.get(key))
         if entry is None:
             raise loc.ReportLocaleError(f'Missing Vara report string {key}')
         return entry[self.locale].format(**values)

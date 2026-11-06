@@ -332,8 +332,11 @@ def validate(response, doc):
 # The extension object used by premium_report.render.
 
 class Extension:
-    def __init__(self, response, doc, locale, names=None, vara=None):
+    def __init__(self, response, doc, locale, names=None, vara=None, overlay=None):
         self.locale = loc.validate_locale(locale)
+        # KUN-RC-ESS-001: a named edition may replace a few sentences (report.phase1.essentials).
+        # Without an overlay nothing below changes, so every existing edition is byte-identical.
+        self.overlay = overlay
         try:
             self.names = pn.check_mode(names)
         except pn.NamesError as exc:
@@ -348,7 +351,8 @@ class Extension:
                 from . import vara_report
             except ImportError:  # loaded by path or run as a script
                 import vara_report
-            self.vara = vara_report.VaraPage(response, vara, self.locale)
+            extra = {} if overlay is None else {'overlay': overlay}
+            self.vara = vara_report.VaraPage(response, vara, self.locale, **extra)
             self.page_keys = PAGE_KEYS[:2] + (vara_report.PAGE_KEY,) + PAGE_KEYS[2:]
         self.audit = {'schema': SCHEMA, 'validation_status': VALIDATION_STATUS,
                       'method_sha256': METHOD_SHA256, 'withheld': [], 'texts': []}
@@ -374,6 +378,8 @@ class Extension:
         return text + self.n('qa.notice') if self.names == 'qa_preview' else text
 
     def t(self, key, **values):
+        if self.overlay is not None and key in self.overlay:
+            return self.overlay[key][self.locale].format(**values)
         if self.vara is not None and self.vara.has('override.' + key):
             # Sentences of the M1 pages that would be untrue in the sunrise/Vara edition.
             if key == 'pan.instant':
@@ -409,12 +415,16 @@ class Extension:
         first, last = d.page_of[self.page_keys[0]], d.page_of[self.page_keys[-1]]
         inc = [d.t(f'method.inc{i}') for i in range(1, 6)] + [self.t('method.inc6', first=first, last=last)]
         exc = [self.t('method.exc1'), self.t('method.exc2'), d.t('method.exc3'), d.t('method.exc4'),
-               d.t('method.exc5'), self.t('method.exc6')]
+               self._base(d, 'method.exc5'), self.t('method.exc6')]
         half = pr.CW / 2 - 10
         for text in inc + exc:
             if d.width(text, 'Body', 8.6) > half - 14:
                 raise layout.LayoutError('Methodology list item too long')
         return inc, exc
+
+    def _base(self, d, key):
+        """A ten-page catalog string, unless the edition's overlay replaces it."""
+        return self.t(key) if self.overlay is not None and key in self.overlay else d.t(key)
 
     # -- helpers ---------------------------------------------------------------------------
     def _paksha(self, v):
