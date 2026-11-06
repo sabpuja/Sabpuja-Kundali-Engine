@@ -1,0 +1,13 @@
+{
+ "document_id": "KUN-PAN-M2-SUN-001-TOLERANCES",
+ "status": "PROPOSED_ENGINEERING_TOLERANCES__NOT_OWNER_APPROVED",
+ "honesty_note": "The USNO tolerance (120 s) was declared on 2026-10-28 in research/panchanga/reference-fixtures/usno-sunrise-sunset-2026.json, before any sunrise computation. The IMD tolerance reuses that same 120 s rule unchanged; it was not tuned to the IMD results, but it is stated here after a scoping comparison, so QA and the owner must confirm or replace it. The oracle and Swiss-conformance tolerances are engineering bounds derived from the oracle's stated accuracy and from the measured geocentric/topocentric parallax; they are not accuracy claims.",
+ "layers": {
+  "usno_published": {"rule": "|engine(SUN-A-USNO-50) - published minute| <= 120 s", "seconds": 120, "source": "PAN-REF-SUN-2026 proposed_tolerance (2026-10-28)"},
+  "imd_published": {"rule": "|engine(SUN-D-IMD-47) - published minute| <= 120 s", "seconds": 120, "source": "same rule as usno_published"},
+  "independent_oracle": {"rule": "|engine - oracle| for the same convention", "seconds_abs_lat_le_40": 3.0, "seconds_abs_lat_le_66": 10.0, "basis": "Meeus low-accuracy Sun (about 0.01 deg) gives a few seconds of time; the band above 40 deg allows for slower horizon crossings"},
+  "oracle_discrimination": {"rule": "|engine(47') - engine(50')| must exceed the oracle tolerance at every Indian case, so the oracle layer can tell the conventions apart", "min_seconds_india": 10.0},
+  "swiss_rise_trans_geocentric": {"rule": "|engine - swe.rise_trans_true_hor(DISC_CENTER|NO_REFRACTION|GEOCTR_NO_ECL_LAT(128), horhgt=-depression)|", "seconds_abs_lat_le_40": 0.05, "seconds_abs_lat_le_66": 1.0, "basis": "Swiss-on-Swiss with a different algorithm; Swiss rise_set_fast has no convergence test, so its own residual grows at high latitude"},
+  "swetest_altitude": {"rule": "|swetest topocentric geometric altitude + solar parallax (8.794148\"/R cos h) - (-depression)| at the engine instant", "arcsec": 0.2}
+ }
+}

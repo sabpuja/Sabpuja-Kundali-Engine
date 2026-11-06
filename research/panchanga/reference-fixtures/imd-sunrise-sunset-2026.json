@@ -1,0 +1,1226 @@
+{
+ "fixture_set": "PAN-REF-SUN-IMD-2026",
+ "schema": "sabpuja-panchanga-reference-fixture/0 (proposed, research evidence)",
+ "status": "SOURCE_FACTS_CAPTURED_PENDING_INDEPENDENT_QA_REREAD",
+ "task": "KUN-PAN-M2-SUN-001",
+ "captured": "2026-11-06",
+ "captured_by": "Claude (Lead Developer), through an automated page-reading tool. Direct download from the development container is refused by its network policy, so no page copy exists and no SHA-256 of an archived page is given. Values are transcribed as printed; nothing here was computed by the Sabpuja engine, Swiss Ephemeris or the oracle.",
+ "rights": "Every page shows '(c) Government of India | All Rights Reserved'. Only minimal factual fields are recorded: printed sunrise/sunset minutes and the short method sentences needed for citation. No page text, layout or table is reproduced beyond these values (SOURCE-REGISTER.md 5.2).",
+ "publisher": "Positional Astronomy Centre, India Meteorological Department (Ministry of Earth Sciences), Government of India: Rashtriya Panchang, Saka 1948 (2026-27)",
+ "sources": {
+  "IMD-EXPLANATION": {
+   "url": "https://packolkata.imd.gov.in/panchang/en/explanation",
+   "accessed": "2026-11-06"
+  },
+  "IMD-DAILY-CHAITRA": {
+   "url": "https://packolkata.imd.gov.in/panchang/bn/chaitra",
+   "accessed": "2026-11-06",
+   "covers": "2026-03-22 to 2026-04-20"
+  },
+  "IMD-DAILY-KARTIKA": {
+   "url": "https://packolkata.imd.gov.in/panchang/bn/kartika",
+   "accessed": "2026-11-06",
+   "covers": "2026-10-23 to 2026-11-21"
+  },
+  "IMD-TABLES": {
+   "url": "https://packolkata.imd.gov.in/panchang/en/tables",
+   "accessed": "2026-11-06",
+   "heading": "Sunrise, Sunset, Moonrise & Moonset - Rashtriya Panchanga",
+   "note": "Read in part: the tool returned the Chaitra to part of Bhadra tables verbatim; later months were truncated. Rows used: Chaitra 22-31 March 2026 (10 rows) and Ashadha 22 June - 22 July 2026 (31 rows)."
+  },
+  "IMD-CORRECTION": {
+   "url": "https://packolkata.imd.gov.in/panchang/en/correction",
+   "accessed": "2026-11-06",
+   "note": "Lagna correction table; the only printed source of the four cities' coordinates. It gives no sunrise correction."
+  }
+ },
+ "method_quotes": {
+  "sunrise_definition": "In the calculation of sunrise and sunset, atmospheric refraction is included and the times relate to the appearance and disappearance of the upper limb of the sun on the horizon. These times are in I.S.T. The amount of horizontal refraction taken for the purpose is 31’ and that of the sun’s semi-diameter is 16’ so that at the moment when the upper limb of the sun is visible on the horizon, the centre of the sun is actually 47’ below the horizon, the time equivalent of which is about 3.5 minutes.",
+  "central_station": "Timings of some elements in the panchang have been calculated for an adopted Central Station of India situated at 82° 30' Longitude East and 23°11' Latitude North (same as Latitude of Ujjain), and for other matters it has been done with respect to local meridians.",
+  "day_reckoning": "In providing information on the timings of different phenomena, the sunrise system of reckoning the day has been followed in pursuance of the Indian convention. The day has been taken to begin for this purpose from the time of sunrise of an adopted Central Station. Tithis etc. which start after this time of sunrise and end before the time of next sunrise have been shown under that day.",
+  "time_scale": "The timings of different phenomena given in this panchang are in local mean time of the Central Station, which is the same as Indian Standard Time. This time (I.S.T.) is 5h 30m ahead of the Universal Time or Greenwich Mean Time.",
+  "not_stated": "No rounding rule for printed minutes, no definition of Vara beyond 'the day of the week', no pressure/temperature/elevation, and no statement whether solar positions are geocentric or topocentric."
+ },
+ "places": {
+  "central": {
+   "label": "IMD adopted Central Station",
+   "latitude_deg": 23.183333333333334,
+   "longitude_deg": 82.5,
+   "printed": "82° 30' E, 23°11' N",
+   "source": "IMD-EXPLANATION"
+  },
+  "chennai": {
+   "latitude_deg": 13.066666666666666,
+   "longitude_deg": 80.25,
+   "printed": "13°04′N, 80°15′E",
+   "source": "IMD-CORRECTION"
+  },
+  "delhi": {
+   "latitude_deg": 28.65,
+   "longitude_deg": 77.21666666666667,
+   "printed": "28°39′N, 77°13′E",
+   "source": "IMD-CORRECTION"
+  },
+  "kolkata": {
+   "latitude_deg": 22.583333333333332,
+   "longitude_deg": 88.38333333333334,
+   "printed": "22°35′N, 88°23′E",
+   "source": "IMD-CORRECTION"
+  },
+  "mumbai": {
+   "latitude_deg": 18.966666666666665,
+   "longitude_deg": 72.83333333333333,
+   "printed": "18°58′N, 72°50′E",
+   "source": "IMD-CORRECTION"
+  }
+ },
+ "interpretation_notes": [
+  "Central Station rows: the daily pages print 'Sunrise'/'Sunset' with no place; the explanation page says sunrise and sunset are given for the adopted Central Station. That attribution is IMD's text, not an inference.",
+  "City rows: the tables page prints 18 time cells per row under the headers Chennai, Delhi, Kolkata, Mumbai, each with Sun and Moon Rise/Set. The page header did not align with the cells in the tool output. Mapping used (Claude's inference, to be confirmed by QA's own read): cells 1-2 Chennai Sun rise/set, 5-6 Delhi Sun, 9-10 Kolkata Sun, 13-14 Mumbai Sun (cells 3-4, 7-8, 11-12, 15-16 are the Moon). It is supported by the values themselves (for example Delhi 05:24/19:23 on 22 June, the USNO Delhi value on 21 June is 05:24/19:22) and by every Moon cell pattern ('- -' only in Moon columns).",
+  "The city coordinates IMD used for the tables page are not printed there; the correction-page coordinates (arcminute precision, about 4 s of time per arcminute of longitude) are assumed.",
+  "Times are IST (UTC+05:30), printed to the minute; the rounding rule is not stated. One Chaitra day-1 value is printed '6:02 AM'/'6:12 PM', the rest 'h. 6-01'/'h. 18-12'; both are recorded as HH:MM."
+ ],
+ "central_station": [
+  {
+   "date": "2026-03-22",
+   "sunrise": "06:02",
+   "sunset": "18:12",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-03-23",
+   "sunrise": "06:01",
+   "sunset": "18:12",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-03-24",
+   "sunrise": "06:00",
+   "sunset": "18:12",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-03-25",
+   "sunrise": "06:00",
+   "sunset": "18:13",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-03-26",
+   "sunrise": "05:59",
+   "sunset": "18:13",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-03-27",
+   "sunrise": "05:58",
+   "sunset": "18:14",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-03-28",
+   "sunrise": "05:57",
+   "sunset": "18:14",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-03-29",
+   "sunrise": "05:56",
+   "sunset": "18:14",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-03-30",
+   "sunrise": "05:55",
+   "sunset": "18:15",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-03-31",
+   "sunrise": "05:54",
+   "sunset": "18:15",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-01",
+   "sunrise": "05:53",
+   "sunset": "18:15",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-02",
+   "sunrise": "05:52",
+   "sunset": "18:16",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-03",
+   "sunrise": "05:51",
+   "sunset": "18:16",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-04",
+   "sunrise": "05:50",
+   "sunset": "18:16",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-05",
+   "sunrise": "05:49",
+   "sunset": "18:17",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-06",
+   "sunrise": "05:48",
+   "sunset": "18:17",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-07",
+   "sunrise": "05:47",
+   "sunset": "18:18",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-08",
+   "sunrise": "05:46",
+   "sunset": "18:18",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-09",
+   "sunrise": "05:45",
+   "sunset": "18:18",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-10",
+   "sunrise": "05:44",
+   "sunset": "18:19",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-11",
+   "sunrise": "05:43",
+   "sunset": "18:19",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-12",
+   "sunrise": "05:42",
+   "sunset": "18:20",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-13",
+   "sunrise": "05:41",
+   "sunset": "18:20",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-14",
+   "sunrise": "05:41",
+   "sunset": "18:20",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-15",
+   "sunrise": "05:40",
+   "sunset": "18:21",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-16",
+   "sunrise": "05:39",
+   "sunset": "18:21",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-17",
+   "sunrise": "05:38",
+   "sunset": "18:22",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-18",
+   "sunrise": "05:37",
+   "sunset": "18:22",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-19",
+   "sunrise": "05:36",
+   "sunset": "18:22",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-04-20",
+   "sunrise": "05:35",
+   "sunset": "18:23",
+   "source_page": "IMD-DAILY-CHAITRA"
+  },
+  {
+   "date": "2026-10-23",
+   "sunrise": "06:01",
+   "sunset": "17:28",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-10-24",
+   "sunrise": "06:01",
+   "sunset": "17:27",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-10-25",
+   "sunrise": "06:02",
+   "sunset": "17:26",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-10-26",
+   "sunrise": "06:02",
+   "sunset": "17:25",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-10-27",
+   "sunrise": "06:03",
+   "sunset": "17:25",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-10-28",
+   "sunrise": "06:03",
+   "sunset": "17:24",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-10-29",
+   "sunrise": "06:04",
+   "sunset": "17:23",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-10-30",
+   "sunrise": "06:04",
+   "sunset": "17:23",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-10-31",
+   "sunrise": "06:05",
+   "sunset": "17:22",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-01",
+   "sunrise": "06:05",
+   "sunset": "17:22",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-02",
+   "sunrise": "06:06",
+   "sunset": "17:21",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-03",
+   "sunrise": "06:07",
+   "sunset": "17:20",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-04",
+   "sunrise": "06:07",
+   "sunset": "17:20",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-05",
+   "sunrise": "06:08",
+   "sunset": "17:19",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-06",
+   "sunrise": "06:08",
+   "sunset": "17:19",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-07",
+   "sunrise": "06:09",
+   "sunset": "17:18",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-08",
+   "sunrise": "06:09",
+   "sunset": "17:18",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-09",
+   "sunrise": "06:10",
+   "sunset": "17:17",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-10",
+   "sunrise": "06:11",
+   "sunset": "17:17",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-11",
+   "sunrise": "06:11",
+   "sunset": "17:17",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-12",
+   "sunrise": "06:12",
+   "sunset": "17:16",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-13",
+   "sunrise": "06:13",
+   "sunset": "17:16",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-14",
+   "sunrise": "06:13",
+   "sunset": "17:15",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-15",
+   "sunrise": "06:14",
+   "sunset": "17:15",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-16",
+   "sunrise": "06:15",
+   "sunset": "17:15",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-17",
+   "sunrise": "06:15",
+   "sunset": "17:15",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-18",
+   "sunrise": "06:16",
+   "sunset": "17:14",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-19",
+   "sunrise": "06:17",
+   "sunset": "17:14",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-20",
+   "sunrise": "06:17",
+   "sunset": "17:14",
+   "source_page": "IMD-DAILY-KARTIKA"
+  },
+  {
+   "date": "2026-11-21",
+   "sunrise": "06:18",
+   "sunset": "17:14",
+   "source_page": "IMD-DAILY-KARTIKA"
+  }
+ ],
+ "cities": [
+  {
+   "date": "2026-03-22",
+   "chennai": [
+    "06:12",
+    "18:20"
+   ],
+   "delhi": [
+    "06:23",
+    "18:33"
+   ],
+   "kolkata": [
+    "05:39",
+    "17:49"
+   ],
+   "mumbai": [
+    "06:41",
+    "18:50"
+   ]
+  },
+  {
+   "date": "2026-03-23",
+   "chennai": [
+    "06:11",
+    "18:20"
+   ],
+   "delhi": [
+    "06:22",
+    "18:34"
+   ],
+   "kolkata": [
+    "05:38",
+    "17:49"
+   ],
+   "mumbai": [
+    "06:40",
+    "18:50"
+   ]
+  },
+  {
+   "date": "2026-03-24",
+   "chennai": [
+    "06:11",
+    "18:20"
+   ],
+   "delhi": [
+    "06:21",
+    "18:34"
+   ],
+   "kolkata": [
+    "05:38",
+    "17:49"
+   ],
+   "mumbai": [
+    "06:39",
+    "18:51"
+   ]
+  },
+  {
+   "date": "2026-03-25",
+   "chennai": [
+    "06:10",
+    "18:20"
+   ],
+   "delhi": [
+    "06:19",
+    "18:35"
+   ],
+   "kolkata": [
+    "05:37",
+    "17:50"
+   ],
+   "mumbai": [
+    "06:39",
+    "18:51"
+   ]
+  },
+  {
+   "date": "2026-03-26",
+   "chennai": [
+    "06:09",
+    "18:20"
+   ],
+   "delhi": [
+    "06:18",
+    "18:36"
+   ],
+   "kolkata": [
+    "05:36",
+    "17:50"
+   ],
+   "mumbai": [
+    "06:38",
+    "18:51"
+   ]
+  },
+  {
+   "date": "2026-03-27",
+   "chennai": [
+    "06:09",
+    "18:20"
+   ],
+   "delhi": [
+    "06:17",
+    "18:36"
+   ],
+   "kolkata": [
+    "05:35",
+    "17:50"
+   ],
+   "mumbai": [
+    "06:37",
+    "18:51"
+   ]
+  },
+  {
+   "date": "2026-03-28",
+   "chennai": [
+    "06:08",
+    "18:20"
+   ],
+   "delhi": [
+    "06:16",
+    "18:37"
+   ],
+   "kolkata": [
+    "05:34",
+    "17:51"
+   ],
+   "mumbai": [
+    "06:36",
+    "18:51"
+   ]
+  },
+  {
+   "date": "2026-03-29",
+   "chennai": [
+    "06:07",
+    "18:20"
+   ],
+   "delhi": [
+    "06:15",
+    "18:37"
+   ],
+   "kolkata": [
+    "05:33",
+    "17:51"
+   ],
+   "mumbai": [
+    "06:35",
+    "18:52"
+   ]
+  },
+  {
+   "date": "2026-03-30",
+   "chennai": [
+    "06:07",
+    "18:20"
+   ],
+   "delhi": [
+    "06:14",
+    "18:38"
+   ],
+   "kolkata": [
+    "05:32",
+    "17:51"
+   ],
+   "mumbai": [
+    "06:34",
+    "18:52"
+   ]
+  },
+  {
+   "date": "2026-03-31",
+   "chennai": [
+    "06:06",
+    "18:20"
+   ],
+   "delhi": [
+    "06:12",
+    "18:38"
+   ],
+   "kolkata": [
+    "05:31",
+    "17:52"
+   ],
+   "mumbai": [
+    "06:34",
+    "18:52"
+   ]
+  },
+  {
+   "date": "2026-06-22",
+   "chennai": [
+    "05:44",
+    "18:38"
+   ],
+   "delhi": [
+    "05:24",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:53",
+    "18:24"
+   ],
+   "mumbai": [
+    "06:02",
+    "19:19"
+   ]
+  },
+  {
+   "date": "2026-06-23",
+   "chennai": [
+    "05:45",
+    "18:38"
+   ],
+   "delhi": [
+    "05:24",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:53",
+    "18:24"
+   ],
+   "mumbai": [
+    "06:03",
+    "19:19"
+   ]
+  },
+  {
+   "date": "2026-06-24",
+   "chennai": [
+    "05:45",
+    "18:38"
+   ],
+   "delhi": [
+    "05:25",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:54",
+    "18:24"
+   ],
+   "mumbai": [
+    "06:03",
+    "19:19"
+   ]
+  },
+  {
+   "date": "2026-06-25",
+   "chennai": [
+    "05:45",
+    "18:38"
+   ],
+   "delhi": [
+    "05:25",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:54",
+    "18:24"
+   ],
+   "mumbai": [
+    "06:03",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-06-26",
+   "chennai": [
+    "05:45",
+    "18:38"
+   ],
+   "delhi": [
+    "05:25",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:54",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:03",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-06-27",
+   "chennai": [
+    "05:46",
+    "18:39"
+   ],
+   "delhi": [
+    "05:26",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:54",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:04",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-06-28",
+   "chennai": [
+    "05:46",
+    "18:39"
+   ],
+   "delhi": [
+    "05:26",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:55",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:04",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-06-29",
+   "chennai": [
+    "05:46",
+    "18:39"
+   ],
+   "delhi": [
+    "05:26",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:55",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:04",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-06-30",
+   "chennai": [
+    "05:46",
+    "18:39"
+   ],
+   "delhi": [
+    "05:27",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:55",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:04",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-07-01",
+   "chennai": [
+    "05:47",
+    "18:39"
+   ],
+   "delhi": [
+    "05:27",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:56",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:05",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-07-02",
+   "chennai": [
+    "05:47",
+    "18:39"
+   ],
+   "delhi": [
+    "05:27",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:56",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:05",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-07-03",
+   "chennai": [
+    "05:47",
+    "18:39"
+   ],
+   "delhi": [
+    "05:28",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:56",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:05",
+    "19:21"
+   ]
+  },
+  {
+   "date": "2026-07-04",
+   "chennai": [
+    "05:47",
+    "18:39"
+   ],
+   "delhi": [
+    "05:28",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:57",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:06",
+    "19:21"
+   ]
+  },
+  {
+   "date": "2026-07-05",
+   "chennai": [
+    "05:48",
+    "18:40"
+   ],
+   "delhi": [
+    "05:29",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:57",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:06",
+    "19:21"
+   ]
+  },
+  {
+   "date": "2026-07-06",
+   "chennai": [
+    "05:48",
+    "18:40"
+   ],
+   "delhi": [
+    "05:29",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:57",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:06",
+    "19:21"
+   ]
+  },
+  {
+   "date": "2026-07-07",
+   "chennai": [
+    "05:48",
+    "18:40"
+   ],
+   "delhi": [
+    "05:29",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:58",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:07",
+    "19:21"
+   ]
+  },
+  {
+   "date": "2026-07-08",
+   "chennai": [
+    "05:48",
+    "18:40"
+   ],
+   "delhi": [
+    "05:30",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:58",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:07",
+    "19:21"
+   ]
+  },
+  {
+   "date": "2026-07-09",
+   "chennai": [
+    "05:49",
+    "18:40"
+   ],
+   "delhi": [
+    "05:30",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:59",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:07",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-07-10",
+   "chennai": [
+    "05:49",
+    "18:40"
+   ],
+   "delhi": [
+    "05:31",
+    "19:23"
+   ],
+   "kolkata": [
+    "04:59",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:08",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-07-11",
+   "chennai": [
+    "05:49",
+    "18:40"
+   ],
+   "delhi": [
+    "05:31",
+    "19:22"
+   ],
+   "kolkata": [
+    "04:59",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:08",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-07-12",
+   "chennai": [
+    "05:50",
+    "18:40"
+   ],
+   "delhi": [
+    "05:32",
+    "19:22"
+   ],
+   "kolkata": [
+    "05:00",
+    "18:25"
+   ],
+   "mumbai": [
+    "06:08",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-07-13",
+   "chennai": [
+    "05:50",
+    "18:40"
+   ],
+   "delhi": [
+    "05:32",
+    "19:22"
+   ],
+   "kolkata": [
+    "05:00",
+    "18:24"
+   ],
+   "mumbai": [
+    "06:09",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-07-14",
+   "chennai": [
+    "05:50",
+    "18:40"
+   ],
+   "delhi": [
+    "05:33",
+    "19:22"
+   ],
+   "kolkata": [
+    "05:01",
+    "18:24"
+   ],
+   "mumbai": [
+    "06:09",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-07-15",
+   "chennai": [
+    "05:50",
+    "18:40"
+   ],
+   "delhi": [
+    "05:33",
+    "19:21"
+   ],
+   "kolkata": [
+    "05:01",
+    "18:24"
+   ],
+   "mumbai": [
+    "06:09",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-07-16",
+   "chennai": [
+    "05:51",
+    "18:39"
+   ],
+   "delhi": [
+    "05:34",
+    "19:21"
+   ],
+   "kolkata": [
+    "05:01",
+    "18:24"
+   ],
+   "mumbai": [
+    "06:10",
+    "19:20"
+   ]
+  },
+  {
+   "date": "2026-07-17",
+   "chennai": [
+    "05:51",
+    "18:39"
+   ],
+   "delhi": [
+    "05:34",
+    "19:21"
+   ],
+   "kolkata": [
+    "05:02",
+    "18:23"
+   ],
+   "mumbai": [
+    "06:10",
+    "19:19"
+   ]
+  },
+  {
+   "date": "2026-07-18",
+   "chennai": [
+    "05:51",
+    "18:39"
+   ],
+   "delhi": [
+    "05:35",
+    "19:20"
+   ],
+   "kolkata": [
+    "05:02",
+    "18:23"
+   ],
+   "mumbai": [
+    "06:11",
+    "19:19"
+   ]
+  },
+  {
+   "date": "2026-07-19",
+   "chennai": [
+    "05:52",
+    "18:39"
+   ],
+   "delhi": [
+    "05:35",
+    "19:20"
+   ],
+   "kolkata": [
+    "05:03",
+    "18:23"
+   ],
+   "mumbai": [
+    "06:11",
+    "19:19"
+   ]
+  },
+  {
+   "date": "2026-07-20",
+   "chennai": [
+    "05:52",
+    "18:39"
+   ],
+   "delhi": [
+    "05:36",
+    "19:19"
+   ],
+   "kolkata": [
+    "05:03",
+    "18:23"
+   ],
+   "mumbai": [
+    "06:11",
+    "19:19"
+   ]
+  },
+  {
+   "date": "2026-07-21",
+   "chennai": [
+    "05:52",
+    "18:39"
+   ],
+   "delhi": [
+    "05:37",
+    "19:19"
+   ],
+   "kolkata": [
+    "05:04",
+    "18:22"
+   ],
+   "mumbai": [
+    "06:12",
+    "19:19"
+   ]
+  },
+  {
+   "date": "2026-07-22",
+   "chennai": [
+    "05:52",
+    "18:39"
+   ],
+   "delhi": [
+    "05:37",
+    "19:18"
+   ],
+   "kolkata": [
+    "05:04",
+    "18:22"
+   ],
+   "mumbai": [
+    "06:12",
+    "19:18"
+   ]
+  }
+ ]
+}
