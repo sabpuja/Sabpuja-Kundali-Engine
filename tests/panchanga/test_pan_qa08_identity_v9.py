@@ -72,20 +72,30 @@ class ManifestStructure(unittest.TestCase):
                     self.validate(doc)
 
 
+D7D9 = "7d9d10aeca82380946fe5435ee6d0b0c5fe79273"   # the audited v9 commit (draft PR #84 head)
+
+
 class TreeAndCommit(unittest.TestCase):
+    """Since KUN-RC-ESS-001 these run on 7d9d10a, the audited v9 tree; HEAD carries the v10 overlay, which
+    v9 alone must reject (test_v10_head_is_rejected_by_v9_alone), and is checked through v10."""
+
     def setUp(self):
         self.all = _committed()
 
-    def test_current_tree_and_exact_commit(self):
-        t = iv9.verify_tree(REPO, *self.all)
+    def test_audited_tree_and_exact_commit(self):
+        t = iv9.verify_commit(REPO, D7D9, *self.all)
         self.assertEqual((t["v1_unchanged"], t["v9_modified"], t["v9_added"]), (209, 3, 32))
-        g = iv9.verify_git_v9(REPO, *self.all)
+        g = iv9.verify_git_v9(REPO, *self.all, commit=D7D9)
         self.assertEqual((g["v9_modified"], g["v9_added"]), (3, 32))
 
+    def test_v10_head_is_rejected_by_v9_alone(self):
+        with self.assertRaises(IdentityError):
+            iv9.verify_commit(REPO, "HEAD", *self.all)
+
     def _tree_with(self, mutate):
-        names = [n for n in subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", "HEAD"],
+        names = [n for n in subprocess.run(["git", "-C", str(REPO), "ls-tree", "-r", "-z", "--name-only", D7D9],
                                            capture_output=True, check=True).stdout.decode().split("\0") if n]
-        blobs = Git(REPO).blobs("HEAD", names)
+        blobs = Git(REPO).blobs(D7D9, names)
         mutate(blobs)
         return iv9.verify_tree(REPO, *self.all, read=blobs.get,
                                listing=lambda: {n for n in blobs if in_scope(n) and blobs[n] is not None},
@@ -117,8 +127,8 @@ class TreeAndCommit(unittest.TestCase):
         with self.assertRaisesRegex(IdentityError, "not an ancestor"):
             iv9.verify_git_v9(REPO, *self.all, commit=iv8.BASE_COMMIT)
 
-    def test_engine_data_preview_prototype_unchanged_since_c759c41(self):
-        out = subprocess.run(["git", "-C", str(REPO), "diff", "--name-status", iv9.BASE_COMMIT, "HEAD", "--",
+    def test_engine_data_preview_prototype_unchanged_c759c41_to_7d9d10a(self):
+        out = subprocess.run(["git", "-C", str(REPO), "diff", "--name-status", iv9.BASE_COMMIT, D7D9, "--",
                               "src", "data", "preview", "prototype", "pyproject.toml", "examples"],
                              capture_output=True, check=True, text=True).stdout
         self.assertEqual(out, f"A\t{VARA}\n")
