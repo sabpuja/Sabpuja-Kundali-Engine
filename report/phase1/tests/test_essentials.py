@@ -239,6 +239,17 @@ class FormPipeline(unittest.TestCase):
         self.assertEqual(len(fitz.open(stream=pdf, filetype='pdf')), 14)
         self.assertEqual(es.render_for_form(dict(self.BODY, report_locale='en'), self.places, self.ephe), pdf)
 
+    def test_repeated_hour_keeps_the_handler_code_and_choices(self):
+        body = {'place_id': 'gb-london', 'birth_date': '2020-10-25', 'birth_time': '01:30'}
+        with self.assertRaises(es.InputRefusal) as ctx:
+            es.render_for_form(body, self.places, self.ephe)
+        e = ctx.exception
+        self.assertEqual((e.status, e.code, e.category), (409, 'TIME_AMBIGUOUS_LOCAL', 'ambiguous'))
+        offsets = sorted(c['utc_offset'] for c in e.extra['choices'])
+        self.assertEqual(offsets, ['+00:00', '+01:00'])
+        chosen = es.render_for_form(dict(body, utc_offset='+01:00'), self.places, self.ephe)
+        self.assertEqual(len(fitz.open(stream=chosen, filetype='pdf')), 14)
+
     def test_refusals_are_fixed_and_never_quote_the_input(self):
         secret = 'Zq7Unique'
         cases = [

@@ -69,11 +69,16 @@ SOURCE_DIRS = ('prototype/kundali_prototype/static/fonts/', 'src/sabpuja_kundali
 
 
 class EssentialsError(ValueError):
-    """A refusal with a fixed status, code and message. It never carries the request."""
+    """A refusal with a fixed status, code, message and category, and the form handler's `extra` fields (for
+    example the two offsets of a repeated local hour, `choices`). It never carries the name or other input text."""
 
-    def __init__(self, status: int, code: str, message: str, category: str = 'request'):
+    def __init__(self, status: int, code: str, message: str, category: str = 'request', extra: dict | None = None):
         super().__init__(message)
         self.status, self.code, self.message, self.category = status, code, message, category
+        self.extra = dict(extra or {})
+
+
+InputRefusal = EssentialsError   # the name the commerce package uses
 
 
 def _load_catalog() -> dict:
@@ -164,8 +169,10 @@ def render_for_form(body: dict, places: dict, ephe_path: str, display_name: str 
     status, response = server.handle_chart(json.dumps(body, ensure_ascii=False).encode('utf-8'), places, ephe_path)
     if status != 200:
         err = response.get('error', {}) if isinstance(response, dict) else {}
+        extra = {k: v for k, v in err.items() if k not in ('code', 'message', 'category')}
         raise EssentialsError(status, str(err.get('code', 'REQUEST_INVALID')),
-                              str(err.get('message', 'the request was refused')), str(err.get('category', 'request')))
+                              str(err.get('message', 'the request was refused')), str(err.get('category', 'request')),
+                              extra)
     try:
         req = engine_request(response)
         pdf = generate(response, panchanga.calculate(req, ephe_path), vara.calculate(req, ephe_path), display_name)
