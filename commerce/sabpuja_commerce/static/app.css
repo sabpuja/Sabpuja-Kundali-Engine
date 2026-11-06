@@ -1,0 +1,19 @@
+:root { --ink: #2F2926; --gold: #BE9148; --bg: #fffdf8; --line: #e9d9ba; --err: #9b1c1c; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; }
+main { max-width: 36rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+h1 { font-size: clamp(1.4rem, 4vw, 1.9rem); margin: 0 0 .5rem; }
+h2 { font-size: 1.15rem; margin-top: 1.5rem; }
+label { display: block; margin: .9rem 0 .25rem; font-weight: 600; }
+input, select, button { font: inherit; width: 100%; padding: .6rem .7rem; border: 1px solid var(--line); border-radius: 6px; }
+input:focus, select:focus, button:focus { outline: 3px solid var(--gold); outline-offset: 1px; }
+button { margin-top: 1.1rem; background: var(--ink); color: #fff; border: 0; cursor: pointer; min-height: 44px; }
+button[disabled] { opacity: .6; }
+button.link { background: none; color: var(--ink); text-decoration: underline; width: auto; padding: 0; }
+.check { font-weight: 400; display: flex; gap: .5rem; align-items: flex-start; }
+.check input { width: auto; margin-top: .3rem; }
+.hint, footer { font-size: .9rem; color: #5a504a; }
+#status:not(:empty) { padding: .6rem .8rem; border-left: 4px solid var(--gold); background: #fff; }
+#status.error { border-color: var(--err); color: var(--err); }
+fieldset { border: 1px solid var(--line); border-radius: 6px; margin-top: 1rem; }
+footer { margin-top: 2.5rem; border-top: 1px solid var(--line); padding-top: 1rem; }

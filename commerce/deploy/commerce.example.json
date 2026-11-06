@@ -1,0 +1,28 @@
+{
+  "_comment": "Example only. Copy outside Git. *_file entries point to secret files (mode 0400). Values are placeholders.",
+  "shop_domain": "REPLACE-staging-store.myshopify.com",
+  "webhook_secret_file": "/run/sabpuja/webhook-secret",
+  "pepper_file": "/run/sabpuja/pepper",
+  "public_origin": "https://REPLACE-kundali-staging-host",
+  "db_path": "/var/lib/sabpuja-commerce/entitlements.sqlite",
+  "trusted_proxies": [
+    "127.0.0.1"
+  ],
+  "allow_test_orders": true,
+  "products": [
+    {
+      "product_id": 0,
+      "variant_id": 0,
+      "sku": "REPLACE",
+      "currency": "INR",
+      "edition": "janam-kundali-essentials-en/1"
+    }
+  ],
+  "initial_generations": 1,
+  "additional_generations": 3,
+  "generation_window_days": 30,
+  "admin_api_token_file": "/run/sabpuja/shopify-admin-token",
+  "require_order_verification": true,
+  "claim_validity_days": 30,
+  "order_read_horizon_days": 60
+}
