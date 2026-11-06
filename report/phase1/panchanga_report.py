@@ -554,8 +554,10 @@ class Extension:
             values['karana'] = (values['karana'][0],
                                 self.n('tr.karana_' + half, name=pn.name('karana', v['karana'], self.locale)))
             values['yoga'] = (values['yoga'][0], pn.name('yoga', v['yoga'], self.locale))
-        columns = [(self.t('tr.col.element'), 66, 'left'), (self.t('tr.col.value'), 101, 'left'),
-                   (self.t('tr.col.start'), 166, 'left'), (self.t('tr.col.end'), 166, 'left')]
+        # Named display: a wider value column for names such as "Chatushpada, 2nd half" (same total width).
+        value_w, time_w = (101, 166) if self.names is None else (117, 158)
+        columns = [(self.t('tr.col.element'), 66, 'left'), (self.t('tr.col.value'), value_w, 'left'),
+                   (self.t('tr.col.start'), time_w, 'left'), (self.t('tr.col.end'), time_w, 'left')]
         rows = []
         for element in ELEMENTS:
             (s_utc, s_loc), (e_utc, e_loc) = spans[element]['start'], spans[element]['end']

@@ -451,6 +451,34 @@ class DefaultUnchanged(unittest.TestCase):
             self.assertNotIn('panchanga_names', text, path)
 
 
+class EveryNameFits(unittest.TestCase):
+    """Every name the preview can draw fits its card line and its transition cell, in both
+    languages, at or above the minimum text size: all 30 Tithis, 60 Karana halves and 27 Yogas,
+    not only the ones the stored scenarios happen to reach."""
+
+    def test_all_cells(self):
+        import io
+        from reportlab.pdfgen import canvas
+        cmaps = premium._register_fonts()
+        card = (premium.CW - 2 * 12) / 3 - 28
+        cell = 117 - 20
+        for locale in ('en', 'hi'):
+            d = premium.Doc(canvas.Canvas(io.BytesIO()), premium.Palette('baseline'), cmaps, True, locale)
+            fits = lambda text, width, size: d.fit(text, 'Body', size, width, premium.MIN_TEXT) is not None
+            for n in range(1, 31):
+                label = pn.tithi_label(n, locale)
+                self.assertTrue(fits(pn.text('card.tithi_sub', locale, name=label, day=rules.paksha_day(n)), card, 8.6))
+                self.assertTrue(fits(label, cell, 8.5), (locale, n))
+            for i in range(1, 61):
+                self.assertTrue(fits(pn.text('card.karana_sub', locale, name=pn.name('karana', i, locale),
+                                             kind=pn.karana_kind(i, locale)), card, 8.6), (locale, i))
+                half = 'tr.karana_first' if i % 2 else 'tr.karana_second'
+                self.assertTrue(fits(pn.text(half, locale, name=pn.name('karana', i, locale)), cell, 8.5), (locale, i))
+            for i in range(1, 28):
+                self.assertTrue(fits(pn.text('card.yoga_sub', locale, name=pn.name('yoga', i, locale)), card, 8.6))
+                self.assertTrue(fits(pn.name('yoga', i, locale), cell, 8.5))
+
+
 class QAPreview(unittest.TestCase):
 
     def test_customer_mode_and_unknown_modes_refused(self):
@@ -592,6 +620,51 @@ class LiveIMDCrossCheck(unittest.TestCase):
                         self.assertTrue(spelling_matches(element, index, printed), (index, printed))
                 checked += 1
         self.assertGreater(checked, 120)
+
+
+@unittest.skipUnless(os.environ.get('SABPUJA_TEST_EPHE_PATH'), 'set SABPUJA_TEST_EPHE_PATH for live fixed-Karana reports')
+class LiveFixedKaranaReports(unittest.TestCase):
+    """The stored scenarios include Karana 1 and Purnima but none of 58-60. Synthetic Jaipur births
+    inside the IMD-printed spans of 8-9 November 2026 render the fixed Karanas, Krishna Chaturdashi
+    and Amavasya end to end in both languages."""
+
+    CASES = (('2026-11-08', '06:00:00', 29, 58, 'Sakuni'), ('2026-11-08', '18:00:00', 30, 59, 'Chatuspada'),
+             ('2026-11-09', '08:00:00', 30, 60, 'Naga'), ('2026-11-09', '20:00:00', 1, 1, 'Kinstughna'))
+
+    @classmethod
+    def setUpClass(cls):
+        sys.path[:0] = [str(ROOT / 'prototype'), str(ROOT / 'report/phase1/tools')]
+        from kundali_prototype import server
+        from kundali_prototype.places import load_places
+        from sabpuja_kundali import panchanga
+        import make_panchanga_fixtures as maker
+        cls.server, cls.places, cls.panchanga, cls.maker = server, load_places(), panchanga, maker
+        cls.ephe = os.environ['SABPUJA_TEST_EPHE_PATH']
+
+    def test_fixed_karanas_and_new_moon(self):
+        for day, clock, tithi, karana, printed in self.CASES:
+            body = {'place_id': 'in-jaipur', 'birth_date': day, 'birth_time': clock}
+            status, response = self.server.handle_chart(json.dumps(body).encode(), self.places, self.ephe)
+            self.assertEqual(status, 200)
+            doc = self.panchanga.calculate(self.maker.engine_request(response), self.ephe)
+            self.assertEqual((doc['tithi']['number'], doc['karana']['index']), (tithi, karana))
+            self.assertTrue(spelling_matches('karana', karana, printed))
+            for locale in ('en', 'hi'):
+                with self.subTest(day=day, clock=clock, locale=locale):
+                    default = premium.generate_extended(response, doc, synthetic=True, palette='baseline', locale=locale)
+                    data, audit = premium.render(response, True, 'baseline', None, locale, panchanga=doc, names=QA)
+                    pdf = fitz.open(stream=data, filetype='pdf')
+                    self.assertEqual(pdf.page_count, 13)
+                    self.assertNotEqual(data, default)
+                    checks = base_tests.PremiumPDFTests()
+                    checks._assert_no_text_overlap(pdf, day)
+                    checks._assert_inside_margins(pdf, day)
+                    p10 = squash(pdf[9].get_text())
+                    self.assertIn(squash(pn.text('card.karana_sub', locale, name=pn.name('karana', karana, locale),
+                                                 kind=pn.karana_kind(karana, locale))), p10)
+                    self.assertIn(pn.tithi_label(tithi, locale), p10)
+                    words = tokens(' '.join(p.get_text() for p in fitz.open(stream=default, filetype='pdf')))
+                    self.assertFalse(words & {pn.name('karana', karana, 'en'), pn.tithi_label(tithi, 'en')})
 
 
 if __name__ == '__main__':

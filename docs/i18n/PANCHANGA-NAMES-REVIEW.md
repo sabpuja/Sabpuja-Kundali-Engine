@@ -9,7 +9,7 @@ review; not customer-facing; not owner-approved.** Issue #80, stacked on draft P
 |---|---|
 | `report/phase1/panchanga_names.json` | New catalog: 16 Tithi names, 11 Karanas, 27 Panchanga Yogas, each with a stable machine id, the IMD spelling as printed (plus alternates seen on daily pages), proposed English and Hindi display forms and three review layers. Index maps Tithi 1-30, Karana 1-60, Yoga 1-27. Customer release `PENDING`. |
 | `report/phase1/panchanga_names.py` | Lookups that fail closed (index range, `bool`/float/str, unknown element, locale, missing or mistyped term, malformed catalog) and the release gate. |
-| `panchanga_report.py`, `premium_report.py` | Optional `names=` argument of `generate_extended`. `None` (default) is the M1 display, byte for byte. `'qa_preview'` draws names on the existing cards, transition table and method page, with a "QA PREVIEW, NOT FOR CUSTOMERS" notice on all three Panchanga pages and in the PDF subject. `'customer'` is refused. CLI: `--names-qa-preview` (needs `--panchanga-json`). No page added. |
+| `panchanga_report.py`, `premium_report.py` | Optional `names=` argument of `generate_extended`. `None` (default) is the M1 display, byte for byte. `'qa_preview'` draws names on the existing cards, transition table (value column 16 pt wider, time columns 8 pt narrower, preview only) and method page, with a "QA PREVIEW, NOT FOR CUSTOMERS" notice on all three Panchanga pages and in the PDF subject. `'customer'` is refused. CLI: `--names-qa-preview` (needs `--panchanga-json`). No page added. |
 | Evidence | `research/panchanga/names/imd-names-evidence.json`; `SOURCE-REGISTER.md` section 6; generated `PANCHANGA-NAMES-CROSSWALK.md`. |
 | Unchanged | `sabpuja-panchanga/1` contract and M1 module, chart schema 0.3.0, D1/D9, ten-page catalog and output, the M1 page catalog `report_panchanga_i18n.json`, nearest-minute display, preview server, sunrise conventions, validation status. |
 
@@ -32,6 +32,10 @@ review; not customer-facing; not owner-approved.** Issue #80, stacked on draft P
    the engine's own M1 index names the element IMD printed (Tithi, Karana and Yoga). This checks
    that the engine's index and the IMD name agree; it is not used as the reference.
 5. **Mutation check**: swapping Karanas 58/59 or Yogas 16/21 in the catalog fails all three checks.
+6. **Fixed Karanas end to end**: live synthetic Jaipur births inside the IMD-printed spans of
+   8-9 November 2026 render Sakuni, Chatuspada, Naga and Kinstughna (Krishna Chaturdashi, Amavasya,
+   Shukla Pratipada) in both languages; every one of the 177 possible named cells is checked to fit
+   its card or table cell at or above the minimum text size.
 
 ## Held, not adopted
 
