@@ -37,7 +37,7 @@ from . import identity_v8 as v8m
 from .identity_v2 import IdentityError, HEX40, HEX64, REPO, blob_id, sha256
 
 V9_PATH = "tests/panchanga/identity-manifest-v9.json"
-V9_SHA256 = "cd5559422aa53c71e5116e59aa333b9c8d315a8996741579dba90247ebad6e65"
+V9_SHA256 = "2cc5185269dfcefcd6f52a9c9df583ec7c8bd2fc8fbeec3c68f8d271a7ef9f4f"
 SCHEMA = "sabpuja-pan-qa-08-identity/9"
 TASK = "KUN-PAN-RPT-002"
 BASE_COMMIT = "c759c412b22753f7f5b6134e2aaaad0f04412007"   # draft PR #82 head after independent QA: the v8 tree

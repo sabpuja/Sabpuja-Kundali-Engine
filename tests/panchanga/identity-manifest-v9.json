@@ -171,8 +171,8 @@
       "git_blob": "b2dd8a04121b0b87949b51ce971384485d269b3c"
     },
     "report/phase1/tests/test_vara_report.py": {
-      "sha256": "5b3eb4e63033b7bed14acb31a97154da9ce309a796436b49ee232412d524f757",
-      "git_blob": "ab0cf1b79609715c7c98316a3f5fb2dbc288c621"
+      "sha256": "1b4b68f592c3cb44756256ae146129c5a8cd5716f51206265fceb921cfde26fd",
+      "git_blob": "006546fb62f9ee42038c5914942c1ee0ebd5398f"
     },
     "report/phase1/tools/make_vara_fixtures.py": {
       "sha256": "34cce9b210bb1b5e5ee510ebb293a706d013bc361234dfb27aa1985073d52229",

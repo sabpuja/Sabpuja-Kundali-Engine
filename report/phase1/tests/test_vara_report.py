@@ -422,6 +422,21 @@ class Refusals(unittest.TestCase):
         self.mutate(lambda v: v.update(next_sunrise={'status': 'unavailable', 'reason': 'PANCHANGA_SUNRISE_OUTSIDE_ENVELOPE',
                                                      'condition': 'NEXT_SUNRISE_OUTSIDE_ENVELOPE'}))
 
+    def test_event_second_rounds_half_up(self):
+        """An event's whole-second UTC field is its instant rounded half up: .5 s exactly goes up."""
+        zone = maker.get_zone('Asia/Kolkata')
+        base = int(datetime(2039, 7, 31, 0, 20, 29, tzinfo=timezone.utc).timestamp()) * 10**6
+
+        def event(t_us, second):
+            local = datetime(2039, 7, 31, 0, 20, second, tzinfo=timezone.utc).astimezone(zone)
+            return {'status': 'available', 'utc_us': t_us, 'utc': f'2039-07-31T00:20:{second:02d}Z',
+                    'local': local.isoformat(), 'local_date': local.date().isoformat()}
+        for offset_us, good, bad in ((499_999, 29, 30), (500_000, 30, 29), (999_999, 30, 29)):
+            with self.subTest(offset_us=offset_us):
+                self.assertEqual(vr._event(event(base + offset_us, good), zone), base + offset_us)
+                with self.assertRaises(vr.VaraReportError):
+                    vr._event(event(base + offset_us, bad), zone)
+
     def test_near_sunrise_flag_must_be_the_instants(self):
         self.mutate(lambda v: v['boundary'].update(near_sunrise=True, nearest='governing'))
         self.mutate(lambda v: v['boundary'].update(near_sunrise=False, nearest=None), 'v04-last-second-before-sunrise')
