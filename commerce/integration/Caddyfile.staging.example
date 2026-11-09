@@ -1,0 +1,34 @@
+# KUN-RC-COM-001B. TEMPLATE for the isolated commerce staging host. Not applied to any server.
+# Caddy obtains TLS automatically. The commerce gateway has no published port; Caddy reaches it on the
+# private compose network (`sabpuja-commerce-qa`) as commerce:8081. The trusted-proxy file given to the
+# gateway (SBK_TRUSTED_PROXY_FILE) must name only this Caddy container's address.
+{
+	admin off
+}
+
+https://<commerce-staging-host> {
+	log {
+		output discard          # no access log: URLs, addresses and user agents are not recorded
+	}
+	request_body {
+		max_size 256KB
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+
+	# Shopify must reach the webhook from its own IP ranges; it is HMAC-authenticated by the app.
+	handle /webhooks/shopify {
+		reverse_proxy commerce:8081
+	}
+
+	# During QA everything else (claim page, codes, PDF) is limited to the QA team.
+	@qa_team remote_ip <qa-team-ip-or-cidr> <second-ip-or-cidr>
+	handle @qa_team {
+		reverse_proxy commerce:8081
+	}
+	handle {
+		respond "Not available" 404
+	}
+}

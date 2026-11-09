@@ -1,0 +1,17 @@
+{%- comment -%}
+  KUN-RC-COM-001B. TEMPLATE for Settings > Notifications > Order confirmation (and the Order status page
+  "Additional content" if the store plan still offers it). Not applied. Owner authorization required.
+  The link carries NO order number, e-mail or birth data: the buyer types the order number and the checkout
+  e-mail on the claim page and receives a one-time code. Shown only when the order contains the Essentials SKU.
+  English draft copy: needs ChatGPT English-content QA and owner approval before use.
+{%- endcomment -%}
+{%- assign has_kundali = false -%}
+{%- for line in line_items -%}
+  {%- if line.sku == "REPLACE-SBK-ESS-EN-1" -%}{%- assign has_kundali = true -%}{%- endif -%}
+{%- endfor -%}
+{%- if has_kundali -%}
+  <p><strong>Prepare your Janam Kundali Essentials</strong><br>
+  Open <a href="https://REPLACE-commerce-staging-host/">the Kundali page</a>, enter order number
+  {{ order_name }} and this e-mail address, and we will send you a one-time code. Your birth details are
+  used only to prepare the PDF and are not stored. Please claim within 30 days of your order.</p>
+{%- endif -%}
