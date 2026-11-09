@@ -1,0 +1,7 @@
+{
+  "_comment": "TEMPLATE. Transactional SMTP for one-time claim codes only (no marketing, no attachments). STARTTLS on 587 with certificate verification is enforced by SmtpMailer. The password lives in its own 0400 file.",
+  "host": "REPLACE-smtp.provider.example",
+  "port": 587,
+  "username": "REPLACE",
+  "password_file": "/run/sabpuja/smtp-password"
+}

@@ -1,0 +1,43 @@
+# KUN-RC-COM-001B. TEMPLATE ONLY. Not linked, not deployed. Creating the app, linking this file with
+# `shopify app config link` and running `shopify app deploy` all need separate owner authorization.
+# Values in angle brackets are placeholders. The client secret is NOT in this file; it goes into the
+# commerce webhook-secret file (Shopify signs app webhooks with the app's client secret).
+client_id = "<from the Dev Dashboard; not a secret>"
+name = "Sabpuja Kundali Fulfilment (QA)"
+application_url = "https://<commerce-staging-host>/"
+embedded = false
+
+[access_scopes]
+# Minimal: read one order by id (re-check, reconciliation, recovery). No write scope, no read_customers,
+# no read_all_orders (the code hard-expires every entitlement inside the 60-day default order window).
+scopes = "read_orders"
+use_legacy_install_flow = false
+
+[auth]
+# Required by the app configuration; this app has no OAuth callback of its own (see README, "Admin API token").
+redirect_urls = ["https://<commerce-staging-host>/"]
+
+[webhooks]
+api_version = "2026-10"
+
+  # Payloads are trimmed to the fields the receiver reads (shopify._apply / _paid_lines), so addresses,
+  # phone, names and notes are never sent. Remove include_fields only if the dev-store trial shows a field
+  # missing; the receiver turns a short payload into a durable malformed_paid_webhook exception, not a loss.
+  [[webhooks.subscriptions]]
+  topics = ["orders/paid"]
+  uri = "https://<commerce-staging-host>/webhooks/shopify"
+  include_fields = ["id", "order_number", "email", "contact_email", "financial_status", "cancelled_at", "test",
+                    "currency", "line_items"]
+
+  [[webhooks.subscriptions]]
+  topics = ["orders/cancelled"]
+  uri = "https://<commerce-staging-host>/webhooks/shopify"
+  include_fields = ["id"]
+
+  [[webhooks.subscriptions]]
+  topics = ["refunds/create"]
+  uri = "https://<commerce-staging-host>/webhooks/shopify"
+  include_fields = ["id", "order_id", "refund_line_items"]
+
+[pos]
+embedded = false

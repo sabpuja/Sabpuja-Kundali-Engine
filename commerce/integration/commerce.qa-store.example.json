@@ -1,0 +1,31 @@
+{
+  "_comment": "KUN-RC-COM-001B QA-store config TEMPLATE. Copy to the secrets directory outside Git (mode 0400, owner uid 10002). Every *_file is a separate 0400 file. Placeholders must be replaced; config.validate() refuses them.",
+  "shop_domain": "REPLACE-sabpuja-qa-store.myshopify.com",
+  "webhook_secret_file": "/run/sabpuja/webhook-secret",
+  "pepper_file": "/run/sabpuja/pepper",
+  "admin_api_token_file": "/run/sabpuja/shopify-admin-token",
+  "admin_api_version": "2026-10",
+  "require_order_verification": true,
+  "public_origin": "https://REPLACE-commerce-staging-host",
+  "db_path": "/var/lib/sabpuja-commerce/entitlements.sqlite",
+  "trusted_proxies": ["127.0.0.1"],
+  "allow_test_orders": true,
+  "allow_unreleased_edition": false,
+  "products": [
+    {
+      "product_id": 0,
+      "variant_id": 0,
+      "sku": "REPLACE-SBK-ESS-EN-1",
+      "currency": "INR",
+      "edition": "janam-kundali-essentials-en/1"
+    }
+  ],
+  "initial_generations": 1,
+  "additional_generations": 3,
+  "generation_window_days": 30,
+  "claim_validity_days": 30,
+  "order_read_horizon_days": 60,
+  "mail_from": "Sabpuja Kundali <REPLACE-noreply@REPLACE-sender-domain>",
+  "mail_queue_size": 100,
+  "max_concurrent_renders": 1
+}
