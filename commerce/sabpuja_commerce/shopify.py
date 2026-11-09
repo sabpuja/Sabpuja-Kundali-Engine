@@ -171,11 +171,23 @@ ORDER_QUERY = """query SabpujaOrderCheck($id: ID!) {
     cancelledAt
     displayFinancialStatus
     test
-    lineItems(first: 50) { nodes { id currentQuantity variant { id } } }
-    refunds(first: 50) { refundLineItems(first: 50) { nodes { lineItem { id } } } }
+    lineItems(first: 50) { nodes { id currentQuantity variant { id } } pageInfo { hasNextPage } }
+    refunds(first: 50) { refundLineItems(first: 50) { nodes { lineItem { id } } pageInfo { hasNextPage } } }
   }
 }"""
 PAID_STATUSES = frozenset({"PAID", "PARTIALLY_REFUNDED"})
+PAGE = 50   # first: N used for every list and connection above; a full page may hide more, so it fails closed
+
+
+def _complete(order: dict) -> bool:
+    """True only when no relevant list was cut: the order has <= PAGE lines, < PAGE refunds (Order.refunds is
+    a plain list with a `first` limit, so exactly PAGE may be truncated) and every refund's lines fit one page.
+    An incomplete answer is unusable: nothing is granted and nothing is revoked from it."""
+    if order["lineItems"]["pageInfo"]["hasNextPage"] is not False:
+        return False
+    if not isinstance(order["refunds"], list) or len(order["refunds"]) >= PAGE:
+        return False
+    return all(r["refundLineItems"]["pageInfo"]["hasNextPage"] is False for r in order["refunds"])
 
 
 def _gid_number(value) -> int | None:
@@ -200,6 +212,8 @@ def order_state(settings: Settings, data: dict) -> dict[int, int] | None:
     if order.get("test") is True and not settings.allow_test_orders:
         return {}
     try:
+        if not _complete(order):
+            return None
         refunded = {_gid_number(n["lineItem"]["id"]) for r in order["refunds"]
                     for n in r["refundLineItems"]["nodes"]}
         active = {}
@@ -210,6 +224,11 @@ def order_state(settings: Settings, data: dict) -> dict[int, int] | None:
     except (KeyError, TypeError, ValueError):
         return None
     return active
+
+
+def _log_version_mismatch(served) -> None:
+    served = served if isinstance(served, str) and len(served) <= 16 else "absent"
+    print(json.dumps({"event": "SHOPIFY_API_VERSION_MISMATCH", "served": served}), file=sys.stderr, flush=True)
 
 
 class GraphQLOrderVerifier:
@@ -231,9 +250,16 @@ class GraphQLOrderVerifier:
             "Accept": "application/json"})
         try:
             with urllib.request.urlopen(req, timeout=self._timeout) as resp:  # noqa: S310 - fixed https host
-                return json.loads(resp.read(256 * 1024).decode("utf-8"))
+                served = resp.headers.get("X-Shopify-API-Version")
+                data = json.loads(resp.read(256 * 1024).decode("utf-8"))
         except (OSError, ValueError):
             return None
+        if served != self._s.admin_api_version:
+            # Shopify serves a retired or unknown version as the oldest supported one; the queries are only
+            # validated for the configured version, so any other answer is unusable.
+            _log_version_mismatch(served)
+            return None
+        return data
 
     def lines(self, order_id: int) -> dict[int, int] | None:
         data = self._post(ORDER_QUERY, order_id)
@@ -250,7 +276,7 @@ class GraphQLOrderVerifier:
 RECOVERY_QUERY = """query SabpujaOrderRecovery($id: ID!) {
   order(id: $id) {
     id
-    name
+    number
     email
     createdAt
     cancelledAt
@@ -265,8 +291,9 @@ RECOVERY_QUERY = """query SabpujaOrderRecovery($id: ID!) {
         variant { id product { id } }
         originalUnitPriceSet { shopMoney { amount currencyCode } }
       }
+      pageInfo { hasNextPage }
     }
-    refunds(first: 50) { refundLineItems(first: 50) { nodes { lineItem { id } } } }
+    refunds(first: 50) { refundLineItems(first: 50) { nodes { lineItem { id } } pageInfo { hasNextPage } } }
   }
 }"""
 
@@ -280,7 +307,9 @@ def recovery_payload(data: dict) -> dict | None:
     if not isinstance(order, dict):
         return None
     try:
-        digits = "".join(ch for ch in str(order["name"]) if ch.isdigit())
+        number = order["number"]
+        if not _complete(order):
+            return None
         refunded = {_gid_number(n["lineItem"]["id"]) for r in order["refunds"] for n in r["refundLineItems"]["nodes"]}
         lines = []
         for n in order["lineItems"]["nodes"]:
@@ -297,7 +326,9 @@ def recovery_payload(data: dict) -> dict | None:
             return None
     except (KeyError, TypeError, ValueError):
         return None
-    return {"id": _gid_number(order["id"]), "order_number": int(digits) if digits else None,
+    if not isinstance(number, int) or isinstance(number, bool) or number < 1:
+        return None
+    return {"id": _gid_number(order["id"]), "order_number": number,
             "email": order.get("email"), "cancelled_at": order.get("cancelledAt"), "test": order.get("test"),
             "financial_status": "paid" if status in PAID_STATUSES else str(status).lower(),
             "currency": order.get("currencyCode"), "line_items": lines, "ordered_at": created.timestamp()}

@@ -11,17 +11,22 @@ from sabpuja_commerce import shopify
 V = h.PRODUCT.variant_id
 
 
-def order(status="PAID", cancelled=None, test=False, lines=((50011, V, 1),), refunded=()):
+def order(status="PAID", cancelled=None, test=False, lines=((50011, V, 1),), refunded=(), more_lines=False,
+          more_refund_lines=False, extra_refunds=0):
+    refunds = [{"refundLineItems": {"nodes": [{"lineItem": {"id": f"gid://shopify/LineItem/{lid}"}} for lid in refunded],
+                                    "pageInfo": {"hasNextPage": more_refund_lines}}}]
+    refunds += [{"refundLineItems": {"nodes": [], "pageInfo": {"hasNextPage": False}}}] * extra_refunds
     return {"data": {"order": {
         "id": "gid://shopify/Order/5001", "cancelledAt": cancelled, "displayFinancialStatus": status, "test": test,
         "lineItems": {"nodes": [{"id": f"gid://shopify/LineItem/{lid}", "currentQuantity": q,
-                                 "variant": {"id": f"gid://shopify/ProductVariant/{vid}"}} for lid, vid, q in lines]},
-        "refunds": [{"refundLineItems": {"nodes": [{"lineItem": {"id": f"gid://shopify/LineItem/{lid}"}}
-                                                   for lid in refunded]}}]}}}
+                                 "variant": {"id": f"gid://shopify/ProductVariant/{vid}"}} for lid, vid, q in lines],
+                      "pageInfo": {"hasNextPage": more_lines}},
+        "refunds": refunds}}}
 
 
 ANSWERS = {}
 SEEN = []
+SERVED = {"version": "2026-10"}   # X-Shopify-API-Version the fake answers with (None: header absent)
 
 
 class Fake(BaseHTTPRequestHandler):
@@ -36,6 +41,8 @@ class Fake(BaseHTTPRequestHandler):
         body = payload if isinstance(payload, bytes) else json.dumps(payload).encode()
         self.send_response(status)
         self.send_header("Content-Length", str(len(body)))
+        if SERVED["version"] is not None:
+            self.send_header("X-Shopify-API-Version", SERVED["version"])
         self.end_headers()
         self.wfile.write(body)
 
@@ -60,7 +67,7 @@ class GraphQL(unittest.TestCase):
     def test_paid_order_lines(self):
         self.assertEqual(self.check(200, order()), {50011: V})
         path, token, req = SEEN[-1]
-        self.assertEqual(path, "/admin/api/2025-10/graphql.json")
+        self.assertEqual(path, "/admin/api/2026-10/graphql.json")
         self.assertEqual(token, "shpat_synthetic")
         self.assertEqual(req["variables"], {"id": "gid://shopify/Order/5001"})
         for field in ("email", "customer", "phone", "billingAddress", "shippingAddress"):
@@ -80,6 +87,30 @@ class GraphQL(unittest.TestCase):
         for status, ans in ((500, {}), (429, {}), (200, {"errors": [{"message": "Throttled"}]}), (200, b"not json"),
                             (200, {"data": {"order": {"id": "x"}}}), (200, []), (401, {"errors": "bad token"})):
             self.assertIsNone(self.check(status, ans), (status, ans))
+
+    def test_truncated_answers_fail_closed(self):
+        # r3 read only the first page: a refund of the purchased line on a later page was invisible.
+        for ans in (order(more_refund_lines=True), order(more_lines=True), order(extra_refunds=49)):
+            self.assertIsNone(self.check(200, ans))
+        self.assertEqual(self.check(200, order(extra_refunds=48)), {50011: V})        # 49 refunds: complete
+        self.assertIsNone(self.check(200, {"data": {"order": dict(order()["data"]["order"],
+                                                                   lineItems={"nodes": []})}}))  # no pageInfo
+
+    def test_truncated_answer_never_revokes(self):
+        hh = h.Harness(verifier=self.v)
+        hh.paid()
+        ANSWERS[5001] = (200, order(refunded=(50011,), more_refund_lines=True))
+        self.assertEqual(hh.app.reconcile(5001), "unavailable")
+        self.assertEqual(hh.store.order_status(h.SHOP, 5001)["remaining"], 4)
+
+    def test_served_version_must_match_configured(self):
+        try:
+            for served in ("2026-01", None, "unstable"):
+                SERVED["version"] = served
+                self.assertIsNone(self.check(200, order()), served)
+        finally:
+            SERVED["version"] = "2026-10"
+        self.assertEqual(self.check(200, order()), {50011: V})
 
     def test_unreachable_fails_closed(self):
         v = shopify.GraphQLOrderVerifier(self.s, base_url="http://127.0.0.1:9", timeout=1)

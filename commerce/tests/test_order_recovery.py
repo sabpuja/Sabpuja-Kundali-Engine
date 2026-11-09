@@ -14,17 +14,19 @@ NOW = "2027-01-15T07:00:00Z"            # one hour before the harness clock
 
 
 def answer(oid=5001, email=h.EMAIL, status="PAID", cancelled=None, test=False, created=NOW, currency="INR",
-           lines=((50011, V, 1, "499.00"),), refunded=()):
+           lines=((50011, V, 1, "499.00"),), refunded=(), number=1001, name="#1001", more_lines=False,
+           more_refund_lines=False):
     return {"data": {"order": {
-        "id": f"gid://shopify/Order/{oid}", "name": "#1001", "email": email, "createdAt": created,
+        "id": f"gid://shopify/Order/{oid}", "number": number, "name": name, "email": email, "createdAt": created,
         "cancelledAt": cancelled, "displayFinancialStatus": status, "test": test, "currencyCode": currency,
         "lineItems": {"nodes": [{"id": f"gid://shopify/LineItem/{lid}", "sku": h.PRODUCT.sku, "currentQuantity": q,
                                  "variant": {"id": f"gid://shopify/ProductVariant/{vid}",
                                              "product": {"id": f"gid://shopify/Product/{P}"}},
                                  "originalUnitPriceSet": {"shopMoney": {"amount": price, "currencyCode": currency}}}
-                                for lid, vid, q, price in lines]},
+                                for lid, vid, q, price in lines], "pageInfo": {"hasNextPage": more_lines}},
         "refunds": [{"refundLineItems": {"nodes": [{"lineItem": {"id": f"gid://shopify/LineItem/{lid}"}}
-                                                   for lid in refunded]}}]}}}
+                                                   for lid in refunded],
+                                         "pageInfo": {"hasNextPage": more_refund_lines}}}]}}}
 
 
 class Recovery(unittest.TestCase):
@@ -125,6 +127,24 @@ class Recovery(unittest.TestCase):
                             (200, answer(created="yesterday")), (200, answer(created="2027-01-15T07:00:00"))):
             self.assertEqual(self.recover(ans, status=status), "unavailable", (status, ans))
         self.assertEqual(self.recover(answer(oid=5002), oid=5001), "unusable_answer")    # wrong order back
+        self.assertEqual(self.h.store._db.execute("SELECT COUNT(*) FROM entitlements").fetchone()[0], 0)
+
+    def test_canonical_number_not_digits_of_the_name(self):
+        # r3 joined the digits of `name`: "SB2026-#1001-X9" became 202610019 and the buyer could not claim.
+        self.assertEqual(self.recover(answer(name="SB2026-#1001-X9")), "recovered")
+        self.assertEqual(self.h.store.order_status(h.SHOP, 5001)["remaining"], 4)
+        self.h.login(number="1001")
+
+    def test_missing_or_bad_number_is_unusable(self):
+        for number in (None, 0, -5, "1001", True, 10.5):
+            self.assertEqual(self.recover(answer(number=number)), "unavailable", number)
+        ans = answer()
+        del ans["data"]["order"]["number"]
+        self.assertEqual(self.recover(ans), "unavailable")
+
+    def test_truncated_answers_create_nothing(self):
+        for ans in (answer(more_lines=True), answer(more_refund_lines=True)):
+            self.assertEqual(self.recover(ans), "unavailable")
         self.assertEqual(self.h.store._db.execute("SELECT COUNT(*) FROM entitlements").fetchone()[0], 0)
 
     def test_no_email_in_store_exceptions_or_logs(self):
