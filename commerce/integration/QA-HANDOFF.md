@@ -36,10 +36,10 @@ python -m tests.swiss_conformance.run --swetest /path/to/swetest --receipt /path
 git fetch origin kun-rc-com-001 && git worktree add --detach /tmp/qa-r4 5e477b99b2b873201c167f158d5098b6666a2a8d
 cd /tmp/qa-r4 && git status --short                 # must be empty
 E=/path/to/verified/ephe
-# Commerce, pinned data: 151 tests, OK, skipped=5 (the schema contract class, run separately below)
+# Commerce, pinned data: 156 tests, OK, skipped=5 (the schema contract class, run separately below)
 PYTHONPATH=src:prototype:.:commerce:commerce/tests SABPUJA_TEST_EPHE_PATH=$E \
   python -m unittest discover -s commerce/tests -v
-# Commerce, no data: 151 tests, OK (skipped=15: 10 engine-backed + 5 schema contract)
+# Commerce, no data: 156 tests, OK (skipped=15: 10 engine-backed + 5 schema contract)
 PYTHONPATH=src:prototype:.:commerce:commerce/tests python -m unittest discover -s commerce/tests
 # Regression: report 299 OK (skipped=2), prototype 190 OK, identity PASS
 PYTHONPATH=src:prototype:.:report/phase1/tests:report/phase1/tools:report/phase1 SABPUJA_TEST_EPHE_PATH=$E \
@@ -95,8 +95,8 @@ Project files `kun-rc-com-001/evidence-r4/` (all from a fresh detached worktree 
 
 | File | Content |
 |---|---|
-| `commerce-pinned.log` | 151 tests, OK (skipped=5: the schema contract, run on its own) |
-| `commerce-no-data.log` | 151 tests, OK (skipped=15) |
+| `commerce-pinned.log` | 156 tests, OK (skipped=5: the schema contract, run on its own) |
+| `commerce-no-data.log` | 156 tests, OK (skipped=15) |
 | `schema-contract-2026-10.log` | 5 tests, OK, against Shopify's published `admin_2026-10.json.gz` |
 | `new-tests-against-r3-6dc35b2.log` | the 12 new r4 tests run against r3 code: 10 fail or error, as required. The 2 that pass on r3 are `test_operations_validate` (r3's `refunds(first: 50)` was already valid) and `test_number_is_the_canonical_order_number` (a schema fact, not code) |
 | `report-suite.log`, `prototype-suite.log`, `identity-v10.txt` | 299 OK (skipped=2), 190 OK, PASS |
