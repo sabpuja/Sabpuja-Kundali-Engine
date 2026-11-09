@@ -22,7 +22,9 @@ bypasses the gateway. When commerce is down the gateway answers 502 within 3 sec
 ## Restart and recovery (F7)
 
 * Both services use `restart: unless-stopped`. Docker is `enabled` in systemd, so after a host reboot the
-  daemon starts them again. A container an operator stopped stays stopped.
+  daemon starts them again. A container an operator stopped stays stopped. That includes `docker kill`, which
+  Docker treats as an operator stop: to simulate a crash in a test, kill the container's process from the host
+  (`kill -9 <host pid>`). After any `docker stop` or `docker kill`, run `up -d --wait` again.
 * Health checks: commerce `GET /healthz` on its backend address. The gateway runs the same request through
   itself, so an unhealthy gateway means either nginx or the path to commerce failed.
 * `depends_on: {condition: service_healthy, restart: true}`: on `up`, the gateway waits for a healthy commerce.
@@ -93,7 +95,8 @@ The old `shopify-admin-token` file is no longer read; delete it after cutover.
 1. Create the internal network: `docker network create --internal <project>-mail`, and note its subnet for
    `SBK_MAIL_CLIENT_NETWORK`.
 2. Secrets directory `SBK_OUTBOUND_MAIL_SECRETS_DIR`, every file 0400, never in Git or backups:
-   * `dkim.private`, generated with `opendkim-genkey -b 2048 -d sabpuja.com -s kun2026`
+   * `dkim.private`, an RSA-2048 key: `openssl genrsa -out dkim.private 2048`. The DNS value is
+     `v=DKIM1; k=rsa; p=` followed by the base64 of `openssl rsa -in dkim.private -pubout -outform DER`
    * `tls.crt` and `tls.key`, a server certificate for `outbound-mail` signed by the private CA that commerce
      trusts through `SSL_CERT_FILE`
 3. `compose.env`:
