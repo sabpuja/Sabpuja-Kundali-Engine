@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 import unittest
 
-from sabpuja_commerce import config, shopify
+from sabpuja_commerce import admin_auth, config, shopify
 
 PATH = os.environ.get("SABPUJA_TEST_SHOPIFY_SCHEMA")
 try:
@@ -32,6 +32,7 @@ class Contract(unittest.TestCase):
     def test_operations_validate(self):
         for name in ("ORDER_QUERY", "RECOVERY_QUERY"):
             self.assertEqual(self.errors(getattr(shopify, name)), [], name)
+        self.assertEqual(self.errors(admin_auth.SHOP_QUERY), [], "SHOP_QUERY")   # token shop check (F4)
 
     def test_validator_rejects_wrong_shapes(self):
         # The contract must catch argument and field mistakes, not just parse.

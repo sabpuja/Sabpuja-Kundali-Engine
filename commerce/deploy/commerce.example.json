@@ -6,7 +6,7 @@
   "public_origin": "https://REPLACE-kundali-staging-host",
   "db_path": "/var/lib/sabpuja-commerce/entitlements.sqlite",
   "trusted_proxies": [
-    "127.0.0.1"
+    "10.231.47.3"
   ],
   "allow_test_orders": true,
   "products": [
@@ -21,7 +21,8 @@
   "initial_generations": 1,
   "additional_generations": 3,
   "generation_window_days": 30,
-  "admin_api_token_file": "/run/sabpuja/shopify-admin-token",
+  "admin_client_id": "REPLACE-32-hex-client-id-from-the-dev-dashboard",
+  "admin_client_secret_file": "/run/sabpuja/shopify-client-secret",
   "require_order_verification": true,
   "claim_validity_days": 30,
   "order_read_horizon_days": 60

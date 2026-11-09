@@ -1,13 +1,25 @@
-# KUN-RC-COM-001. PREPARATION ONLY. Do not start on shared infrastructure, attach to the live edge,
-# or point a Shopify webhook at it without separate owner authorization.
+# Kundali commerce stack. Starting it on a shared host, attaching it to an edge proxy or pointing a Shopify webhook
+# at it needs owner authorization for that environment.
 # Resource limits keep it from starving the owner-only preview on the same host.
-name: sabpuja-kundali-commerce-staging
+#
+# KUN-COM-PROD-HARDEN-001 (F6/F7) topology:
+#   edge network (external, the HTTPS proxy is attached) .. gateway only, under the alias the proxy dials
+#   backend network (internal, no egress) ................. gateway <-> commerce, fixed addresses
+#   egress network ........................................ commerce only (Shopify Admin API, SMTP)
+# The gateway no longer shares commerce's network namespace, so recreating commerce cannot leave the gateway
+# detached (the 502 seen in QA). Commerce is never on the edge network: the proxy has no route around the gateway.
+# Both services restart unless stopped by an operator, and the Docker daemon starts them after a host reboot.
+name: ${SBK_PROJECT:-sabpuja-kundali-commerce-staging}
 services:
   commerce:
     build:
       context: ../..
       dockerfile: commerce/deploy/Dockerfile
-    image: sabpuja-kundali-commerce:staging
+    image: ${SBK_IMAGE:-sabpuja-kundali-commerce:staging}
+    command: ["python", "-m", "sabpuja_commerce", "--config", "/run/sabpuja/commerce.json",
+              "--smtp-config", "/run/sabpuja/smtp.json", "--host", "${SBK_COMMERCE_IP:-10.231.47.2}", "--port", "8770"]
+    restart: unless-stopped
+    stop_grace_period: 20s
     read_only: true
     user: "10002:10002"
     cap_drop: [ALL]
@@ -22,23 +34,28 @@ services:
       - /tmp:rw,noexec,nosuid,size=16m
     environment:
       SABPUJA_EPHE_PATH: /opt/kundali/ephe
+      SBK_LISTEN: "${SBK_COMMERCE_IP:-10.231.47.2}"
     volumes:
       - {type: bind, source: "${SBK_EPHE_DIR:?verified ephemeris directory}", target: /opt/kundali/ephe, read_only: true}
       - {type: bind, source: "${SBK_SECRETS_DIR:?directory with commerce.json, smtp.json and secret files}", target: /run/sabpuja, read_only: true}
       # The entitlement database: order ids and keyed hashes only, no birth data or PDFs.
       - {type: bind, source: "${SBK_STATE_DIR:?writable state directory}", target: /var/lib/sabpuja-commerce}
-    networks: [commerce]
+    networks:
+      backend:
+        ipv4_address: ${SBK_COMMERCE_IP:-10.231.47.2}
+      egress: {}
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8770/healthz',timeout=4).read()"]
+      test: ["CMD", "python", "-c", "import os,urllib.request; urllib.request.urlopen('http://%s:8770/healthz' % os.environ['SBK_LISTEN'],timeout=4).read()"]
       interval: 30s
       timeout: 6s
       retries: 3
-      start_period: 20s
+      start_period: 30s
 
   gateway:
     image: nginx:1.28.0-alpine
     entrypoint: ["/usr/sbin/nginx"]
     command: ["-c", "/etc/nginx/nginx.conf", "-g", "daemon off;"]
+    restart: unless-stopped
     read_only: true
     user: "101:101"
     cap_drop: [ALL]
@@ -48,13 +65,36 @@ services:
     cpus: 0.25
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=8m
-    network_mode: "service:commerce"
+    networks:
+      edge:
+        aliases: ["${SBK_EDGE_ALIAS:-commerce}"]   # the name the HTTPS proxy already dials (commerce:8081)
+      backend:
+        ipv4_address: ${SBK_GATEWAY_IP:-10.231.47.3}
     depends_on:
-      commerce: {condition: service_healthy}
+      # Start after commerce is healthy and restart with it when Compose recreates commerce.
+      commerce: {condition: service_healthy, restart: true}
+    extra_hosts:
+      - "commerce-app:${SBK_COMMERCE_IP:-10.231.47.2}"
     volumes:
       - {type: bind, source: ./gateway.nginx.conf, target: /etc/nginx/nginx.conf, read_only: true}
       - {type: bind, source: "${SBK_TRUSTED_PROXY_FILE:?set_real_ip_from line for the HTTPS edge}", target: /etc/nginx/trusted-proxy.conf, read_only: true}
+    healthcheck:
+      # Answers only when the whole path works: nginx up and commerce reachable over the backend network.
+      test: ["CMD", "wget", "-q", "-T", "4", "-O", "/dev/null", "http://127.0.0.1:8081/healthz"]
+      interval: 30s
+      timeout: 6s
+      retries: 3
+      start_period: 10s
 
 networks:
-  commerce:
+  edge:
     name: ${SBK_NETWORK:-sabpuja-commerce-qa}
+    external: true
+  backend:
+    name: ${SBK_PROJECT:-sabpuja-kundali-commerce-staging}-backend
+    internal: true
+    ipam:
+      config:
+        - subnet: ${SBK_BACKEND_SUBNET:-10.231.47.0/29}
+  egress:
+    name: ${SBK_PROJECT:-sabpuja-kundali-commerce-staging}-egress

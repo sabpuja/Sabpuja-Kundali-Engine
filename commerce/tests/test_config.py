@@ -16,10 +16,11 @@ class Load(unittest.TestCase):
         d = Path(self.dir.name)
         (d / "wh").write_bytes(h.SECRET)
         (d / "pp").write_bytes(h.PEPPER)
-        (d / "tk").write_bytes(b"shpat_synthetic")
+        (d / "cs").write_bytes(b"synthetic-client-secret-0123")
         raw = json.loads(EXAMPLE.read_text())
         raw.update(shop_domain=h.SHOP, public_origin=h.ORIGIN, webhook_secret_file=str(d / "wh"),
-                   pepper_file=str(d / "pp"), admin_api_token_file=str(d / "tk"), db_path=":memory:")
+                   pepper_file=str(d / "pp"), admin_client_id="0" * 32,
+                   admin_client_secret_file=str(d / "cs"), db_path=":memory:")
         raw["products"][0].update(product_id=1, variant_id=2, sku="SBK-ESS-EN-1")
         self.raw, self.path = raw, d / "c.json"
 
@@ -33,13 +34,14 @@ class Load(unittest.TestCase):
     def test_example_loads_when_filled_in(self):
         s = self.load()
         self.assertEqual((s.generations_per_unit, s.generation_window_days), (4, 30))
-        self.assertEqual(s.trusted_proxies, ("127.0.0.1",))
+        self.assertEqual(s.trusted_proxies, ("10.231.47.3",))   # the gateway on the backend network
         self.assertTrue(s.require_order_verification)
         self.assertEqual((s.claim_validity_days, s.order_read_horizon_days), (30, 60))
-        self.assertNotIn("shpat_synthetic", repr(s))
+        self.assertNotIn("synthetic-client-secret", repr(s))
 
     def test_verification_cannot_be_on_without_token(self):
-        self.raw.pop("admin_api_token_file")
+        self.raw.pop("admin_client_id")
+        self.raw.pop("admin_client_secret_file")
         with self.assertRaises(config.ConfigError):
             self.load()
 
@@ -52,7 +54,7 @@ class Load(unittest.TestCase):
         with self.assertRaises(config.ConfigError):
             raw = json.loads(EXAMPLE.read_text())
             raw.update(webhook_secret_file=self.raw["webhook_secret_file"], pepper_file=self.raw["pepper_file"],
-                       admin_api_token_file=self.raw["admin_api_token_file"])
+                       admin_client_secret_file=self.raw["admin_client_secret_file"])
             self.path.write_text(json.dumps(raw))
             config.load(str(self.path))
 

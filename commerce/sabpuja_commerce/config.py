@@ -13,6 +13,9 @@ class ConfigError(ValueError):
 
 _DOMAIN = re.compile(r"^[a-z0-9][a-z0-9-]*\.myshopify\.com$")
 _API_VERSION = re.compile(r"^20[2-9][0-9]-(01|04|07|10)$")   # a quarterly stable release, never "unstable"
+_CLIENT_ID = re.compile(r"^[0-9a-f]{32}$")
+# Owner decision 2026-11-09 (F5): the order check reads lineItem.variant, which needs read_products.
+REQUIRED_SCOPES = ("read_orders", "read_products")
 
 
 @dataclass(frozen=True)
@@ -56,7 +59,11 @@ class Settings:
     # Paid release requires a live Shopify order re-check (GraphQL Admin API) before claim and generation.
     # Offline tests and isolated QA may turn it off explicitly; there is no silent default.
     require_order_verification: bool = True
-    admin_api_token: str = field(default="", repr=False)
+    admin_api_token: str = field(default="", repr=False)   # static non-expiring token (custom app); tests
+    # Dev Dashboard app: tokens come from the client-credentials grant and are renewed in memory (admin_auth).
+    admin_client_id: str = ""
+    admin_client_secret: bytes = field(default=b"", repr=False)
+    required_scopes: tuple[str, ...] = REQUIRED_SCOPES
     admin_api_version: str = "2026-10"   # supported stable; 2025-10 retired 2026-10-16
     trusted_proxies: tuple[str, ...] = ()   # peers whose last X-Forwarded-For entry is the client
     source_url: str = "https://github.com/sabpuja/Sabpuja-Kundali-Engine"  # AGPL-3.0 Corresponding Source
@@ -99,8 +106,14 @@ class Settings:
                 raise ConfigError(f"{name} must be positive")
         if self.additional_generations < 0:
             raise ConfigError("additional_generations must not be negative")
-        if self.require_order_verification and not self.admin_api_token:
-            raise ConfigError("live order verification needs an Admin API token file")
+        if self.admin_client_id and self.admin_api_token:
+            raise ConfigError("configure either a client id and secret or a static token, not both")
+        if self.admin_client_id and (not _CLIENT_ID.match(self.admin_client_id) or len(self.admin_client_secret) < 16):
+            raise ConfigError("admin_client_id must be the app's 32-hex client id, with its secret file")
+        if self.require_order_verification and not (self.admin_api_token or self.admin_client_id):
+            raise ConfigError("live order verification needs the app client id and secret (or a token file)")
+        if not set(REQUIRED_SCOPES) <= set(self.required_scopes):
+            raise ConfigError("required_scopes must include read_orders and read_products")
         if self.claim_validity_days + self.generation_window_days > self.order_read_horizon_days:
             raise ConfigError("claim window plus generation window must fit inside the order-read horizon")
         if self.mail_queue_size < 1:
@@ -125,6 +138,11 @@ def load(path: str) -> Settings:
     secrets = {key: _read_secret(raw.pop(f"{key}_file")) for key in ("webhook_secret", "pepper")}
     token_file = raw.pop("admin_api_token_file", None)
     token = _read_secret(token_file).decode() if token_file else ""
+    client_secret_file = raw.pop("admin_client_secret_file", None)
+    if client_secret_file:
+        raw["admin_client_secret"] = _read_secret(client_secret_file)
+    if "required_scopes" in raw:
+        raw["required_scopes"] = tuple(raw["required_scopes"])
     raw.setdefault("ephe_path", os.environ.get("SABPUJA_EPHE_PATH", ""))
     raw["trusted_proxies"] = tuple(raw.get("trusted_proxies", ()))
     return Settings(products=products, admin_api_token=token, **secrets, **raw).validate()

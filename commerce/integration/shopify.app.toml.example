@@ -1,16 +1,19 @@
 # KUN-RC-COM-001B. TEMPLATE ONLY. Not linked, not deployed. Creating the app, linking this file with
 # `shopify app config link` and running `shopify app deploy` all need separate owner authorization.
 # Values in angle brackets are placeholders. The client secret is NOT in this file; it goes into the
-# commerce webhook-secret file (Shopify signs app webhooks with the app's client secret).
+# commerce webhook-secret file (Shopify signs app webhooks with the app's client secret) and, as the same value,
+# the admin-client-secret file used for the client-credentials token grant.
 client_id = "<from the Dev Dashboard; not a secret>"
 name = "Sabpuja Kundali Fulfilment (QA)"
 application_url = "https://<commerce-staging-host>/"
 embedded = false
 
 [access_scopes]
-# Minimal: read one order by id (re-check, reconciliation, recovery). No write scope, no read_customers,
-# no read_all_orders (the code hard-expires every entitlement inside the 60-day default order window).
-scopes = "read_orders"
+# Owner decision 2026-11-09 (F5): read_orders to read one order by id (re-check, reconciliation, recovery) and
+# read_products because the order check reads lineItem.variant (ACCESS_DENIED without it on the QA store).
+# No write scope, no read_customers, no read_all_orders (every entitlement hard-expires inside the 60-day
+# default order window). The service refuses a token whose grant lacks either scope.
+scopes = "read_orders,read_products"
 use_legacy_install_flow = false
 
 [auth]

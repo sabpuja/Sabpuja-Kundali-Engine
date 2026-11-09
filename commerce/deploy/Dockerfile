@@ -1,4 +1,4 @@
-# KUN-RC-COM-001 fulfilment service. PREPARED ONLY, NOT DEPLOYED. Same pinned runtime as preview/Dockerfile.
+# Kundali commerce fulfilment service. Same pinned runtime as preview/Dockerfile. Compose overrides CMD (--host).
 FROM python:3.13.17-bookworm AS builder
 RUN python -m pip wheel --no-cache-dir --wheel-dir /wheels pyswisseph==2.10.3.2 tzdata==2026.5 reportlab==4.4.9 svglib==1.6.0 'fonttools[woff]==4.63.0' brotli==1.2.0 uharfbuzz==0.57.0
 

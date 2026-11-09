@@ -1,0 +1,8 @@
+{
+  "_comment": "TEMPLATE for Google Workspace SMTP relay (IP-authorised, no SMTP AUTH). Usable only after the Workspace admin adds this host's public IPv4 to the relay setting with 'Only addresses in my SMTP relay servers', 'Require TLS encryption' and 'Only addresses in my domains' as allowed senders. mail_from in commerce.json must be an address in the Workspace domain. Login codes only; no marketing.",
+  "host": "smtp-relay.gmail.com",
+  "port": 587,
+  "auth": "none",
+  "ehlo_name": "REPLACE-host.fqdn.example",
+  "ipv4_only": true
+}
