@@ -2,8 +2,8 @@
 
 **TEMPLATES AND RUNBOOK ONLY.** Nothing in this folder has been applied. No app was created or installed,
 no webhook subscribed, no notification edited, no server or DNS changed, no payment enabled. Every step under
-"Owner-authorized steps" needs the owner's explicit go-ahead in chat. The frozen commerce candidate is
-`6dc35b244bbd76754fe528937d4119721cfc5348` (PR #85); this folder adds no runtime code.
+"Owner-authorized steps" needs the owner's explicit go-ahead in chat. The commerce candidate is
+`5e477b99b2b873201c167f158d5098b6666a2a8d` (PR #85, r4); this folder adds no runtime code.
 
 | File | Purpose |
 |---|---|
@@ -13,20 +13,19 @@ no webhook subscribed, no notification edited, no server or DNS changed, no paym
 | `Caddyfile.staging.example` | Isolated HTTPS staging host: webhook open to Shopify, everything else limited to the QA team |
 | `order-confirmation-snippet.liquid` | Claim link for the order confirmation e-mail (no personal data in the URL) |
 | `validate_graphql.py` | Offline validation of both GraphQL operations and the three topics against Shopify's published schema |
-| `../tests/test_integration_templates.py` | Keeps these templates consistent with the frozen code |
+| `../tests/test_integration_templates.py` | Keeps these templates consistent with the candidate code |
 
 ## 1. Admin API: version, scopes and operations
 
 * **Version `2026-10`.** Shopify's published supported-version list (`supported-versions-schema.json` in
-  `@shopify/dev-mcp` 1.18.0) names `2026-10` as latest stable for the Admin API and no longer lists
-  `2025-10`. The frozen code's *default* `admin_api_version` is still `"2025-10"`
-  (`sabpuja_commerce/config.py`). The QA config sets `"admin_api_version": "2026-10"` explicitly, so no code change
-  is needed for the trial. Changing the default is a one-line fix left for QA to decide.
+  `@shopify/dev-mcp` 1.18.0) names `2026-10` as latest stable for the Admin API; `2025-10` is no longer listed (retired
+  2026-10-16 per Shopify's versioning calendar cited in QA comment 6733123830). Since r4 (`5e477b9`) the code defaults to `2026-10`, accepts only stable quarterly versions, and
+  treats any answer served under another version (`X-Shopify-API-Version`) as unusable.
 * **Scopes: `read_orders` only.** The re-check, reconciliation and recovery all read one order by id.
   There is no write scope, no `read_customers`, and no `read_all_orders`, because every entitlement hard-expires
   inside the 60-day default order window. The schema text for `Order` confirms "Only the last 60 days' worth of
   orders ... are accessible ... by default".
-* **Operations.** `ORDER_QUERY` (re-check: no customer fields) and `RECOVERY_QUERY` (adds `name`, `email`,
+* **Operations.** `ORDER_QUERY` (re-check: no customer fields) and `RECOVERY_QUERY` (adds `number`, `email`,
   `createdAt`, prices) validate against the `2026-10` schema and against the `2027-01` release candidate, with
   no deprecated field. `PARTIALLY_REFUNDED` and `PAID` are real `OrderDisplayFinancialStatus` values.
   Evidence: `graphql-validate-admin-2026-10.txt`. Reproduce:

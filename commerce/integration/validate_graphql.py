@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from sabpuja_commerce import shopify  # noqa: E402
 
 TOPICS = ("ORDERS_PAID", "ORDERS_CANCELLED", "REFUNDS_CREATE")
-FIELDS = {"Order": ("id", "name", "email", "createdAt", "cancelledAt", "displayFinancialStatus", "test",
+FIELDS = {"Order": ("id", "number", "email", "createdAt", "cancelledAt", "displayFinancialStatus", "test",
                     "currencyCode", "lineItems", "refunds"),
           "LineItem": ("id", "sku", "currentQuantity", "variant", "originalUnitPriceSet"),
           "Refund": ("refundLineItems",)}

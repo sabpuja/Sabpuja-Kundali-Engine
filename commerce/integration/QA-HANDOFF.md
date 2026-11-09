@@ -1,10 +1,10 @@
 # KUN-RC-COM-001B: independent QA handoff for the commerce candidate
 
-**Candidate:** PR #85 `kun-rc-com-001` @ `6dc35b244bbd76754fe528937d4119721cfc5348`, parent
-`9d563a906add3acf7601c9a5c6afa9e2671b17d2`, on PR #86 `kun-rc-ess-001` @
+**Candidate:** PR #85 `kun-rc-com-001` @ `5e477b99b2b873201c167f158d5098b6666a2a8d` (r4), parent
+`6dc35b244bbd76754fe528937d4119721cfc5348` (r3), on PR #86 `kun-rc-ess-001` @
 `970a23753c9464f7d6e3071e2b76c015892ac153`. Both PRs are draft and unmerged. This handoff file and the
-`integration/` templates are on a separate stacked branch (`kun-rc-com-001b-shopify-qa`), so the candidate SHA
-is unchanged. Developer evidence only: ChatGPT reruns the critical scenarios before accepting.
+`integration/` templates are on a separate stacked branch (`kun-rc-com-001b-shopify-qa`), so they never move the
+candidate SHA. r4 is the bounded correction requested in QA comment 6733123830 (see section 5). Developer evidence only: ChatGPT reruns the critical scenarios before accepting.
 
 ## 1. Environment
 
@@ -21,7 +21,7 @@ Obtain and verify the data as in `data/ephemeris/README.md` (`sha256sum` must eq
 `make swetest`, receipt keys as in `tests/swiss_conformance/README.md`. Reference receipt from KUN-SCI-GOLD-001:
 `swetest_sha256 400661cdd27d1b3d55766de9a657d5a22bf232308468c2db2bea435152ae5abd`. Frozen tolerances (SCI-05):
 `engine_vs_swetest` 1e-8°, `binding_vs_swetest` 1e-9°, Lagna formula 1e-9° (SCI-04). Commerce does not change
-any engine, report or Panchanga file: `git diff 970a237..6dc35b2 --name-only` lists only `commerce/`, and
+any engine, report or Panchanga file: `git diff 970a237..5e477b9 --name-only` lists only `commerce/`, and
 `tests.panchanga.identity_v10 --check` passes. I did not rebuild swetest in this round (building external
 source was not permitted in this session). To rerun it:
 
@@ -33,19 +33,24 @@ python -m tests.swiss_conformance.run --swetest /path/to/swetest --receipt /path
 ## 2. Commands (exact)
 
 ```sh
-git fetch origin kun-rc-com-001 && git worktree add --detach /tmp/qa-6dc 6dc35b244bbd76754fe528937d4119721cfc5348
-cd /tmp/qa-6dc && git status --short                 # must be empty
+git fetch origin kun-rc-com-001 && git worktree add --detach /tmp/qa-r4 5e477b99b2b873201c167f158d5098b6666a2a8d
+cd /tmp/qa-r4 && git status --short                 # must be empty
 E=/path/to/verified/ephe
-# Commerce, pinned data: 144 tests, OK, 0 skipped
+# Commerce, pinned data: 151 tests, OK, skipped=5 (the schema contract class, run separately below)
 PYTHONPATH=src:prototype:.:commerce:commerce/tests SABPUJA_TEST_EPHE_PATH=$E \
   python -m unittest discover -s commerce/tests -v
-# Commerce, no data: 144 tests, OK (skipped=10, engine-backed only)
+# Commerce, no data: 151 tests, OK (skipped=15: 10 engine-backed + 5 schema contract)
 PYTHONPATH=src:prototype:.:commerce:commerce/tests python -m unittest discover -s commerce/tests
 # Regression: report 299 OK (skipped=2), prototype 190 OK, identity PASS
 PYTHONPATH=src:prototype:.:report/phase1/tests:report/phase1/tools:report/phase1 SABPUJA_TEST_EPHE_PATH=$E \
   python -m unittest discover -s report/phase1/tests
 PYTHONPATH=src:prototype:prototype/tests SABPUJA_TEST_EPHE_PATH=$E python -m unittest discover -s prototype/tests
 python -m tests.panchanga.identity_v10 --check
+# Schema contract: 5 tests against Shopify's published 2026-10 introspection (QA-only venv with graphql-core)
+npm pack @shopify/dev-mcp@1.18.0 && tar xzf shopify-dev-mcp-1.18.0.tgz package/dist/data/admin_2026-10.json.gz
+python -m venv gq && gq/bin/pip install graphql-core==3.2.6
+PYTHONPATH=commerce:commerce/tests SABPUJA_TEST_SHOPIFY_SCHEMA=$PWD/package/dist/data/admin_2026-10.json.gz \
+  gq/bin/python -m unittest test_schema_contract -v
 # One class or test
 PYTHONPATH=src:prototype:.:commerce:commerce/tests SABPUJA_TEST_EPHE_PATH=$E \
   python -m unittest test_generate.SendRace -v
@@ -63,9 +68,13 @@ A wrong `SABPUJA_TEST_EPHE_PATH` makes 4 end-to-end tests fail with 503 (fail-cl
 | Session ends mid-flight | `SendRace.test_logout_after_render_before_send_withholds_pdf`, `test_webhooks.Orders.test_cancel_revokes_and_ends_sessions` |
 | Refund/cancel before `orders/paid` | `test_webhooks.Orders.test_refund_before_paid_webhook_blocks_activation`, `test_cancel_before_paid_blocks_activation`, `test_order_recovery.Recovery.test_tombstone_beats_recovery` |
 | Failed GraphQL verification | `test_verifier.GraphQL.test_unusable_answers_fail_closed` (500, 429, errors, bad JSON, partial answer, 401), `test_unreachable_fails_closed`, `test_generate.Access.test_live_check_unavailable_fails_closed`, `test_required_verification_without_verifier_fails_closed`, `test_config.Load.test_verification_cannot_be_on_without_token` |
+| Truncated GraphQL answer (r4) | `test_verifier.GraphQL.test_truncated_answers_fail_closed` (next page of lines, of refund lines, 50 refunds; 49 is complete), `test_truncated_answer_never_revokes`, `Recovery.test_truncated_answers_create_nothing` |
+| Wrong or retired API version (r4) | `GraphQL.test_served_version_must_match_configured` (`X-Shopify-API-Version` 2026-01, absent, unstable), `test_config.Load.test_api_version_must_be_a_stable_release` |
+| Schema shape (r4) | `test_schema_contract.Contract.*` (both operations valid on 2026-10; wrong arguments, list-as-connection, wrong fields rejected; `pageInfo` on every connection; `Order.number: Int!`) |
 | Shopify no longer allows the line | `test_verifier.GraphQL.test_refunded_line_zero_quantity_cancelled_unpaid_test_missing`, `test_end_to_end_with_fake_shopify`, `Access.test_reconciliation_revokes_what_shopify_no_longer_allows`, `test_reconciliation_detects_variant_change`, `test_partially_refunded_order_keeps_unrefunded_line` |
 | Missing customer e-mail | `test_webhooks.Orders.test_missing_email_creates_unclaimable_entitlement`, `Recovery.test_paid_without_email_is_recovered_and_claimable`, `test_still_without_email_keeps_the_exception` |
 | Malformed webhook | `test_webhooks.Signature.test_invalid_json_with_valid_signature_is_kept_as_exception`, `Orders.test_malformed_ids_do_not_create`, `Recovery.test_malformed_webhook_order_is_recovered_by_id` |
+| Canonical order number (r4) | `Recovery.test_canonical_number_not_digits_of_the_name` (`SB2026-#1001-X9` → 1001, buyer can claim), `test_missing_or_bad_number_is_unusable` |
 | Recovery safety | `Recovery.test_refunded_cancelled_unpaid_and_wrong_lines_create_nothing`, `test_partial_refund_recovers_only_the_unrefunded_line`, `test_idempotent_and_never_overwrites_an_existing_email`, `test_deadlines_run_from_the_order_time`, `test_past_claim_window_is_not_recreated`, `test_unusable_answers_fail_closed`, `test_query_reads_email_and_nothing_else_personal` |
 | Claim window and horizon | `test_verifier.Horizon.*`, `Quota.test_unclaimed_entitlement_expires`, `test_window_30_days_from_first_delivery`, `test_config.Load.test_windows_must_fit_order_read_horizon` |
 | OTP limits | `test_claim.Codes.*` (13: expiry, single use, 5-try lock, cooldown, daily cap, per-client rate, window reset, trusted proxy only), `Enumeration.test_same_response_for_match_mismatch_and_unknown`, `test_mail_failure_is_not_visible` |
@@ -77,26 +86,33 @@ A wrong `SABPUJA_TEST_EPHE_PATH` makes 4 end-to-end tests fail with 503 (fail-cl
 | Privacy at rest and in logs | `test_privacy.AtRest.*` (database + WAL scan for birth data, PDF, e-mail, code, token; schema allow-list; logs; secure_delete; purge; pepper), `Recovery.test_no_email_in_store_exceptions_or_logs`, `Orders.test_exception_can_be_resolved_and_holds_no_pii` |
 | Rollback switch, restart | `test_recovery.Restart.*` |
 
-Full list of the 144 test ids: `test-names.txt` in the evidence folder.
+The r4 evidence folder holds the full verbose logs with every test id.
 
 ## 4. Evidence
 
-Project files `kun-rc-com-001b/evidence/` (and `kun-rc-com-001/evidence-r3/` for the regression suites on the
-same SHA):
+Project files `kun-rc-com-001/evidence-r4/` (all from a fresh detached worktree of `5e477b9` with an empty
+`git status`):
 
 | File | Content |
 |---|---|
-| `commerce-pinned-clean-6dc35b2.log` | 144 tests, OK, 0 skipped, from a fresh detached worktree with an empty `git status` |
-| `test-names.txt` | the 144 test ids |
-| `graphql-validate-admin-2026-10.txt`, `...-2027-01.txt` | schema validation PASS |
-| `supported-versions-schema.json` | Shopify's supported-version list used for the version finding |
+| `commerce-pinned.log` | 151 tests, OK (skipped=5: the schema contract, run on its own) |
+| `commerce-no-data.log` | 151 tests, OK (skipped=15) |
+| `schema-contract-2026-10.log` | 5 tests, OK, against Shopify's published `admin_2026-10.json.gz` |
+| `new-tests-against-r3-6dc35b2.log` | the 12 new r4 tests run against r3 code: 10 fail or error, as required. The 2 that pass on r3 are `test_operations_validate` (r3's `refunds(first: 50)` was already valid) and `test_number_is_the_canonical_order_number` (a schema fact, not code) |
+| `report-suite.log`, `prototype-suite.log`, `identity-v10.txt` | 299 OK (skipped=2), 190 OK, PASS |
 | `SHA256SUMS` | hashes of the above |
 
-## 5. Findings for QA to decide (not changed; the candidate is frozen)
+## 5. QA comment 6733123830 → r4
 
-1. **Low:** `config.Settings.admin_api_version` defaults to `"2025-10"`, which Shopify no longer lists as a
-   supported Admin API version. The QA config sets `2026-10` explicitly. Proposed one-line fix: default
-   `"2026-10"` plus the matching path assertion in `test_verifier.GraphQL.test_paid_order_lines`.
+| QA item | r4 |
+|---|---|
+| P0 `refunds(first: 50)` likely invalid | **Does not reproduce.** In Shopify's published 2026-10 (and 2027-01) schema `Order.refunds` is `[Refund!]!` **with** an optional `first: Int` argument; the r3 query validates. Kept, now guarded by `test_schema_contract`, which also proves the validator rejects a wrong argument (`refunds(after:)`) and treating the list as a connection |
+| P1 truncation | Every connection requests `pageInfo { hasNextPage }`; any next page, a missing `pageInfo`, or a full page of 50 refunds makes the answer unusable: re-check → 503 with nothing revoked, recovery → `unavailable` with nothing created |
+| P1 order number | Recovery reads `Order.number` (`Int!`), positive int only; `name` is no longer requested |
+| P0 retired `2025-10` | Default `2026-10` (latest stable in Shopify's published version list); config accepts only `YYYY-01/04/07/10`; any answer whose `X-Shopify-API-Version` differs from the configured version is unusable and logs `SHOPIFY_API_VERSION_MISMATCH` (version string only) |
+
+Live verification of the served version, protected `email` and real field values still needs the
+owner-authorized dev store.
 
 ## 6. Rollback
 
