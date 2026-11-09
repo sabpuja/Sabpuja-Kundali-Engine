@@ -92,6 +92,9 @@ def main(argv=None) -> int:
     parser.add_argument("--smtp-config", help="JSON with host, port, username, password_file")
     parser.add_argument("--reconcile-once", action="store_true",
                         help="re-check every active entitlement with Shopify once, print counts and exit")
+    parser.add_argument("--recover-order", type=int, metavar="ORDER_ID",
+                        help="re-read one paid order from Shopify (incl. its e-mail) to recover a missed or "
+                             "e-mail-less entitlement, print the outcome and exit")
     parser.add_argument("--list-exceptions", action="store_true",
                         help="print open paid-order exceptions (ids and kinds only) and exit")
     args = parser.parse_args(argv)
@@ -122,6 +125,13 @@ def main(argv=None) -> int:
     if args.list_exceptions:
         print(json.dumps(store.open_exceptions()))
         return 0
+    if args.recover_order:
+        if verifier is None:
+            print(json.dumps({"outcome": "verification_disabled"}))
+            return 2
+        outcome = shopify.recover(settings, store, verifier.order_for_recovery(args.recover_order), args.recover_order)
+        print(json.dumps({"outcome": outcome}))
+        return 0 if outcome == "recovered" else 1
     if args.reconcile_once:
         print(json.dumps(app.reconcile_all()))
         return 0

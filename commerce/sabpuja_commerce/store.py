@@ -138,22 +138,34 @@ class Store:
             return db.execute("UPDATE order_exceptions SET resolved_at = ? WHERE id = ? AND resolved_at IS NULL",
                               (self.now(), exception_id)).rowcount == 1
 
+    def resolve_order_exceptions(self, db, order_id: int) -> int:
+        return db.execute("UPDATE order_exceptions SET resolved_at = ? WHERE order_id = ? AND resolved_at IS NULL",
+                          (self.now(), order_id)).rowcount
+
+    def attach_email(self, db, shop: str, order_id: int, email_hash: bytes) -> int:
+        """Set the keyed e-mail hash on entitlements that arrived without one; never overwrites an existing one."""
+        return db.execute("UPDATE entitlements SET email_hash = ? WHERE shop = ? AND order_id = ? AND email_hash IS NULL",
+                          (email_hash, shop, order_id)).rowcount
+
     def is_revoked(self, db, shop: str, order_id: int, line_item_id: int) -> bool:
         row = db.execute("SELECT 1 FROM revocations WHERE shop = ? AND order_id = ? AND line_item_id IN (0, ?)",
                          (shop, order_id, line_item_id)).fetchone()
         return row is not None
 
     def add_entitlement(self, db, *, shop, order_id, order_number, line_item_id, variant_id, edition, email_hash,
-                        capacity, claim_days, window_days, horizon_days) -> str:
+                        capacity, claim_days, window_days, horizon_days, ordered_at: float | None = None) -> str:
+        """Claim and horizon deadlines run from the order time (`ordered_at`, default now for a live webhook), so a
+        late recovery cannot extend them past what the Admin API can still re-check."""
         if self.is_revoked(db, shop, order_id, line_item_id):
             return "revoked_before_paid"
         now = self.now()
+        start = min(now, ordered_at) if ordered_at is not None else now
         cur = db.execute(
             "INSERT OR IGNORE INTO entitlements (shop, order_id, order_number, line_item_id, variant_id, edition,"
             " email_hash, capacity, status, created_at, claim_expires_at, hard_expires_at, window_days)"
             " VALUES (?,?,?,?,?,?,?,?,'active',?,?,?,?)",
             (shop, order_id, order_number, line_item_id, variant_id, edition, email_hash, capacity, now,
-             now + claim_days * 86400, now + horizon_days * 86400, window_days))
+             start + claim_days * 86400, start + horizon_days * 86400, window_days))
         return "created" if cur.rowcount == 1 else "already_present"
 
     def revoke(self, db, shop: str, order_id: int, line_item_id: int, reason: str) -> int:

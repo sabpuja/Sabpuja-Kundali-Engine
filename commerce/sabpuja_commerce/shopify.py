@@ -224,14 +224,115 @@ class GraphQLOrderVerifier:
             f"/admin/api/{settings.admin_api_version}/graphql.json"
         self._timeout = timeout
 
-    def lines(self, order_id: int) -> dict[int, int] | None:
-        body = json.dumps({"query": ORDER_QUERY, "variables": {"id": f"gid://shopify/Order/{int(order_id)}"}})
+    def _post(self, query: str, order_id: int):
+        body = json.dumps({"query": query, "variables": {"id": f"gid://shopify/Order/{int(order_id)}"}})
         req = urllib.request.Request(self._url, data=body.encode(), method="POST", headers={
             "X-Shopify-Access-Token": self._s.admin_api_token, "Content-Type": "application/json",
             "Accept": "application/json"})
         try:
             with urllib.request.urlopen(req, timeout=self._timeout) as resp:  # noqa: S310 - fixed https host
-                data = json.loads(resp.read(256 * 1024).decode("utf-8"))
+                return json.loads(resp.read(256 * 1024).decode("utf-8"))
         except (OSError, ValueError):
             return None
-        return order_state(self._s, data)
+
+    def lines(self, order_id: int) -> dict[int, int] | None:
+        data = self._post(ORDER_QUERY, order_id)
+        return None if data is None else order_state(self._s, data)
+
+    def order_for_recovery(self, order_id: int) -> dict | None:
+        """The order as an `orders/paid`-shaped payload, for operator recovery only. This is the one query that
+        reads a protected customer field (the order e-mail): the app needs Shopify's protected customer data
+        access for e-mail. Used only in memory to compute the keyed hash; never stored or logged."""
+        data = self._post(RECOVERY_QUERY, order_id)
+        return None if data is None else recovery_payload(data)
+
+
+RECOVERY_QUERY = """query SabpujaOrderRecovery($id: ID!) {
+  order(id: $id) {
+    id
+    name
+    email
+    createdAt
+    cancelledAt
+    displayFinancialStatus
+    test
+    currencyCode
+    lineItems(first: 50) {
+      nodes {
+        id
+        sku
+        currentQuantity
+        variant { id product { id } }
+        originalUnitPriceSet { shopMoney { amount currencyCode } }
+      }
+    }
+    refunds(first: 50) { refundLineItems(first: 50) { nodes { lineItem { id } } } }
+  }
+}"""
+
+
+def recovery_payload(data: dict) -> dict | None:
+    """Map a recovery answer onto the `orders/paid` payload shape so the same _paid_lines rules apply.
+    Refunded or zero-quantity lines get current_quantity 0 and are therefore never re-created."""
+    if not isinstance(data, dict) or data.get("errors") or not isinstance(data.get("data"), dict):
+        return None
+    order = data["data"].get("order")
+    if not isinstance(order, dict):
+        return None
+    try:
+        digits = "".join(ch for ch in str(order["name"]) if ch.isdigit())
+        refunded = {_gid_number(n["lineItem"]["id"]) for r in order["refunds"] for n in r["refundLineItems"]["nodes"]}
+        lines = []
+        for n in order["lineItems"]["nodes"]:
+            line = _gid_number(n["id"])
+            variant = n.get("variant") or {}
+            qty = 0 if line in refunded else int(n["currentQuantity"])
+            lines.append({"id": line, "product_id": _gid_number((variant.get("product") or {}).get("id")),
+                          "variant_id": _gid_number(variant.get("id")), "sku": n.get("sku") or "",
+                          "quantity": qty, "current_quantity": qty,
+                          "price": n["originalUnitPriceSet"]["shopMoney"]["amount"]})
+        status = order["displayFinancialStatus"]
+        created = datetime.fromisoformat(str(order["createdAt"]).replace("Z", "+00:00"))
+        if created.tzinfo is None:
+            return None
+    except (KeyError, TypeError, ValueError):
+        return None
+    return {"id": _gid_number(order["id"]), "order_number": int(digits) if digits else None,
+            "email": order.get("email"), "cancelled_at": order.get("cancelledAt"), "test": order.get("test"),
+            "financial_status": "paid" if status in PAID_STATUSES else str(status).lower(),
+            "currency": order.get("currencyCode"), "line_items": lines, "ordered_at": created.timestamp()}
+
+
+def recover(settings: Settings, store: Store, payload: dict | None, order_id: int) -> str:
+    """Operator recovery of one paid order from a live Shopify answer: create any missing entitlement, attach
+    the keyed e-mail hash where the webhook had none, and resolve the order's open exceptions once it is
+    claimable. Idempotent. Returns a bounded outcome label."""
+    if payload is None:
+        return "unavailable"
+    if payload.get("id") != order_id or not payload.get("order_number"):
+        return "unusable_answer"
+    if store.now() > payload["ordered_at"] + settings.claim_validity_days * 86400:
+        return "claim_window_over"
+    shop = settings.shop_domain
+    email = payload.get("email")
+    email_hash = store.email_hash(email) if isinstance(email, str) and "@" in email else None
+    with store.tx() as db:
+        lines, _ = _paid_lines(settings, payload)
+        if not lines:
+            return "not_sellable"
+        results = []
+        for lid, units, edition, variant in lines:
+            results.append(store.add_entitlement(db, shop=shop, order_id=order_id, order_number=payload["order_number"],
+                                  line_item_id=lid, variant_id=variant, edition=edition, email_hash=email_hash,
+                                  capacity=units * settings.generations_per_unit,
+                                  claim_days=settings.claim_validity_days,
+                                  window_days=settings.generation_window_days,
+                                  horizon_days=settings.order_read_horizon_days,
+                                  ordered_at=payload["ordered_at"]))
+        if all(r == "revoked_before_paid" for r in results):
+            return "revoked"
+        if email_hash is None:
+            return "still_without_email"
+        store.attach_email(db, shop, order_id, email_hash)
+        store.resolve_order_exceptions(db, order_id)
+    return "recovered"
