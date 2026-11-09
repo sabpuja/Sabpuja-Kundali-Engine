@@ -56,6 +56,13 @@ class Load(unittest.TestCase):
             self.path.write_text(json.dumps(raw))
             config.load(str(self.path))
 
+    def test_api_version_must_be_a_stable_release(self):
+        self.assertEqual(self.load().admin_api_version, "2026-10")
+        for bad in ("unstable", "2026-11", "2026-1", "latest", ""):
+            self.raw["admin_api_version"] = bad
+            with self.assertRaises(config.ConfigError, msg=bad):
+                self.load()
+
     def test_inline_secret_refused(self):
         self.raw["webhook_secret"] = "inline"
         with self.assertRaises(TypeError):

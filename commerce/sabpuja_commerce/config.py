@@ -12,6 +12,7 @@ class ConfigError(ValueError):
 
 
 _DOMAIN = re.compile(r"^[a-z0-9][a-z0-9-]*\.myshopify\.com$")
+_API_VERSION = re.compile(r"^20[2-9][0-9]-(01|04|07|10)$")   # a quarterly stable release, never "unstable"
 
 
 @dataclass(frozen=True)
@@ -56,7 +57,7 @@ class Settings:
     # Offline tests and isolated QA may turn it off explicitly; there is no silent default.
     require_order_verification: bool = True
     admin_api_token: str = field(default="", repr=False)
-    admin_api_version: str = "2025-10"
+    admin_api_version: str = "2026-10"   # supported stable; 2025-10 retired 2026-10-16
     trusted_proxies: tuple[str, ...] = ()   # peers whose last X-Forwarded-For entry is the client
     source_url: str = "https://github.com/sabpuja/Sabpuja-Kundali-Engine"  # AGPL-3.0 Corresponding Source
     mail_from: str = "Sabpuja <no-reply@sabpuja.com>"
@@ -75,6 +76,8 @@ class Settings:
     def validate(self) -> "Settings":
         if not _DOMAIN.match(self.shop_domain):
             raise ConfigError("shop_domain must be <name>.myshopify.com")
+        if not _API_VERSION.match(self.admin_api_version):
+            raise ConfigError("admin_api_version must be a stable Shopify release such as 2026-10")
         if len(self.webhook_secret) < 16:
             raise ConfigError("webhook secret too short")
         if len(self.pepper) < 32:
