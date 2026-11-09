@@ -74,8 +74,49 @@ The old `shopify-admin-token` file is no longer read; delete it after cutover.
 
 ## Transactional e-mail
 
-* QA: Mailpit through `integration/compose.qa-mailpit.example.yml`, with `smtp.json` `auth: "login"`.
-* Production: Google Workspace SMTP relay, using `integration/smtp.google-relay.example.json` with `auth: "none"`
-  (the relay checks this host's IPv4 address), `ipv4_only: true` and a real `ehlo_name`. Only after the Workspace
-  admin has added the relay setting for this IPv4 address with TLS required. STARTTLS with certificate
-  verification stays mandatory in both modes.
+* QA: Mailpit through `integration/compose.qa-mailpit.example.yml` (`smtp.json` with `auth: "login"`).
+* Production (owner choice 2026-11-09): our own send-only server, `deploy/compose.outbound-mail.yml` with image
+  `commerce/mail/`.
+  * Postfix and OpenDKIM. Commerce submits to `outbound-mail:2587` with STARTTLS, verified against a private CA,
+    and no SMTP AUTH (`integration/smtp.outbound-mail.example.json`).
+  * Postfix accepts only the internal mail network and only `MAIL_SENDER`.
+  * It signs with DKIM and delivers straight to each recipient's MX, over IPv4 only.
+  * Nothing is published, there is no inbox, and the queue lives in memory for at most 15 minutes. Addresses
+    are redacted from the log.
+  * For a QA signature check without DNS, add `integration/compose.qa-dkim-sink.example.yml` and set
+    `SBK_MAIL_TEST_TRANSPORT=smtp:[dkim-sink]:1025`.
+* The Google Workspace relay mode (`smtp.google-relay.example.json`) stays supported, but it is not used: there
+  is no Workspace admin access.
+
+### One-time setup for the send-only server
+
+1. Create the internal network: `docker network create --internal <project>-mail`, and note its subnet for
+   `SBK_MAIL_CLIENT_NETWORK`.
+2. Secrets directory `SBK_OUTBOUND_MAIL_SECRETS_DIR`, every file 0400, never in Git or backups:
+   * `dkim.private`, generated with `opendkim-genkey -b 2048 -d sabpuja.com -s kun2026`
+   * `tls.crt` and `tls.key`, a server certificate for `outbound-mail` signed by the private CA that commerce
+     trusts through `SSL_CERT_FILE`
+3. `compose.env`:
+   * `SBK_MAIL_HOSTNAME=mail.sabpuja.com`
+   * `SBK_MAIL_DOMAIN=sabpuja.com`
+   * `SBK_MAIL_SENDER=noreply@sabpuja.com`
+   * `SBK_DKIM_SELECTOR=kun2026`
+   * `SBK_MAIL_NETWORK`, `SBK_MAIL_CLIENT_NETWORK`, `SBK_MAIL_IMAGE`
+4. In `commerce.json`, set `mail_from` to `Sabpuja <noreply@sabpuja.com>`.
+
+### DNS needed before real customers (owner, at the authoritative DNS: Namecheap BasicDNS)
+
+| Record | Host | Value |
+|---|---|---|
+| A | `mail` | `2.25.245.64` |
+| TXT (SPF, edit the existing one) | `@` | `v=spf1 ip4:2.25.245.64 include:_spf.google.com ~all` |
+| TXT (DKIM) | `kun2026._domainkey` | the `p=` value printed by `opendkim-genkey` (`v=DKIM1; k=rsa; p=...`) |
+| TXT (DMARC, fix the case) | `_dmarc` | `v=DMARC1; p=none; pct=100` |
+| PTR (Hostinger hPanel, VPS → IP → reverse DNS) | `2.25.245.64` | `mail.sabpuja.com` |
+
+Keep exactly one SPF record. The edit adds only `ip4:2.25.245.64`; Google Workspace mail stays covered. After the
+records propagate, send a code to a Gmail and an Outlook inbox the owner controls. Check that the headers show
+`spf=pass`, `dkim=pass header.d=sabpuja.com` and `dmarc=pass`, and that the mail lands in the inbox, not spam.
+
+Rollback: stop `outbound-mail`, put the previous `smtp.json` back, and restore the previous SPF value. The DKIM,
+A and PTR records do no harm if they stay.

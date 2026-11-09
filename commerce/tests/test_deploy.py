@@ -73,5 +73,56 @@ class Topology(unittest.TestCase):
             self.assertEqual(json.loads(path.read_text())["trusted_proxies"], ["10.231.47.3"], path.name)
 
 
+MAIL = DEPLOY.parent / "mail"
+ENTRY = (MAIL / "entrypoint.sh").read_text()
+OUTBOUND = (DEPLOY / "compose.outbound-mail.yml").read_text()
+
+
+class OutboundMail(unittest.TestCase):
+    """Self-hosted send-only mail (owner choice 2026-11-09): closed relay, signed, IPv4, nothing kept or logged."""
+
+    def postconf(self, key):
+        m = re.search(rf'"{re.escape(key)} =(?: ([^"]*))?"', ENTRY)
+        return None if m is None else (m.group(1) or "")
+
+    def test_closed_relay(self):
+        self.assertEqual(self.postconf("mydestination"), "")
+        self.assertEqual(self.postconf("smtpd_client_restrictions"), "permit_mynetworks, reject")
+        self.assertEqual(self.postconf("smtpd_relay_restrictions"), "permit_mynetworks, reject")
+        self.assertEqual(self.postconf("smtpd_sender_restrictions"),
+                         "check_sender_access hash:/etc/postfix/allowed_senders, reject")
+        self.assertEqual(self.postconf("mynetworks"), "127.0.0.0/8 $MAIL_CLIENT_NETWORK")
+        self.assertIn("postconf -M# smtp/inet", ENTRY)        # no port-25 listener
+        self.assertNotIn("ports:", OUTBOUND)                   # nothing published on the host
+
+    def test_tls_dkim_and_ipv4(self):
+        self.assertEqual(self.postconf("smtpd_tls_security_level"), "encrypt")
+        self.assertEqual(self.postconf("smtpd_milters"), "inet:127.0.0.1:8891")
+        self.assertEqual(self.postconf("milter_default_action"), "tempfail")   # never send unsigned
+        self.assertEqual(self.postconf("inet_protocols"), "ipv4")
+        self.assertIn("OversignHeaders         From", ENTRY)
+
+    def test_nothing_kept(self):
+        self.assertEqual(self.postconf("maximal_queue_lifetime"), "15m")
+        self.assertIn("/var/spool/postfix:rw,nosuid,size=32m", OUTBOUND)   # queue in memory
+        self.assertEqual(self.postconf("notify_classes"), "")
+
+    def test_log_redaction(self):
+        import subprocess
+        line = ("Nov  9 postfix/smtp[12]: ABC: to=<buyer.synthetic@example.invalid>, relay=mx.example.invalid, "
+                "status=sent; from=<noreply@sabpuja.com> also plain qa-buyer-1@example.com")
+        out = subprocess.run(["sed", "-E", "-f", str(MAIL / "redact.sed")], input=line, capture_output=True,
+                             text=True, check=True).stdout
+        self.assertNotIn("@example", out)
+        self.assertNotIn("noreply@sabpuja.com", out)
+        self.assertIn("status=sent", out)
+
+    def test_commerce_waits_for_mail_and_overlay_hardened(self):
+        self.assertIn("outbound-mail: {condition: service_healthy}", OUTBOUND)
+        self.assertIn("restart: unless-stopped", OUTBOUND)
+        self.assertIn("cap_drop: [ALL]", OUTBOUND)
+        self.assertNotIn("SYS_ADMIN", OUTBOUND)
+
+
 if __name__ == "__main__":
     unittest.main()

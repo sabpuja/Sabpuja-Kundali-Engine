@@ -1,0 +1,28 @@
+# QA only, together with deploy/compose.outbound-mail.yml: send every outbound message to a private capture service
+# instead of the internet, so DKIM signing and headers can be verified without DNS and without real recipients.
+# Set SBK_MAIL_TEST_TRANSPORT=smtp:[dkim-sink]:1025 in compose.env. Remove this overlay (and the variable) for real
+# delivery tests.
+services:
+  outbound-mail:
+    networks:
+      dkim-sink: {}
+  dkim-sink:
+    image: axllent/mailpit:v1.32.0   # pin the digest recorded in the QA evidence
+    restart: "no"
+    user: "10004:10004"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 64m
+    cpus: 0.1
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    command: ["--smtp=0.0.0.0:1025", "--listen=0.0.0.0:8025", "--max=50", "--disable-version-check"]
+    networks:
+      dkim-sink:
+        aliases: [dkim-sink]
+
+networks:
+  dkim-sink:
+    name: ${SBK_PROJECT:-sabpuja-kundali-commerce-staging}-dkim-sink
+    internal: true
