@@ -1,0 +1,8 @@
+{
+  "name": "sabpuja-claim-journey-tests",
+  "private": true,
+  "description": "KUN-COM-UX-CLAIM-001 browser acceptance (synthetic data). Playwright is the environment's preinstalled copy.",
+  "license": "AGPL-3.0-only",
+  "scripts": { "test": "node --test --test-concurrency=1 journey.test.cjs" },
+  "devDependencies": { "axe-core": "4.10.3" }
+}

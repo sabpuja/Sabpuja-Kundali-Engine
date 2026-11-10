@@ -11,6 +11,9 @@ import helpers as h
 from sabpuja_commerce import config, shopify
 
 DIR = Path(__file__).resolve().parents[1] / "integration"
+# Text templates under integration/ (the extension's installed node_modules are not part of the source).
+TEMPLATES = sorted(p for p in DIR.rglob("*") if p.is_file() and "node_modules" not in p.parts and "__pycache__" not in p.parts
+                   and p.name != "package-lock.json")
 
 
 class Templates(unittest.TestCase):
@@ -69,18 +72,19 @@ class Templates(unittest.TestCase):
 
     def test_no_stale_read_orders_only_statements(self):
         root = Path(__file__).resolve().parents[1]
-        for path in [root / "README.md", *DIR.iterdir(), *(root / "deploy").iterdir()]:
+        for path in [root / "README.md", *TEMPLATES, *(root / "deploy").iterdir()]:
             self.assertNotRegex(path.read_text(), r"(?i)read_orders`? only|only `?read_orders", path.name)
 
     def test_no_secret_values_in_templates(self):
-        for path in DIR.iterdir():
+        for path in TEMPLATES:
             text = path.read_text()
             self.assertNotRegex(text, r"shpat_[0-9a-f]{8,}|shpss_[0-9a-f]{8,}|-----BEGIN", path.name)
 
     def test_claim_link_carries_no_personal_data(self):
         text = (DIR / "order-confirmation-snippet.liquid").read_text()
         hrefs = re.findall(r'href="([^"]+)"', text)
-        self.assertEqual(hrefs, ["https://REPLACE-commerce-staging-host/"])
+        # KUN-COM-UX-CLAIM-001: the order number only, in the fragment (never sent to a server).
+        self.assertEqual(hrefs, ["https://REPLACE-commerce-staging-host/#order={{ order_number }}"])
 
 
 if __name__ == "__main__":

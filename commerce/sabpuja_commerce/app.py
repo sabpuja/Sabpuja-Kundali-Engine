@@ -29,13 +29,22 @@ from .store import Store
 MAX_BODY_BYTES = 4096
 COOKIE = "__Host-sbk_session"
 _ORDER = re.compile(r"^#?\s*([0-9]{1,12})$")
+# Shopify order id from the Thank you page link (URL fragment, never sent to a server by the browser).
+_ORDER_REF = re.compile(r"^[0-9]{1,20}$")
 _CODE = re.compile(r"^[0-9]{6}$")
 _EMAIL = re.compile(r"^[^@\s]{1,64}@[^@\s]{1,255}$")
 GENERIC_CLAIM = {"status": "sent_if_matching",
                  "message": "If these details match a paid order, we have e-mailed a 6-digit code."}
 
+
+def generic_claim(settings: Settings) -> dict:
+    """The one claim/start reply. Only configuration values are added (identical for every input), so the page
+    can explain expiry and resend timing without revealing whether the order exists."""
+    return GENERIC_CLAIM | {"code_ttl_minutes": settings.otp_ttl_seconds // 60,
+                            "resend_after_seconds": settings.otp_resend_cooldown_seconds}
+
 SECURITY_HEADERS = {
-    "Content-Security-Policy": ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; "
+    "Content-Security-Policy": ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; "
                                 "connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"),
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "no-referrer",
@@ -50,6 +59,14 @@ SECURITY_HEADERS = {
 STATIC = {"/": ("index.html", "text/html; charset=utf-8"),
           "/static/app.js": ("app.js", "text/javascript; charset=utf-8"),
           "/static/app.css": ("app.css", "text/css; charset=utf-8")}
+# Sabpuja Foundations fonts and logo, served from the same files the preview uses (no copies, no font service).
+SHARED_STATIC = {
+    "/static/fonts/" + name: ("fonts/" + name, "font/woff2") for name in (
+        "inter-latin-400-normal.woff2", "inter-latin-500-normal.woff2", "inter-latin-600-normal.woff2",
+        "poppins-latin-600-normal.woff2", "poppins-devanagari-400-normal.woff2",
+        "poppins-devanagari-600-normal.woff2")
+} | {"/static/brand/sabpuja-logo-horizontal-color.svg": ("brand/sabpuja-logo-horizontal-color.svg",
+                                                         "image/svg+xml")}
 
 
 @dataclass
@@ -177,6 +194,13 @@ class App:
             data = resources.files("sabpuja_commerce").joinpath("static", name).read_bytes()
             data = data.replace(b"{{SOURCE_URL}}", self.s.source_url.encode())
             return Response(200, data, ctype)
+        if path in SHARED_STATIC:
+            name, ctype = SHARED_STATIC[path]
+            try:
+                data = resources.files("kundali_prototype").joinpath("static", name).read_bytes()
+            except (ModuleNotFoundError, FileNotFoundError):
+                return _error(404, "NOT_FOUND", "not found")
+            return Response(200, data, ctype, headers=[("Cache-Control", "public, max-age=86400")])
         if path == "/api/places":
             return _json(200, {"places": self._public_places()})
         if path == "/api/session":
@@ -185,7 +209,8 @@ class App:
                 return _error(401, "SESSION_REQUIRED", "please verify your order again")
             st = self.store.order_status(*order)
             return _json(200, {"remaining": st["remaining"], "used": st["used"],
-                               "window_ends_at": st["window_ends_at"], "language": PAID_LOCALE})
+                               "window_ends_at": st["window_ends_at"], "window_days": st["window_days"],
+                               "order_number": st["order_number"], "language": PAID_LOCALE})
         if path == "/healthz":
             return _json(200, {"ok": True})
         return _error(404, "NOT_FOUND", "not found")
@@ -204,19 +229,33 @@ class App:
 
     # ---- claim ----------------------------------------------------------------------------
     def _claim_fields(self, body: bytes, want_code: bool):
+        """(order_number, order_id, email, code) or None. The order is named by exactly one of `order_number`
+        (what the buyer types, "#1001") or `order_ref` (the Shopify order id the Thank you page link carries)."""
         try:
             data = json.loads(body.decode("utf-8"), object_pairs_hook=_no_duplicates)
         except (UnicodeDecodeError, ValueError, RecursionError):
             return None
-        keys = {"order_number", "email"} | ({"code"} if want_code else set())
-        if not isinstance(data, dict) or set(data) != keys or not all(isinstance(data[k], str) for k in keys):
+        if not isinstance(data, dict):
             return None
-        order = _ORDER.match(data["order_number"].strip())
-        if order is None or not _EMAIL.match(data["email"].strip()):
+        by = "order_ref" if "order_ref" in data else "order_number"
+        keys = {by, "email"} | ({"code"} if want_code else set())
+        if set(data) != keys or not all(isinstance(data[k], str) for k in keys):
+            return None
+        number = order_id = None
+        if by == "order_number":
+            match = _ORDER.match(data["order_number"].strip())
+            if match is None:
+                return None
+            number = int(match.group(1))
+        else:
+            if not _ORDER_REF.match(data["order_ref"].strip()):
+                return None
+            order_id = int(data["order_ref"].strip())
+        if not _EMAIL.match(data["email"].strip()):
             return None
         if want_code and not _CODE.match(data["code"].strip()):
             return None
-        return int(order.group(1)), data["email"], data.get("code", "").strip()
+        return number, order_id, data["email"], data.get("code", "").strip()
 
     def claim_start(self, body: bytes, client: str) -> Response:
         if not self._claim_limit.allow("start:" + client):
@@ -225,16 +264,17 @@ class App:
         fields = self._claim_fields(body, want_code=False)
         if fields is None:
             return _error(400, "CLAIM_INVALID", "enter your order number and the e-mail used at checkout")
-        number, email, _ = fields
+        number, order_ref, email, _ = fields
         email_hash = self.store.email_hash(email)
-        order_id = self.store.claimable_order(self.s.shop_domain, number, email_hash)
+        found = self.store.claimable(self.s.shop_domain, email_hash, order_number=number, order_id=order_ref)
+        order_id, number = found if found is not None else (None, None)
         if order_id is not None and self._may_send(order_id):
             code = f"{secrets.randbelow(10 ** 6):06d}"
             self.store.new_otp(self.s.shop_domain, order_id, email_hash, code, self.s.otp_ttl_seconds)
             msg = mailer.compose(self.s.mail_from, email.strip(), number, code, self.s.otp_ttl_seconds // 60)
             self._send_mail(msg)
         # Same status and body whether or not the order exists, matches or is rate-limited (no enumeration).
-        return _json(202, GENERIC_CLAIM)
+        return _json(202, generic_claim(self.s))
 
     def _may_send(self, order_id: int) -> bool:
         now = self.store.now()
@@ -309,9 +349,10 @@ class App:
         fields = self._claim_fields(body, want_code=True)
         if fields is None:
             return _error(400, "CLAIM_INVALID", "enter the order number, e-mail and 6-digit code")
-        number, email, code = fields
+        number, order_ref, email, code = fields
         email_hash = self.store.email_hash(email)
-        order_id = self.store.claimable_order(self.s.shop_domain, number, email_hash)
+        found = self.store.claimable(self.s.shop_domain, email_hash, order_number=number, order_id=order_ref)
+        order_id = found[0] if found is not None else None
         ok = order_id is not None and self.store.check_otp(self.s.shop_domain, order_id, email_hash, code,
                                                            self.s.otp_max_attempts)
         if not ok:

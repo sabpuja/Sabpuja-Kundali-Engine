@@ -4,65 +4,183 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="format-detection" content="telephone=no">
 <title>Prepare your Janam Kundali | Sabpuja</title>
 <link rel="stylesheet" href="/static/app.css">
 <script src="/static/app.js" defer></script>
 </head>
 <body>
-<main>
+<a class="skip-link" href="#main">Skip to the form</a>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <img class="brand__logo" src="/static/brand/sabpuja-logo-horizontal-color.svg" alt="Sabpuja" width="224" height="56">
+    <span class="product-name">Janam Kundali Essentials</span>
+  </div>
+</header>
+
+<main id="main" class="wrap" tabindex="-1">
   <h1>Prepare your Janam Kundali</h1>
-  <p class="lead">Your purchased English Janam Kundali Essentials report. Your birth details are used only to
-    prepare the PDF and are not stored.</p>
-  <p id="status" role="status" aria-live="polite"></p>
+  <p class="lede">Your purchased Janam Kundali Essentials report, in English. Verify your order, enter your birth
+    details, and download your PDF. Your birth details are used once to prepare the PDF and are not stored.</p>
 
-  <section id="step-claim" aria-labelledby="h-claim">
-    <h2 id="h-claim">1. Find your order</h2>
+  <p class="notice notice--hi" lang="hi">यह रिपोर्ट केवल अंग्रेज़ी में उपलब्ध है। मदद चाहिए तो अपने ऑर्डर ई-मेल का उत्तर दें।</p>
+
+  <ol class="steps" aria-label="Progress">
+    <li id="nav-claim" aria-current="step">Find your order</li>
+    <li id="nav-code">Enter code</li>
+    <li id="nav-birth">Birth details</li>
+  </ol>
+
+  <div id="status" class="status" role="status" aria-live="polite"></div>
+  <div id="alert" class="error-card" role="alert" hidden>
+    <p id="alert-text"></p>
+  </div>
+
+  <!-- Step 1 -->
+  <section id="step-claim" class="card step" aria-labelledby="h-claim">
+    <h2 id="h-claim" tabindex="-1">1. Find your order</h2>
     <form id="claim-form" novalidate>
-      <label for="order_number">Order number</label>
-      <input id="order_number" name="order_number" inputmode="numeric" autocomplete="off" required placeholder="#1001">
-      <label for="email">E-mail used at checkout</label>
-      <input id="email" name="email" type="email" autocomplete="email" required>
-      <button type="submit">Send me a code</button>
+      <div id="ref-box" class="ref-box" hidden>
+        <p><strong>Order from your Thank you page</strong></p>
+        <p class="help">We have the order reference. Enter the e-mail address you used at checkout.</p>
+        <button type="button" id="ref-clear" class="link-button">Use an order number instead</button>
+      </div>
+      <div class="field" id="order-field">
+        <label for="order_number">Order number</label>
+        <input id="order_number" name="order_number" inputmode="numeric" autocomplete="off" required
+               placeholder="#1001" aria-describedby="order_number-help order_number-error" maxlength="14">
+        <p class="help" id="order_number-help">It starts with # and is in your order confirmation e-mail and on
+          your order status page.</p>
+        <p class="field-error" id="order_number-error" hidden></p>
+      </div>
+      <div class="field">
+        <label for="email">E-mail used at checkout</label>
+        <input id="email" name="email" type="email" autocomplete="email" required spellcheck="false"
+               autocapitalize="off" aria-describedby="email-help email-error" maxlength="320">
+        <p class="help" id="email-help">We send a 6-digit code to this address. It must be the one on the order.</p>
+        <p class="field-error" id="email-error" hidden></p>
+      </div>
+      <div class="actions">
+        <button type="submit" class="button button--primary" id="claim-submit">Send me a code</button>
+      </div>
     </form>
   </section>
 
-  <section id="step-code" aria-labelledby="h-code" hidden>
-    <h2 id="h-code">2. Enter the 6-digit code</h2>
+  <!-- Step 2 -->
+  <section id="step-code" class="card step" aria-labelledby="h-code" hidden>
+    <h2 id="h-code" tabindex="-1">2. Enter the 6-digit code</h2>
+    <p id="code-intro">If these details match a paid Janam Kundali order, we have sent a code to
+      <strong id="code-email"></strong>.</p>
+    <ul class="limits" id="code-limits">
+      <li>The code works for <span id="code-ttl">10</span> minutes and only once.</li>
+      <li>It can take a minute to arrive. Check your spam or promotions folder too.</li>
+      <li>After 5 wrong tries the code stops working. Send a new one.</li>
+    </ul>
     <form id="code-form" novalidate>
-      <label for="code">Code from your e-mail</label>
-      <input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
-      <button type="submit">Continue</button>
+      <div class="field">
+        <label for="code">Code from your e-mail</label>
+        <input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" required
+               pattern="[0-9 ]*" aria-describedby="code-error" class="code-input">
+        <p class="field-error" id="code-error" hidden></p>
+      </div>
+      <div class="actions">
+        <button type="submit" class="button button--primary" id="code-submit">Continue</button>
+        <button type="button" class="button button--ghost" id="resend">Send a new code</button>
+      </div>
+      <p class="help" id="resend-wait" aria-live="polite"></p>
+      <button type="button" id="change-details" class="link-button">Change order number or e-mail</button>
     </form>
   </section>
 
-  <section id="step-birth" aria-labelledby="h-birth" hidden>
-    <h2 id="h-birth">3. Birth details</h2>
-    <p id="remaining"></p>
+  <!-- Step 3 -->
+  <section id="step-birth" class="card step" aria-labelledby="h-birth" hidden>
+    <h2 id="h-birth" tabindex="-1">3. Birth details</h2>
+    <div class="claim" id="allowance" aria-live="polite"></div>
     <form id="birth-form" novalidate>
-      <label for="place_id">Birthplace</label>
-      <select id="place_id" name="place_id" required></select>
-      <label for="birth_date">Birth date</label>
-      <input id="birth_date" name="birth_date" type="date" min="1970-01-01" max="2100-12-31" required>
-      <label for="birth_time">Exact birth time (24-hour)</label>
-      <input id="birth_time" name="birth_time" type="time" step="1" required>
-      <p class="hint">An exact time is required. We never assume a time.</p>
-      <fieldset id="occurrence" hidden>
-        <legend>This local time happened twice. Which one?</legend>
-        <div id="occurrence-choices"></div>
+      <div class="field-grid">
+        <div class="field field--wide">
+          <label for="place_id">Birthplace</label>
+          <select id="place_id" name="place_id" required aria-describedby="place_id-help place_id-error">
+            <option value="">Choose your birthplace</option>
+          </select>
+          <p class="help" id="place_id-help">Only these cities are available for now. If your birthplace is not
+            listed, please do not pick another city, because the chart would be wrong. Reply to your order
+            confirmation e-mail and we will help. Nothing is used until a PDF is downloaded.</p>
+          <p class="field-error" id="place_id-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="birth_date">Birth date</label>
+          <input id="birth_date" name="birth_date" type="date" min="1970-01-01" max="2100-12-31" required
+                 aria-describedby="birth_date-help birth_date-error">
+          <p class="help" id="birth_date-help">Dates from 1 January 1970 can be calculated.</p>
+          <p class="field-error" id="birth_date-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="birth_time">Exact birth time</label>
+          <input id="birth_time" name="birth_time" type="time" step="1" required
+                 aria-describedby="birth_time-help birth_time-error">
+          <p class="help" id="birth_time-help">Local time at the birthplace, as on the birth certificate. If you do
+            not know the exact time, stop here: we never guess a time, and nothing is used.</p>
+          <p class="field-error" id="birth_time-error" hidden></p>
+        </div>
+      </div>
+      <fieldset id="occurrence" class="ambiguity" hidden aria-describedby="occurrence-help">
+        <legend>This time happened twice that night</legend>
+        <p class="help" id="occurrence-help">Clocks were set back at this place, so this local time occurred twice.
+          Choose the one shown on the birth record.</p>
+        <div id="occurrence-choices" class="choices"></div>
       </fieldset>
-      <label for="display_name">Name on the report (optional)</label>
-      <input id="display_name" name="display_name" autocomplete="off" maxlength="60">
-      <label class="check"><input id="consent" type="checkbox" required> I agree that these details are used
-        once to prepare my report and are then discarded.</label>
-      <button type="submit" id="generate">Prepare and download PDF</button>
+      <div class="field">
+        <label for="display_name">Name on the report <span class="optional">(optional)</span></label>
+        <input id="display_name" name="display_name" autocomplete="off" maxlength="60"
+               aria-describedby="display_name-error">
+        <p class="field-error" id="display_name-error" hidden></p>
+      </div>
+      <label class="check"><input id="consent" type="checkbox" required aria-describedby="consent-error">
+        <span>I agree that these details are used once to prepare my report and are then discarded.</span></label>
+      <p class="field-error" id="consent-error" hidden></p>
+      <div class="actions">
+        <button type="submit" class="button button--primary" id="generate">Prepare my PDF</button>
+      </div>
+      <div id="progress" class="progress" hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <p id="progress-text">Preparing your report. This usually takes under a minute. Please keep this page open.</p>
+      </div>
     </form>
-    <button type="button" id="logout" class="link">Sign out</button>
   </section>
 
-  <footer>
-    <p>Calculated on Sabpuja's own servers with Swiss Ephemeris. Free software under AGPL-3.0:
-      <a href="{{SOURCE_URL}}" rel="noopener">corresponding source</a>.</p>
-  </footer>
+  <!-- Done -->
+  <section id="step-done" class="card step" aria-labelledby="h-done" hidden>
+    <h2 id="h-done" tabindex="-1">Your PDF is ready</h2>
+    <p>Your download should start by itself. If it did not, use the button below. Downloading again does not use
+      a generation.</p>
+    <div class="actions">
+      <a class="button button--primary" id="save-pdf" download="Sabpuja-Janam-Kundali.pdf" href="#">Download PDF</a>
+    </div>
+    <p class="help">On iPhone or iPad the PDF may open in a viewer: tap Share, then Save to Files. We do not keep a
+      copy, so please save it now.</p>
+    <div class="claim" id="done-allowance"></div>
+    <div class="actions">
+      <button type="button" class="button button--ghost" id="correct">Correct the details</button>
+    </div>
+  </section>
+
+  <section id="returning" class="returning" aria-labelledby="h-return">
+    <h2 id="h-return">Coming back later?</h2>
+    <p>Open this page again from your order confirmation e-mail or order status page, enter your order number and
+      e-mail, and we will send a new code. Your corrections stay available until the date shown after your first
+      download.</p>
+  </section>
+
+  <p><button type="button" id="logout" class="link-button" hidden>Sign out</button></p>
 </main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Calculated on Sabpuja's own servers with Swiss Ephemeris. Free software under AGPL-3.0:
+      <a class="site-link" href="{{SOURCE_URL}}" rel="noopener">corresponding source</a>.</p>
+  </div>
+</footer>
 </body>
 </html>

@@ -1,0 +1,19 @@
+{
+  "name": "kundali-claim-link",
+  "private": true,
+  "version": "1.0.0",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "typecheck": "./typecheck.sh"
+  },
+  "dependencies": {
+    "@preact/signals": "2.11.4",
+    "@shopify/ui-extensions": "2026.10.2",
+    "preact": "10.29.8"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

@@ -50,6 +50,23 @@ old webhook ids. The pepper is a separate secret file, so a copied database or b
 The accurate claim is **"no stored birth data or PDFs"**: entitlements and the keyed e-mail hash are still
 customer-linked order data and need the same access, backup and retention handling as other order records.
 
+## Customer journey (KUN-COM-UX-CLAIM-001)
+
+Entry points: Thank you page and Order status page blocks (`integration/extensions/kundali-claim`) and the order
+confirmation e-mail snippet, all opening the claim page with the button "Prepare your Janam Kundali"
+(`integration/README.md` section 5). The claim page (`static/`) follows the Sabpuja Foundations tokens and fonts of the
+preview, explains code expiry and resend, the regeneration allowance and how to come back later, keeps the PDF in the
+page for repeated saving without a new generation, survives refreshes through the existing session, and reports
+network failures. The order may be named by its number or, from the Thank you page, by its Shopify order id
+(`order_ref`); everything else in the claim is unchanged.
+
+Browser acceptance (synthetic data, real App, transport and Essentials renderer, mock mail, fake Shopify):
+
+```bash
+cd commerce/tests/browser && npm ci && \
+  SABPUJA_TEST_EPHE_PATH=$HOME/sabpuja-ephe PYTHON=python3 SHOTS=/tmp/shots npm test
+```
+
 ## Run the tests
 
 ```bash
@@ -69,8 +86,8 @@ release gate off (`tests/helpers.essentials_renderer`); `ReleaseGate` checks tha
    app with `read_orders` and `read_products`; it also needs protected customer data access for the order e-mail in webhook payloads
    (without it, paid orders arrive as `paid_without_email` exceptions). A fulfillment-order scope only if the flow
    later marks fulfilment. Subscribe `orders/paid`, `orders/cancelled`, `refunds/create`; put the webhook secret and
-   the app client secret in files (the client id goes in `commerce.json`). Confirm on the store that both GraphQL queries (schema-validated offline) (order re-check and recovery, incl. `number`, `email`, `createdAt`, `originalUnitPriceSet`) return real data there, and run one `--recover-order` on a dev-store order. Add a "Prepare your Janam Kundali" link to the order status
-   page and the confirmation e-mail pointing at the claim page. No birth data goes to Shopify.
+   the app client secret in files (the client id goes in `commerce.json`). Confirm on the store that both GraphQL queries (schema-validated offline) (order re-check and recovery, incl. `number`, `email`, `createdAt`, `originalUnitPriceSet`) return real data there, and run one `--recover-order` on a dev-store order. The "Prepare your Janam Kundali" entry points are in
+   `integration/` (KUN-COM-UX-CLAIM-001). No birth data goes to Shopify.
 3. **Transactional e-mail:** choose an SMTP provider, configure SPF/DKIM for the sender, supply `smtp.json`.
    `SmtpMailer` (STARTTLS, verified certificate) is not exercised by these tests.
 4. **Hosting:** subdomain, TLS, Caddy route to the gateway, state directory with backups (contains no birth data).

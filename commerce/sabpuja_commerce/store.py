@@ -205,15 +205,25 @@ class Store:
     # ---- claim -------------------------------------------------------------------------
     def claimable_order(self, shop: str, order_number: int, email_hash: bytes) -> int | None:
         """The order id if an active, unexpired, claimable entitlement matches; else None."""
+        found = self.claimable(shop, email_hash, order_number=order_number)
+        return None if found is None else found[0]
+
+    def claimable(self, shop: str, email_hash: bytes, order_number: int | None = None,
+                  order_id: int | None = None) -> tuple[int, int] | None:
+        """(order id, order number) of a usable entitlement whose keyed e-mail hash matches, found by exactly one
+        of the order number the buyer types or the Shopify order id from the Thank you page link; else None."""
+        if (order_number is None) == (order_id is None):
+            raise ValueError("name the order by number or by id")
+        column, value = ("order_number", order_number) if order_id is None else ("order_id", order_id)
         now = self.now()
         with self._lock:
-            rows = self._db.execute("SELECT * FROM entitlements WHERE shop = ? AND order_number = ? AND "
-                                    "status = 'active'", (shop, order_number)).fetchall()
+            rows = self._db.execute(f"SELECT * FROM entitlements WHERE shop = ? AND {column} = ? AND "
+                                    "status = 'active'", (shop, value)).fetchall()
         for row in rows:
             if row["email_hash"] is None or not hmac.compare_digest(row["email_hash"], email_hash):
                 continue
             if self._usable(row, now):
-                return row["order_id"]
+                return row["order_id"], row["order_number"]
         return None
 
     @staticmethod
@@ -296,7 +306,9 @@ class Store:
         return {"active": any(r["status"] == "active" for r in rows),
                 "remaining": sum(r["capacity"] - r["used"] for r in usable),
                 "used": sum(r["used"] for r in rows),
-                "window_ends_at": min(ends) if ends else None}
+                "window_ends_at": min(ends) if ends else None,
+                "window_days": min((r["window_days"] for r in usable), default=None),
+                "order_number": rows[0]["order_number"] if rows else None}
 
     def reserve(self, shop: str, order_id: int) -> tuple[int | None, str]:
         """Reserve one generation on the order. Returns (entitlement id, reason)."""

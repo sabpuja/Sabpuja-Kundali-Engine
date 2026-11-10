@@ -1,0 +1,39 @@
+# KUN-COM-UX-CLAIM-001. "Prepare your Janam Kundali" on the Thank you and Order status pages of the QA store only.
+# Copy this folder into the QA app project's extensions/ directory and deploy with the QA app (owner PC, Shopify CLI).
+# No network access, no Admin/Storefront API access, no protected customer data: the blocks read only the order's
+# lines (SKU), the order id (Thank you page) and the order name (Order status page).
+api_version = "2026-10"
+
+[[extensions]]
+name = "Janam Kundali claim link"
+handle = "kundali-claim-link"
+type = "ui_extension"
+
+  [[extensions.targeting]]
+  module = "./src/ThankYou.jsx"
+  target = "purchase.thank-you.block.render"
+
+  [[extensions.targeting]]
+  module = "./src/OrderStatus.jsx"
+  target = "customer-account.order-status.block.render"
+
+  [extensions.capabilities]
+  api_access = false
+  network_access = false
+  block_progress = false
+
+  [extensions.settings]
+    [[extensions.settings.fields]]
+    key = "claim_url"
+    type = "single_line_text_field"
+    name = "Claim page URL"
+    description = "https origin of the Kundali claim page, ending in /. The block stays hidden until this is set."
+      [[extensions.settings.fields.validations]]
+      name = "regex"
+      value = "^https://[a-z0-9.-]+(:[0-9]{1,5})?/$"
+
+    [[extensions.settings.fields]]
+    key = "sku"
+    type = "single_line_text_field"
+    name = "Janam Kundali SKU"
+    description = "The block appears only on orders that contain this SKU."
