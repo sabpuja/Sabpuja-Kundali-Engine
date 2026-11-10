@@ -101,6 +101,9 @@ class OutboundMail(unittest.TestCase):
         self.assertEqual(self.postconf("milter_default_action"), "tempfail")   # never send unsigned
         self.assertEqual(self.postconf("inet_protocols"), "ipv4")
         self.assertIn("OversignHeaders         From", ENTRY)
+        signed = re.search(r"SignHeaders\s+(\S+)", ENTRY).group(1).split(",")
+        for header in ("From", "To", "Subject", "Date", "Message-ID"):   # staging: Message-ID was unsigned by default
+            self.assertIn(header, signed)
 
     def test_nothing_kept(self):
         self.assertEqual(self.postconf("maximal_queue_lifetime"), "15m")

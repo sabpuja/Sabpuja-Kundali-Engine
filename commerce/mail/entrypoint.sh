@@ -28,6 +28,7 @@ Selector                $DKIM_SELECTOR
 KeyFile                 /run/opendkim/dkim.private
 Canonicalization        relaxed/simple
 SignatureAlgorithm      rsa-sha256
+SignHeaders             From,To,Subject,Date,Message-ID,MIME-Version,Content-Type,Content-Transfer-Encoding
 OversignHeaders         From
 InternalHosts           refile:/run/opendkim/trusted
 Socket                  inet:8891@127.0.0.1
