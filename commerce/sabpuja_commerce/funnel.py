@@ -4,14 +4,17 @@ One counter per (UTC day, event). There is no row per visitor, no identifier, no
 no birth detail, no e-mail, no chart value and no time finer than a day, so a row cannot be tied to a person.
 No cookie, pixel, fingerprint or third-party service is involved.
 
-Events:
-  preview_initiated       POST /api/preview arrived with a well-formed request (server side)
-  preview_generated       a preview was returned (server side)
-  preview_refused         the birth details were refused (server side; the refusal code is not kept)
-  full_report_selected    "Buy Full Kundali Report" pressed below a preview (browser beacon)
-  checkout_started        "Continue to secure checkout" pressed, the hand-off to Shopify (browser beacon)
-  paid_order_completed    an orders/paid webhook created an entitlement (server side). Shopify orders carry no
-                          link to a preview, so this is the total of paid orders, not an attributed conversion.
+Events (DIRECTIONAL counts only, QA finding 5; never a measured preview-to-sale conversion rate):
+  preview_initiated        POST /api/preview arrived with a well-formed request (server side)
+  preview_generated        a preview was returned (server side)
+  preview_refused          the birth details were refused (server side; the refusal code is not kept)
+  full_report_selected     "Buy Full Kundali Report" pressed below a preview (browser beacon: client-asserted)
+  checkout_link_clicked    "Continue to secure checkout" pressed (browser beacon: client-asserted). This is a click
+                           toward Shopify, NOT a verified Shopify checkout start
+  paid_orders_all_sources  an orders/paid webhook created an entitlement (server side). Counts ALL paid orders,
+                           whatever brought the buyer; Shopify orders carry no link to a preview, so it is not
+                           attributable to the preview
+Browser beacons can be sent by anyone and are rate-limited, not authenticated: never treat them as transactions.
 """
 from __future__ import annotations
 
@@ -20,8 +23,8 @@ import threading
 import time
 
 EVENTS = ("preview_initiated", "preview_generated", "preview_refused", "full_report_selected",
-          "checkout_started", "paid_order_completed")
-BROWSER_EVENTS = frozenset({"full_report_selected", "checkout_started"})
+          "checkout_link_clicked", "paid_orders_all_sources")
+BROWSER_EVENTS = frozenset({"full_report_selected", "checkout_link_clicked"})
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS funnel_daily (

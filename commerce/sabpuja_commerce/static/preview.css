@@ -32,3 +32,10 @@
 .handoff h3 { font: 600 1.0625rem/1.3 var(--sp-font-heading); color: var(--sp-color-brown-deep); margin: 0 0 var(--sp-space-2); }
 .handoff h3:focus { outline: none; }
 .leads h2 .optional { font-family: var(--sp-font-body); }
+.qa-banner { border-left-color: var(--sp-color-saffron-700); }
+.benefits { margin-top: var(--sp-space-2); }
+.contents { margin-top: var(--sp-space-5); border-top: 1px solid var(--sp-color-border); padding-top: var(--sp-space-3); }
+.contents summary {
+  cursor: pointer; font-weight: 600; color: var(--sp-color-saffron-800); min-height: var(--sp-control-min-height);
+  padding-block: .6rem; text-decoration: underline; text-underline-offset: 3px;
+}

@@ -41,7 +41,7 @@ class PreviewHarness(h.Harness):
     """The real App with the preview, a real Funnel and a real LeadStore (all in memory)."""
 
     def __init__(self, service=None, leads=True, **kw):
-        base = dict(preview_enabled=True, lead_capture_enabled=leads, leads_db_path=":memory:" if leads else "")
+        base = dict(preview_enabled=True, allow_test_orders=True, lead_capture_enabled=leads, leads_db_path=":memory:" if leads else "")
         base.update(kw)
         super().__init__(**base)
         self.funnel = funnel_mod.Funnel(":memory:", clock=self.clock)
@@ -71,9 +71,9 @@ class FakeService:
         if self.exc is not None:
             raise self.exc
         return self.result or {"preview_version": pv.PREVIEW_VERSION,
-                               "fields": {"lagna_rashi": {"rashi": "Kanya", "number": 6, "western": "Virgo"},
-                                          "moon_rashi": {"rashi": "Makara", "number": 10, "western": "Capricorn"}},
-                               "birth_time_sensitive": False, "method": "sidereal_lahiri_swiss_ephemeris"}
+                               "fields": {"lagna_rashi": {"rashi": "Kanya", "number": 6},
+                                          "moon_rashi": {"rashi": "Makara", "number": 10}},
+                               "method": "sidereal_lahiri_swiss_ephemeris"}
 
 
 def independent_signs(place: dict, local_date: str, local_time: str) -> tuple[str, str]:
@@ -99,6 +99,7 @@ class VerifiedFields(unittest.TestCase):
     def setUpClass(cls):
         cls.places = _places()
         cls.service = pv.PreviewService(cls.places, h.EPHE, today=lambda: TODAY)
+        cls.checked = pv.PreviewService(cls.places, h.EPHE, today=lambda: TODAY, birth_time_check=True)
 
     def test_matrix_all_ten_cities_matches_engine_and_independent_swiss(self):
         from kundali_prototype import server
@@ -121,12 +122,14 @@ class VerifiedFields(unittest.TestCase):
 
     def test_exact_response_shape(self):
         out = self.service(dict(OK))
-        self.assertEqual(set(out), {"preview_version", "fields", "birth_time_sensitive", "method"})
+        # 001A: no birth-time check and no Western alias by default.
+        self.assertEqual(set(out), {"preview_version", "fields", "method"})
         self.assertEqual(set(out["fields"]), {"lagna_rashi", "moon_rashi"})
         for f in out["fields"].values():
-            self.assertEqual(set(f), {"rashi", "number", "western"})
+            self.assertEqual(set(f), {"rashi", "number"})
             self.assertEqual(pv.RASHIS[f["number"] - 1], f["rashi"])
-        self.assertIsInstance(out["birth_time_sensitive"], bool)
+        for western in ("Aries", "Virgo", "Capricorn", "Pisces", "Libra"):
+            self.assertNotIn(western, json.dumps(out))
 
     def test_no_paid_content_or_bulk_payload_leaks(self):
         text = json.dumps(self.service(dict(OK))).lower()
@@ -162,26 +165,29 @@ class VerifiedFields(unittest.TestCase):
     def test_sensitivity_note_near_lagna_boundary(self):
         minute = self._lagna_change()
         near = f"{(minute - 1) // 60:02d}:{(minute - 1) % 60:02d}:00"
-        out = self.service({"place_id": "in-mumbai", "birth_date": "1995-03-21", "birth_time": near})
-        self.assertTrue(out["birth_time_sensitive"])
+        form = {"place_id": "in-mumbai", "birth_date": "1995-03-21", "birth_time": near}
+        self.assertEqual(self.checked(form)["birth_time_check"], "sign_change_within_2_min")
+        self.assertNotIn("birth_time_check", self.service(form))           # withheld by default
 
     def test_no_sensitivity_note_far_from_boundaries(self):
         minute = self._lagna_change()
         far = minute + 40
-        out = self.service({"place_id": "in-mumbai", "birth_date": "1995-03-21",
+        out = self.checked({"place_id": "in-mumbai", "birth_date": "1995-03-21",
                             "birth_time": f"{far // 60:02d}:{far % 60:02d}:00"})
-        self.assertFalse(out["birth_time_sensitive"])
+        self.assertEqual(out["birth_time_check"], "no_change")
 
-    def test_first_supported_minute_is_flagged_not_refused(self):
-        out = self.service({"place_id": "in-new-delhi", "birth_date": "1970-01-01", "birth_time": "00:00:30"})
-        self.assertTrue(out["birth_time_sensitive"])         # 1969-12-31 23:58:30 cannot be confirmed
+    def test_unassessable_neighbour_is_not_reported_as_a_sign_change(self):
+        out = self.checked({"place_id": "in-new-delhi", "birth_date": "1970-01-01", "birth_time": "00:00:30"})
+        self.assertEqual(out["birth_time_check"], "not_assessable")   # 1969-12-31 23:58:30 cannot be computed
         self.assertEqual(set(out["fields"]), {"lagna_rashi", "moon_rashi"})
+
+    def test_birth_time_check_off_in_default_settings(self):
+        self.assertFalse(h.settings().preview_birth_time_check)
 
     def test_rashi_tables_match_engine_and_report_register(self):
         from sabpuja_kundali.rules import SIGNS
         self.assertEqual(tuple(SIGNS), pv.RASHIS)
-        from report.phase1.report_locale import TERMS
-        self.assertEqual(tuple(TERMS["rashi"][r]["western"] for r in pv.RASHIS), pv.WESTERN)
+        self.assertFalse(hasattr(pv, "WESTERN"))
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -412,7 +418,7 @@ class Isolation(unittest.TestCase):
         for path in ("/kundali", "/static/preview.js", "/api/preview/config", "/marketing"):
             self.assertEqual(hd.get(path).status, 404, path)
         self.assertEqual(hd.post("/api/preview", OK).status, 404)
-        self.assertEqual(hd.post("/api/funnel", {"event": "checkout_started"}).status, 404)
+        self.assertEqual(hd.post("/api/funnel", {"event": "checkout_link_clicked"}).status, 404)
         self.assertEqual(hd.post("/api/leads/subscribe", {}).status, 404)
 
     def test_pages_served_with_strict_headers_and_no_third_parties(self):
@@ -448,8 +454,15 @@ class ConfigAndHandoff(unittest.TestCase):
         self.assertEqual(cfg["consent_version"], leads_mod.CONSENT_VERSION)
         self.assertEqual((cfg["report_pages"], cfg["report_language"]), (14, "en"))
 
+    def test_empty_price_only_on_the_qa_store(self):
+        with self.assertRaises(ConfigError):
+            h.settings(preview_enabled=True, allow_test_orders=False)
+        h.settings(preview_enabled=True, allow_test_orders=False, preview_price_display="₹ 000 (placeholder)")
+        self.assertTrue(PreviewHarness(service=FakeService(), allow_test_orders=True)
+                        .get("/api/preview/config").json()["qa_store"])
+
     def test_price_set_by_owner_config(self):
-        hp = PreviewHarness(service=FakeService(), preview_price_display="₹ 000 (placeholder)")
+        hp = PreviewHarness(service=FakeService(), preview_price_display="₹ 000 (placeholder)", allow_test_orders=False)
         self.assertEqual(hp.get("/api/preview/config").json()["price_display"], "₹ 000 (placeholder)")
 
     def test_buy_url_rules(self):
@@ -482,6 +495,21 @@ class ConfigAndHandoff(unittest.TestCase):
         self.assertIn("After payment you will enter your birth details again", html)
         self.assertIn('id="checkout"', html)
 
+    def test_offer_does_not_advertise_development_only_content(self):
+        html = (STATIC / "preview.html").read_text()
+        offer = html[html.index('id="step-offer"'):html.index('id="step-leads"')]
+        for word in ("Vara", "Sunrise", "sunrise", "sunset", "Virgo", "Aries"):
+            self.assertNotIn(word, offer, word)
+        self.assertIn("<details", offer)                          # full contents collapsed under the Buy button
+        self.assertLess(offer.index('id="buy"'), offer.index("<details"))
+
+    def test_preferences_page_never_confirms_on_load(self):
+        js = (STATIC / "marketing.js").read_text()
+        onload = js[js.index('addEventListener("DOMContentLoaded"'):]
+        first_act = re.search(r'act\("(\w+)"\)', onload).group(1)
+        self.assertEqual(first_act, "status")
+        self.assertIn('$("confirm").addEventListener("click", () => act("confirm"))', js)
+
     def test_eligibility_copy_matches_places(self):
         from kundali_prototype.places import load_places
         names = [v["name"] for k, v in load_places().items() if k.startswith("in-")]
@@ -511,26 +539,26 @@ class FunnelCounts(unittest.TestCase):
         self.assertEqual((t["preview_initiated"], t["preview_generated"]), (1, 1))
 
     def test_browser_events_only_whitelisted(self):
-        for ev in ("full_report_selected", "checkout_started"):
+        for ev in ("full_report_selected", "checkout_link_clicked"):
             self.assertEqual(self.h.post("/api/funnel", {"event": ev}).status, 204)
-        for body in ({"event": "preview_generated"}, {"event": "paid_order_completed"}, {"event": "x"},
-                     {"event": "checkout_started", "email": "a@example.invalid"}, {"event": "checkout_started",
+        for body in ({"event": "preview_generated"}, {"event": "paid_orders_all_sources"}, {"event": "x"},
+                     {"event": "checkout_link_clicked", "email": "a@example.invalid"}, {"event": "checkout_link_clicked",
                                                                                    "birth_date": "1990-05-17"}):
             with self.subTest(body=body):
                 self.assertEqual(self.h.post("/api/funnel", body).status, 400)
         t = self.h.funnel.totals()
-        self.assertEqual((t["full_report_selected"], t["checkout_started"], t["paid_order_completed"]), (1, 1, 0))
+        self.assertEqual((t["full_report_selected"], t["checkout_link_clicked"], t["paid_orders_all_sources"]), (1, 1, 0))
 
     def test_beacon_flood_is_capped(self):
         for _ in range(50):
-            self.h.post("/api/funnel", {"event": "checkout_started"})
-        self.assertEqual(self.h.funnel.totals()["checkout_started"], 20)
+            self.h.post("/api/funnel", {"event": "checkout_link_clicked"})
+        self.assertEqual(self.h.funnel.totals()["checkout_link_clicked"], 20)
 
     def test_paid_order_webhook_counted_once(self):
         self.h.hook("orders/paid", h.order(), webhook_id="dup-1")
         self.h.hook("orders/paid", h.order(), webhook_id="dup-1")
         self.h.hook("orders/paid", h.order(order_id=5002, number=1002, status="pending"))
-        self.assertEqual(self.h.funnel.totals()["paid_order_completed"], 1)
+        self.assertEqual(self.h.funnel.totals()["paid_orders_all_sources"], 1)
 
     def test_daily_aggregate_has_no_identifiers(self):
         self.h.preview()

@@ -123,10 +123,14 @@ test("complete preview -> buy -> Shopify hand-off -> claim -> re-entered details
   assert.equal(await page.locator("#result-for").innerText(),
     "For someone born 17 May 1990 at 14:30:00 (2:30:00 pm) in Jaipur, Rajasthan.");
   assert.equal(await page.locator("#fact-lagna_rashi .fact__value").innerText(), "Kanya");
-  assert.equal(await page.locator("#fact-lagna_rashi .fact__meta").innerText(), "Rashi 6 of 12 · Virgo");
+  assert.equal(await page.locator("#fact-lagna_rashi .fact__meta").innerText(), "Sidereal Rashi 6 of 12");
   assert.equal(await page.locator("#fact-moon_rashi .fact__value").innerText(), "Makara");
-  assert.ok(await page.locator("#sensitive-note").isHidden());
+  assert.ok(await page.locator("#check-changed").isHidden());
+  assert.ok(await page.locator("#qa-banner").isVisible(), "QA store banner");
+  assert.ok(await page.locator(".compare").isHidden(), "full contents collapsed");
+  await page.click("#contents summary");
   assert.match(await page.locator(".compare").innerText(), /D9 Navamsa chart\s+No\s+Yes/);
+  assert.doesNotMatch(await page.locator("#step-offer").innerText(), /Vara|[Ss]unrise|Virgo/);
   assert.equal(await page.locator("#price-text").innerText(), "to be confirmed");
   assert.ok(await page.locator("#lead_consent").isVisible());
   assert.equal(await page.locator("#lead_consent").isChecked(), false, "marketing consent is unchecked");
@@ -141,14 +145,14 @@ test("complete preview -> buy -> Shopify hand-off -> claim -> re-entered details
   assert.deepEqual(handoffs, [BUY], "hand-off carries no birth detail, name or identifier");
   const after = await funnel();
   for (const [k, d] of [["preview_initiated", 1], ["preview_generated", 1], ["full_report_selected", 1],
-    ["checkout_started", 1]]) assert.equal(after[k] - before[k], d, k);
+    ["checkout_link_clicked", 1]]) assert.equal(after[k] - before[k], d, k);
 
   // Shopify's orders/paid webhook (synthetic), then the existing claim flow with the details typed again.
   peerOrder += 1;
   await control("/clock", { seconds: 61 });
   assert.equal((await control("/paid", { order_id: peerOrder * 1000 + 3, number: peerOrder, email: BUYER })).outcome,
     "created");
-  assert.equal((await funnel()).paid_order_completed - after.paid_order_completed, 1);
+  assert.equal((await funnel()).paid_orders_all_sources - after.paid_orders_all_sources, 1);
   await page.goto(`${BASE}/#order=${peerOrder}`);
   await page.fill("#email", BUYER);
   await page.click("#claim-submit");
@@ -200,14 +204,16 @@ test("refusals: pre-1970, future, missing time and malformed values show field e
   await ctx.close();
 });
 
-test("birth-time sensitivity note near a Lagna boundary (SCI-06 disclosure)", async () => {
+test("birth-time note is withheld by default, even next to a Lagna boundary (SCI-06 pending)", async () => {
   const { ctx, page } = await open();
   await fill(page, { place: "in-mumbai", date: "1995-03-21", time: "06:26:00" });
-  await showPreview(page);
+  const json = await (await showPreview(page)).json();
   await page.locator("#step-result").waitFor();
-  assert.ok(await page.locator("#sensitive-note").isVisible());
-  assert.match(await page.locator("#sensitive-note").innerText(), /2 minutes earlier or later/);
-  await shot(page, "desktop-06-sensitivity-note");
+  assert.ok(!("birth_time_check" in json), "not computed or returned");
+  assert.ok(await page.locator("#check-changed").isHidden());
+  assert.ok(await page.locator("#check-unassessable").isHidden());
+  assert.equal(await page.locator("#fact-lagna_rashi .fact__value").innerText(), "Kumbha");
+  await shot(page, "desktop-06-near-boundary-no-note");
   await page.click("#again");
   assert.ok(await page.locator("#step-result").isHidden());
   assert.equal(await page.inputValue("#birth_time"), "");
@@ -246,9 +252,24 @@ test("optional opt-in: unchecked, separate from the preview, double opt-in, with
   const token = /#confirm=([A-Za-z0-9_-]+)/.exec(mail.text)[1];
   for (const needle of ["1990", "Jaipur", "Kanya"]) assert.ok(!mail.text.includes(needle));
 
+  // Opening the link (as a person or a script-running link scanner) only shows the state; it never subscribes.
   await page.goto(`${BASE}/marketing#confirm=${token}`);
-  await page.locator("#manage-state").filter({ hasText: "signed up" }).waitFor();
+  await page.locator("#manage-state").filter({ hasText: "waiting for confirmation" }).waitFor();
   assert.equal(new URL(page.url()).hash, "", "token removed from the address bar");
+  await page.waitForTimeout(500);
+  assert.deepEqual((await control("/leads")).mailable, [], "page load did not confirm");
+  assert.equal((await control("/leads")).counts.pending, 1);
+  await page.reload();
+  assert.deepEqual((await control("/leads")).mailable, [], "reload did not confirm");
+  // A link scanner without scripts just fetches the page: still pending.
+  await fetch(`${BASE}/marketing#confirm=${token}`);
+  assert.deepEqual((await control("/leads")).mailable, []);
+  await page.goto("about:blank");
+  await page.goto(`${BASE}/marketing#confirm=${token}`);
+  await page.locator("#confirm").waitFor();
+  await shot(page, "desktop-08a-marketing-pending");
+  await page.click("#confirm");
+  await page.locator("#manage-state").filter({ hasText: "signed up" }).waitFor();
   assert.deepEqual((await control("/leads")).mailable, [LEAD]);
   await shot(page, "desktop-08-marketing-confirmed");
   await page.click("#withdraw");
@@ -326,6 +347,9 @@ for (const [label, device] of [["phone-pixel7", devices["Pixel 7"]], ["phone-iph
     await page.locator("#handoff").waitFor();
     await check("handoff");
     await shot(page, `${label}-03-handoff`);
+    await page.click("#contents summary");
+    await check("contents");
+    await shot(page, `${label}-04-contents`);
     assert.deepEqual(errors, []);
     await ctx.close();
   });
@@ -351,6 +375,8 @@ test("automated accessibility scan (axe-core, WCAG 2.1 A/AA): start, errors, res
   await scan("result");
   await page.click("#buy");
   await scan("handoff");
+  await page.click("#contents summary");
+  await scan("contents-open");
   await page.click("#lead-submit");
   await scan("optin-errors");
   await page.goto(`${BASE}/marketing`);

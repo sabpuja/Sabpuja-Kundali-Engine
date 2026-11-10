@@ -1,11 +1,11 @@
 "use strict";
-// E-mail preference management (KUN-FREEMIUM-PREVIEW-001). The token arrives in the URL fragment (never sent to a
+// E-mail preference management (KUN-FREEMIUM-PREVIEW-001, 001A: confirmation only on an explicit click). The token arrives in the URL fragment (never sent to a
 // server by the browser), is removed from the address bar at once and kept in memory only.
 (function () {
   const $ = (id) => document.getElementById(id);
   let token = null;
   const STATE = {
-    pending: "Your sign-up is waiting for confirmation. Nothing is sent until you confirm.",
+    pending: "Your sign-up is waiting for confirmation. Nothing is sent to you until you press Confirm my sign-up.",
     subscribed: "You are signed up for occasional offers and news from Sabpuja by e-mail.",
     withdrawn: "You have stopped offers by e-mail. We will not send you offers.",
     deleted: "Your sign-up has been deleted. We no longer hold your e-mail address for offers.",
@@ -39,7 +39,9 @@
   document.addEventListener("DOMContentLoaded", () => {
     const m = /^#(confirm|manage)=([A-Za-z0-9_-]{30,64})$/.exec(location.hash || "");
     if (location.hash) history.replaceState(null, "", location.pathname);
-    if (m) { token = m[2]; act(m[1] === "confirm" ? "confirm" : "status"); }
+    // Opening a link never changes anything: it only shows the current state. Confirming, stopping and deleting
+    // each need a deliberate click (link scanners that run scripts must not be able to subscribe anyone).
+    if (m) { token = m[2]; act("status"); }
     $("confirm").addEventListener("click", () => act("confirm"));
     $("withdraw").addEventListener("click", () => act("withdraw"));
     $("delete").addEventListener("click", () => act("delete"));

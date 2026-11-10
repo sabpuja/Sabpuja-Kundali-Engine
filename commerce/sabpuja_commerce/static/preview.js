@@ -113,6 +113,7 @@
     $("birth_date").min = config.date_min;
     $("birth_date").max = config.date_max;
     $("price-text").textContent = config.price_display || "to be confirmed";
+    $("qa-banner").hidden = !config.qa_store;
     $("checkout").href = config.buy_url;
   }
 
@@ -164,9 +165,11 @@
       box.hidden = !f;
       if (!f) continue;
       box.querySelector('[data-part="rashi"]').textContent = f.rashi;
-      box.querySelector('[data-part="meta"]').textContent = "Rashi " + f.number + " of 12 · " + f.western;
+      box.querySelector('[data-part="meta"]').textContent = "Sidereal Rashi " + f.number + " of 12";
     }
-    $("sensitive-note").hidden = !res.birth_time_sensitive;
+    // Present only when the server's SCI-06 birth-time check is switched on (off by default).
+    $("check-changed").hidden = res.birth_time_check !== "sign_change_within_2_min";
+    $("check-unassessable").hidden = res.birth_time_check !== "not_assessable";
     $("step-result").hidden = false;
     $("step-offer").hidden = false;
     $("step-leads").hidden = !config.lead_capture;
@@ -212,7 +215,7 @@
     $("h-handoff").focus();
   }
   function checkout() {
-    beacon("checkout_started");   // the link itself navigates to the Shopify cart; no birth detail travels
+    beacon("checkout_link_clicked");   // the link itself navigates to the Shopify cart; no birth detail travels
   }
 
   // ---- optional e-mail opt-in --------------------------------------------------------------------------------

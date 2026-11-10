@@ -22,15 +22,16 @@ touched by this change.
 | Moon Rashi | **Yes** | SCI-02 baseline field (ledger row 9), canonical 2026-10-24 | same 30-case matrix |
 | Vara | **No (withheld)** | PAN-D03/PAN-D05 sunrise Vara is recorded "for the development stage only, not for customer release" (`src/sabpuja_kundali/panchanga/vara.py`) | Registry marks it `withheld`; config and service refuse to enable it (tests) |
 
-The response is exactly `{preview_version, fields: {lagna_rashi, moon_rashi: {rashi, number, western}},
-birth_time_sensitive, method}`: no degree, house, Navamsa, Nakshatra, planet, Panchanga, coordinate or PDF
+The response is exactly `{preview_version, fields: {lagna_rashi, moon_rashi: {rashi, number}}, method}`; the page
+labels it "Sidereal Rashi N of 12" and shows no Western sign name (001A): no degree, house, Navamsa, Nakshatra, planet, Panchanga, coordinate or PDF
 (tests scan for 24 leak words and any fractional number).
 
-**Birth-time sensitivity (SCI-06 Option 1, owner selected pre-merge, canonical adoption pending).** The same instant
-is recomputed 120 s earlier and later. If the Lagna or Moon Rashi would change, or a neighbour cannot be computed
-(for example 1970-01-01 00:00:30), the page shows a short "check your birth time" note. The shown values are always
-those of the entered time. **The paid PDF does not implement SCI-06 yet**, so the preview discloses something the
-report does not (flagged below).
+**Birth-time check (SCI-06 Option 1): WITHHELD by default (001A).** SCI-06 adoption and wording are pending and the
+paid PDF has no such disclosure, so `preview_birth_time_check` defaults to false: nothing is computed, returned or
+shown. For QA research only, setting it true recomputes the instant 120 s earlier and later and returns
+`birth_time_check` = `sign_change_within_2_min` (a different sign was actually calculated), `not_assessable` (a
+neighbour could not be computed, e.g. 1970-01-01 00:00:30) or `no_change`; the page has two separate draft notes for
+the first two cases. The shown values are always those of the entered time.
 
 Not claimed: independent golden-chart accuracy. Engine `validation_status` stays `UNVERIFIED_GOLDEN_CHARTS`; page
 wording says "calculated with Swiss Ephemeris", per REL-01.
@@ -68,7 +69,11 @@ birth data).
 * Authentication, OTP, live order re-check, revocation, quota and the renderer are unchanged; the preview has no
   route to any of them (no cookie, no session, no store access; tests).
 * **Price:** `preview_price_display` is empty, so the page shows "Price: to be confirmed". The QA product's ₹1.00 is
-  a test price and is never shown as the selling price.
+  a test price and is never shown as the selling price. Since 001A the service **refuses to start** with the preview on
+  and no price unless `allow_test_orders` is true (QA store only), and the page shows a "QA test store" banner there.
+  Before live publication the configured price must equal the Shopify product price (manual owner check).
+* **Comparison (001A):** a short list of what the report adds and the Buy button come first; the full table is under
+  "See everything in the 14-page report" (`<details>`). The Sunrise/Vara page is **not advertised** (see section 8).
 
 ## 5. Optional marketing opt-in (isolated QA store)
 
@@ -76,7 +81,9 @@ birth data).
 * Separate SQLite file (`leads_db_path`, refused if equal to the entitlement database). Columns: e-mail, keyed hash,
   status (pending / subscribed / withdrawn), purpose, consent wording version, source, locale, adult flag, timestamps,
   hashed token and mail counters. No name, birth detail, chart value, order, IP or device identifier (schema test).
-* Double opt-in: one confirmation e-mail; nothing is "mailable" until confirmed. Unconfirmed sign-ups are deleted after
+* Double opt-in: one confirmation e-mail; nothing is "mailable" until confirmed. **Opening the confirmation link only
+  shows "waiting for confirmation"; the visitor must press "Confirm my sign-up"** (001A, so a link scanner that runs
+  scripts cannot subscribe anyone; confirm is a same-origin POST with the Origin check). Unconfirmed sign-ups are deleted after
   7 days. Withdraw keeps a minimal "withdrawn" record; delete removes the row. A new manage link can be requested by
   address (neutral reply). 10-minute resend cooldown, 3 mails per address per day. Tokens travel in the URL fragment.
 * In QA the confirmation mail goes to the private Mailpit sink. **No marketing message is sent by this code**, and
@@ -84,9 +91,12 @@ birth data).
 
 ## 6. Measurement (aggregate only)
 
-`funnel_daily(day, event, count)`. Events: `preview_initiated`, `preview_generated`, `preview_refused`,
-`full_report_selected`, `checkout_started` (browser beacons carrying only the event name), `paid_order_completed`
-(from the existing webhook; **not attributed to a preview**, because nothing links a Shopify order to a preview).
+`funnel_daily(day, event, count)`. **Directional counts only, never a measured preview-to-sale conversion rate.**
+Events: `preview_initiated`, `preview_generated`, `preview_refused` (server side); `full_report_selected` and
+`checkout_link_clicked` (browser beacons carrying only the event name: client-asserted, rate-limited, not
+authenticated; `checkout_link_clicked` is a click toward Shopify, not a verified checkout start);
+`paid_orders_all_sources` (existing webhook: **all** paid orders, whatever brought the buyer, not attributable to the
+preview). Renamed in 001A from `checkout_started` / `paid_order_completed` so the names cannot overstate them.
 No cookie, pixel, fingerprint, IP, user agent or time finer than one UTC day. `--funnel-report` prints the rows.
 
 ## 7. Copy review (DRAFT: needs English editorial QA, Hindi human review and owner sign-off)
@@ -95,8 +105,9 @@ No cookie, pixel, fingerprint, IP, user agent or time finer than one UTC day. `-
 |---|---|---|
 | H1 / lede | "See your free Kundali preview" / "two facts calculated from your birth chart: your Lagna (rising sign) and your Moon sign (Chandra Rashi)…" | Not translated; page is English |
 | Eligibility | 10 cities, "from 1 January 1970 up to today", "We never guess a time", English only | One Hindi line (`lang="hi"`): "यह निःशुल्क झलक और पूरी रिपोर्ट अभी केवल अंग्रेज़ी में उपलब्ध हैं।" needs human review |
-| Result labels | "Lagna (rising sign)", "Moon sign (Chandra Rashi)", "Rashi 6 of 12 · Virgo" (engine spelling, e.g. "Vrischika"; Western names from the report register) | n/a |
-| Sensitivity note | "Check your birth time. At least one of these signs would be different if the birth time were 2 minutes earlier or later…" | SCI-06 wording is explicitly **not approved** |
+| Result labels | "Lagna (rising sign)", "Moon sign (Chandra Rashi)", "Sidereal Rashi 6 of 12" (engine spelling, e.g. "Vrischika"; no Western names since 001A) | n/a |
+| Birth-time notes (off by default) | "…is different when calculated for 2 minutes earlier or later…" / "We could not check whether these signs change within 2 minutes…" | SCI-06 wording is explicitly **not approved**; not shown |
+| QA banner | "QA test store. Use synthetic birth details only. The full report's content is not yet approved for customers…" | QA only |
 | Comparison table | Rows derived from the 14 Essentials page titles/descriptions | n/a |
 | Hand-off | "After payment you will enter your birth details again…" | n/a |
 | Opt-in | "Yes, send me occasional offers and news from Sabpuja by e-mail. I can unsubscribe at any time." Consent version `sabpuja-offers-email-en/0.1-draft` | Legal/privacy review needed (DPDP Act notice, purpose, retention) |
@@ -105,11 +116,17 @@ No cookie, pixel, fingerprint, IP, user agent or time finer than one UTC day. `-
 
 1. Customer copy above (English editorial, Hindi, legal/privacy for the opt-in).
 2. Owner selling price (placeholder now).
-3. SCI-06 disclosure appears in the preview but not in the paid PDF.
-4. The paid PDF includes the Sunrise/Vara page while the preview withholds Vara as development-only. Both follow
-   their own records, but the owner should confirm Vara's status for paid customers.
-5. "Western" sign names next to sidereal Rashis may be read as tropical signs; editorial decision.
-6. Funnel `paid_order_completed` is total paid orders, not attributable conversion.
+3. SCI-06: withheld in the preview (001A); adoption, wording and a matching paid-PDF disclosure remain open.
+4. **Paid Sunrise/Vara page (owner decision).** `vara.py` marks the convention development-only, yet page 12 of the
+   14-page Essentials PDF shows it. This PR does not change the PDF (no silent page changes). Paid public release is
+   already blocked by the Essentials release gate (`release_problems()` non-empty) and the preview no longer advertises
+   Sunrise/Vara. Smallest safe resolutions, for the owner: **(A)** ChatGPT/PM scientific review of PAN-D03/PAN-D05 for
+   customer release, then keep 14 pages (recommended: no layout change, reviews an already QA-accepted module);
+   **(B)** drop the Sunrise/Vara page from Essentials (13 pages: product text, manifest and tests change);
+   **(C)** keep the page with an explicit "not verified" label (not recommended for a paid product).
+5. Western sign names removed (001A).
+6. Funnel counts are directional (001A renames and documentation).
+7. Real Safari/WebKit, Android Chrome and the QA-store links are still untested (Chromium emulation only).
 
 ## 9. QA workflow on the QA store (after the PR #88 token proof; owner go-ahead needed)
 
@@ -118,8 +135,8 @@ No cookie, pixel, fingerprint, IP, user agent or time finer than one UTC day. `-
 2. Open `/kundali` on a phone: check limits text, try London-type / pre-1970 / future / no-time refusals.
 3. Get a preview, press Buy, read the hand-off, continue to the QA cart permalink, pay with the test gateway.
 4. From the Thank you page or e-mail, claim with OTP, re-enter the same synthetic details, download the 14-page PDF.
-5. `--funnel-report` should show one of each step; `--leads-summary` counts only.
-6. Opt-in: subscribe, confirm from Mailpit, withdraw, delete; confirm `leads-qa.sqlite` has no birth data.
+5. `--funnel-report` should show one of each step (directional); `--leads-summary` counts only.
+6. Opt-in: subscribe, open the Mailpit link (must stay pending), press Confirm, withdraw, delete; confirm `leads-qa.sqlite` has no birth data.
 
 ## 10. Rollout and rollback
 

@@ -64,7 +64,7 @@ def build(port: int):
     s = h.settings(db_path=db, public_origin=f"http://127.0.0.1:{port}", require_order_verification=False,
                    source_url="https://github.com/sabpuja/Sabpuja-Kundali-Engine",
                    # KUN-FREEMIUM-PREVIEW-001: free preview, aggregate funnel and isolated opt-in store (synthetic).
-                   preview_enabled=True, lead_capture_enabled=True, leads_db_path=db + ".leads",
+                   preview_enabled=True, allow_test_orders=True, lead_capture_enabled=True, leads_db_path=db + ".leads",
                    funnel_db_path=db + ".funnel", preview_price_display=os.environ.get("SBK_PRICE", ""))
     store = Store(s.db_path, s.pepper, clock=clock)
     mail = mailer.MockMailer()

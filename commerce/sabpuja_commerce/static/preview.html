@@ -23,6 +23,8 @@
 <!-- KUN-FREEMIUM-PREVIEW-001. All customer copy on this page is DRAFT for English and Hindi editorial review and
      owner sign-off (commerce/integration/FREEMIUM-PREVIEW.md, section "Copy review"). -->
 <main id="main" class="wrap" tabindex="-1">
+  <p id="qa-banner" class="notice qa-banner" hidden><strong>QA test store.</strong> Use synthetic birth details only.
+    The full report's content is not yet approved for customers, and checkout uses the test payment gateway.</p>
   <h1>See your free Kundali preview</h1>
   <p class="lede">Enter your birth details to see two facts calculated from your birth chart: your Lagna (rising
     sign) and your Moon sign (Chandra Rashi). It is free and needs no sign-up.</p>
@@ -107,9 +109,11 @@
           <span class="fact__meta" data-part="meta"></span></dd>
       </div>
     </dl>
-    <p id="sensitive-note" class="notice" hidden><strong>Check your birth time.</strong> At least one of these signs
-      would be different if the birth time were 2 minutes earlier or later. The result above uses the exact time you
-      entered.</p>
+    <!-- SCI-06 birth-time check: off by default (adoption and wording pending); shown only if the server enables it. -->
+    <p id="check-changed" class="notice" hidden><strong>Check your birth time.</strong> At least one of these signs is
+      different when calculated for 2 minutes earlier or later. The result above uses the exact time you entered.</p>
+    <p id="check-unassessable" class="notice" hidden>We could not check whether these signs change within 2 minutes of
+      the time you entered. The result above uses the exact time you entered.</p>
     <p class="help">Calculated on Sabpuja's own servers with Swiss Ephemeris, using the sidereal zodiac (Lahiri
       ayanamsa). These are calculated chart positions, not predictions.</p>
     <div class="actions">
@@ -120,25 +124,13 @@
   <section id="step-offer" class="card offer" aria-labelledby="h-offer" hidden>
     <h2 id="h-offer">Your full Janam Kundali report</h2>
     <p>The free preview shows two signs. The <strong>Janam Kundali Essentials</strong> report is a 14-page English
-      PDF calculated from the same birth details.</p>
-    <div class="compare-wrap">
-      <table class="compare">
-        <caption class="visually-hidden">What the free preview and the full report include</caption>
-        <thead><tr><th scope="col">Included</th><th scope="col">Free preview</th><th scope="col">Full report</th></tr></thead>
-        <tbody>
-          <tr><th scope="row">Lagna (rising sign)</th><td>Yes</td><td>Yes, with its exact degree</td></tr>
-          <tr><th scope="row">Moon sign (Chandra Rashi)</th><td>Yes</td><td>Yes, with its exact degree</td></tr>
-          <tr><th scope="row">D1 birth chart (North Indian style)</th><td>No</td><td>Yes</td></tr>
-          <tr><th scope="row">D9 Navamsa chart</th><td>No</td><td>Yes</td></tr>
-          <tr><th scope="row">Rashi, house and exact sidereal longitude of each graha</th><td>No</td><td>Yes</td></tr>
-          <tr><th scope="row">D9 Rashi and D9 house of each graha; directory of all twelve houses</th><td>No</td><td>Yes</td></tr>
-          <tr><th scope="row">Panchanga at birth: Tithi, Paksha, Karana, Yoga and Nakshatra, with transition times</th><td>No</td><td>Yes</td></tr>
-          <tr><th scope="row">Sunrise, sunset and Vara at the birthplace</th><td>No</td><td>Yes</td></tr>
-          <tr><th scope="row">Reading guide, birth details and methodology pages</th><td>No</td><td>Yes</td></tr>
-          <tr><th scope="row">Downloadable PDF</th><td>No</td><td>Yes, 14 pages, English</td></tr>
-        </tbody>
-      </table>
-    </div>
+      PDF calculated from the same birth details. It adds:</p>
+    <ul class="limits benefits">
+      <li>Your D1 birth chart (North Indian style) and D9 Navamsa chart</li>
+      <li>The Rashi, house and exact sidereal position of each graha</li>
+      <li>Panchanga at birth: Tithi, Paksha, Karana, Yoga and Nakshatra</li>
+      <li>A downloadable PDF with a reading guide and the calculation method</li>
+    </ul>
     <p class="price"><span class="price__label">Price:</span> <strong id="price-text">to be confirmed</strong></p>
     <div class="actions">
       <button type="button" class="button button--primary" id="buy">Buy Full Kundali Report</button>
@@ -156,6 +148,26 @@
         <button type="button" class="button button--ghost" id="handoff-back">Not now</button>
       </div>
     </div>
+    <details class="contents" id="contents">
+      <summary>See everything in the 14-page report</summary>
+      <div class="compare-wrap">
+        <table class="compare">
+          <caption class="visually-hidden">What the free preview and the full report include</caption>
+          <thead><tr><th scope="col">Included</th><th scope="col">Free preview</th><th scope="col">Full report</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Lagna (rising sign)</th><td>Yes</td><td>Yes, with its exact position</td></tr>
+            <tr><th scope="row">Moon sign (Chandra Rashi)</th><td>Yes</td><td>Yes, with its exact position</td></tr>
+            <tr><th scope="row">D1 birth chart (North Indian style)</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">D9 Navamsa chart</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">Rashi, house and exact sidereal longitude of each graha</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">D9 Rashi and D9 house of each graha; directory of all twelve houses</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">Panchanga at birth: Tithi, Paksha, Karana, Yoga and Nakshatra, with transition times</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">Reading guide, birth details and methodology pages</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">Downloadable PDF</th><td>No</td><td>Yes, 14 pages, English</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
   </section>
 
   <section id="step-leads" class="card leads" aria-labelledby="h-leads" hidden>

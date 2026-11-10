@@ -126,7 +126,8 @@ def main(argv=None) -> int:
     verifier = shopify.GraphQLOrderVerifier(settings) if settings.require_order_verification else None
     funnel = funnel_mod.Funnel(settings.funnel_db_path) if settings.funnel_db_path else None
     leads = leads_mod.LeadStore(settings.leads_db_path, settings.pepper) if settings.lead_capture_enabled else None
-    preview = preview_mod.PreviewService(places, settings.ephe_path, settings.preview_fields) \
+    preview = preview_mod.PreviewService(places, settings.ephe_path, settings.preview_fields,
+                                           birth_time_check=settings.preview_birth_time_check) \
         if settings.preview_enabled else None
     app = App(settings, store, mail, renderer.EssentialsRenderer(
         places, settings.ephe_path, enforce_release=not settings.allow_unreleased_edition), places,

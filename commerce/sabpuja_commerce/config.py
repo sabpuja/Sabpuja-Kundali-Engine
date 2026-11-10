@@ -72,6 +72,8 @@ class Settings:
     # Free preview (KUN-FREEMIUM-PREVIEW-001, issue #91). Off unless switched on; QA only until owner release.
     preview_enabled: bool = False
     preview_fields: tuple[str, ...] = ("lagna_rashi", "moon_rashi")
+    # SCI-06 +/-2 min birth-time check: adoption and wording PENDING, so off; QA research only (001A finding 2).
+    preview_birth_time_check: bool = False
     preview_rate_per_minute: int = 6       # per client address, in memory
     preview_rate_per_hour: int = 40        # per client address, in memory
     preview_global_per_minute: int = 120   # all clients together
@@ -145,6 +147,9 @@ class Settings:
             raise ConfigError("preview_buy_url must be a cart permalink or product page on shop_domain")
         if len(self.preview_price_display) > 40 or re.search(r"[<>\"'&\x00-\x1f]", self.preview_price_display):
             raise ConfigError("preview_price_display must be short plain text")
+        if self.preview_enabled and not self.preview_price_display and not self.allow_test_orders:
+            # A working Buy button without a price is acceptable on the QA store only (001A finding 4).
+            raise ConfigError("preview_price_display (the owner-approved price) is required outside the QA store")
         if self.lead_capture_enabled:
             if not self.leads_db_path or (self.leads_db_path == self.db_path and self.db_path != ":memory:"):
                 raise ConfigError("lead capture needs its own leads_db_path, separate from the entitlement database")

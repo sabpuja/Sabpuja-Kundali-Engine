@@ -261,7 +261,7 @@ class App:
             return _error(exc.status, exc.code, "webhook not accepted")
         if outcome in ("created", "created_without_email"):
             # Aggregate only: Shopify orders carry no link to a preview, so this is total paid orders.
-            self.funnel.count("paid_order_completed")
+            self.funnel.count("paid_orders_all_sources")
         return _json(200, {"ok": True, "outcome": outcome})
 
     # ---- claim ----------------------------------------------------------------------------
@@ -502,7 +502,9 @@ class App:
                            "buy_url": self.s.buy_url, "lead_capture": self.leads is not None,
                            "consent_version": leads_mod.CONSENT_VERSION if self.leads is not None else None,
                            "date_min": PREVIEW_DATE_MIN, "date_max": self.preview._today().isoformat(),
-                           "places": self._public_places(), "report_pages": 14, "report_language": PAID_LOCALE})
+                           "places": self._public_places(), "report_pages": 14, "report_language": PAID_LOCALE,
+                           # QA store (test orders allowed) or unreleased wording: the page shows a QA banner.
+                           "qa_store": self.s.allow_test_orders or self.s.allow_unreleased_edition})
 
     def preview_chart(self, body: bytes, client: str) -> Response:
         """Public, unauthenticated, no session, no store. Returns only the whitelisted preview fields."""

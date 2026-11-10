@@ -13,10 +13,12 @@ Field registry (what may be shown, and why):
 * ``vara`` WITHHELD. The sunrise Vara convention (PAN-D03/PAN-D05) is recorded for the development stage only,
   "not for customer release" (src/sabpuja_kundali/panchanga/vara.py). It cannot be enabled by configuration.
 
-Birth-time sensitivity (SCI-06 Option 1, owner selected pre-merge, canonical adoption pending): for the two
-shown fields only, the same instant is recomputed 120 s earlier and later. If either field would differ, or a
-neighbour cannot be computed, ``birth_time_sensitive`` is true and the page shows a short note. This is a
-disclosure, not a correction; the shown values are always those of the entered time.
+Birth-time check (SCI-06 Option 1, owner selected pre-merge, canonical adoption PENDING; wording not approved).
+OFF by default (001A, QA finding 2): nothing is computed or returned. Only when `birth_time_check=True` (QA
+research) the same instant is recomputed 120 s earlier and later for the shown fields, and ``birth_time_check`` is
+one of ``sign_change_within_2_min`` (a different sign was actually calculated), ``not_assessable`` (a neighbour
+could not be computed, e.g. before 1970-01-01) or ``no_change``. The shown values are always those of the
+entered time.
 
 No prediction, interpretation, degree, house, Navamsa, Nakshatra or other chart value is returned.
 """
@@ -41,11 +43,9 @@ FIELD_REGISTRY = {
 }
 ENABLED_FIELDS = tuple(k for k, v in FIELD_REGISTRY.items() if v["status"] == "enabled")
 
-# Mesha..Meena as the engine names them, with the conventional English equivalents the paid report's
-# term register uses (report/phase1 terms, "western"); a test keeps both in step.
+# Mesha..Meena as the engine names them. Western names are not shown: next to sidereal Rashis they read as
+# tropical signs (QA finding 4, 001A).
 from sabpuja_kundali.rules import SIGNS as RASHIS  # noqa: E402 - the engine's own spelling (e.g. "Vrischika")
-WESTERN = ("Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
-           "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces")
 
 # Births after "today" are refused. India Standard Time decides the date, because every supported place uses it.
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -116,8 +116,9 @@ def parse(body: bytes) -> dict:
 
 
 def _rashi(name: str) -> dict:
+    """Sidereal Rashi name (engine spelling) and its number from Mesha. No Western (tropical-looking) alias (001A)."""
     index = RASHIS.index(name)  # ValueError -> defect: the engine returned an unknown sign
-    return {"rashi": name, "number": index + 1, "western": WESTERN[index]}
+    return {"rashi": name, "number": index + 1}
 
 
 def _shift(req: dict, seconds: int) -> dict:
@@ -128,11 +129,13 @@ def _shift(req: dict, seconds: int) -> dict:
 class PreviewService:
     """Computes one preview. `places` are the India reference places the paid route serves."""
 
-    def __init__(self, places: dict, ephe_path: str, fields: tuple[str, ...] = ENABLED_FIELDS, today=None):
+    def __init__(self, places: dict, ephe_path: str, fields: tuple[str, ...] = ENABLED_FIELDS, today=None,
+                 birth_time_check: bool = False):
         unknown = [f for f in fields if FIELD_REGISTRY.get(f, {}).get("status") != "enabled"]
         if unknown or not fields:
             raise ValueError("preview fields must be a non-empty subset of the enabled registry fields")
         self.places, self.ephe, self.fields = places, ephe_path, tuple(fields)
+        self.birth_time_check = birth_time_check
         self._today = today or (lambda: datetime.now(IST).date())
 
     def __call__(self, form: dict) -> dict:
@@ -156,7 +159,11 @@ class PreviewService:
             raise PreviewRefused(status, code, message, category, extra) from None
         chart = result["chart"]
         values = {"lagna_rashi": chart["lagna"]["rashi"], "moon_rashi": chart["planets"]["moon"]["rashi"]}
-        sensitive = False
+        out = {"preview_version": PREVIEW_VERSION, "fields": {f: _rashi(values[f]) for f in self.fields},
+               "method": "sidereal_lahiri_swiss_ephemeris"}
+        if not self.birth_time_check:
+            return out
+        changed = unassessable = False
         req = {"birth_datetime": f"{result['input']['local_date']}T{result['input']['local_time']}"
                                  f"{result['input']['utc_offset']}",
                "timezone": self.places[form["place_id"]]["timezone"],
@@ -165,13 +172,12 @@ class PreviewService:
         for seconds in (-SENSITIVITY_SECONDS, SENSITIVITY_SECONDS):
             try:
                 other = calculate(_shift(req, seconds), ephe_path=self.ephe)
-            except Exception:  # e.g. 1969-12-31 23:58 is refused: we cannot confirm, so we disclose
-                sensitive = True
+            except Exception:  # e.g. 1969-12-31 23:58 is refused: the neighbour cannot be assessed
+                unassessable = True
                 continue
             near = {"lagna_rashi": other["lagna"]["rashi"], "moon_rashi": other["planets"]["moon"]["rashi"]}
             if any(near[f] != values[f] for f in self.fields):
-                sensitive = True
-        return {"preview_version": PREVIEW_VERSION,
-                "fields": {f: _rashi(values[f]) for f in self.fields},
-                "birth_time_sensitive": sensitive,
-                "method": "sidereal_lahiri_swiss_ephemeris"}
+                changed = True
+        out["birth_time_check"] = ("sign_change_within_2_min" if changed
+                                   else "not_assessable" if unassessable else "no_change")
+        return out
