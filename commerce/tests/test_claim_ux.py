@@ -134,6 +134,15 @@ class Page(unittest.TestCase):
         self.assertRegex(html, r'<p class="notice notice--hi" lang="hi">')
 
 
+class CodeStepHints(unittest.TestCase):
+    def test_sender_shown_escaped_and_junk_folder_hint(self):
+        hx = h.Harness(mail_from='Sabpuja <noreply@sabpuja.com>')
+        page = hx.get("/").body.decode()
+        self.assertIn("It comes from <strong>Sabpuja &lt;noreply@sabpuja.com&gt;</strong>", page)
+        self.assertIn("Check your Junk or Spam folder", page)
+        self.assertNotIn("{{", page)
+
+
 class ShopifyEntryPoints(unittest.TestCase):
     def test_extension_targets_and_no_extra_capabilities(self):
         conf = tomllib.loads((EXT / "shopify.extension.toml").read_text())
