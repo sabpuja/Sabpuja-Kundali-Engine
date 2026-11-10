@@ -101,9 +101,14 @@ def main(argv=None) -> int:
                              "e-mail-less entitlement, print the outcome and exit")
     parser.add_argument("--list-exceptions", action="store_true",
                         help="print open paid-order exceptions (ids and kinds only) and exit")
+    parser.add_argument("--funnel-report", action="store_true",
+                        help="print the aggregate daily preview funnel counters and exit")
+    parser.add_argument("--leads-summary", action="store_true",
+                        help="print the number of pending, subscribed and withdrawn sign-ups (no addresses) and exit")
     args = parser.parse_args(argv)
     import json
-    from . import config as cfg, mailer, renderer, shopify
+    from . import config as cfg, funnel as funnel_mod, leads as leads_mod, mailer, preview as preview_mod, renderer, \
+        shopify
     from .store import Store
     settings = cfg.load(args.config)
     sys.path[:0] = ["src", "prototype", "."]
@@ -119,10 +124,21 @@ def main(argv=None) -> int:
         mail = mailer.MockMailer()
     store = Store(settings.db_path, settings.pepper)
     verifier = shopify.GraphQLOrderVerifier(settings) if settings.require_order_verification else None
+    funnel = funnel_mod.Funnel(settings.funnel_db_path) if settings.funnel_db_path else None
+    leads = leads_mod.LeadStore(settings.leads_db_path, settings.pepper) if settings.lead_capture_enabled else None
+    preview = preview_mod.PreviewService(places, settings.ephe_path, settings.preview_fields) \
+        if settings.preview_enabled else None
     app = App(settings, store, mail, renderer.EssentialsRenderer(
         places, settings.ephe_path, enforce_release=not settings.allow_unreleased_edition), places,
               verifier=verifier, public_places=lambda: [pl.public_place(places[k]) | {"id": k}
-                                                         for k in places])
+                                                         for k in places],
+              preview=preview, funnel=funnel, leads=leads)
+    if args.funnel_report:
+        print(json.dumps((funnel or funnel_mod.NullFunnel()).report()))
+        return 0
+    if args.leads_summary:
+        print(json.dumps(leads.counts() if leads else {"lead_capture": "disabled"}))
+        return 0
     if args.list_exceptions:
         print(json.dumps(store.open_exceptions()))
         return 0
