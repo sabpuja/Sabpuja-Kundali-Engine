@@ -77,18 +77,24 @@ The old `shopify-admin-token` file is no longer read; delete it after cutover.
 ## Transactional e-mail
 
 * QA: Mailpit through `integration/compose.qa-mailpit.example.yml` (`smtp.json` with `auth: "login"`).
-* Production (owner choice 2026-11-09): our own send-only server, `deploy/compose.outbound-mail.yml` with image
-  `commerce/mail/`.
-  * Postfix and OpenDKIM. Commerce submits to `outbound-mail:2587` with STARTTLS, verified against a private CA,
-    and no SMTP AUTH (`integration/smtp.outbound-mail.example.json`).
-  * Postfix accepts only the internal mail network and only `MAIL_SENDER`.
-  * It signs with DKIM and delivers straight to each recipient's MX, over IPv4 only.
-  * Nothing is published, there is no inbox, and the queue lives in memory for at most 15 minutes. Addresses
-    are redacted from the log.
-  * For a QA signature check without DNS, add `integration/compose.qa-dkim-sink.example.yml` and set
-    `SBK_MAIL_TEST_TRANSPORT=smtp:[dkim-sink]:1025`.
-* The Google Workspace relay mode (`smtp.google-relay.example.json`) stays supported, but it is not used: there
-  is no Workspace admin access.
+* **Production (owner, 2026-11-10): Google Workspace SMTP relay.** The relay rule is "Sabpuja Kundali Transactional
+  Email", IP-authorised for `2.25.245.64`, with TLS required and no SMTP AUTH. Use
+  `integration/smtp.google-relay.example.json`:
+  * `auth: "none"`, `ipv4_only: true` (IPv6 from this host is refused: 550 5.7.1) and a real `ehlo_name`
+  * `mail_from` set to `Sabpuja <noreply@sabpuja.com>`
+  * No Workspace mailbox or alias was needed for this sender
+* Verified on 2026-11-10 (KUN-MAIL-GOOGLE-RELAY-001):
+  * STARTTLS TLS 1.3, Google Trust Services certificate.
+  * `noreply@sabpuja.com` accepted (250). An outside sender gets 550 5.7.0; no STARTTLS gets 550 5.7.1.
+  * Gmail and Outlook both report SPF pass (Google IPs), DKIM pass `d=sabpuja.com s=google` and DMARC pass;
+    Outlook also reports compauth pass.
+  * Gmail delivered to the inbox. Outlook put the mail in Junk, a reputation decision for a new sender, not an
+    authentication fault.
+  * With the relay unreachable, `SmtpMailer` raises after its 10 s timeout and the buyer gets the same 202.
+* Risk: IP authorisation trusts every process on this host. Only `noreply@sabpuja.com`-style senders in the domain
+  are accepted, so keep this host free of untrusted workloads, or move to SMTP AUTH with a dedicated account later.
+* Fallback, not in use: the self-hosted send-only server below (`deploy/compose.outbound-mail.yml`). It is tested
+  on QA against a private sink only and needs the DNS records listed below before real delivery.
 
 ### One-time setup for the send-only server
 
