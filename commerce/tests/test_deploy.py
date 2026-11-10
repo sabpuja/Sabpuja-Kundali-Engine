@@ -117,6 +117,14 @@ class OutboundMail(unittest.TestCase):
         self.assertNotIn("noreply@sabpuja.com", out)
         self.assertIn("status=sent", out)
 
+    def test_startup_order_and_log_fifo(self):
+        # Found on QA staging: postmap needs main.cf, the tmpfs data dir must belong to postfix, and the log FIFO must
+        # stay open read-write or Postfix blocks once the first writer closes.
+        self.assertLess(ENTRY.index(": > /etc/postfix/main.cf"), ENTRY.index("postmap /etc/postfix/allowed_senders"))
+        self.assertIn("chown postfix:postfix /var/lib/postfix", ENTRY)
+        self.assertIn("exec 3<>/run/postfix-log.fifo", ENTRY)
+        self.assertIn("<&3 &", ENTRY)
+
     def test_commerce_waits_for_mail_and_overlay_hardened(self):
         self.assertIn("outbound-mail: {condition: service_healthy}", OUTBOUND)
         self.assertIn("restart: unless-stopped", OUTBOUND)

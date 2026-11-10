@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from email.message import EmailMessage
+from email.utils import formatdate, make_msgid
 import re
 import smtplib
 import socket
@@ -14,6 +15,11 @@ SUBJECT = "Your Sabpuja Janam Kundali access code"
 def compose(sender: str, to: str, order_number: int, code: str, ttl_minutes: int) -> EmailMessage:
     msg = EmailMessage()
     msg["From"], msg["To"], msg["Subject"] = sender, to, SUBJECT
+    # RFC 5322 Date and a Message-ID in the sender's domain, set here so the DKIM signature covers them; large
+    # receivers junk or refuse mail without them.
+    domain = sender.rsplit("@", 1)[-1].strip(" >") if "@" in sender else None
+    msg["Date"] = formatdate(localtime=False)
+    msg["Message-ID"] = make_msgid(domain=domain)
     msg.set_content(
         f"Your access code for Sabpuja order #{order_number} is {code}.\n\n"
         f"It expires in {ttl_minutes} minutes and can be used once. If you did not ask for it, "

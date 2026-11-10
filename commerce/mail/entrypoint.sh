@@ -37,11 +37,14 @@ CONF
 chown -R opendkim:opendkim /run/opendkim
 
 # ---- Postfix --------------------------------------------------------------------------------------------------
+# The data directory is a tmpfs mounted as root; master needs it owned by postfix (master.lock, TLS caches).
+chown postfix:postfix /var/lib/postfix
+# main.cf must exist before postmap runs (the image deletes Debian's default).
+: > /etc/postfix/main.cf
 install -m 0444 "$SECRETS/tls.crt" /etc/postfix/tls.crt
 install -m 0400 "$SECRETS/tls.key" /etc/postfix/tls.key
 printf '%s OK\n' "$MAIL_SENDER" > /etc/postfix/allowed_senders
 postmap /etc/postfix/allowed_senders
-: > /etc/postfix/main.cf
 postconf -e \
   "compatibility_level = 3.6" \
   "myhostname = $MAIL_HOSTNAME" \
@@ -101,7 +104,9 @@ postconf -F '*/*/chroot = n'
 
 # Redacted log: Postfix writes to a FIFO, sed strips addresses, stdout goes to the container log.
 rm -f /run/postfix-log.fifo && mkfifo -m 0600 /run/postfix-log.fifo
-sed -u -E -f /usr/local/share/outbound-mail-redact.sed < /run/postfix-log.fifo &
+# Hold the FIFO open read-write so the reader never sees EOF when one writer closes (otherwise logging blocks Postfix).
+exec 3<>/run/postfix-log.fifo
+sed -u -E -f /usr/local/share/outbound-mail-redact.sed <&3 &
 
 opendkim -x /run/opendkim/opendkim.conf
 postfix check

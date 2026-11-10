@@ -82,6 +82,16 @@ class Modes(unittest.TestCase):
         self.assertEqual(seen, [socket.AF_INET])
 
 
+class Headers(unittest.TestCase):
+    def test_date_and_message_id_in_sender_domain(self):
+        from email.utils import parsedate_to_datetime
+        msg = mailer.compose("Sabpuja <noreply@sabpuja.example>", "buyer@example.invalid", 1001, "123456", 10)
+        self.assertIsNotNone(parsedate_to_datetime(msg["Date"]))
+        self.assertRegex(msg["Message-ID"], r"^<[^@<>]+@sabpuja\.example>$")
+        self.assertNotEqual(msg["Message-ID"], mailer.compose("Sabpuja <noreply@sabpuja.example>", "b@x.invalid",
+                                                              1, "1", 10)["Message-ID"])
+
+
 class FromConfig(unittest.TestCase):
     def test_examples_build(self):
         root = Path(__file__).resolve().parents[1] / "integration"
