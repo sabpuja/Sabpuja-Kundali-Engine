@@ -113,6 +113,9 @@ test("successful purchase from the Thank you page link: order ref, code, birth d
   await page.locator("#step-code").waitFor();
   assert.match(await page.locator("#code-intro").innerText(), /synthetic\.buyer@example\.invalid/);
   assert.match(await page.locator("#code-limits").innerText(), /10 minutes/);
+  // Straight from the Thank you page the order may not have reached us yet: the page says so, without claiming a send.
+  assert.match(await page.locator("#code-limits").innerText(), /Just placed your order\? .* within 5 minutes, send a new code/s);
+  assert.match(await page.locator("#code-intro").innerText(), /^If these details match a paid Janam Kundali order/);
   assert.ok(await page.locator("#resend").isDisabled(), "resend waits for the cooldown");
   assert.match(await page.locator("#resend-wait").innerText(), /new code in \d+ seconds/);
   await shot(page, "desktop-02-code");
@@ -127,6 +130,8 @@ test("successful purchase from the Thank you page link: order ref, code, birth d
   assert.match(await page.locator("#allowance").innerText(), /up to 3 corrected versions within 30 days/);
   assert.equal(await page.locator("#generate").innerText(), "Prepare my PDF");
   await fillBirth(page);
+  assert.equal(await page.locator("#birth-summary").innerText(),
+    "Please check: born 17 May 1990 at 14:30:00 (2:30:00 pm) in Jaipur, Rajasthan.");
   await shot(page, "desktop-03-birth");
   const pdf = await generate(page);
   assert.equal(pdf.name, "Sabpuja-Janam-Kundali.pdf");
@@ -136,6 +141,26 @@ test("successful purchase from the Thank you page link: order ref, code, birth d
   assert.match(await page.locator("#done-allowance").innerText(), /3 corrected versions left until \d{1,2} \w+ \d{4}/);
   await shot(page, "desktop-04-done");
   assert.deepEqual(errors, []);
+  await ctx.close();
+});
+
+test("Thank you link before the order webhook arrives: neutral reply, no code; resend works once it lands", async () => {
+  nextOrder += 1;
+  const late = { order_id: nextOrder * 1000 + 17, number: nextOrder, email: EMAIL };
+  await control("/clock", { seconds: 61 });
+  const { ctx, page } = await open({ hash: `#ref=${late.order_id}` });
+  await page.fill("#email", EMAIL);
+  await page.click("#claim-submit");
+  await page.locator("#step-code").waitFor();
+  assert.equal((await codesTo(EMAIL)).filter((m) => m.text.includes(`#${late.number} `)).length, 0);
+  assert.equal((await control("/paid", late)).outcome, "created");   // the webhook arrives a little later
+  await control("/clock", { seconds: 61 });
+  await page.evaluate(() => { document.getElementById("resend").disabled = false; });
+  await page.click("#resend");
+  await page.waitForFunction(() => /new code is on its way/.test(document.getElementById("status").innerText));
+  await page.fill("#code", await lastCode());
+  await page.click("#code-submit");
+  await page.locator("#step-birth").waitFor();
   await ctx.close();
 });
 
@@ -532,6 +557,9 @@ for (const [label, device] of [["phone-pixel7", devices["Pixel 7"]], ["phone-iph
     await page.click("#code-submit");
     await page.locator("#step-birth").waitFor();
     await fillBirth(page);
+    // The read-back does not depend on the device's date format (en-US phones show 05/17/1990 in the field).
+    assert.equal(await page.locator("#birth-summary").innerText(),
+      "Please check: born 17 May 1990 at 14:30:00 (2:30:00 pm) in Jaipur, Rajasthan.");
     await check("birth");
     await shot(page, `${label}-03-birth`);
     await generate(page);

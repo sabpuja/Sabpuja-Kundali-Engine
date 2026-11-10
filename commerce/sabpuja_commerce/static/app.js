@@ -311,6 +311,31 @@
     placesLoaded = true;
   }
 
+  // Read the entered date and time back in words, independent of the device's date format (05/17 vs 17/05).
+  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+    "November", "December"];
+  function birthSummary() {
+    const d = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec($("birth_date").value);
+    const t = /^([0-9]{2}):([0-9]{2})(?::([0-9]{2}))?$/.exec($("birth_time").value);
+    const box = $("birth-summary");
+    if (!d && !t) { box.hidden = true; box.textContent = ""; return; }
+    const parts = [];
+    if (d) parts.push(Number(d[3]) + " " + MONTHS[Number(d[2]) - 1] + " " + d[1]);
+    if (t) {
+      const hh = Number(t[1]), clock = t[1] + ":" + t[2] + (t[3] ? ":" + t[3] : "");
+      const h12 = ((hh + 11) % 12) + 1;
+      parts.push("at " + clock + " (" + h12 + ":" + t[2] + (t[3] ? ":" + t[3] : "") + " " + (hh < 12 ? "am" : "pm") + ")");
+    }
+    const sel = $("place_id");
+    if (sel.value) parts.push("in " + sel.options[sel.selectedIndex].textContent);
+    box.textContent = "Please check: born " + parts.join(" ") + ".";
+    box.hidden = false;
+  }
+  for (const id of ["place_id", "birth_date", "birth_time"]) {
+    $(id).addEventListener("input", birthSummary);
+    $(id).addEventListener("change", birthSummary);
+  }
+
   function resetOccurrence() { $("occurrence").hidden = true; $("occurrence-choices").textContent = ""; }
   for (const id of ["place_id", "birth_date", "birth_time"]) $(id).addEventListener("change", resetOccurrence);
 
@@ -425,7 +450,7 @@
   $("logout").addEventListener("click", async () => {
     await call("/api/logout", {});
     if (pdfUrl) { URL.revokeObjectURL(pdfUrl); pdfUrl = null; $("save-pdf").href = "#"; }
-    $("birth-form").reset(); resetOccurrence(); session = null;
+    $("birth-form").reset(); resetOccurrence(); birthSummary(); session = null;
     clearMessages(); say("Signed out. Your birth details were cleared from this page.");
     show("step-claim");
   });

@@ -172,5 +172,16 @@ class ShopifyEntryPoints(unittest.TestCase):
         self.assertIn("Prepare your Janam Kundali</a>", text)
 
 
+class EligibilityCopy(unittest.TestCase):
+    def test_listing_names_exactly_the_cities_the_claim_page_offers(self):
+        places = json.loads((ROOT.parent / "prototype" / "kundali_prototype" / "places.json").read_text())["places"]
+        served = [p["name"] for p in places if p["id"].startswith("in-")]
+        text = (ROOT / "integration" / "product-listing-eligibility.md").read_text()
+        listed = re.search(r"born in one of these cities:\s*(.+?)\.\n", text, re.S).group(1)
+        self.assertEqual([c.strip() for c in listed.replace("\n", " ").split(",")], served)
+        self.assertIn("1 January 1970 to 31 December 2100", text)
+        self.assertIn("English only", text)
+
+
 if __name__ == "__main__":
     unittest.main()

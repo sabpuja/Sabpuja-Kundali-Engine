@@ -204,3 +204,4 @@ h2 { font-size: var(--sp-h2); }
 .returning h2 { font-size: 1.0625rem; }
 .site-footer { border-top: 1px solid var(--sp-color-border); background: var(--sp-color-white); padding-block: var(--sp-space-6); color: var(--sp-color-text-muted); font-size: var(--sp-text-caption); }
 .site-footer p { margin: 0; }
+.summary { margin-top: var(--sp-space-5); font-weight: 600; color: var(--sp-color-brown-deep); }

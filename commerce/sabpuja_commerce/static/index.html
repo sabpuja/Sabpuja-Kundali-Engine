@@ -75,6 +75,8 @@
     <ul class="limits" id="code-limits">
       <li>The code works for <span id="code-ttl">10</span> minutes and only once.</li>
       <li>It can take a minute to arrive. Check your spam or promotions folder too.</li>
+      <li>Just placed your order? It can take a few minutes to reach us. If no code arrives within 5 minutes, send
+        a new code.</li>
       <li>After 5 wrong tries the code stops working. Send a new one.</li>
     </ul>
     <form id="code-form" novalidate>
@@ -125,6 +127,7 @@
           <p class="field-error" id="birth_time-error" hidden></p>
         </div>
       </div>
+      <p id="birth-summary" class="claim summary" aria-live="polite" hidden></p>
       <fieldset id="occurrence" class="ambiguity" hidden aria-describedby="occurrence-help">
         <legend>This time happened twice that night</legend>
         <p class="help" id="occurrence-help">Clocks were set back at this place, so this local time occurred twice.
