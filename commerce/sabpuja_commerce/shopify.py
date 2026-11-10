@@ -17,8 +17,10 @@ import hashlib
 import hmac
 import json
 import sys
+import urllib.error
 import urllib.request
 
+from . import admin_auth
 from .config import Settings
 from .store import Store
 
@@ -232,34 +234,50 @@ def _log_version_mismatch(served) -> None:
 
 
 class GraphQLOrderVerifier:
-    """Live Shopify re-check of one order through the GraphQL Admin API (scope: read_orders only; no customer
-    fields are requested). Returns the still-fulfillable lines, or None when Shopify cannot be asked or answers
-    unusably; callers fail closed on None. Validated offline against a fake endpoint only; the exact query must
-    be confirmed on an owner-authorized development store before any paid release."""
+    """Live Shopify re-check of one order through the GraphQL Admin API (scopes: read_orders and read_products,
+    the latter for lineItem.variant; no customer fields in ORDER_QUERY). Returns the still-fulfillable lines, or
+    None when Shopify cannot be asked or answers unusably; callers fail closed on None.
 
-    def __init__(self, settings: Settings, base_url: str | None = None, timeout: float = 5.0):
+    Tokens come from `tokens` (admin_auth): renewed before expiry, and after a 401 dropped and requested once more
+    for exactly one retry. A 403 (permission denied) is never retried."""
+
+    def __init__(self, settings: Settings, base_url: str | None = None, timeout: float = 5.0, tokens=None):
         self._s = settings
         self._url = (base_url or f"https://{settings.shop_domain}") + \
             f"/admin/api/{settings.admin_api_version}/graphql.json"
         self._timeout = timeout
+        self._tokens = tokens or admin_auth.for_settings(settings, base_url=base_url, timeout=timeout)
 
     def _post(self, query: str, order_id: int):
-        body = json.dumps({"query": query, "variables": {"id": f"gid://shopify/Order/{int(order_id)}"}})
-        req = urllib.request.Request(self._url, data=body.encode(), method="POST", headers={
-            "X-Shopify-Access-Token": self._s.admin_api_token, "Content-Type": "application/json",
-            "Accept": "application/json"})
-        try:
-            with urllib.request.urlopen(req, timeout=self._timeout) as resp:  # noqa: S310 - fixed https host
-                served = resp.headers.get("X-Shopify-API-Version")
-                data = json.loads(resp.read(256 * 1024).decode("utf-8"))
-        except (OSError, ValueError):
-            return None
-        if served != self._s.admin_api_version:
-            # Shopify serves a retired or unknown version as the oldest supported one; the queries are only
-            # validated for the configured version, so any other answer is unusable.
-            _log_version_mismatch(served)
-            return None
-        return data
+        body = json.dumps({"query": query, "variables": {"id": f"gid://shopify/Order/{int(order_id)}"}}).encode()
+        for attempt in (1, 2):
+            token = self._tokens.token()
+            if token is None:
+                print(json.dumps({"event": "SHOPIFY_TOKEN_UNAVAILABLE"}), file=sys.stderr, flush=True)
+                return None
+            req = urllib.request.Request(self._url, data=body, method="POST", headers={
+                "X-Shopify-Access-Token": token, "Content-Type": "application/json", "Accept": "application/json"})
+            try:
+                with urllib.request.urlopen(req, timeout=self._timeout) as resp:  # noqa: S310 - fixed https host
+                    served = resp.headers.get("X-Shopify-API-Version")
+                    data = json.loads(resp.read(256 * 1024).decode("utf-8"))
+            except urllib.error.HTTPError as exc:
+                if exc.code == 401 and attempt == 1:
+                    self._tokens.invalidate(token)     # expired or revoked: one fresh token, one retry
+                    continue
+                if exc.code in (401, 403):
+                    print(json.dumps({"event": "SHOPIFY_AUTH_REFUSED", "status": exc.code}), file=sys.stderr,
+                          flush=True)
+                return None
+            except (OSError, ValueError):
+                return None
+            if served != self._s.admin_api_version:
+                # Shopify serves a retired or unknown version as the oldest supported one; the queries are only
+                # validated for the configured version, so any other answer is unusable.
+                _log_version_mismatch(served)
+                return None
+            return data
+        return None
 
     def lines(self, order_id: int) -> dict[int, int] | None:
         data = self._post(ORDER_QUERY, order_id)

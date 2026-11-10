@@ -1,0 +1,38 @@
+# QA-only overlay: private Mailpit for one-time codes, as used on the isolated QA staging (KUN-COM-QA-SHOPIFY-001B,
+# updated for the KUN-COM-PROD-HARDEN-001 topology). Never use this overlay in production.
+#   docker compose -p <project> --env-file compose.env -f commerce/deploy/compose.yml -f compose.qa-mailpit.yml up -d
+# Mailpit sits on an internal network shared with commerce only; its UI is reached through an SSH tunnel, never
+# through the edge proxy. Commerce trusts Mailpit's private CA through SSL_CERT_FILE (system CAs + that CA).
+services:
+  commerce:
+    environment:
+      SSL_CERT_FILE: /run/sabpuja/ca-bundle.pem
+    networks:
+      mail: {}
+    depends_on:
+      mailpit: {condition: service_started}
+
+  mailpit:
+    image: axllent/mailpit:v1.32.0   # pin the digest recorded in the QA evidence when deploying
+    restart: unless-stopped
+    user: "10003:10003"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 128m
+    cpus: 0.25
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    command: ["--smtp=0.0.0.0:1025", "--listen=0.0.0.0:8025", "--smtp-tls-cert=/run/mailpit/tls.crt",
+              "--smtp-tls-key=/run/mailpit/tls.key", "--smtp-require-starttls", "--smtp-auth-file=/run/mailpit/auth",
+              "--max=500", "--disable-version-check"]
+    volumes:
+      - {type: bind, source: "${SBK_MAILPIT_SECRETS_DIR:?tls.crt, tls.key and auth for Mailpit}", target: /run/mailpit, read_only: true}
+    networks:
+      mail:
+        aliases: [mailpit]
+
+networks:
+  mail:
+    name: ${SBK_MAIL_NETWORK:-sabpuja-commerce-qa-mail}
+    external: true

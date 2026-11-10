@@ -1,13 +1,13 @@
 # Shopify QA-store integration readiness (KUN-RC-COM-001B)
 
-**TEMPLATES AND RUNBOOK ONLY.** Nothing in this folder has been applied. No app was created or installed,
-no webhook subscribed, no notification edited, no server or DNS changed, no payment enabled. Every step under
-"Owner-authorized steps" needs the owner's explicit go-ahead in chat. The commerce candidate is
-`5e477b99b2b873201c167f158d5098b6666a2a8d` (PR #85, r4); this folder adds no runtime code.
+**Status 2026-11-09:** these templates were applied to the isolated QA store `sabpuja-qa` and the QA staging host
+under KUN-COM-QA-SHOPIFY-001B (owner-authorized), and KUN-COM-PROD-HARDEN-001 updated them for automatic token
+renewal and the two approved scopes. Nothing here has been applied to a production store, production DNS or a
+customer-facing host; each of those still needs the owner's explicit go-ahead.
 
 | File | Purpose |
 |---|---|
-| `shopify.app.toml.example` | App configuration: `read_orders` only, webhook API version `2026-10`, the three subscriptions with trimmed payloads |
+| `shopify.app.toml.example` | App configuration: `read_orders` and `read_products`, webhook API version `2026-10`, the three subscriptions with trimmed payloads |
 | `commerce.qa-store.example.json` | Commerce settings for the QA store (live re-check on, test orders allowed, wording switch OFF) |
 | `smtp.example.json` | Transactional SMTP for claim codes |
 | `Caddyfile.staging.example` | Isolated HTTPS staging host: webhook open to Shopify, everything else limited to the QA team |
@@ -21,8 +21,9 @@ no webhook subscribed, no notification edited, no server or DNS changed, no paym
   `@shopify/dev-mcp` 1.18.0) names `2026-10` as latest stable for the Admin API; `2025-10` is no longer listed (retired
   2026-10-16 per Shopify's versioning calendar cited in QA comment 6733123830). Since r4 (`5e477b9`) the code defaults to `2026-10`, accepts only stable quarterly versions, and
   treats any answer served under another version (`X-Shopify-API-Version`) as unusable.
-* **Scopes: `read_orders` only.** The re-check, reconciliation and recovery all read one order by id.
-  There is no write scope, no `read_customers`, and no `read_all_orders`, because every entitlement hard-expires
+* **Scopes: `read_orders` and `read_products`** (owner decision F5, 2026-11-09). The re-check, reconciliation and
+  recovery all read one order by id; reading `lineItem.variant` returned `ACCESS_DENIED` on the QA store without
+  `read_products`. The service refuses a token whose grant lacks either scope. There is no write scope, no `read_customers`, and no `read_all_orders`, because every entitlement hard-expires
   inside the 60-day default order window. The schema text for `Order` confirms "Only the last 60 days' worth of
   orders ... are accessible ... by default".
 * **Operations.** `ORDER_QUERY` (re-check: no customer fields) and `RECOVERY_QUERY` (adds `number`, `email`,
@@ -75,18 +76,23 @@ records `malformed_paid_webhook` and the order is recoverable with `--recover-or
 for that topic if so. Shopify signs app webhooks with the app's **client secret**: that value goes into
 `webhook-secret` (base64 HMAC-SHA256 is what `shopify.verify` checks).
 
-## 4. Admin API token
+## 4. Admin API token (client-credentials grant, renewed automatically)
 
-The code reads a long-lived Admin API access token from `shopify-admin-token`. How it is obtained depends on
-what the QA store offers when the app is created:
+A Dev Dashboard app installed on the store gets its token from the client-credentials grant
+(`POST https://<shop>/admin/oauth/access_token`). The token expires (`expires_in` was 86 399 s on the QA store) and
+comes without a refresh token. Since KUN-COM-PROD-HARDEN-001 the service handles this itself (`admin_auth.py`):
 
-* An app created in the store admin ("Develop apps") shows a static `shpat_` token once: write it straight into
-  the secret file.
-* An app created in the Dev Dashboard and installed on the store yields an **offline** token through the
-  install flow. The commerce service has no OAuth endpoint, so the operator performs the one-time exchange
-  (Shopify CLI or a short manual token exchange) and writes the result to the file. If the store enables
-  expiring offline tokens, a refresh step is needed that this code does not have. **This is the one genuinely
-  open integration requirement**; confirm the token type on the dev store before relying on it.
+* `commerce.json` names `admin_client_id`; the client secret is the file `admin_client_secret_file`
+  (`shopify-client-secret`, 0400, the same value as `webhook-secret`).
+* The token is requested at first use, kept only in memory and renewed at 90 % of its lifetime (at most 10 minutes
+  before expiry). It is never written to disk or logged, so a restart simply requests a new one.
+* One renewal at a time; while it runs, requests keep the old token if it is still valid.
+* A new token is used only if the grant lists `read_orders` and `read_products` and a `shop { myshopifyDomain }`
+  query, served under the configured API version, names the configured shop.
+* A 401 from the Admin API drops the token and retries once with a new one; a 403 is never retried. A failed grant
+  is not retried for 30 s. Without a valid token every check fails closed (503, nothing granted or revoked).
+* A store-admin custom app's non-expiring `shpat_` token still works through `admin_api_token_file`; configure one
+  or the other, not both.
 
 ## 5. Claim link
 
@@ -99,6 +105,8 @@ separate app extension and is not prepared here. The copy is an English draft fo
 
 ## 6. Transactional e-mail (claim codes)
 
+* Production choice (owner, 2026-11-09): Google Workspace SMTP relay, IP-authorised, template
+  `smtp.google-relay.example.json`; QA keeps Mailpit (`compose.qa-mailpit.example.yml`). Original guidance follows.
 * A transactional SMTP provider on a subdomain the owner controls, for example `mail.<domain>`. One-time codes
   only: no marketing, no tracking pixels, no link tracking (provider setting), no attachments.
 * DNS for the sender domain: SPF `include:` for the provider, DKIM keys from the provider, and DMARC at least
@@ -113,13 +121,15 @@ separate app extension and is not prepared here. The copy is an English draft fo
 * A **separate subdomain** (for example `kundali-qa.<domain>`) that is not linked from the storefront, with its
   own Caddy site block (`Caddyfile.staging.example`). It must be reachable by Shopify for webhooks. Every
   other path is restricted to QA team IPs during the trial.
-* `commerce/deploy/compose.yml` unchanged: 512 MiB / 0.75 CPU / 64 pids for the app, read-only root, no
+* Topology, restart policies, deployment and rollback since KUN-COM-PROD-HARDEN-001: `commerce/deploy/DEPLOY.md`
+  (the gateway is its own container on an internal backend network; the edge still dials `commerce:8081`).
+* `commerce/deploy/compose.yml`: 512 MiB / 0.75 CPU / 64 pids for the app, read-only root, no
   published ports. Caddy joins the `sabpuja-commerce-qa` network.
 * Secrets directory (`SBK_SECRETS_DIR`, mounted read-only at `/run/sabpuja`), every file mode 0400, owner uid
   10002, outside Git and outside backups of the web root:
 
   ```
-  commerce.json  smtp.json  webhook-secret  pepper  shopify-admin-token  smtp-password
+  commerce.json  smtp.json  webhook-secret  pepper  shopify-client-secret  smtp-password
   ```
   `pepper`: `head -c 32 /dev/urandom > pepper` once. Losing it makes existing e-mail hashes unmatchable, and
   changing it ends every claim in progress.
@@ -129,7 +139,7 @@ separate app extension and is not prepared here. The copy is an English draft fo
 
 ## Owner-authorized steps (none done)
 
-1. Create the app on the QA store and grant `read_orders` plus protected e-mail access.
+1. Create the app on the QA store and grant `read_orders` and `read_products` plus protected e-mail access.
 2. Choose the staging subdomain; DNS; Caddy site; start the compose stack.
 3. Fill in the secret files; link and deploy the app configuration (webhooks).
 4. SMTP provider account and DNS records.

@@ -16,7 +16,7 @@ import sys
 from graphql import build_client_schema, parse, validate
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from sabpuja_commerce import shopify  # noqa: E402
+from sabpuja_commerce import admin_auth, shopify  # noqa: E402
 
 TOPICS = ("ORDERS_PAID", "ORDERS_CANCELLED", "REFUNDS_CREATE")
 FIELDS = {"Order": ("id", "number", "email", "createdAt", "cancelledAt", "displayFinancialStatus", "test",
@@ -28,8 +28,9 @@ FIELDS = {"Order": ("id", "number", "email", "createdAt", "cancelledAt", "displa
 def main(path: str) -> int:
     schema = build_client_schema(json.load(gzip.open(path))["data"])
     ok = True
-    for name in ("ORDER_QUERY", "RECOVERY_QUERY"):
-        errors = validate(schema, parse(getattr(shopify, name)))
+    for name, query in (("ORDER_QUERY", shopify.ORDER_QUERY), ("RECOVERY_QUERY", shopify.RECOVERY_QUERY),
+                        ("SHOP_QUERY", admin_auth.SHOP_QUERY)):
+        errors = validate(schema, parse(query))
         ok &= not errors
         print(f"{name}: {'VALID' if not errors else 'INVALID'}")
         for e in errors:

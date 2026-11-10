@@ -1,0 +1,51 @@
+# Overlay: send-only outbound mail for login codes on this host (owner choice 2026-11-09, KUN-COM-PROD-HARDEN-001).
+#   docker compose ... -f commerce/deploy/compose.yml -f commerce/deploy/compose.outbound-mail.yml up -d --wait
+# Commerce hands codes to outbound-mail:2587 over the internal mail network (STARTTLS, private CA, no SMTP AUTH:
+# Postfix accepts only that network and only MAIL_SENDER). Postfix signs with DKIM and delivers to recipients' MX over
+# IPv4 from its own egress network. No port is published: nothing on the internet can submit mail to it.
+# Real delivery needs, in DNS for MAIL_DOMAIN: SPF ip4:<host IPv4>, the DKIM TXT for DKIM_SELECTOR, a valid DMARC
+# record, an A record for MAIL_HOSTNAME and the host IP's reverse DNS set to MAIL_HOSTNAME. See DEPLOY.md.
+services:
+  commerce:
+    networks:
+      mail: {}
+    depends_on:
+      outbound-mail: {condition: service_healthy}
+
+  outbound-mail:
+    build:
+      context: ../mail
+    image: ${SBK_MAIL_IMAGE:-sabpuja-outbound-mail:staging}
+    restart: unless-stopped
+    stop_grace_period: 20s
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID, KILL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 64
+    mem_limit: 128m
+    cpus: 0.25
+    tmpfs:
+      # The queue lives in memory: a code expires after 10 minutes, so nothing is kept across restarts.
+      - /var/spool/postfix:rw,nosuid,size=32m
+      - /var/lib/postfix:rw,nosuid,size=4m
+      - /run:rw,nosuid,size=4m
+    environment:
+      MAIL_HOSTNAME: ${SBK_MAIL_HOSTNAME:?FQDN matching the host IP reverse DNS}
+      MAIL_DOMAIN: ${SBK_MAIL_DOMAIN:?sender domain}
+      MAIL_SENDER: ${SBK_MAIL_SENDER:?the only accepted sender address}
+      MAIL_CLIENT_NETWORK: ${SBK_MAIL_CLIENT_NETWORK:?CIDR of the mail network}
+      DKIM_SELECTOR: ${SBK_DKIM_SELECTOR:-kun2026}
+      TEST_TRANSPORT: ${SBK_MAIL_TEST_TRANSPORT:-}
+    volumes:
+      - {type: bind, source: "${SBK_OUTBOUND_MAIL_SECRETS_DIR:?dkim.private, tls.crt, tls.key}", target: /run/outbound-mail, read_only: true}
+    networks:
+      mail:
+        aliases: [outbound-mail]
+      mail-egress: {}
+
+networks:
+  mail:
+    name: ${SBK_MAIL_NETWORK:?internal network shared by commerce and outbound-mail (docker network create --internal)}
+    external: true
+  mail-egress:
+    name: ${SBK_PROJECT:-sabpuja-kundali-commerce-staging}-mail-egress

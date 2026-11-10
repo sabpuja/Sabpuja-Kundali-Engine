@@ -22,15 +22,15 @@ class Templates(unittest.TestCase):
 
     def load(self, raw):
         d = Path(self.tmp.name)
-        for name, value in (("wh", h.SECRET), ("pp", h.PEPPER), ("tk", b"shpat_synthetic")):
+        for name, value in (("wh", h.SECRET), ("pp", h.PEPPER), ("cs", b"synthetic-client-secret-0123")):
             (d / name).write_bytes(value)
         raw = dict(raw, webhook_secret_file=str(d / "wh"), pepper_file=str(d / "pp"),
-                   admin_api_token_file=str(d / "tk"), db_path=":memory:")
+                   admin_client_secret_file=str(d / "cs"), db_path=":memory:")
         (d / "c.json").write_text(json.dumps(raw))
         return config.load(str(d / "c.json"))
 
     def test_qa_config_loads_when_filled_in(self):
-        raw = dict(self.raw, shop_domain=h.SHOP, public_origin=h.ORIGIN,
+        raw = dict(self.raw, shop_domain=h.SHOP, public_origin=h.ORIGIN, admin_client_id="0" * 32,
                    mail_from="Sabpuja Kundali <noreply@example.invalid>")
         raw["products"] = [dict(raw["products"][0], product_id=1, variant_id=2, sku="SBK-ESS-EN-1")]
         s = self.load(raw)
@@ -39,13 +39,14 @@ class Templates(unittest.TestCase):
         self.assertEqual(s.admin_api_version, "2026-10")
         self.assertEqual((s.claim_validity_days, s.generation_window_days, s.order_read_horizon_days), (30, 30, 60))
         self.assertEqual(s.generations_per_unit, 4)
+        self.assertEqual(s.required_scopes, ("read_orders", "read_products"))   # F5, owner decision
 
     def test_qa_config_placeholders_refused(self):
         with self.assertRaises(config.ConfigError):
             self.load(self.raw)
 
     def test_app_toml_scopes_version_and_topics(self):
-        self.assertEqual(self.toml["access_scopes"]["scopes"], "read_orders")
+        self.assertEqual(self.toml["access_scopes"]["scopes"].split(","), list(config.REQUIRED_SCOPES))
         self.assertEqual(self.toml["webhooks"]["api_version"], self.raw["admin_api_version"])
         subs = self.toml["webhooks"]["subscriptions"]
         self.assertEqual(sorted(t for s in subs for t in s["topics"]),
@@ -65,6 +66,11 @@ class Templates(unittest.TestCase):
         self.assertLessEqual({"id"}, fields["orders/cancelled"])
         for topic_fields in fields.values():                           # no customer/address fields requested
             self.assertFalse(topic_fields & {"customer", "billing_address", "shipping_address", "phone", "note"})
+
+    def test_no_stale_read_orders_only_statements(self):
+        root = Path(__file__).resolve().parents[1]
+        for path in [root / "README.md", *DIR.iterdir(), *(root / "deploy").iterdir()]:
+            self.assertNotRegex(path.read_text(), r"(?i)read_orders`? only|only `?read_orders", path.name)
 
     def test_no_secret_values_in_templates(self):
         for path in DIR.iterdir():

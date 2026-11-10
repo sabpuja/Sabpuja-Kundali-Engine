@@ -80,16 +80,20 @@ class Server(ThreadingHTTPServer):
     request_queue_size = 16
 
 
-def serve(app: App, port: int) -> Server:
+def serve(app: App, port: int, host: str = HOST) -> Server:
     handler = type("BoundHandler", (Handler,), {"app": app})
-    return Server((HOST, port), handler)
+    return Server((host, port), handler)
 
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Sabpuja Janam Kundali fulfilment (offline/staging)")
     parser.add_argument("--config", required=True)
     parser.add_argument("--port", type=int, default=8770)
-    parser.add_argument("--smtp-config", help="JSON with host, port, username, password_file")
+    parser.add_argument("--host", default=HOST,
+                        help="listen address (default loopback). Compose passes the container's fixed address on "
+                             "the internal backend network, which only the gateway shares")
+    parser.add_argument("--smtp-config", help="JSON with host, port and auth (login: username, password_file; "
+                                              "none: IP-authorised relay), optional ehlo_name and ipv4_only")
     parser.add_argument("--reconcile-once", action="store_true",
                         help="re-check every active entitlement with Shopify once, print counts and exit")
     parser.add_argument("--recover-order", type=int, metavar="ORDER_ID",
@@ -109,10 +113,7 @@ def main(argv=None) -> int:
     places = {k: v for k, v in startup_verify(settings.ephe_path).items() if k.startswith("in-")}
     if args.smtp_config:
         with open(args.smtp_config, encoding="utf-8") as fh:
-            smtp = json.load(fh)
-        with open(smtp["password_file"], encoding="utf-8") as fh:
-            password = fh.read().strip()
-        mail = mailer.SmtpMailer(smtp["host"], int(smtp["port"]), smtp["username"], password)
+            mail = mailer.from_config(json.load(fh))
     else:
         print("no --smtp-config: codes go to an in-memory mock mailer (offline use only)", file=sys.stderr)
         mail = mailer.MockMailer()
@@ -135,8 +136,8 @@ def main(argv=None) -> int:
     if args.reconcile_once:
         print(json.dumps(app.reconcile_all()))
         return 0
-    httpd = serve(app, args.port)
-    print(f"listening on {HOST}:{args.port}", file=sys.stderr)
+    httpd = serve(app, args.port, args.host)
+    print(f"listening on {args.host}:{args.port}", file=sys.stderr)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

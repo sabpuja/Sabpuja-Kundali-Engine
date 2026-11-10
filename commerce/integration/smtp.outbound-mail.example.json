@@ -1,0 +1,6 @@
+{
+  "_comment": "smtp.json for the self-hosted send-only mail server (deploy/compose.outbound-mail.yml). No SMTP AUTH: Postfix accepts only the internal mail network and only the configured sender. STARTTLS is verified against the private CA in SSL_CERT_FILE; the certificate must name outbound-mail.",
+  "host": "outbound-mail",
+  "port": 2587,
+  "auth": "none"
+}
