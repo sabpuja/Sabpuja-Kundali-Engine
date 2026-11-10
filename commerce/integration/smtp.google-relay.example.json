@@ -3,6 +3,6 @@
   "host": "smtp-relay.gmail.com",
   "port": 587,
   "auth": "none",
-  "ehlo_name": "REPLACE-host.fqdn.example",
+  "ehlo_name": "REPLACE-a-resolvable-FQDN-of-this-host",
   "ipv4_only": true
 }
