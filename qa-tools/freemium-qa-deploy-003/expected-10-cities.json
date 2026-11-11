@@ -1,0 +1,78 @@
+{
+ "meta": {
+  "generated_by": "PreviewService at PR #92 54241dc, local, pinned sepl_18/semo_18, pyswisseph 2.10.03",
+  "synthetic": true
+ },
+ "cases": [
+  {
+   "place_id": "in-bengaluru",
+   "birth_date": "1970-01-01",
+   "birth_time": "00:30:00",
+   "lagna": "Kanya",
+   "moon": "Kanya"
+  },
+  {
+   "place_id": "in-chennai",
+   "birth_date": "1975-03-14",
+   "birth_time": "06:05:00",
+   "lagna": "Kumbha",
+   "moon": "Meena"
+  },
+  {
+   "place_id": "in-guwahati",
+   "birth_date": "1981-07-22",
+   "birth_time": "11:45:00",
+   "lagna": "Tula",
+   "moon": "Meena"
+  },
+  {
+   "place_id": "in-hyderabad",
+   "birth_date": "1986-11-09",
+   "birth_time": "17:20:00",
+   "lagna": "Mesha",
+   "moon": "Kumbha"
+  },
+  {
+   "place_id": "in-jaipur",
+   "birth_date": "1990-05-17",
+   "birth_time": "14:30:00",
+   "lagna": "Kanya",
+   "moon": "Makara"
+  },
+  {
+   "place_id": "in-kolkata",
+   "birth_date": "1994-02-28",
+   "birth_time": "21:10:00",
+   "lagna": "Tula",
+   "moon": "Kanya"
+  },
+  {
+   "place_id": "in-lucknow",
+   "birth_date": "1999-09-03",
+   "birth_time": "03:55:00",
+   "lagna": "Karka",
+   "moon": "Vrishabha"
+  },
+  {
+   "place_id": "in-mumbai",
+   "birth_date": "2004-12-25",
+   "birth_time": "09:15:00",
+   "lagna": "Makara",
+   "moon": "Vrishabha"
+  },
+  {
+   "place_id": "in-new-delhi",
+   "birth_date": "2012-06-30",
+   "birth_time": "23:59:00",
+   "lagna": "Meena",
+   "moon": "Vrischika"
+  },
+  {
+   "place_id": "in-varanasi",
+   "birth_date": "2025-08-15",
+   "birth_time": "12:00:00",
+   "lagna": "Tula",
+   "moon": "Mesha"
+  }
+ ]
+}
