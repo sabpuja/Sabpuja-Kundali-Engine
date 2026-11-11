@@ -105,7 +105,7 @@ test("limits are disclosed before input and match the served places", async () =
   await ctx.close();
 });
 
-test("complete preview -> buy -> Shopify hand-off -> claim -> re-entered details -> 14-page PDF", async () => {
+test("complete preview -> buy -> Shopify hand-off -> Thank you OrderIdentity link -> code -> re-entered details -> 14-page PDF; code replay refused", async () => {
   const before = await funnel();
   const { ctx, page, errors, requests, handoffs } = await open();
   await fill(page, BIRTH, "Synthetic Asha");
@@ -153,7 +153,15 @@ test("complete preview -> buy -> Shopify hand-off -> claim -> re-entered details
   assert.equal((await control("/paid", { order_id: peerOrder * 1000 + 3, number: peerOrder, email: BUYER })).outcome,
     "created");
   assert.equal((await funnel()).paid_orders_all_sources - after.paid_orders_all_sources, 1);
-  await page.goto(`${BASE}/#order=${peerOrder}`);
+  // RESTACK-002: arrive the way the accepted PR #90 Thank you block links, i.e. from the OrderIdentity GID Shopify
+  // gives on the Thank you page (QA order #1011), through the extension's own link builder.
+  const orderId = peerOrder * 1000 + 3;
+  const { thankYouLink } = await import(path.join(ROOT, "commerce/integration/extensions/kundali-claim/src/claim-link.js"));
+  const link = thankYouLink(`${BASE}/`, `gid://shopify/OrderIdentity/${orderId}`);
+  assert.equal(link, `${BASE}/#ref=${orderId}`, "Thank you link carries only the order reference, in the fragment");
+  await page.goto(link);
+  assert.equal(new URL(page.url()).hash, "", "reference removed from the address bar");
+  assert.ok(await page.locator("#ref-box").isVisible(), "order reference recognised");
   await page.fill("#email", BUYER);
   await page.click("#claim-submit");
   await page.locator("#step-code").waitFor();
@@ -173,6 +181,21 @@ test("complete preview -> buy -> Shopify hand-off -> claim -> re-entered details
   await shot(page, "desktop-04-paid-pdf-ready");
   assert.deepEqual(errors, []);
   await ctx.close();
+
+  // RESTACK-002: the code that was just used cannot be replayed from another browser.
+  const usedCode = mails[mails.length - 1].code;
+  await control("/clock", { seconds: 61 });
+  const second = await browser.newContext({ locale: "en-IN" });
+  const p2 = await second.newPage();
+  await p2.goto(link);
+  await p2.fill("#email", BUYER);
+  await p2.click("#claim-submit");
+  await p2.locator("#step-code").waitFor();
+  await p2.fill("#code", usedCode);
+  await p2.click("#code-submit");
+  await p2.locator("#code-error").waitFor();
+  assert.ok(await p2.locator("#step-birth").isHidden(), "replayed code opens no session");
+  await second.close();
 });
 
 test("refusals: pre-1970, future, missing time and malformed values show field errors, nothing shown", async () => {
