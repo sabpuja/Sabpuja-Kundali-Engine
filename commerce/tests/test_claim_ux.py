@@ -154,7 +154,7 @@ class ShopifyEntryPoints(unittest.TestCase):
         for t in ext["targeting"]:
             self.assertTrue((EXT / t["module"]).is_file(), t["module"])
         self.assertEqual(ext["capabilities"], {"api_access": False, "network_access": False, "block_progress": False})
-        self.assertEqual({f["key"] for f in ext["settings"]["fields"]}, {"claim_url", "sku"})
+        self.assertEqual({f["key"] for f in ext["settings"]["fields"]}, {"claim_url", "sku", "qa_diagnostics"})
 
     def test_jsx_compiles_for_preact_in_the_cli_build(self):
         # Shopify CLI's esbuild reads tsconfig.json; without it JSX targets react/jsx-runtime and the bundle fails.

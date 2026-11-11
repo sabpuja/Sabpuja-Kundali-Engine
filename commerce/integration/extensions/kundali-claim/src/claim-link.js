@@ -36,6 +36,25 @@ export function orderIdFromConfirmation(confirmation) {
   return typeof id === "string" ? id : undefined;
 }
 
+/**
+ * QA diagnostic for the Thank you identifier: the GID type and digit count only, never the id itself, plus whether
+ * a confirmation number is present. Example: "QA: confirmation present; order id Order, 13 digits".
+ */
+export function describeOrderId(confirmation, orderId) {
+  const parts = [];
+  parts.push(confirmation ? "confirmation present" : "no confirmation yet");
+  if (confirmation && typeof confirmation.number === "string") parts.push("confirmation number " + confirmation.number.length + " chars");
+  const id = orderId !== undefined ? orderId
+    : (confirmation && confirmation.order && confirmation.order.id !== undefined ? confirmation.order.id : undefined);
+  if (id === undefined || id === null) parts.push("order id none");
+  else if (typeof id !== "string") parts.push("order id not text");
+  else {
+    const m = /^gid:\/\/shopify\/([A-Za-z]{1,40})\/([0-9]{1,30})$/.exec(id);
+    parts.push(m ? "order id " + m[1] + ", " + m[2].length + " digits" : "order id other format, " + id.length + " chars");
+  }
+  return "QA: " + parts.join("; ");
+}
+
 /** Order status page: the order number the customer also sees in the e-mail ("#1001"). */
 export function orderStatusLink(base, orderName) {
   const m = typeof orderName === "string" ? ORDER_NAME.exec(orderName.trim()) : null;

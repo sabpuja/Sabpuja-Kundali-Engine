@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { claimBase, hasKundali, orderIdFromConfirmation, orderStatusLink, thankYouLink } from "../src/claim-link.js";
+import { claimBase, describeOrderId, hasKundali, orderIdFromConfirmation, orderStatusLink, thankYouLink } from "../src/claim-link.js";
 
 const BASE = "https://kundali-qa.example.test/";
 
@@ -45,4 +45,18 @@ test("the order id is read when it arrives, and a late arrival updates the link"
   const later = { order: { id: "gid://shopify/Order/6838" } };
   assert.equal(thankYouLink(BASE, orderIdFromConfirmation(later)), BASE + "#ref=6838");
   assert.equal(orderIdFromConfirmation({ order: { id: 7 } }), undefined);
+});
+
+test("QA diagnostic shows only the identifier type and length, never the identifier", () => {
+  assert.equal(describeOrderId(undefined, undefined), "QA: no confirmation yet; order id none");
+  const order = { order: { id: "gid://shopify/Order/6838123456789" }, number: "4XTHGQHXW" };
+  const line = describeOrderId(order, orderIdFromConfirmation(order));
+  assert.equal(line, "QA: confirmation present; confirmation number 9 chars; order id Order, 13 digits");
+  const identity = { order: { id: "gid://shopify/OrderIdentity/6838123456789" } };
+  assert.equal(describeOrderId(identity, orderIdFromConfirmation(identity)),
+    "QA: confirmation present; order id OrderIdentity, 13 digits");
+  assert.equal(describeOrderId({ order: { id: "abc" } }, "abc"), "QA: confirmation present; order id other format, 3 chars");
+  for (const l of [line]) { assert.ok(!l.includes("6838123456789")); assert.ok(!l.includes("4XTHGQHXW")); }
+  // An OrderIdentity id is NOT turned into a claim reference (no unproven mapping).
+  assert.equal(thankYouLink(BASE, orderIdFromConfirmation(identity)), BASE);
 });

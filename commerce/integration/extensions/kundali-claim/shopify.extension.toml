@@ -39,3 +39,9 @@ uid = "4a8b902f-cec3-1784-aa08-3873f7f5f6a1b679cd24"
     type = "single_line_text_field"
     name = "Janam Kundali SKU"
     description = "The block appears only on orders that contain this SKU."
+
+    [[extensions.settings.fields]]
+    key = "qa_diagnostics"
+    type = "boolean"
+    name = "QA diagnostics (QA store only)"
+    description = "Shows the Thank you order identifier's type and digit count, never the identifier. Leave off outside QA."
