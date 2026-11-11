@@ -57,6 +57,10 @@ test("QA diagnostic shows only the identifier type and length, never the identif
     "QA: confirmation present; order id OrderIdentity, 13 digits");
   assert.equal(describeOrderId({ order: { id: "abc" } }, "abc"), "QA: confirmation present; order id other format, 3 chars");
   for (const l of [line]) { assert.ok(!l.includes("6838123456789")); assert.ok(!l.includes("4XTHGQHXW")); }
-  // An OrderIdentity id is NOT turned into a claim reference (no unproven mapping).
-  assert.equal(thankYouLink(BASE, orderIdFromConfirmation(identity)), BASE);
+  // The Thank you page's OrderIdentity id becomes the same #ref the server verifies; other GID types do not.
+  assert.equal(thankYouLink(BASE, orderIdFromConfirmation(identity)), BASE + "#ref=6838123456789");
+  assert.equal(thankYouLink(BASE, "gid://shopify/OrderIdentityX/1"), BASE);
+  assert.equal(thankYouLink(BASE, "gid://shopify/DraftOrder/1"), BASE);
+  assert.equal(thankYouLink(BASE, "gid://shopify/OrderIdentity/"), BASE);
+  assert.equal(thankYouLink(BASE, "gid://shopify/OrderIdentity/1?x=y"), BASE);
 });

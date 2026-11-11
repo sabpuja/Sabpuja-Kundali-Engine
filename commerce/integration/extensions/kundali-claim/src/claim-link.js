@@ -4,7 +4,11 @@
 // reference in the URL fragment (after "#"), which browsers do not send to any server, so it reaches neither the
 // commerce host's logs nor a Referer header. The claim page removes it from the address bar on arrival.
 
-const GID_ORDER = /^gid:\/\/shopify\/Order\/([0-9]{1,20})$/;
+// The Thank you page gives gid://shopify/OrderIdentity/<digits> (seen on live QA order #1010, API 2026-10); other
+// surfaces give gid://shopify/Order/<digits>. The digits are only a lookup hint: the claim server accepts the reference
+// only when it equals the order id of a paid Kundali entitlement for the typed checkout e-mail, and still sends a
+// one-time code to that e-mail. A wrong or unknown reference gets the same neutral reply and no code.
+const GID_ORDER = /^gid:\/\/shopify\/(?:Order|OrderIdentity)\/([0-9]{1,20})$/;
 const ORDER_NAME = /^#?([0-9]{1,12})$/;
 
 /** The merchant's claim page URL, reduced to "https://host[:port]/", or null when it is not a plain https origin. */
