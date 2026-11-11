@@ -30,6 +30,12 @@ export function thankYouLink(base, orderGid) {
   return m ? `${base}#ref=${m[1]}` : base;
 }
 
+/** The order GID from the Thank you page's order confirmation, or undefined while it has not arrived yet. */
+export function orderIdFromConfirmation(confirmation) {
+  const id = confirmation && confirmation.order ? confirmation.order.id : undefined;
+  return typeof id === "string" ? id : undefined;
+}
+
 /** Order status page: the order number the customer also sees in the e-mail ("#1001"). */
 export function orderStatusLink(base, orderName) {
   const m = typeof orderName === "string" ? ORDER_NAME.exec(orderName.trim()) : null;

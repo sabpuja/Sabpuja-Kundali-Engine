@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { claimBase, hasKundali, orderStatusLink, thankYouLink } from "../src/claim-link.js";
+import { claimBase, hasKundali, orderIdFromConfirmation, orderStatusLink, thankYouLink } from "../src/claim-link.js";
 
 const BASE = "https://kundali-qa.example.test/";
 
@@ -35,4 +35,14 @@ test("links carry only the order reference, in the fragment", () => {
     assert.equal(url.search, "");
     assert.doesNotMatch(link, /@|token|secret|birth|email/i);
   }
+});
+
+test("the order id is read when it arrives, and a late arrival updates the link", () => {
+  // The first render has no confirmation yet, so the link is the bare host.
+  assert.equal(thankYouLink(BASE, orderIdFromConfirmation(undefined)), BASE);
+  assert.equal(thankYouLink(BASE, orderIdFromConfirmation({ order: null })), BASE);
+  // Later the signal carries the order: the same helper now produces the #ref link.
+  const later = { order: { id: "gid://shopify/Order/6838" } };
+  assert.equal(thankYouLink(BASE, orderIdFromConfirmation(later)), BASE + "#ref=6838");
+  assert.equal(orderIdFromConfirmation({ order: { id: 7 } }), undefined);
 });

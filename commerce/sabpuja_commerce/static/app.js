@@ -279,6 +279,20 @@
     btn.disabled = s.remaining <= 0;
     $("correct").hidden = s.remaining <= 0;
   }
+  // The server counts a generation once the PDF has been sent, which can land after this page reads the count.
+  // Show the delivered PDF's count at once, then re-read until the server reports it (a few short retries).
+  async function markDelivered() {
+    if (!session) return;
+    const delivered = session.used + 1;
+    session = { ...session, used: delivered, remaining: Math.max(0, session.remaining - 1) };
+    renderAllowance(session);
+    for (let attempt = 0; attempt < 4; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? 0 : 700));
+      const ok = await refreshSession();
+      if (ok === false) return;
+      if (session && session.used >= delivered) return;
+    }
+  }
   async function refreshSession() {
     const r = await call("/api/session");
     if (r.ok && r.json) { session = r.json; renderAllowance(session); return true; }
@@ -413,7 +427,7 @@
     }
     if (r.ok && r.blob) {
       deliver(r.blob);
-      await refreshSession();
+      markDelivered();
       return;
     }
     const e = errorOf(r);
