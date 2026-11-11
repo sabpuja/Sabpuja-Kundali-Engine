@@ -8,6 +8,8 @@ api_version = "2026-10"
 name = "Janam Kundali claim link"
 handle = "kundali-claim-link"
 type = "ui_extension"
+# Assigned by Shopify CLI 5.0.1 on the QA app project; keeps the same extension identity across deploys.
+uid = "4a8b902f-cec3-1784-aa08-3873f7f5f6a1b679cd24"
 
   [[extensions.targeting]]
   module = "./src/ThankYou.jsx"
