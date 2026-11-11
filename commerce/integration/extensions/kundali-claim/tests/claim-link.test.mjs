@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { claimBase, hasKundali, orderStatusLink, thankYouLink } from "../src/claim-link.js";
+import { claimBase, describeOrderId, hasKundali, orderIdFromConfirmation, orderStatusLink, thankYouLink } from "../src/claim-link.js";
 
 const BASE = "https://kundali-qa.example.test/";
 
@@ -35,4 +35,32 @@ test("links carry only the order reference, in the fragment", () => {
     assert.equal(url.search, "");
     assert.doesNotMatch(link, /@|token|secret|birth|email/i);
   }
+});
+
+test("the order id is read when it arrives, and a late arrival updates the link", () => {
+  // The first render has no confirmation yet, so the link is the bare host.
+  assert.equal(thankYouLink(BASE, orderIdFromConfirmation(undefined)), BASE);
+  assert.equal(thankYouLink(BASE, orderIdFromConfirmation({ order: null })), BASE);
+  // Later the signal carries the order: the same helper now produces the #ref link.
+  const later = { order: { id: "gid://shopify/Order/6838" } };
+  assert.equal(thankYouLink(BASE, orderIdFromConfirmation(later)), BASE + "#ref=6838");
+  assert.equal(orderIdFromConfirmation({ order: { id: 7 } }), undefined);
+});
+
+test("QA diagnostic shows only the identifier type and length, never the identifier", () => {
+  assert.equal(describeOrderId(undefined, undefined), "QA: no confirmation yet; order id none");
+  const order = { order: { id: "gid://shopify/Order/6838123456789" }, number: "4XTHGQHXW" };
+  const line = describeOrderId(order, orderIdFromConfirmation(order));
+  assert.equal(line, "QA: confirmation present; confirmation number 9 chars; order id Order, 13 digits");
+  const identity = { order: { id: "gid://shopify/OrderIdentity/6838123456789" } };
+  assert.equal(describeOrderId(identity, orderIdFromConfirmation(identity)),
+    "QA: confirmation present; order id OrderIdentity, 13 digits");
+  assert.equal(describeOrderId({ order: { id: "abc" } }, "abc"), "QA: confirmation present; order id other format, 3 chars");
+  for (const l of [line]) { assert.ok(!l.includes("6838123456789")); assert.ok(!l.includes("4XTHGQHXW")); }
+  // The Thank you page's OrderIdentity id becomes the same #ref the server verifies; other GID types do not.
+  assert.equal(thankYouLink(BASE, orderIdFromConfirmation(identity)), BASE + "#ref=6838123456789");
+  assert.equal(thankYouLink(BASE, "gid://shopify/OrderIdentityX/1"), BASE);
+  assert.equal(thankYouLink(BASE, "gid://shopify/DraftOrder/1"), BASE);
+  assert.equal(thankYouLink(BASE, "gid://shopify/OrderIdentity/"), BASE);
+  assert.equal(thankYouLink(BASE, "gid://shopify/OrderIdentity/1?x=y"), BASE);
 });

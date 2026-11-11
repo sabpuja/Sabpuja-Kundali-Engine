@@ -8,6 +8,8 @@ api_version = "2026-10"
 name = "Janam Kundali claim link"
 handle = "kundali-claim-link"
 type = "ui_extension"
+# Assigned by Shopify CLI 5.0.1 on the QA app project; keeps the same extension identity across deploys.
+uid = "4a8b902f-cec3-1784-aa08-3873f7f5f6a1b679cd24"
 
   [[extensions.targeting]]
   module = "./src/ThankYou.jsx"
@@ -37,3 +39,9 @@ type = "ui_extension"
     type = "single_line_text_field"
     name = "Janam Kundali SKU"
     description = "The block appears only on orders that contain this SKU."
+
+    [[extensions.settings.fields]]
+    key = "qa_diagnostics"
+    type = "boolean"
+    name = "QA diagnostics (QA store only)"
+    description = "Shows the Thank you order identifier's type and digit count, never the identifier. Leave off outside QA."

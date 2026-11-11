@@ -134,6 +134,15 @@ class Page(unittest.TestCase):
         self.assertRegex(html, r'<p class="notice notice--hi" lang="hi">')
 
 
+class CodeStepHints(unittest.TestCase):
+    def test_sender_shown_escaped_and_junk_folder_hint(self):
+        hx = h.Harness(mail_from='Sabpuja <noreply@sabpuja.com>')
+        page = hx.get("/").body.decode()
+        self.assertIn("It comes from <strong>Sabpuja &lt;noreply@sabpuja.com&gt;</strong>", page)
+        self.assertIn("Check your Junk or Spam folder", page)
+        self.assertNotIn("{{", page)
+
+
 class ShopifyEntryPoints(unittest.TestCase):
     def test_extension_targets_and_no_extra_capabilities(self):
         conf = tomllib.loads((EXT / "shopify.extension.toml").read_text())
@@ -145,7 +154,13 @@ class ShopifyEntryPoints(unittest.TestCase):
         for t in ext["targeting"]:
             self.assertTrue((EXT / t["module"]).is_file(), t["module"])
         self.assertEqual(ext["capabilities"], {"api_access": False, "network_access": False, "block_progress": False})
-        self.assertEqual({f["key"] for f in ext["settings"]["fields"]}, {"claim_url", "sku"})
+        self.assertEqual({f["key"] for f in ext["settings"]["fields"]}, {"claim_url", "sku", "qa_diagnostics"})
+
+    def test_jsx_compiles_for_preact_in_the_cli_build(self):
+        # Shopify CLI's esbuild reads tsconfig.json; without it JSX targets react/jsx-runtime and the bundle fails.
+        tsconfig = json.loads((EXT / "tsconfig.json").read_text())
+        self.assertEqual(tsconfig["compilerOptions"]["jsxImportSource"], "preact")
+        self.assertEqual(tsconfig["compilerOptions"]["jsx"], "react-jsx")
 
     def test_extension_reads_no_customer_data(self):
         src = "\n".join(p.read_text() for p in (EXT / "src").iterdir())

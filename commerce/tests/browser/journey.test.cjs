@@ -113,6 +113,8 @@ test("successful purchase from the Thank you page link: order ref, code, birth d
   await page.locator("#step-code").waitFor();
   assert.match(await page.locator("#code-intro").innerText(), /synthetic\.buyer@example\.invalid/);
   assert.match(await page.locator("#code-limits").innerText(), /10 minutes/);
+  assert.match(await page.locator("#code-limits").innerText(), /comes from Sabpuja <no-?reply@sabpuja\.com>/);
+  assert.match(await page.locator("#code-limits").innerText(), /Can't find the code\? Check your Junk or Spam folder/);
   // Straight from the Thank you page the order may not have reached us yet: the page says so, without claiming a send.
   assert.match(await page.locator("#code-limits").innerText(), /Just placed your order\? .* within 5 minutes, send a new code/s);
   assert.match(await page.locator("#code-intro").innerText(), /^If these details match a paid Janam Kundali order/);

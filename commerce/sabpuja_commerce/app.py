@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from importlib import resources
+import html
 import json
 import queue
 import re
@@ -227,6 +228,8 @@ class App:
             name, ctype = pages[path]
             data = resources.files("sabpuja_commerce").joinpath("static", name).read_bytes()
             data = data.replace(b"{{SOURCE_URL}}", self.s.source_url.encode())
+            if name == "index.html":
+                data = data.replace(b"{{MAIL_FROM}}", html.escape(self.s.mail_from).encode())
             return Response(200, data, ctype)
         if path in SHARED_STATIC:
             name, ctype = SHARED_STATIC[path]
