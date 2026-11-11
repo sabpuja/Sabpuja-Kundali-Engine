@@ -94,14 +94,34 @@ comes without a refresh token. Since KUN-COM-PROD-HARDEN-001 the service handles
 * A store-admin custom app's non-expiring `shpat_` token still works through `admin_api_token_file`; configure one
   or the other, not both.
 
-## 5. Claim link
+## 5. Customer entry points (KUN-COM-UX-CLAIM-001)
 
-`order-confirmation-snippet.liquid` adds a short paragraph to the order confirmation e-mail, only when the
-order contains the Essentials SKU. The link is the bare claim page: no order number, e-mail or birth data in
-the URL. The buyer types the order number and the checkout e-mail. For the order status page, add the same
-text through the store's order-status "additional content" setting if the plan still has one. Otherwise a
-checkout UI extension (`customer-account.order-status.block.render`) is the supported route, but that is a
-separate app extension and is not prepared here. The copy is an English draft for ChatGPT English-content QA.
+All three Shopify surfaces lead to the same claim page with one button, "Prepare your Janam Kundali", shown only for
+orders that contain the Essentials SKU. No link carries an e-mail address, birth detail, token or secret. At most it
+carries the order reference in the URL fragment (`#order=1004` or `#ref=<order id>`), which browsers never send to a
+server; the claim page removes it from the address bar on arrival and the buyer still proves the checkout e-mail with
+a one-time code.
+
+| Surface | Mechanism (verified against `@shopify/ui-extensions` 2026.10.2 types) | Link |
+|---|---|---|
+| Thank you page | App extension `extensions/kundali-claim`, target `purchase.thank-you.block.render`. That page shows a confirmation code, not the order number, so the block passes the order id from `shopify.orderConfirmation` | `https://<claim-host>/#ref=<order id>` |
+| Order status page | Same extension, target `customer-account.order-status.block.render`; hidden for cancelled orders | `https://<claim-host>/#order=<number>` |
+| Order confirmation e-mail | `order-confirmation-snippet.liquid` in Settings > Notifications (Liquid, no app needed) | `https://<claim-host>/#order={{ order_number }}` |
+
+The extension has no network access, no API access and no protected customer data: it reads the order lines (SKU),
+the order id or name, its two merchant settings (`claim_url`, `sku`) and its locale strings (English, plus a Hindi
+draft for buyers whose checkout language is Hindi). Thank you and Order status page extensions are supported on every
+plan; checkout steps are not modified. A block target appears only after the merchant places it in the checkout and
+accounts editor.
+
+Build checks (no Shopify login needed): `cd extensions/kundali-claim && npm ci && npm test && ./typecheck.sh`.
+`typecheck.sh` checks each block against the types of its own target, including component props.
+
+QA-store deployment (owner PC, Shopify CLI, QA app only): copy `extensions/kundali-claim` into the QA app project's
+`extensions/` folder, `shopify app deploy` (a new app version with the same two scopes), then in the QA store's
+checkout and accounts editor add the "Janam Kundali claim link" block to the Thank you page and the Order status page
+and fill `claim_url` (the staging origin) and `sku` (`SBK-ESS-EN-1`). Paste the snippet into the QA store's order
+confirmation template with the same two values.
 
 ## 6. Transactional e-mail (claim codes)
 

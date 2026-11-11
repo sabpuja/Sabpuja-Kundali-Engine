@@ -1,17 +1,40 @@
 {%- comment -%}
-  KUN-RC-COM-001B. TEMPLATE for Settings > Notifications > Order confirmation (and the Order status page
-  "Additional content" if the store plan still offers it). Not applied. Owner authorization required.
-  The link carries NO order number, e-mail or birth data: the buyer types the order number and the checkout
-  e-mail on the claim page and receives a one-time code. Shown only when the order contains the Essentials SKU.
-  English draft copy: needs ChatGPT English-content QA and owner approval before use.
+  KUN-COM-UX-CLAIM-001 (replaces the KUN-RC-COM-001B paragraph). For Settings > Notifications > Customer
+  notifications > Order confirmation on the QA store only: paste it after the greeting paragraph, before the
+  order summary.
+  Shown only when the order contains the Janam Kundali SKU. The link is the claim page with the order number in the
+  URL fragment (#order=...), which browsers never send to a server; it carries NO e-mail address, birth detail,
+  token or secret. The buyer still types the checkout e-mail and receives a one-time code.
+  The Thank you and Order status pages use the kundali-claim-link app extension (extensions/kundali-claim).
+  English copy, with one Hindi line, is draft copy for ChatGPT English/Hindi content QA and owner approval.
+  REPLACE-commerce-staging-host and REPLACE-SBK-ESS-EN-1 are set per store (QA values in the QA handoff).
 {%- endcomment -%}
 {%- assign has_kundali = false -%}
 {%- for line in line_items -%}
   {%- if line.sku == "REPLACE-SBK-ESS-EN-1" -%}{%- assign has_kundali = true -%}{%- endif -%}
 {%- endfor -%}
 {%- if has_kundali -%}
-  <p><strong>Prepare your Janam Kundali Essentials</strong><br>
-  Open <a href="https://REPLACE-commerce-staging-host/">the Kundali page</a>, enter order number
-  {{ order_name }} and this e-mail address, and we will send you a one-time code. Your birth details are
-  used only to prepare the PDF and are not stored. Please claim within 30 days of your order.</p>
+<table class="row" style="width:100%;border-spacing:0;border-collapse:collapse;margin:24px 0;">
+  <tr>
+    <td style="padding:20px;border:1px solid #E9DDCF;border-left:4px solid #F4B400;border-radius:10px;background:#FFF8E7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#2E211D;">
+      <h2 style="margin:0 0 8px;font-size:20px;line-height:1.3;color:#33241F;">Prepare your Janam Kundali</h2>
+      <p style="margin:0 0 8px;font-size:15px;line-height:1.6;">Your Janam Kundali Essentials report (in English) is
+        ready to prepare. Open the Kundali page, confirm order {{ order_name }} with a one-time code sent to this
+        e-mail address, then enter your birth date, exact birth time and birthplace to download your PDF.</p>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;" lang="hi">यह रिपोर्ट केवल अंग्रेज़ी में है।</p>
+      <table style="border-spacing:0;border-collapse:collapse;">
+        <tr>
+          <td style="border-radius:10px;background:#C84700;">
+            <a href="https://REPLACE-commerce-staging-host/#order={{ order_number }}"
+               style="display:inline-block;padding:14px 24px;font-size:16px;font-weight:600;line-height:1.2;color:#FFFFFF;text-decoration:none;border-radius:10px;">Prepare your Janam Kundali</a>
+          </td>
+        </tr>
+      </table>
+      <p style="margin:16px 0 0;font-size:13px;line-height:1.5;color:#75655E;">Please prepare it within 30 days of
+        your order. After your first download you can prepare up to 3 corrected versions within 30 days. Your birth
+        details are used once to prepare the PDF and are not stored. You can also open the Kundali page later from
+        your order status page.</p>
+    </td>
+  </tr>
+</table>
 {%- endif -%}
