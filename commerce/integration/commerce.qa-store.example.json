@@ -28,5 +28,12 @@
   "order_read_horizon_days": 60,
   "mail_from": "Sabpuja Kundali <REPLACE-noreply@REPLACE-sender-domain>",
   "mail_queue_size": 100,
-  "max_concurrent_renders": 1
+  "max_concurrent_renders": 1,
+  "_comment_preview": "KUN-FREEMIUM-PREVIEW-001: QA store only, after the PR #88 token proof. Leave preview_price_display empty until the owner approves a price (the page then says 'to be confirmed'). Lead capture writes only to its own file; no marketing is sent.",
+  "preview_enabled": false,
+  "preview_fields": ["lagna_rashi", "moon_rashi"],
+  "preview_price_display": "",
+  "funnel_db_path": "/var/lib/sabpuja-commerce/funnel.sqlite",
+  "lead_capture_enabled": false,
+  "leads_db_path": "/var/lib/sabpuja-commerce/leads-qa.sqlite"
 }

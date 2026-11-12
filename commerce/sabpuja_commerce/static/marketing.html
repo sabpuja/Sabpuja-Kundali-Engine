@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>E-mail preferences | Sabpuja</title>
+<link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/preview.css">
+<script src="/static/marketing.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <img class="brand__logo" src="/static/brand/sabpuja-logo-horizontal-color.svg" alt="Sabpuja" width="224" height="56">
+    <span class="product-name">E-mail preferences</span>
+  </div>
+</header>
+<!-- KUN-FREEMIUM-PREVIEW-001 marketing opt-in management. DRAFT copy for editorial review. -->
+<main id="main" class="wrap" tabindex="-1">
+  <h1>Your Sabpuja e-mail preferences</h1>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
+  <div id="alert" class="error-card" role="alert" hidden><p id="alert-text"></p></div>
+
+  <section id="manage" class="card" aria-labelledby="h-manage" hidden>
+    <h2 id="h-manage" tabindex="-1">Manage your sign-up</h2>
+    <p id="manage-state"></p>
+    <div class="actions">
+      <button type="button" class="button button--primary" id="confirm" hidden>Confirm my sign-up</button>
+      <button type="button" class="button button--ghost" id="withdraw">Stop offers by e-mail</button>
+      <button type="button" class="button button--ghost" id="delete">Delete my sign-up</button>
+    </div>
+    <p class="help">Stopping offers keeps a record that you said no, so we do not e-mail you again. Deleting removes your
+      e-mail address and consent record completely.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-link">
+    <h2 id="h-link">Need a new link?</h2>
+    <p>Enter the address you signed up with. If it is on our list, we will e-mail it a link to stop offers or delete
+      your sign-up.</p>
+    <form id="link-form" novalidate>
+      <div class="field">
+        <label for="email">E-mail address</label>
+        <input id="email" type="email" autocomplete="email" spellcheck="false" autocapitalize="off" maxlength="254"
+               aria-describedby="email-error">
+        <p class="field-error" id="email-error" hidden></p>
+      </div>
+      <div class="actions"><button type="submit" class="button button--ghost" id="link-submit">E-mail me a link</button></div>
+    </form>
+  </section>
+  <p><a class="site-link" href="/kundali">Back to the free Kundali preview</a></p>
+</main>
+<footer class="site-footer"><div class="wrap"><p>Free software under AGPL-3.0:
+  <a class="site-link" href="{{SOURCE_URL}}" rel="noopener">corresponding source</a>.</p></div></footer>
+</body>
+</html>

@@ -20,7 +20,8 @@ import tempfile
 import threading
 
 import helpers as h
-from sabpuja_commerce import app as app_mod, mailer, server
+from sabpuja_commerce import app as app_mod, funnel as funnel_mod, leads as leads_mod, mailer, preview as preview_mod, \
+    server
 from sabpuja_commerce.renderer import RendererUnavailable
 from sabpuja_commerce.store import Store
 
@@ -61,13 +62,19 @@ def build(port: int):
     db = os.path.join(tempfile.mkdtemp(prefix="sbk-journey-"), "entitlements.sqlite")
     # The fake Verifier below is passed to App, so the live re-check path (reconcile) still runs on every claim.
     s = h.settings(db_path=db, public_origin=f"http://127.0.0.1:{port}", require_order_verification=False,
-                   source_url="https://github.com/sabpuja/Sabpuja-Kundali-Engine")
+                   source_url="https://github.com/sabpuja/Sabpuja-Kundali-Engine",
+                   # KUN-FREEMIUM-PREVIEW-001: free preview, aggregate funnel and isolated opt-in store (synthetic).
+                   preview_enabled=True, allow_test_orders=True, lead_capture_enabled=True, leads_db_path=db + ".leads",
+                   funnel_db_path=db + ".funnel", preview_price_display=os.environ.get("SBK_PRICE", ""))
     store = Store(s.db_path, s.pepper, clock=clock)
     mail = mailer.MockMailer()
     render = Renderer(h.essentials_renderer(places))
     verifier = Verifier(store, s.shop_domain)
+    funnel = funnel_mod.Funnel(s.funnel_db_path)
+    leads = leads_mod.LeadStore(s.leads_db_path, s.pepper, clock=clock)
     app = app_mod.App(s, store, mail, render, places, verifier=verifier, async_mail=False,
-                      public_places=lambda: [pl.public_place(places[k]) | {"id": k} for k in places])
+                      public_places=lambda: [pl.public_place(places[k]) | {"id": k} for k in places],
+                      preview=preview_mod.PreviewService(places, ephe), funnel=funnel, leads=leads)
     return app, store, mail, render, verifier, clock, db
 
 
@@ -125,6 +132,11 @@ def control_handler(app, store, mail, render, verifier, clock, db):
                     out.append({"to": m["To"], "subject": m["Subject"], "code": found and found.group(1),
                                 "text": m.get_content()})
                 return self._reply({"sent": out})
+            if self.path == "/funnel":
+                return self._reply(app.funnel.totals())
+            if self.path == "/leads":
+                return self._reply({"counts": app.leads.counts(), "mailable": app.leads.mailable(),
+                                    "dump": "\n".join(app.leads._db.iterdump())})
             if self.path == "/stats":
                 return self._reply({"render_calls": render.calls, "db": db, "exceptions": store.open_exceptions()})
             return self._reply({"error": "unknown"}, 404)

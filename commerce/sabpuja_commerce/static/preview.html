@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="format-detection" content="telephone=no">
+<title>Free Kundali preview | Sabpuja</title>
+<link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/preview.css">
+<script src="/static/preview.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to the form</a>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <img class="brand__logo" src="/static/brand/sabpuja-logo-horizontal-color.svg" alt="Sabpuja" width="224" height="56">
+    <span class="product-name">Free Kundali preview</span>
+  </div>
+</header>
+
+<!-- KUN-FREEMIUM-PREVIEW-001. All customer copy on this page is DRAFT for English and Hindi editorial review and
+     owner sign-off (commerce/integration/FREEMIUM-PREVIEW.md, section "Copy review"). -->
+<main id="main" class="wrap" tabindex="-1">
+  <p id="qa-banner" class="notice qa-banner" hidden><strong>QA test store.</strong> Use synthetic birth details only.
+    The full report's content is not yet approved for customers, and checkout uses the test payment gateway.</p>
+  <h1>See your free Kundali preview</h1>
+  <p class="lede">Enter your birth details to see two facts calculated from your birth chart: your Lagna (rising
+    sign) and your Moon sign (Chandra Rashi). It is free and needs no sign-up.</p>
+
+  <section class="card eligibility" aria-labelledby="h-elig">
+    <h2 id="h-elig">Before you start</h2>
+    <ul class="limits" id="elig-list">
+      <li><strong>Birthplace:</strong> for now we can calculate only for people born in
+        <span id="elig-cities">New Delhi, Mumbai, Kolkata, Chennai, Bengaluru, Hyderabad, Jaipur, Lucknow, Varanasi
+        or Guwahati</span>. If your birthplace is not listed, please do not choose a nearby city: the result would
+        be wrong.</li>
+      <li><strong>Birth date:</strong> from 1 January 1970 up to today. Earlier dates cannot be calculated yet.</li>
+      <li><strong>Birth time:</strong> the exact local time of birth, for example from the birth certificate. We
+        never guess a time.</li>
+      <li><strong>Language:</strong> the preview and the full report are in English.</li>
+    </ul>
+    <p class="notice notice--hi" lang="hi">यह निःशुल्क झलक और पूरी रिपोर्ट अभी केवल अंग्रेज़ी में उपलब्ध हैं।</p>
+  </section>
+
+  <div id="status" class="status" role="status" aria-live="polite"></div>
+  <div id="alert" class="error-card" role="alert" hidden>
+    <p id="alert-text"></p>
+  </div>
+
+  <section id="step-form" class="card" aria-labelledby="h-form">
+    <h2 id="h-form" tabindex="-1">Your birth details</h2>
+    <form id="preview-form" novalidate>
+      <div class="field-grid">
+        <div class="field field--wide">
+          <label for="display_name">Your name <span class="optional">(optional)</span></label>
+          <input id="display_name" name="display_name" autocomplete="off" maxlength="60"
+                 aria-describedby="display_name-help display_name-error">
+          <p class="help" id="display_name-help">Only used to greet you on this page. It stays in this browser and is
+            not sent to us.</p>
+          <p class="field-error" id="display_name-error" hidden></p>
+        </div>
+        <div class="field field--wide">
+          <label for="place_id">Birthplace</label>
+          <select id="place_id" name="place_id" required aria-describedby="place_id-help place_id-error">
+            <option value="">Choose your birthplace</option>
+          </select>
+          <p class="help" id="place_id-help">Only the cities listed above are available.</p>
+          <p class="field-error" id="place_id-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="birth_date">Birth date</label>
+          <input id="birth_date" name="birth_date" type="date" min="1970-01-01" required
+                 aria-describedby="birth_date-help birth_date-error">
+          <p class="help" id="birth_date-help">From 1 January 1970 up to today.</p>
+          <p class="field-error" id="birth_date-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="birth_time">Exact birth time</label>
+          <input id="birth_time" name="birth_time" type="time" step="1" required
+                 aria-describedby="birth_time-help birth_time-error">
+          <p class="help" id="birth_time-help">Local time at the birthplace. If you do not know it exactly, the
+            preview cannot be calculated.</p>
+          <p class="field-error" id="birth_time-error" hidden></p>
+        </div>
+      </div>
+      <p id="birth-summary" class="claim summary" aria-live="polite" hidden></p>
+      <p class="help privacy-line">Your birth details are used once to calculate this preview and are not stored.
+        No PDF is made for the free preview.</p>
+      <div class="actions">
+        <button type="submit" class="button button--primary" id="preview-submit">Show My Free Kundali Preview</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="step-result" class="card result" aria-labelledby="h-result" hidden>
+    <h2 id="h-result" tabindex="-1">Your free Kundali preview</h2>
+    <p id="result-for" class="help"></p>
+    <dl class="facts">
+      <div class="fact" id="fact-lagna_rashi" hidden>
+        <dt>Lagna (rising sign)</dt>
+        <dd><span class="fact__value" data-part="rashi"></span>
+          <span class="fact__meta" data-part="meta"></span></dd>
+      </div>
+      <div class="fact" id="fact-moon_rashi" hidden>
+        <dt>Moon sign (Chandra Rashi)</dt>
+        <dd><span class="fact__value" data-part="rashi"></span>
+          <span class="fact__meta" data-part="meta"></span></dd>
+      </div>
+    </dl>
+    <!-- SCI-06 birth-time check: off by default (adoption and wording pending); shown only if the server enables it. -->
+    <p id="check-changed" class="notice" hidden><strong>Check your birth time.</strong> At least one of these signs is
+      different when calculated for 2 minutes earlier or later. The result above uses the exact time you entered.</p>
+    <p id="check-unassessable" class="notice" hidden>We could not check whether these signs change within 2 minutes of
+      the time you entered. The result above uses the exact time you entered.</p>
+    <p class="help">Calculated on Sabpuja's own servers with Swiss Ephemeris, using the sidereal zodiac (Lahiri
+      ayanamsa). These are calculated chart positions, not predictions.</p>
+    <div class="actions">
+      <button type="button" class="button button--ghost" id="again">Try other birth details</button>
+    </div>
+  </section>
+
+  <section id="step-offer" class="card offer" aria-labelledby="h-offer" hidden>
+    <h2 id="h-offer">Your full Janam Kundali report</h2>
+    <p>The free preview shows two signs. The <strong>Janam Kundali Essentials</strong> report is a 14-page English
+      PDF calculated from the same birth details. It adds:</p>
+    <ul class="limits benefits">
+      <li>Your D1 birth chart (North Indian style) and D9 Navamsa chart</li>
+      <li>The Rashi, house and exact sidereal position of each graha</li>
+      <li>Panchanga at birth: Tithi, Paksha, Karana, Yoga and Nakshatra</li>
+      <li>A downloadable PDF with a reading guide and the calculation method</li>
+    </ul>
+    <p class="price"><span class="price__label">Price:</span> <strong id="price-text">to be confirmed</strong></p>
+    <div class="actions">
+      <button type="button" class="button button--primary" id="buy">Buy Full Kundali Report</button>
+    </div>
+    <div id="handoff" class="claim handoff" hidden aria-labelledby="h-handoff">
+      <h3 id="h-handoff" tabindex="-1">Before you go to checkout</h3>
+      <ul class="limits">
+        <li>Checkout is on our Shopify store. We do not send your birth details there.</li>
+        <li><strong>After payment you will enter your birth details again</strong>, using "Prepare your Janam
+          Kundali" on your order page or in your confirmation e-mail. We do not keep them from this preview.</li>
+        <li>The report is for one person, born in one of the listed cities from 1970, with an exact birth time.</li>
+      </ul>
+      <div class="actions">
+        <a class="button button--primary" id="checkout" href="#" rel="noopener noreferrer">Continue to secure checkout</a>
+        <button type="button" class="button button--ghost" id="handoff-back">Not now</button>
+      </div>
+    </div>
+    <details class="contents" id="contents">
+      <summary>See everything in the 14-page report</summary>
+      <div class="compare-wrap">
+        <table class="compare">
+          <caption class="visually-hidden">What the free preview and the full report include</caption>
+          <thead><tr><th scope="col">Included</th><th scope="col">Free preview</th><th scope="col">Full report</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Lagna (rising sign)</th><td>Yes</td><td>Yes, with its exact position</td></tr>
+            <tr><th scope="row">Moon sign (Chandra Rashi)</th><td>Yes</td><td>Yes, with its exact position</td></tr>
+            <tr><th scope="row">D1 birth chart (North Indian style)</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">D9 Navamsa chart</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">Rashi, house and exact sidereal longitude of each graha</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">D9 Rashi and D9 house of each graha; directory of all twelve houses</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">Panchanga at birth: Tithi, Paksha, Karana, Yoga and Nakshatra, with transition times</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">Reading guide, birth details and methodology pages</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">Downloadable PDF</th><td>No</td><td>Yes, 14 pages, English</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <section id="step-leads" class="card leads" aria-labelledby="h-leads" hidden>
+    <h2 id="h-leads">Offers by e-mail <span class="optional">(optional)</span></h2>
+    <p>You do not need this for your preview. If you like, we can e-mail you occasional offers and news from
+      Sabpuja.</p>
+    <form id="lead-form" novalidate>
+      <div class="field">
+        <label for="lead_email">E-mail address</label>
+        <input id="lead_email" name="lead_email" type="email" autocomplete="email" spellcheck="false"
+               autocapitalize="off" maxlength="254" aria-describedby="lead_email-error">
+        <p class="field-error" id="lead_email-error" hidden></p>
+      </div>
+      <label class="check"><input id="lead_consent" type="checkbox" aria-describedby="lead_consent-error">
+        <span>Yes, send me occasional offers and news from Sabpuja by e-mail. I can unsubscribe at any time.</span></label>
+      <p class="field-error" id="lead_consent-error" hidden></p>
+      <label class="check"><input id="lead_adult" type="checkbox" aria-describedby="lead_adult-error">
+        <span>I am 18 or older.</span></label>
+      <p class="field-error" id="lead_adult-error" hidden></p>
+      <p class="help">We keep only your e-mail address and this choice. Never your birth details, name or preview.
+        We first send a confirmation link, and nothing else until you confirm. You can stop or delete your sign-up at
+        any time on our <a class="site-link" href="/marketing">e-mail preferences page</a>.</p>
+      <div class="actions">
+        <button type="submit" class="button button--ghost" id="lead-submit">Sign me up</button>
+      </div>
+      <p id="lead-status" class="help" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Calculated on Sabpuja's own servers with Swiss Ephemeris. Free software under AGPL-3.0:
+      <a class="site-link" href="{{SOURCE_URL}}" rel="noopener">corresponding source</a>.</p>
+  </div>
+</footer>
+</body>
+</html>

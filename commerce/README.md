@@ -67,6 +67,14 @@ cd commerce/tests/browser && npm ci && \
   SABPUJA_TEST_EPHE_PATH=$HOME/sabpuja-ephe PYTHON=python3 SHOTS=/tmp/shots npm test
 ```
 
+## Free preview and paid conversion funnel (KUN-FREEMIUM-PREVIEW-001, QA only)
+
+`/kundali` computes two whitelisted, owner-approved fields (Lagna Rashi, Moon Rashi) with the same validation and
+engine call as the paid route, stores nothing, and hands off to the Shopify cart for the 14-page PDF; an optional,
+unchecked, double opt-in e-mail sign-up uses its own database, and a day-level aggregate funnel counts five steps.
+All off by default (`preview_enabled`, `lead_capture_enabled`). Spec, flags and QA workflow:
+[`integration/FREEMIUM-PREVIEW.md`](integration/FREEMIUM-PREVIEW.md).
+
 ## Run the tests
 
 ```bash

@@ -22,7 +22,7 @@ import sys
 import threading
 import time
 
-from . import PAID_LOCALE, mailer, shopify
+from . import PAID_LOCALE, funnel as funnel_mod, leads as leads_mod, mailer, preview as preview_mod, shopify
 from .config import Settings
 from .renderer import InputRefused, RendererUnavailable, screen
 from .store import Store
@@ -60,6 +60,13 @@ SECURITY_HEADERS = {
 STATIC = {"/": ("index.html", "text/html; charset=utf-8"),
           "/static/app.js": ("app.js", "text/javascript; charset=utf-8"),
           "/static/app.css": ("app.css", "text/css; charset=utf-8")}
+# Free preview page (served only while preview_enabled) and the marketing preferences page (lead capture only).
+PREVIEW_STATIC = {"/kundali": ("preview.html", "text/html; charset=utf-8"),
+                  "/static/preview.js": ("preview.js", "text/javascript; charset=utf-8"),
+                  "/static/preview.css": ("preview.css", "text/css; charset=utf-8")}
+LEADS_STATIC = {"/marketing": ("marketing.html", "text/html; charset=utf-8"),
+                "/static/marketing.js": ("marketing.js", "text/javascript; charset=utf-8")}
+PREVIEW_DATE_MIN = "1970-01-01"   # SCI-03 RG-HIST Option B: earlier local dates are refused by the engine
 # Sabpuja Foundations fonts and logo, served from the same files the preview uses (no copies, no font service).
 SHARED_STATIC = {
     "/static/fonts/" + name: ("fonts/" + name, "font/woff2") for name in (
@@ -141,7 +148,7 @@ class RateLimiter:
 
 class App:
     def __init__(self, settings: Settings, store: Store, mail, render, places: dict,
-                 verifier=None, public_places=None, async_mail: bool = True):
+                 verifier=None, public_places=None, async_mail: bool = True, preview=None, funnel=None, leads=None):
         self.s, self.store, self.mail, self.render, self.places = settings, store, mail, render, places
         self.verifier = verifier
         self._public_places = public_places or (lambda: [{"id": k} for k in sorted(places)])
@@ -151,6 +158,18 @@ class App:
         self._mail_queue: queue.Queue = queue.Queue(maxsize=settings.mail_queue_size)
         self._mail_worker: threading.Thread | None = None
         self._mail_lock = threading.Lock()
+        # Free preview, funnel and leads (KUN-FREEMIUM-PREVIEW-001). None of them can reach an entitlement,
+        # a session, the renderer or the paid route; they share only the transport, the Origin check and the mailer.
+        self.preview = preview if settings.preview_enabled else None
+        self.funnel = funnel or funnel_mod.NullFunnel()
+        self.leads = leads if (settings.lead_capture_enabled and self.preview is not None) else None
+        clock = store._clock
+        self._preview_slots = threading.BoundedSemaphore(settings.max_concurrent_previews)
+        self._preview_minute = preview_mod.WindowLimiter(settings.preview_rate_per_minute, 60, clock)
+        self._preview_hour = preview_mod.WindowLimiter(settings.preview_rate_per_hour, 3600, clock)
+        self._preview_global = preview_mod.WindowLimiter(settings.preview_global_per_minute, 60, clock)
+        self._beacon_limit = preview_mod.WindowLimiter(settings.beacon_rate_per_minute, 60, clock)
+        self._lead_limit = preview_mod.WindowLimiter(settings.claim_rate_per_minute, 60, clock)
 
     # ---- transport entry ------------------------------------------------------------------
     def handle(self, method: str, path: str, headers, body: bytes, peer: str) -> Response:
@@ -175,7 +194,15 @@ class App:
             routes = {"/api/claim/start": lambda: self.claim_start(body, client),
                       "/api/claim/verify": lambda: self.claim_verify(body, client),
                       "/api/generate": lambda: self.generate(headers, body),
-                      "/api/logout": lambda: self.logout(headers)}
+                      "/api/logout": lambda: self.logout(headers),
+                      "/api/preview": lambda: self.preview_chart(body, client),
+                      "/api/funnel": lambda: self.funnel_event(body, client),
+                      "/api/leads/subscribe": lambda: self.lead_subscribe(body, client),
+                      "/api/leads/link": lambda: self.lead_link(body, client),
+                      "/api/leads/status": lambda: self.lead_token_action(body, client, "status"),
+                      "/api/leads/confirm": lambda: self.lead_token_action(body, client, "confirm"),
+                      "/api/leads/withdraw": lambda: self.lead_token_action(body, client, "withdraw"),
+                      "/api/leads/delete": lambda: self.lead_token_action(body, client, "delete")}
             route = routes.get(path)
             return route() if route else _error(404, "NOT_FOUND", "not found")
         except Exception as exc:  # a defect: fixed response, the exception type only in the log
@@ -190,8 +217,15 @@ class App:
         return peer
 
     def _get(self, path: str, headers) -> Response:
-        if path in STATIC:
-            name, ctype = STATIC[path]
+        pages = dict(STATIC)
+        if self.preview is not None:
+            pages |= PREVIEW_STATIC
+        if self.leads is not None:
+            pages |= LEADS_STATIC
+        if path == "/api/preview/config":
+            return self.preview_config()
+        if path in pages:
+            name, ctype = pages[path]
             data = resources.files("sabpuja_commerce").joinpath("static", name).read_bytes()
             data = data.replace(b"{{SOURCE_URL}}", self.s.source_url.encode())
             if name == "index.html":
@@ -228,6 +262,9 @@ class App:
         except shopify.WebhookRejected as exc:
             security_log(exc.code, exc.status, "webhook")
             return _error(exc.status, exc.code, "webhook not accepted")
+        if outcome in ("created", "created_without_email"):
+            # Aggregate only: Shopify orders carry no link to a preview, so this is total paid orders.
+            self.funnel.count("paid_orders_all_sources")
         return _json(200, {"ok": True, "outcome": outcome})
 
     # ---- claim ----------------------------------------------------------------------------
@@ -459,3 +496,125 @@ class App:
         return Response(200, pdf, "application/pdf",
                         headers=[("Content-Disposition", 'attachment; filename="Sabpuja-Janam-Kundali.pdf"')],
                         before=before, after=after)
+
+    # ---- free preview (KUN-FREEMIUM-PREVIEW-001) -------------------------------------------
+    def preview_config(self) -> Response:
+        if self.preview is None:
+            return _error(404, "NOT_FOUND", "not found")
+        return _json(200, {"fields": list(self.preview.fields), "price_display": self.s.preview_price_display or None,
+                           "buy_url": self.s.buy_url, "lead_capture": self.leads is not None,
+                           "consent_version": leads_mod.CONSENT_VERSION if self.leads is not None else None,
+                           "date_min": PREVIEW_DATE_MIN, "date_max": self.preview._today().isoformat(),
+                           "places": self._public_places(), "report_pages": 14, "report_language": PAID_LOCALE,
+                           # QA store (test orders allowed) or unreleased wording: the page shows a QA banner.
+                           "qa_store": self.s.allow_test_orders or self.s.allow_unreleased_edition})
+
+    def preview_chart(self, body: bytes, client: str) -> Response:
+        """Public, unauthenticated, no session, no store. Returns only the whitelisted preview fields."""
+        if self.preview is None:
+            return _error(404, "NOT_FOUND", "not found")
+        if not (self._preview_minute.allow("m:" + client) and self._preview_hour.allow("h:" + client)):
+            security_log("PREVIEW_RATE_LIMITED", 429, "preview")
+            return _error(429, "PREVIEW_RATE_LIMITED", "too many previews from this connection; try again later",
+                          retry_after_seconds=60)
+        if not self._preview_global.allow("all"):
+            security_log("PREVIEW_GLOBAL_LIMIT", 429, "preview")
+            return _error(429, "PREVIEW_BUSY", "the free preview is busy; try again in a minute", retry_after_seconds=60)
+        try:
+            form = preview_mod.parse(body)
+        except preview_mod.PreviewRefused as exc:
+            return _error(exc.status, exc.code, exc.message, category=exc.category)
+        self.funnel.count("preview_initiated")
+        if not self._preview_slots.acquire(blocking=False):
+            return _error(429, "PREVIEW_BUSY", "the free preview is busy; try again shortly", retry_after_seconds=5)
+        try:
+            result = self.preview(form)
+        except preview_mod.PreviewRefused as exc:
+            self.funnel.count("preview_refused")
+            return _error(exc.status, exc.code, exc.message, category=exc.category, **exc.extra)
+        except preview_mod.PreviewUnavailable as exc:
+            security_log("PREVIEW_UNAVAILABLE:" + exc.code, 503, "preview")
+            return _error(503, "PREVIEW_UNAVAILABLE", "the preview cannot be calculated right now; please try later")
+        except Exception as exc:  # noqa: BLE001 - a defect: type only, never the input
+            security_log("PREVIEW_FAILURE:" + type(exc).__name__, 503, "preview")
+            return _error(503, "PREVIEW_UNAVAILABLE", "the preview cannot be calculated right now; please try later")
+        finally:
+            self._preview_slots.release()
+        self.funnel.count("preview_generated")
+        return _json(200, result)
+
+    def funnel_event(self, body: bytes, client: str) -> Response:
+        if self.preview is None:
+            return _error(404, "NOT_FOUND", "not found")
+        if not self._beacon_limit.allow(client):
+            return Response(204)   # silently dropped: a beacon is never worth an error page
+        try:
+            data = json.loads(body.decode("utf-8"), object_pairs_hook=_no_duplicates)
+        except (UnicodeDecodeError, ValueError, RecursionError):
+            return _error(400, "REQUEST_INVALID", "the request must be one UTF-8 JSON object")
+        if not isinstance(data, dict) or set(data) != {"event"} or data["event"] not in funnel_mod.BROWSER_EVENTS:
+            return _error(400, "REQUEST_INVALID", "unknown event")
+        self.funnel.count(data["event"])
+        return Response(204)
+
+    # ---- optional marketing opt-in (isolated QA store) ----------------------------------------
+    def _lead_body(self, body: bytes, keys: set):
+        try:
+            data = json.loads(body.decode("utf-8"), object_pairs_hook=_no_duplicates)
+        except (UnicodeDecodeError, ValueError, RecursionError):
+            return None
+        return data if isinstance(data, dict) and set(data) == keys else None
+
+    def lead_subscribe(self, body: bytes, client: str) -> Response:
+        if self.leads is None:
+            return _error(404, "NOT_FOUND", "not found")
+        if not self._lead_limit.allow("sub:" + client):
+            return _error(429, "RATE_LIMITED", "too many attempts; try again in a minute")
+        data = self._lead_body(body, {"email", "marketing_consent", "adult", "consent_version", "locale"})
+        if data is None or not self.leads.valid_email(data["email"]):
+            return _error(400, "LEAD_INVALID", "enter a valid e-mail address")
+        # Consent must be the visitor's own explicit action on the current wording; never implied or pre-ticked.
+        if data["marketing_consent"] is not True:
+            return _error(400, "CONSENT_REQUIRED", "tick the box to agree to receive offers, or skip this step")
+        if data["adult"] is not True:
+            return _error(400, "ADULT_REQUIRED", "sign-up is for people aged 18 or older")
+        if data["consent_version"] != leads_mod.CONSENT_VERSION:
+            return _error(409, "CONSENT_VERSION_CHANGED", "the sign-up wording has changed; please reload the page")
+        if data["locale"] not in leads_mod.LOCALES:
+            return _error(400, "LEAD_INVALID", "unsupported language")
+        issued = self.leads.subscribe(data["email"], data["locale"])
+        if issued is not None:
+            self._send_mail(leads_mod.compose_confirm(self.s.mail_from, issued[0], self.s.public_origin, issued[1]))
+        return _json(202, {"status": "check_email",
+                           "message": "If this address can be added, we have sent a confirmation link. "
+                                      "Nothing is sent to you until you confirm."})
+
+    def lead_link(self, body: bytes, client: str) -> Response:
+        if self.leads is None:
+            return _error(404, "NOT_FOUND", "not found")
+        if not self._lead_limit.allow("link:" + client):
+            return _error(429, "RATE_LIMITED", "too many attempts; try again in a minute")
+        data = self._lead_body(body, {"email"})
+        if data is None or not self.leads.valid_email(data["email"]):
+            return _error(400, "LEAD_INVALID", "enter a valid e-mail address")
+        issued = self.leads.manage_link(data["email"])
+        if issued is not None:
+            self._send_mail(leads_mod.compose_link(self.s.mail_from, issued[0], self.s.public_origin, issued[1]))
+        return _json(202, {"status": "check_email",
+                           "message": "If this address is signed up, we have sent it a link to manage or delete it."})
+
+    def lead_token_action(self, body: bytes, client: str, action: str) -> Response:
+        if self.leads is None:
+            return _error(404, "NOT_FOUND", "not found")
+        if not self._lead_limit.allow("tok:" + client):
+            return _error(429, "RATE_LIMITED", "too many attempts; try again in a minute")
+        data = self._lead_body(body, {"token"})
+        if data is None:
+            return _error(400, "LEAD_INVALID", "this link is not valid")
+        outcome = getattr(self.leads, action)(data["token"])
+        if action == "delete" and outcome is not None and self.leads.cleanup_pending:
+            # The row is gone; only old page copies await a checkpoint, which is retried on the next call.
+            security_log("LEAD_WAL_CLEANUP_PENDING", 200, "leads_delete")
+        if outcome is None:
+            return _error(404, "LINK_INVALID", "this link is not valid or has expired; ask for a new one below")
+        return _json(200, {"status": outcome})

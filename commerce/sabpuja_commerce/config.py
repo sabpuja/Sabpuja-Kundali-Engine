@@ -69,6 +69,21 @@ class Settings:
     source_url: str = "https://github.com/sabpuja/Sabpuja-Kundali-Engine"  # AGPL-3.0 Corresponding Source
     mail_from: str = "Sabpuja <no-reply@sabpuja.com>"
     mail_queue_size: int = 100
+    # Free preview (KUN-FREEMIUM-PREVIEW-001, issue #91). Off unless switched on; QA only until owner release.
+    preview_enabled: bool = False
+    preview_fields: tuple[str, ...] = ("lagna_rashi", "moon_rashi")
+    # SCI-06 +/-2 min birth-time check: adoption and wording PENDING, so off; QA research only (001A finding 2).
+    preview_birth_time_check: bool = False
+    preview_rate_per_minute: int = 6       # per client address, in memory
+    preview_rate_per_hour: int = 40        # per client address, in memory
+    preview_global_per_minute: int = 120   # all clients together
+    max_concurrent_previews: int = 2       # separate from max_concurrent_renders: the paid route keeps its slot
+    preview_buy_url: str = ""              # empty: Shopify cart permalink for the first product variant
+    preview_price_display: str = ""        # owner-approved selling price text; empty shows "price to be confirmed"
+    funnel_db_path: str = ""               # aggregate daily counters; empty: measurement off
+    beacon_rate_per_minute: int = 20       # per client, for the two browser funnel events
+    lead_capture_enabled: bool = False     # optional marketing opt-in; isolated QA store only
+    leads_db_path: str = ""                # separate SQLite file, never the entitlement database
 
     @property
     def generations_per_unit(self) -> int:
@@ -118,7 +133,36 @@ class Settings:
             raise ConfigError("claim window plus generation window must fit inside the order-read horizon")
         if self.mail_queue_size < 1:
             raise ConfigError("mail_queue_size must be positive")
+        from .preview import FIELD_REGISTRY
+        if not self.preview_fields or any(FIELD_REGISTRY.get(f, {}).get("status") != "enabled"
+                                          for f in self.preview_fields):
+            raise ConfigError("preview_fields must name enabled preview fields only (vara is withheld)")
+        for name in ("preview_rate_per_minute", "preview_rate_per_hour", "preview_global_per_minute",
+                     "max_concurrent_previews", "beacon_rate_per_minute"):
+            if getattr(self, name) < 1:
+                raise ConfigError(f"{name} must be positive")
+        if self.preview_buy_url and not re.fullmatch(
+                re.escape(f"https://{self.shop_domain}/") + r"(cart/[0-9]{1,20}:1|products/[a-z0-9-]{1,100})",
+                self.preview_buy_url):
+            raise ConfigError("preview_buy_url must be a cart permalink or product page on shop_domain")
+        if len(self.preview_price_display) > 40 or re.search(r"[<>\"'&\x00-\x1f]", self.preview_price_display):
+            raise ConfigError("preview_price_display must be short plain text")
+        if self.preview_enabled and not self.preview_price_display and not self.allow_test_orders:
+            # A working Buy button without a price is acceptable on the QA store only (001A finding 4).
+            raise ConfigError("preview_price_display (the owner-approved price) is required outside the QA store")
+        if self.lead_capture_enabled:
+            if not self.leads_db_path or (self.leads_db_path == self.db_path and self.db_path != ":memory:"):
+                raise ConfigError("lead capture needs its own leads_db_path, separate from the entitlement database")
+            if not self.preview_enabled:
+                raise ConfigError("lead capture is offered only after a preview")
+        if self.funnel_db_path and self.funnel_db_path in (self.db_path, self.leads_db_path) \
+                and self.funnel_db_path != ":memory:":
+            raise ConfigError("funnel_db_path must be its own file")
         return self
+
+    @property
+    def buy_url(self) -> str:
+        return self.preview_buy_url or f"https://{self.shop_domain}/cart/{self.products[0].variant_id}:1"
 
 
 def _read_secret(path: str) -> bytes:
@@ -141,6 +185,8 @@ def load(path: str) -> Settings:
     client_secret_file = raw.pop("admin_client_secret_file", None)
     if client_secret_file:
         raw["admin_client_secret"] = _read_secret(client_secret_file)
+    if "preview_fields" in raw:
+        raw["preview_fields"] = tuple(raw["preview_fields"])
     if "required_scopes" in raw:
         raw["required_scopes"] = tuple(raw["required_scopes"])
     raw.setdefault("ephe_path", os.environ.get("SABPUJA_EPHE_PATH", ""))
