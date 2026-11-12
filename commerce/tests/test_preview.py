@@ -729,3 +729,170 @@ class LeadConsent(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ---------------------------------------------------------------------------------------------------------------
+class LeadDiskCleanup(unittest.TestCase):
+    """KUN-FREEMIUM-PRIVACY-004: a deleted address must not survive in the live main file or its WAL (synthetic)."""
+    PEPPER = b"p" * 32
+    A, B, C = ("synthetic.wal.a@example.invalid", "synthetic.wal.b@example.invalid", "synthetic.wal.c@example.invalid")
+
+    def setUp(self):
+        import tempfile
+        self.dir = tempfile.TemporaryDirectory()
+        self.path = str(Path(self.dir.name) / "leads-qa.sqlite")
+        self.clock = h.Clock(1_800_000_000)
+        self.sleeps = []
+        self.store = self.open()
+
+    def tearDown(self):
+        with contextlib.suppress(Exception):
+            self.store.close()
+        self.dir.cleanup()
+
+    def open(self, **kw):
+        return leads_mod.LeadStore(self.path, self.PEPPER, clock=self.clock, sleep=self.sleeps.append, **kw)
+
+    def raw(self) -> bytes:
+        """Every byte of the live files: main database, WAL and shared-memory index."""
+        out = b""
+        for suffix in ("", "-wal", "-shm"):
+            with contextlib.suppress(FileNotFoundError):
+                out += Path(self.path + suffix).read_bytes()
+        return out
+
+    def wal_size(self) -> int:
+        p = Path(self.path + "-wal")
+        return p.stat().st_size if p.exists() else 0
+
+    def signed_up(self, email, confirm=True):
+        address, token = self.store.subscribe(email, "en")
+        if confirm:
+            self.assertEqual(self.store.confirm(token), "subscribed")
+        return token
+
+    def test_wal_mode_with_secure_delete(self):
+        self.assertEqual(self.store._db.execute("PRAGMA journal_mode").fetchone()[0], "wal")
+        self.assertEqual(self.store._db.execute("PRAGMA secure_delete").fetchone()[0], 1)
+
+    def test_confirm_withdraw_delete_leaves_no_address_bytes(self):
+        token = self.signed_up(self.A)
+        self.assertIn(self.A.encode(), self.raw())                    # sanity: the detector sees the address
+        self.assertGreater(self.wal_size(), 0)
+        self.assertEqual(self.store.withdraw(token), "withdrawn")
+        self.assertEqual(self.store.counts()["withdrawn"], 1)
+        self.assertIn(self.A.encode(), self.raw(), "withdrawal keeps the suppression record by design")
+        self.assertEqual(self.store.delete(token), "deleted")
+        self.assertFalse(self.store.cleanup_pending)
+        self.assertEqual(self.wal_size(), 0, "WAL truncated after the deletion")
+        self.assertNotIn(self.A.encode(), self.raw())
+        self.assertNotIn(b"synthetic.wal.a", self.raw())
+        self.assertEqual(self.store.counts(), {"pending": 0, "subscribed": 0, "withdrawn": 0})
+
+    def test_delete_keeps_other_records(self):
+        ta = self.signed_up(self.A)
+        self.signed_up(self.B)
+        self.store.delete(ta)
+        raw = self.raw()
+        self.assertNotIn(self.A.encode(), raw)
+        self.assertIn(self.B.encode(), raw)
+        self.assertEqual(self.store.mailable(), [self.B])
+
+    def test_repeated_deletion_is_safe(self):
+        token = self.signed_up(self.A)
+        self.assertEqual(self.store.delete(token), "deleted")
+        self.assertIsNone(self.store.delete(token))
+        self.assertIsNone(self.store.status(token))
+        self.assertFalse(self.store.cleanup_pending)
+        self.assertNotIn(self.A.encode(), self.raw())
+
+    def test_expired_pending_sign_up_purged_from_disk(self):
+        self.store.subscribe(self.A, "en")                            # never confirmed
+        self.clock.advance(8 * 86400)
+        self.assertEqual(self.store.purge(), 1)
+        self.assertEqual(self.wal_size(), 0)
+        self.assertNotIn(self.A.encode(), self.raw())
+
+    def test_reader_holding_old_snapshot_is_never_reported_clean(self):
+        token = self.signed_up(self.A)
+        reader = sqlite3.connect(self.path)
+        reader.execute("BEGIN")
+        reader.execute("SELECT COUNT(*) FROM leads").fetchone()       # snapshot that still contains the row
+        import time as _t
+        started = _t.monotonic()
+        self.assertEqual(self.store.delete(token), "deleted")          # the deletion itself stands
+        self.assertLess(_t.monotonic() - started, 1.0, "never blocks the request")
+        self.assertTrue(self.store.cleanup_pending, "busy checkpoint is reported, not claimed clean")
+        self.assertEqual(len(self.sleeps), 2, "bounded retries (3 attempts)")
+        self.assertIn(self.A.encode(), self.raw())                     # honest: bytes still there while busy
+        self.assertEqual(self.store.mailable(), [])                    # but the row is gone for the service
+        self.assertFalse(self.store.scrub())
+        reader.rollback()
+        reader.close()
+        self.assertIsNone(self.store.status(token))                     # next call retries the checkpoint
+        self.assertFalse(self.store.cleanup_pending)
+        self.assertNotIn(self.A.encode(), self.raw())
+
+    def test_api_delete_logs_pending_cleanup_without_personal_data(self):
+        hd = PreviewHarness(service=FakeService())
+        hd.leads = hd.app.leads = self.store
+        token = self.signed_up(self.A)
+        reader = sqlite3.connect(self.path)
+        reader.execute("BEGIN")
+        reader.execute("SELECT COUNT(*) FROM leads").fetchone()
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            resp = hd.post("/api/leads/delete", {"token": token})
+        reader.rollback()
+        reader.close()
+        self.assertEqual(resp.status, 200)
+        self.assertIn("LEAD_WAL_CLEANUP_PENDING", err.getvalue())
+        self.assertNotIn("synthetic", err.getvalue())
+        self.assertNotIn(token, err.getvalue())
+
+    def test_failed_cleanup_completes_on_restart(self):
+        token = self.signed_up(self.A)
+        reader = sqlite3.connect(self.path)
+        reader.execute("BEGIN")
+        reader.execute("SELECT COUNT(*) FROM leads").fetchone()
+        self.store.delete(token)
+        self.assertTrue(self.store.cleanup_pending)
+        reader.rollback()
+        reader.close()
+        self.store.close()
+        self.store = self.open()                                        # start-up checkpoint
+        self.assertFalse(self.store.cleanup_pending)
+        self.assertNotIn(self.A.encode(), self.raw())
+
+    def test_restart_preserves_records_and_consent_states(self):
+        self.signed_up(self.A)                                         # subscribed
+        self.signed_up(self.B, confirm=False)                          # pending
+        tc = self.signed_up(self.C)
+        self.store.withdraw(tc)                                        # withdrawn
+        before = [dict(r) for r in self.store._db.execute("SELECT * FROM leads ORDER BY id")]
+        self.store.close()
+        self.store = self.open()
+        after = [dict(r) for r in self.store._db.execute("SELECT * FROM leads ORDER BY id")]
+        self.assertEqual(before, after)
+        self.assertEqual(self.store.counts(), {"pending": 1, "subscribed": 1, "withdrawn": 1})
+        self.assertEqual(self.store.mailable(), [self.A])
+
+    def test_no_birth_or_chart_column_in_file(self):
+        cols = {r[1] for r in self.store._db.execute("PRAGMA table_info(leads)")}
+        for word in ("birth", "date_of", "time_of", "place", "lagna", "moon", "rashi", "chart", "name", "order",
+                     "ip", "device"):
+            self.assertFalse([c for c in cols if word in c and c not in ("consent_version",)], word)
+        tables = {r[0] for r in self.store._db.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+        self.assertEqual(tables, {"leads"})
+
+    def test_entitlement_database_journaling_untouched(self):
+        ent = str(Path(self.dir.name) / "entitlements.sqlite")
+        Store(ent, self.PEPPER)
+
+        def mode():
+            with contextlib.closing(sqlite3.connect(ent)) as c:
+                return c.execute("PRAGMA journal_mode").fetchone()[0]
+        mode_before = mode()
+        token = self.signed_up(self.A)
+        self.store.delete(token)
+        self.assertEqual(mode(), mode_before)

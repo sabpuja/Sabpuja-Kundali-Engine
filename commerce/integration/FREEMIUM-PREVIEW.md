@@ -86,6 +86,17 @@ birth data).
   scripts cannot subscribe anyone; confirm is a same-origin POST with the Origin check). Unconfirmed sign-ups are deleted after
   7 days. Withdraw keeps a minimal "withdrawn" record; delete removes the row. A new manage link can be requested by
   address (neutral reply). 10-minute resend cooldown, 3 mails per address per day. Tokens travel in the URL fragment.
+* **Deleted data on disk (PRIVACY-004).** The file is SQLite in WAL mode with `secure_delete`. After a deletion
+  (`delete`, and the 7-day purge of unconfirmed sign-ups) the store runs `PRAGMA wal_checkpoint(TRUNCATE)` and counts
+  it as done only when the checkpoint completed and the `-wal` file is 0 bytes; then the address is in neither the
+  main file nor the WAL (raw-byte tests). The checkpoint never waits for readers: 3 attempts, 50 ms apart. If a
+  reader still holds an older snapshot, the deletion stands, the API logs `LEAD_WAL_CLEANUP_PENDING` (no personal
+  data), and the checkpoint is retried on the next lead call and at start-up; `--leads-summary` shows
+  `wal_cleanup_pending`. Withdrawal is not deletion: it keeps the address as a "withdrawn" suppression record.
+  **Not covered:** copies outside the live files, i.e. deployment backups such as `state.bak-<UTC>` and
+  `leads-qa.sqlite` copies in them, host or volume snapshots, and earlier copies of the directory. They keep a deleted
+  address until they are themselves deleted under their own retention; QA backups that hold `leads-qa.sqlite` must be
+  deleted or re-taken after a deletion request is honoured.
 * In QA the confirmation mail goes to the private Mailpit sink. **No marketing message is sent by this code**, and
   nothing syncs to Shopify customers. Shopify's own marketing-consent fields must be aligned before any real send.
 

@@ -12,6 +12,18 @@ carries a manage link. Withdrawal keeps a minimal "withdrawn" record so the with
 removes the row. Unconfirmed sign-ups are deleted after `pending_days`. This module sends no marketing:
 the only mails are the confirmation and the manage link, and in QA they go to the private Mailpit sink.
 Tokens are random, stored only as HMACs, and travel in the URL fragment (never sent to a server by a browser).
+
+Deleted data on disk (KUN-FREEMIUM-PRIVACY-004). The file uses WAL journaling with `secure_delete`. A DELETE is
+committed at once (autocommit), but SQLite keeps the earlier page versions, which still hold the address, in the
+`-wal` file until a checkpoint copies the pages back and the WAL is reset. So after a deletion (`delete`, and `purge`
+of expired sign-ups) the store runs `PRAGMA wal_checkpoint(TRUNCATE)`: it succeeds only when no reader still holds an
+older snapshot, and then the WAL is truncated to 0 bytes and the main file holds only zeroed (secure_delete) pages.
+The checkpoint never waits: `busy_timeout` is 0 and it is tried a bounded number of times
+(`checkpoint_attempts` with `checkpoint_pause` seconds between). If it cannot complete, the deletion itself still
+stands, `cleanup_pending` is set and the checkpoint is retried on the next call and at start-up; `--leads-summary`
+reports `wal_cleanup_pending`. Withdrawal is not a deletion: it keeps the address with status "withdrawn" so the
+withdrawal is honoured, and needs no cleanup. This does not erase copies made outside the live files (backups,
+filesystem or volume snapshots, earlier copies of the directory): those follow their own retention.
 """
 from __future__ import annotations
 
@@ -19,6 +31,7 @@ from email.message import EmailMessage
 from email.utils import formatdate, make_msgid
 import hashlib
 import hmac
+import os
 import re
 import secrets
 import sqlite3
@@ -33,6 +46,7 @@ SOURCE = "kundali_free_preview"
 LOCALES = frozenset({"en", "hi"})
 CONFIRM_SUBJECT = "Please confirm: Sabpuja offers by e-mail"
 LINK_SUBJECT = "Your Sabpuja e-mail preferences link"
+BUSY_TIMEOUT_MS = 2000
 _EMAIL = re.compile(r"^[^@\s]{1,64}@[^@\s]{1,255}$")
 _TOKEN = re.compile(r"^[A-Za-z0-9_-]{30,64}$")
 
@@ -52,19 +66,67 @@ CREATE TABLE IF NOT EXISTS leads (
 
 class LeadStore:
     def __init__(self, path: str, pepper: bytes, clock=time.time, pending_days: int = 7,
-                 resend_cooldown_seconds: int = 600, max_mails_per_day: int = 3, token_days: int = 30):
+                 resend_cooldown_seconds: int = 600, max_mails_per_day: int = 3, token_days: int = 30,
+                 checkpoint_attempts: int = 3, checkpoint_pause: float = 0.05, sleep=time.sleep):
         if not pepper or len(pepper) < 32:
             raise ValueError("lead store needs the service pepper")
         self._pepper = hmac.new(pepper, b"sabpuja-leads/1", hashlib.sha256).digest()  # domain-separated key
         self._clock, self._lock = clock, threading.RLock()
         self.pending_days, self.cooldown, self.max_mails = pending_days, resend_cooldown_seconds, max_mails_per_day
         self.token_days = token_days
-        self._db = sqlite3.connect(path, isolation_level=None, check_same_thread=False)
+        self._attempts, self._pause, self._sleep = max(1, int(checkpoint_attempts)), checkpoint_pause, sleep
+        self._path, self._wal = path, path != ":memory:"
+        self.cleanup_pending = False
+        self._db = sqlite3.connect(path, isolation_level=None, check_same_thread=False, timeout=BUSY_TIMEOUT_MS / 1000)
         self._db.row_factory = sqlite3.Row
         self._db.execute("PRAGMA secure_delete = ON")
-        if path != ":memory:":
+        if self._wal:
             self._db.execute("PRAGMA journal_mode = WAL")
         self._db.executescript(_SCHEMA)
+        if self._wal:
+            self.scrub()  # fold in anything a previous process left in the WAL
+
+    def close(self) -> None:
+        with self._lock:
+            self._db.close()
+
+    def scrub(self) -> bool:
+        """Checkpoint the WAL into the main file and truncate it, so deleted rows leave no old page copies behind.
+        True only when the checkpoint completed and the WAL is empty. Never blocks for long (see module doc)."""
+        if not self._wal:
+            self.cleanup_pending = False
+            return True
+        with self._lock:
+            if self._db.in_transaction:  # autocommit store: a deletion is always committed before this point
+                raise RuntimeError("checkpoint inside a transaction")
+            # Ordinary statements may wait up to BUSY_TIMEOUT_MS for another writer; the checkpoint never waits for
+            # readers (busy_timeout 0 while it runs), it is only retried a bounded number of times.
+            self._db.execute("PRAGMA busy_timeout = 0")
+            try:
+                for attempt in range(self._attempts):
+                    if attempt:
+                        self._sleep(self._pause)
+                    try:
+                        busy, log, done = self._db.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
+                    except sqlite3.OperationalError:  # locked by another connection
+                        continue
+                    if busy == 0 and log == done and self._wal_bytes() == 0:
+                        self.cleanup_pending = False
+                        return True
+                self.cleanup_pending = True
+                return False
+            finally:
+                self._db.execute(f"PRAGMA busy_timeout = {BUSY_TIMEOUT_MS}")
+
+    def _wal_bytes(self) -> int:
+        try:
+            return os.path.getsize(self._path + "-wal")
+        except FileNotFoundError:
+            return 0
+
+    def _retry_cleanup(self) -> None:
+        if self.cleanup_pending:
+            self.scrub()
 
     def now(self) -> int:
         return int(self._clock())
@@ -81,6 +143,10 @@ class LeadStore:
         with self._lock:
             cur = self._db.execute("DELETE FROM leads WHERE status = 'pending' AND created_at < ?",
                                    (self.now() - self.pending_days * 86400,))
+            if cur.rowcount:
+                self.scrub()
+            else:
+                self._retry_cleanup()
             return cur.rowcount
 
     def _may_mail(self, row) -> bool:
@@ -141,6 +207,7 @@ class LeadStore:
 
     def status(self, token: str) -> str | None:
         with self._lock:
+            self._retry_cleanup()
             row = self._by_token(token)
             return None if row is None else row["status"]
 
@@ -169,7 +236,8 @@ class LeadStore:
             row = self._by_token(token)
             if row is None:
                 return None
-            self._db.execute("DELETE FROM leads WHERE id = ?", (row["id"],))
+            self._db.execute("DELETE FROM leads WHERE id = ?", (row["id"],))  # committed (autocommit)
+            self.scrub()  # the deletion stands even if this has to be retried later (cleanup_pending)
             return "deleted"
 
     def mailable(self) -> list[str]:

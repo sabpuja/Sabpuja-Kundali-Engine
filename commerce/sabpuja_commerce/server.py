@@ -138,7 +138,8 @@ def main(argv=None) -> int:
         print(json.dumps((funnel or funnel_mod.NullFunnel()).report()))
         return 0
     if args.leads_summary:
-        print(json.dumps(leads.counts() if leads else {"lead_capture": "disabled"}))
+        print(json.dumps(leads.counts() | {"wal_cleanup_pending": not leads.scrub()} if leads
+                         else {"lead_capture": "disabled"}))
         return 0
     if args.list_exceptions:
         print(json.dumps(store.open_exceptions()))

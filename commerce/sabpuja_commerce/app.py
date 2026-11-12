@@ -612,6 +612,9 @@ class App:
         if data is None:
             return _error(400, "LEAD_INVALID", "this link is not valid")
         outcome = getattr(self.leads, action)(data["token"])
+        if action == "delete" and outcome is not None and self.leads.cleanup_pending:
+            # The row is gone; only old page copies await a checkpoint, which is retried on the next call.
+            security_log("LEAD_WAL_CLEANUP_PENDING", 200, "leads_delete")
         if outcome is None:
             return _error(404, "LINK_INVALID", "this link is not valid or has expired; ask for a new one below")
         return _json(200, {"status": outcome})
