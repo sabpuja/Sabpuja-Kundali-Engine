@@ -127,30 +127,39 @@ class TreeAndCommit(unittest.TestCase):
                              capture_output=True, check=True, text=True).stdout
         self.assertEqual(out, f"M\t{SUN}\nM\t{VARA}\n")
 
-    def test_only_status_and_provenance_lines_change_in_the_engine_modules(self):
-        """No formula, threshold or refusal line changes: every changed line of sun.py and vara.py is in the
-        docstring or in a status, claim-boundary or convention-decision constant."""
-        allowed = ("STATUS", "CLAIM_BOUNDARY", "CONVENTION_STATUS", "convention_status", "convention_decision",
-                   "claim_boundary")
+    def test_engine_modules_change_only_docstring_and_status_metadata(self):
+        """No formula, threshold, convention constant, rounding, refusal or timezone code changes: with the module
+        docstring, the status and claim constants and the status/claim/decision fields neutralised, sun.py and
+        vara.py have exactly the syntax tree of 30bdace."""
+        import ast
+        constants = {"VALIDATION_STATUS", "STATUS", "CLAIM_BOUNDARY"}
+        fields = {"convention_status", "claim_boundary", "convention_decision"}
+
+        def fingerprint(src):
+            tree = ast.parse(src)
+            if tree.body and isinstance(tree.body[0], ast.Expr) and isinstance(tree.body[0].value, ast.Constant):
+                tree.body = tree.body[1:]
+            body = []
+            for node in tree.body:
+                names = [getattr(t, "id", None) for t in node.targets] if isinstance(node, ast.Assign) else []
+                if names == ["CONVENTION_STATUS"]:
+                    continue
+                if len(names) == 1 and names[0] in constants:
+                    node.value = ast.Constant("X")
+                body.append(node)
+            tree.body = body
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Dict):
+                    for i, key in enumerate(node.keys):
+                        if isinstance(key, ast.Constant) and key.value in fields:
+                            node.values[i] = ast.Constant("X")
+            return ast.dump(tree)
+        base = Git(REPO).blobs(iv11.BASE_COMMIT, [SUN, VARA])
         for path in (SUN, VARA):
-            diff = subprocess.run(["git", "-C", str(REPO), "diff", "-U0", iv11.BASE_COMMIT, "HEAD", "--", path],
-                                  capture_output=True, check=True, text=True).stdout
-            base = subprocess.run(["git", "-C", str(REPO), "show", f"{iv11.BASE_COMMIT}:{path}"],
-                                  capture_output=True, check=True, text=True).stdout
-            head = (REPO / path).read_text(encoding="utf-8")
-            doc_end_base, doc_end_head = base.index('"""', 3) + 3, head.index('"""', 3) + 3
-            self.assertEqual(base[doc_end_base:].count("\n") > 0, True)
-            code_base = [l for l in base[doc_end_base:].splitlines()]
-            code_head = [l for l in head[doc_end_head:].splitlines()]
-            removed = [l for l in code_base if l not in code_head]
-            added = [l for l in code_head if l not in code_base]
-            for line in removed + added:
-                with self.subTest(path=path, line=line):
-                    stripped = line.strip()
-                    self.assertTrue(stripped == "" or stripped.startswith(('"', "#"))
-                                    or any(stripped.startswith(a) or f'"{a}"' in stripped for a in allowed),
-                                    line)
-            self.assertTrue(diff)
+            with self.subTest(path):
+                head = (REPO / path).read_bytes()
+                self.assertNotEqual(head, base[path])
+                self.assertEqual(fingerprint(head.decode("utf-8")), fingerprint(base[path].decode("utf-8")))
 
     def test_vara_fixtures_change_only_status_fields(self):
         """Every one of the 25 Vara documents differs from 30bdace only in status, claim_boundary and
