@@ -231,3 +231,23 @@ None of these rows authorizes a code change, a merge, a deployment, a release or
 **Rule from now on:** the owner explicitly approves in chat; the decision, its date and scope are recorded accurately in the relevant GitHub issue or PR; work continues within that scope. No PDF, signed sheet, attestation form, digital signature, second owner confirmation or separate GitHub click is required. Merge, deployment and customer release remain separate actions that each need the owner's explicit instruction, which can be given in ordinary chat and recorded in GitHub. A GitHub record relaying a chat decision is an audit note, not cryptographic proof of identity. An AI may relay or record a decision, never make it or sign for the owner.
 
 **Applied to the editorial register** (`docs/i18n/review/kun-i18n-003/`): the signed-sheet procedure and `OWNER-COPY-ATTESTATION.md` are retired. Changes A and B (register items 13 and 15) are recorded as owner-accepted from the owner's chat decision (issue #73) and the owner-authorized merge of PR #74, with issue #75 as the audit reference. Human Hindi and Jyotish reviewers may give feedback as GitHub comments; their 19 + 8 decisions are not yet given and stay PENDING. `customer_release` stays PENDING. LEG-01 is unchanged. Production NO-GO.
+
+---
+
+## KUN-PAN-VARA-G2-001: sunrise and Vara conventions adopted for the English Essentials edition (2026-11-12)
+
+*Append-only record. It changes no earlier row, status or date.*
+
+**Provenance.** The owner decided in chat on 2026-11-12 ("i will go with your recommendation"), in reply to the two-item proposal of the independent QA review of draft PR #93 ([review 5873914844](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/93#pullrequestreview-5873914844)). The decision is recorded in [PR #93 comment 6822876554](https://github.com/sabpuja/Sabpuja-Kundali-Engine/pull/93#issuecomment-6822876554) and was confirmed by the owner directly to Claude in the task KUN-PAN-VARA-G2-001 (project chat, 2026-11-12). Under KUN-GOV-SIMPLE-001 this chat approval recorded in GitHub is sufficient; no signature is required. Supporting evidence: engineering QA of the sun module (PR #82 at `c759c41`) and the independent scientific review KUN-PAN-VARA-RELEASE-001.
+
+**Scope of every row:** customer release of the 14-page English Janam Kundali Essentials edition (`janam-kundali-essentials-en/1`) only. Calculated, not observed or certified; times rounded to the minute and marked "about"; the 5-minute near-sunrise band is a birth-time review prompt, not an accuracy bound; local Panchangs may differ by method and reference place.
+
+| ID | Item | Owner decision | Status |
+|---|---|---|---|
+| PAN-D03 | Sunrise convention | `SUN-D-IMD-47`: the IMD upper-limb rule, 31′ refraction + 16′ semidiameter (centre 47′ below a sea-level, level horizon), applied **at the birthplace**. Not IMD's Central Station day or city tables; not an observed sunrise. `SUN-A-USNO-50` stays comparison-only | **OWNER ADOPTED, scoped to the edition above** |
+| PAN-D05 | Vara boundary | Vara is the weekday of the latest calculated sunrise at or before birth, lasting until the next sunrise; the civil weekday is reported separately and never substituted | **OWNER ADOPTED, scoped** |
+| PAN-D11-B | Unavailable sunrise | Withhold the Vara with an accurate typed reason when the governing sunrise cannot be calculated, the day end is undefined, or the governing sunrise is outside the supported dates; never guessed or backfilled | **OWNER ADOPTED, scoped** |
+| PAN-D17 | Sunset | First sunset after the governing sunrise, at the same birthplace and under the same 47′ rule | **OWNER ADOPTED, scoped** |
+| Copy | Page 12 English wording | The Essentials English overlay exactly as in PR #93 at `30bdacea14eac444f0dc3353b5922134a255c697` (KUN-PAN-VARA-COPY-001) is approved; not later edits, not Hindi | **OWNER APPROVED** (`wording_status` = `APPROVED_FOR_CUSTOMER_RELEASE`) |
+
+These rows authorize only the metadata and status changes of KUN-PAN-VARA-G2-001 (no formula, threshold, rounding, refusal or timezone change). They do not authorize a merge, deployment, production sale, Shopify or price change, customer email or marketing. Every other product-release gate remains. **Production NO-GO** until the owner separately authorizes release.

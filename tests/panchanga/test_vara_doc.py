@@ -28,7 +28,34 @@ from .common import EPHE, SWETEST, real_data
 IST = timezone(timedelta(hours=5, minutes=30))
 EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 JAIPUR = (26.91962, 75.78781)
-SUN_PY_SHA256 = "901e31d58cd87d860f155880b6a8c8ab306dc3ed992273ac9039d8c9463c6f53"   # as accepted at c759c41
+SUN_PY_ACCEPTED_SHA256 = "901e31d58cd87d860f155880b6a8c8ab306dc3ed992273ac9039d8c9463c6f53"   # as accepted at c759c41
+SUN_PY_ACCEPTED_COMMIT = "c759c412b22753f7f5b6134e2aaaad0f04412007"
+# KUN-PAN-VARA-G2-001 changes only sun.py's docstring and status metadata (owner adoption of PAN-D03, PR #93).
+SUN_PY_SHA256 = "34a29d8c868e5e27331105c8cc72b9c56a4aa2832fa4cda815157ec11f569b1b"
+SUN_PATH = "src/sabpuja_kundali/panchanga/sun.py"
+
+
+def _code_fingerprint(src: str) -> str:
+    """The module's code with its docstring, status constants and status/claim fields neutralised."""
+    import ast
+    tree = ast.parse(src)
+    if tree.body and isinstance(tree.body[0], ast.Expr) and isinstance(tree.body[0].value, ast.Constant):
+        tree.body = tree.body[1:]
+    body = []
+    for node in tree.body:
+        names = [getattr(t, "id", None) for t in node.targets] if isinstance(node, ast.Assign) else []
+        if names == ["CONVENTION_STATUS"]:
+            continue
+        if names == ["VALIDATION_STATUS"]:
+            node.value = ast.Constant("X")
+        body.append(node)
+    tree.body = body
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Dict):
+            for i, key in enumerate(node.keys):
+                if isinstance(key, ast.Constant) and key.value in ("convention_status", "claim_boundary"):
+                    node.values[i] = ast.Constant("X")
+    return ast.dump(tree)
 
 
 def req(local: str, tz: str = "Asia/Kolkata", lat: float = JAIPUR[0], lon: float = JAIPUR[1]) -> dict:
@@ -44,8 +71,26 @@ def local_iso(us: int, offset=IST) -> str:
 
 
 class Static(unittest.TestCase):
-    def test_sun_module_is_byte_identical_to_the_accepted_one(self):
+    def test_sun_module_is_pinned(self):
         self.assertEqual(hashlib.sha256(Path(sun.__file__).read_bytes()).hexdigest(), SUN_PY_SHA256)
+
+    def test_sun_module_code_is_the_accepted_one(self):
+        """Apart from its docstring and status metadata, sun.py is the code accepted at c759c41: no formula,
+        threshold, convention constant, rounding, refusal or timezone line changed (KUN-PAN-VARA-G2-001)."""
+        root = Path(sun.__file__).resolve().parents[3]
+        try:
+            accepted = subprocess.run(["git", "-C", str(root), "show", f"{SUN_PY_ACCEPTED_COMMIT}:{SUN_PATH}"],
+                                      capture_output=True, check=True).stdout
+        except (OSError, subprocess.CalledProcessError):
+            self.skipTest("needs a git clone with c759c41 to read the accepted sun.py")
+        self.assertEqual(hashlib.sha256(accepted).hexdigest(), SUN_PY_ACCEPTED_SHA256)
+        current = Path(sun.__file__).read_text(encoding="utf-8")
+        self.assertNotEqual(current.encode("utf-8"), accepted)
+        self.assertEqual(_code_fingerprint(current), _code_fingerprint(accepted.decode("utf-8")))
+        self.assertEqual(sun.CONVENTIONS["SUN-D-IMD-47"]["depression_arcmin"], 47)
+        self.assertEqual(set(sun.CONVENTION_STATUS), set(sun.CONVENTIONS))
+        self.assertTrue(sun.CONVENTION_STATUS["SUN-D-IMD-47"].startswith("ADOPTED"))
+        self.assertTrue(sun.CONVENTION_STATUS["SUN-A-USNO-50"].startswith("COMPARISON ONLY"))
 
     def test_one_fixed_convention_and_no_usno(self):
         self.assertEqual(vara.CONVENTION, "SUN-D-IMD-47")
@@ -156,7 +201,7 @@ class Live(unittest.TestCase):
                                   "vara_differs_from_civil_weekday", "governing_sunrise", "sunset", "next_sunrise",
                                   "boundary", "provenance"})
         self.assertEqual(d["schema"], "sabpuja-panchanga-vara/1")
-        self.assertEqual(d["status"], "DEVELOPMENT_PREVIEW_NOT_FOR_CUSTOMERS")
+        self.assertEqual(d["status"], "OWNER_ADOPTED_FOR_ESSENTIALS_EN_CUSTOMER_RELEASE")
         self.assertEqual(d["governing_sunrise"]["utc_us"], self.g)
         self.assertLess(d["governing_sunrise"]["utc_us"], d["sunset"]["utc_us"])
         self.assertLess(d["sunset"]["utc_us"], d["next_sunrise"]["utc_us"])

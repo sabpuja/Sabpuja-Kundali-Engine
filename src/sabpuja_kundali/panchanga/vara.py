@@ -5,8 +5,9 @@ report page. It adds no astronomy of its own: every instant comes from the indep
 validation module `sun.py` (PR #82 at c759c41, ENGINEERING PASS), called only through its public
 functions `vara()` and `sun_day()` with one fixed convention.
 
-Convention (owner/PM decision recorded on PR #82, comment 6681108990, for the development stage only,
-not for customer release):
+Convention: adopted by the owner on 2026-11-12 for customer release of the 14-page English Janam Kundali
+Essentials edition (`janam-kundali-essentials-en/1`) only, recorded on PR #93, comment 6822876554, and in
+docs/DECISIONS.md (KUN-PAN-VARA-G2-001). Earlier development-stage decision: PR #82, comment 6681108990.
 
 * PAN-D03: `SUN-D-IMD-47`, the IMD definition (upper limb, 31' refraction + 16' semidiameter, centre 47'
   below a level sea-level horizon), applied at the BIRTHPLACE coordinates. This is Sabpuja's birthplace
@@ -31,7 +32,8 @@ measured or claimed physical accuracy.
 
 The chart request is validated and computed by the chart engine first, so every chart refusal keeps its
 code, text and order; the sun module's own refusals follow. Ephemeris, Swiss and numerical failures raise.
-Birth details are never logged. Status: development output, not for customers.
+Birth details are never logged. Status: owner-adopted method for the English Essentials edition, with
+engineering tests and an independent scientific review (KUN-PAN-VARA-RELEASE-001); calculated, not observed.
 
 CLI (same input contract as the chart and M1 CLIs):  python -m sabpuja_kundali.panchanga.vara < request.json
 """
@@ -46,16 +48,17 @@ from ..engine import InputRefusalError
 from . import sun as _sun
 
 SCHEMA = "sabpuja-panchanga-vara/1"
-STATUS = "DEVELOPMENT_PREVIEW_NOT_FOR_CUSTOMERS"
+STATUS = "OWNER_ADOPTED_FOR_ESSENTIALS_EN_CUSTOMER_RELEASE"
 METHOD_ID = "KUN-PAN-RPT-002"
 CONVENTION = "SUN-D-IMD-47"
 NEAR_SUNRISE_SECONDS = 300
-CLAIM_BOUNDARY = ("Development output for independent QA only. Not customer-facing. Sunrise and sunset are "
-                  "calculated for the birthplace with a sea-level, level-horizon, geocentric model under the "
-                  "IMD 47' definition; they do not establish when the Sun was actually visible. Times are "
-                  "approximate to the minute. Published USNO and IMD times agree within a coarse 120 s "
-                  "screen, which is not an accuracy claim, and IMD's four-city tables are not reproduced by "
-                  "one depression angle.")
+CLAIM_BOUNDARY = ("Owner-adopted method (PAN-D03, PAN-D05, PAN-D11-B, PAN-D17; PR #93 comment 6822876554) "
+                  "for customer release of the English Janam Kundali Essentials edition only, with engineering "
+                  "tests and an independent scientific review. Sunrise and sunset are calculated for the "
+                  "birthplace with a sea-level, level-horizon, geocentric model under the IMD 47' definition; "
+                  "they are not observations, do not establish when the Sun was actually visible, and no "
+                  "physical accuracy is certified. Times are approximate to the minute. Other Panchangs may use "
+                  "another sunrise rule or reference place and can differ.")
 DAY_END_UNDEFINED = "VARA_DAY_END_UNDEFINED"
 NEXT_OUTSIDE = "NEXT_SUNRISE_OUTSIDE_ENVELOPE"
 
@@ -64,8 +67,10 @@ METHOD = {
     "sun_module": {"method_id": _sun.METHOD_ID, "accepted_at": "c759c412b22753f7f5b6134e2aaaad0f04412007",
                    "functions": "sun.vara and sun.sun_day only"},
     "convention": CONVENTION,
-    "convention_decision": "PAN-D03 SUN-D-IMD-47 at the birthplace, adopted for the development stage only "
-                           "(PR #82 comment 6681108990); not released to customers",
+    "convention_decision": "PAN-D03 SUN-D-IMD-47 at the birthplace, with PAN-D05, PAN-D11-B and PAN-D17, "
+                           "adopted by the owner on 2026-11-12 for customer release of "
+                           "janam-kundali-essentials-en/1 only (PR #93 comment 6822876554); development stage "
+                           "earlier (PR #82 comment 6681108990)",
     "depression_arcmin": _sun.CONVENTIONS[CONVENTION]["depression_arcmin"],
     "refraction_arcmin": _sun.CONVENTIONS[CONVENTION]["refraction_arcmin"],
     "semidiameter_arcmin": _sun.CONVENTIONS[CONVENTION]["semidiameter_arcmin"],

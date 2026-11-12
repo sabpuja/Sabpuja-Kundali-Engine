@@ -45,7 +45,7 @@ import unittest
 
 from .common import EPHE, HERE, REPO, gold_chart_requests, parse_utc, real_data, request_at_utc
 from . import checkers, identity_v2, identity_v3, identity_v4, identity_v5, identity_v6, identity_v7, identity_v8
-from . import identity_v9, identity_v10
+from . import identity_v9, identity_v10, identity_v11
 from .phase_events import SideSwiss
 
 BASELINE = json.loads((HERE / "baseline-hashes.json").read_text(encoding="utf-8"))
@@ -237,19 +237,41 @@ class BaselineFilesTest(unittest.TestCase):
         self.assertEqual((result["v9_modified"], result["v9_added"], result["v1_unchanged"]), (3, 32, 209))
 
     def test_current_tree_matches_v10_identity_manifest(self):
-        """v10 (current tree): v1 to v9 as before, the Panchanga package (M1, sun.py and vara.py) byte-identical to
-        7d9d10a, the 4 modified report files and the 6 added files of KUN-RC-ESS-001, and nothing else."""
+        """v10: on the exact tree of its audited commit 30bdace (draft PR #93), v1 to v9 as before, the Panchanga
+        package (M1, sun.py and vara.py) byte-identical to 7d9d10a, the 4 modified report files and the 6 added
+        files of KUN-RC-ESS-001, and nothing else.
+
+        Before KUN-PAN-VARA-G2-001 this ran on the working tree, which is now checked through v11."""
         v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 = identity_v10.load_committed(REPO)
-        self.assertEqual(identity_v10.verify_tree(REPO, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10),
+        self.assertEqual(identity_v10.verify_commit(REPO, identity_v11.BASE_COMMIT, v1, v2, v3, v4, v5, v6, v7, v8,
+                                                    v9, v10),
                          {"v1_unchanged": 209, "v5_packet": 42, "v5_record": 1, "v10_package": 8,
                           "v10_modified": 4, "v10_added": 6})
 
     def test_v10_manifest_reproduces_from_exact_commits(self):
-        """v10 regenerates byte for byte at HEAD; 7d9d10a satisfies v9; 7d9d10a..HEAD is exactly v10."""
+        """v10 regenerates byte for byte at 30bdace; 7d9d10a..30bdace is exactly v10 (before
+        KUN-PAN-VARA-G2-001: HEAD)."""
         v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 = identity_v10.load_committed(REPO)
-        self.assertEqual(identity_v10.generate(REPO), (REPO / identity_v10.V10_PATH).read_bytes())
-        result = identity_v10.verify_git_v10(REPO, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)
+        self.assertEqual(identity_v10.generate(REPO, commit=identity_v11.BASE_COMMIT),
+                         (REPO / identity_v10.V10_PATH).read_bytes())
+        result = identity_v10.verify_git_v10(REPO, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10,
+                                             commit=identity_v11.BASE_COMMIT)
         self.assertEqual((result["v10_modified"], result["v10_added"], result["v1_unchanged"]), (4, 6, 209))
+
+    def test_current_tree_matches_v11_identity_manifest(self):
+        """v11 (current tree): v1 to v10 as before, the other 6 Panchanga package files byte-identical to 30bdace,
+        and the 32 modified files of KUN-PAN-VARA-G2-001 (status, provenance, pins, fixtures), and nothing else."""
+        *prior, v11 = identity_v11.load_committed(REPO)
+        self.assertEqual(identity_v11.verify_tree(REPO, *prior, v11),
+                         {"v1_unchanged": 209, "v5_packet": 42, "v5_record": 1, "v11_package": 6,
+                          "v11_modified": 32})
+
+    def test_v11_manifest_reproduces_from_exact_commits(self):
+        """v11 regenerates byte for byte at HEAD; 30bdace satisfies v10; 30bdace..HEAD is exactly v11."""
+        *prior, v11 = identity_v11.load_committed(REPO)
+        self.assertEqual(identity_v11.generate(REPO), (REPO / identity_v11.V11_PATH).read_bytes())
+        result = identity_v11.verify_git_v11(REPO, *prior, v11)
+        self.assertEqual((result["v11_modified"], result["v1_unchanged"]), (32, 209))
 
     def test_v2_manifest_reproduces_from_exact_commits(self):
         """v2 regenerates byte for byte from git objects and binds to 6722b5c, 3ba9f5b and fee3967."""

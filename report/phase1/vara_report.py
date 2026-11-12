@@ -2,7 +2,8 @@
 
 Display only. The page shows one validated `sabpuja-panchanga-vara/1` document, produced by
 src/sabpuja_kundali/panchanga/vara.py from the QA-accepted sunrise module (convention SUN-D-IMD-47 at
-the birthplace, PAN-D03 adopted for development only). This module never calls the engine.
+the birthplace; PAN-D03, D05, D11-B and D17 owner-adopted on 2026-11-12 for customer release of the English
+Essentials edition only, PR #93 comment 6822876554). This module never calls the engine.
 
 It is drawn only in the separate opt-in edition `extended-panchanga-m2-vara/1`:
 
@@ -49,16 +50,17 @@ CATALOG = json.loads(CATALOG_PATH.read_text(encoding='utf-8'))
 STRINGS = CATALOG['strings']
 
 SCHEMA = 'sabpuja-panchanga-vara/1'
-STATUS = 'DEVELOPMENT_PREVIEW_NOT_FOR_CUSTOMERS'
-CLAIM_BOUNDARY = ("Development output for independent QA only. Not customer-facing. Sunrise and sunset are "
-                  "calculated for the birthplace with a sea-level, level-horizon, geocentric model under the "
-                  "IMD 47' definition; they do not establish when the Sun was actually visible. Times are "
-                  "approximate to the minute. Published USNO and IMD times agree within a coarse 120 s "
-                  "screen, which is not an accuracy claim, and IMD's four-city tables are not reproduced by "
-                  "one depression angle.")
+STATUS = 'OWNER_ADOPTED_FOR_ESSENTIALS_EN_CUSTOMER_RELEASE'
+CLAIM_BOUNDARY = ("Owner-adopted method (PAN-D03, PAN-D05, PAN-D11-B, PAN-D17; PR #93 comment 6822876554) "
+                  "for customer release of the English Janam Kundali Essentials edition only, with engineering "
+                  "tests and an independent scientific review. Sunrise and sunset are calculated for the "
+                  "birthplace with a sea-level, level-horizon, geocentric model under the IMD 47' definition; "
+                  "they are not observations, do not establish when the Sun was actually visible, and no "
+                  "physical accuracy is certified. Times are approximate to the minute. Other Panchangs may use "
+                  "another sunrise rule or reference place and can differ.")
 # SHA-256 of the canonical JSON of vara.METHOD (sorted keys, no spaces). Pinned by the tests; a document
 # from another method revision or convention is refused, never shown.
-METHOD_SHA256 = 'fc0d5a682df2d93c27eb20c720b60e3c7574084462d782ed201f9d50b17def5f'
+METHOD_SHA256 = '540a5c2fa4cfe69de1c842a61d22476a31559d5be6ce210ad820a4db32484a59'
 EDITION = 'extended-panchanga-m2-vara/1'
 PAGE_KEY = 'sunrise'
 NEAR_SECONDS = 300

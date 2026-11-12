@@ -1,9 +1,16 @@
-"""Sunrise, sunset and Vara for Panchanga M2 (KUN-PAN-M2-SUN-001): validation module, NOT integrated.
+"""Sunrise, sunset and Vara for Panchanga M2 (KUN-PAN-M2-SUN-001).
 
-Status: ENGINEERING_UNVERIFIED_PENDING_INDEPENDENT_QA. Nothing here is wired into
-`sabpuja-panchanga/1`, the chart, or any report. PAN-D03, D04, D05, D11 and D17 are
-still PENDING owner decisions; this module exists so the conventions can be compared
-and validated before one is adopted.
+Status: ENGINEERING_TESTED_AND_INDEPENDENTLY_REVIEWED (KUN-PAN-VARA-G2-001). Engineering
+tests and independent QA (PR #82 at c759c41), and an independent scientific review of
+sunrise, sunset and Vara (KUN-PAN-VARA-RELEASE-001: an independent ERFA solar model and
+published USNO and IMD times). Calculated under stated model assumptions, not observed;
+no physical sunrise accuracy is certified. Not wired into `sabpuja-panchanga/1` or the
+chart; the only report use is through `vara.py`, with `SUN-D-IMD-47`.
+
+The owner adopted PAN-D03 (`SUN-D-IMD-47` at the birthplace), PAN-D05, PAN-D11-B and
+PAN-D17 on 2026-11-12 for customer release of the 14-page English Janam Kundali
+Essentials edition only (PR #93 comment 6822876554). `SUN-A-USNO-50` stays a comparison
+convention and is not adopted for any report.
 
 No default convention. Every call names one of `CONVENTIONS` explicitly; a missing,
 unknown or non-string value is refused (`SUNRISE_CONVENTION_REQUIRED`). The two
@@ -34,7 +41,7 @@ cross-check in the tests. The root is bracketed by 5-minute samples plus the ref
 daily altitude extrema, then bisected on integer microseconds, so a found event is
 converged by construction; the residual altitude is still checked.
 
-Day convention (PAN-D05 as proposed): the sunrise of local civil date D is the rising
+Day convention (PAN-D05, adopted 2026-11-12): the sunrise of local civil date D is the rising
 that falls in [00:00 D, 00:00 D+1) of the IANA zone (DST days are 23 or 25 hours long).
 The sunset of that day is the first setting after that sunrise, within 24 hours.
 Vara is the weekday of the local civil date of the most recent sunrise at or before
@@ -43,7 +50,7 @@ reported beside it; Vara is never filled from it.
 
 A physically undefined event (Sun continuously above, or no crossing on that local
 date) is a typed `unavailable` with reason `PANCHANGA_SUNRISE_UNDEFINED`
-(PAN-D11-B as proposed). Ephemeris, Swiss and numerical failures raise.
+(PAN-D11-B, adopted 2026-11-12). Ephemeris, Swiss and numerical failures raise.
 """
 from __future__ import annotations
 
@@ -58,7 +65,14 @@ from ..timezones import get_zone
 
 SCHEMA = "sabpuja-panchanga-sun/0 (validation only, not a customer contract)"
 METHOD_ID = "KUN-PAN-M2-SUN-001"
-VALIDATION_STATUS = "ENGINEERING_UNVERIFIED_PENDING_INDEPENDENT_QA"
+VALIDATION_STATUS = "ENGINEERING_TESTED_AND_INDEPENDENTLY_REVIEWED"
+# Owner decision per convention. Only SUN-D-IMD-47 is adopted, and only for the Essentials edition.
+CONVENTION_STATUS = {
+    "SUN-D-IMD-47": "ADOPTED by the owner as PAN-D03 at the birthplace, 2026-11-12, for customer release of "
+                    "janam-kundali-essentials-en/1 only (PR #93 comment 6822876554); named explicitly by the "
+                    "caller, no default",
+    "SUN-A-USNO-50": "COMPARISON ONLY: not adopted for any report; named explicitly by the caller, no default",
+}
 
 CONVENTIONS = {
     "SUN-D-IMD-47": {
@@ -372,7 +386,7 @@ def _method(name: str, conv: dict) -> dict[str, object]:
         "method_id": METHOD_ID,
         "validation_status": VALIDATION_STATUS,
         "convention": name,
-        "convention_status": "PENDING owner decision PAN-D03; named explicitly by the caller, no default",
+        "convention_status": CONVENTION_STATUS[name],
         "depression_arcmin": conv["depression_arcmin"],
         "refraction_arcmin": conv["refraction_arcmin"],
         "semidiameter_arcmin": conv["semidiameter_arcmin"],
@@ -405,8 +419,9 @@ def sun_day(local_date: object, latitude: object, longitude: object, timezone_na
     return {
         "schema": SCHEMA,
         "validation_status": VALIDATION_STATUS,
-        "claim_boundary": "Validation output for independent QA only. Not customer-facing and not part of "
-                          "sabpuja-panchanga/1 or any report.",
+        "claim_boundary": "Calculated sunrise and sunset under the named convention and stated model assumptions, "
+                          "not observations; no physical accuracy is certified. Reports use them only through "
+                          "the Vara document; not part of sabpuja-panchanga/1.",
         "method": _method(convention, conv),
         "local_date": civil.isoformat(),
         "civil_weekday": CIVIL_IDS[(civil.weekday() + 1) % 7],

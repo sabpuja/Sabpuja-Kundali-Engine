@@ -582,8 +582,8 @@
  },
  "vara": {
   "schema": "sabpuja-panchanga-vara/1",
-  "status": "DEVELOPMENT_PREVIEW_NOT_FOR_CUSTOMERS",
-  "claim_boundary": "Development output for independent QA only. Not customer-facing. Sunrise and sunset are calculated for the birthplace with a sea-level, level-horizon, geocentric model under the IMD 47' definition; they do not establish when the Sun was actually visible. Times are approximate to the minute. Published USNO and IMD times agree within a coarse 120 s screen, which is not an accuracy claim, and IMD's four-city tables are not reproduced by one depression angle.",
+  "status": "OWNER_ADOPTED_FOR_ESSENTIALS_EN_CUSTOMER_RELEASE",
+  "claim_boundary": "Owner-adopted method (PAN-D03, PAN-D05, PAN-D11-B, PAN-D17; PR #93 comment 6822876554) for customer release of the English Janam Kundali Essentials edition only, with engineering tests and an independent scientific review. Sunrise and sunset are calculated for the birthplace with a sea-level, level-horizon, geocentric model under the IMD 47' definition; they are not observations, do not establish when the Sun was actually visible, and no physical accuracy is certified. Times are approximate to the minute. Other Panchangs may use another sunrise rule or reference place and can differ.",
   "method": {
    "method_id": "KUN-PAN-RPT-002",
    "sun_module": {
@@ -592,7 +592,7 @@
     "functions": "sun.vara and sun.sun_day only"
    },
    "convention": "SUN-D-IMD-47",
-   "convention_decision": "PAN-D03 SUN-D-IMD-47 at the birthplace, adopted for the development stage only (PR #82 comment 6681108990); not released to customers",
+   "convention_decision": "PAN-D03 SUN-D-IMD-47 at the birthplace, with PAN-D05, PAN-D11-B and PAN-D17, adopted by the owner on 2026-11-12 for customer release of janam-kundali-essentials-en/1 only (PR #93 comment 6822876554); development stage earlier (PR #82 comment 6681108990)",
    "depression_arcmin": 47,
    "refraction_arcmin": 31,
    "semidiameter_arcmin": 16,
