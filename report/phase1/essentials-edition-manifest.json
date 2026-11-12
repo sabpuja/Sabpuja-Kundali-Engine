@@ -1,6 +1,6 @@
 {
  "edition": "janam-kundali-essentials-en/1",
- "catalog_sha256": "52b37d72e3a33af99bca279695a85612237ab3a0a978bde944a1d01c7e0f480a",
+ "catalog_sha256": "4d9a22e7d69ae1492cb9e2a5729fa16194b7db0976af2e8cbe3d8cf4cf24e9b3",
  "pages": 14,
  "locale": "en",
  "palette": "baseline",
@@ -8,7 +8,16 @@
   "method.exc5",
   "pm.status",
   "pm.status_title",
-  "v.status"
+  "v.after",
+  "v.before",
+  "v.intro",
+  "v.m.checks_value",
+  "v.m.convention_value",
+  "v.m.data_value",
+  "v.m.times_value",
+  "v.near",
+  "v.status",
+  "v.sub.outside"
  ],
  "note": "Every source file of the Essentials edition with its SHA-256. Regenerate with python -m report.phase1.essentials --write-manifest; a change here is a change to the edition.",
  "files": {
@@ -35,8 +44,8 @@
   "prototype/kundali_prototype/static/fonts/poppins-latin-ext-600-normal.woff2": "bb1f2d582e7fba586ab70c91ef062d3becaf78b887654953863521b73665d171",
   "prototype/kundali_prototype/static/fonts/poppins-latin-ext-700-normal.woff2": "ccfd87f69ef00d811da3d06488cec4e79ec99d289cfbcbe4be42031cecae775a",
   "report/phase1/display_name.py": "99001117e464d7c56483c75f09da6ea756660a1bdf17ad9d9170f69fb5f98e3d",
-  "report/phase1/essentials.py": "fec4f634a3fb56913e45a6742b954bfa6c0af2fa5857208ac1aa69f43aa9f055",
-  "report/phase1/essentials_en.json": "52b37d72e3a33af99bca279695a85612237ab3a0a978bde944a1d01c7e0f480a",
+  "report/phase1/essentials.py": "7634d28f47aa31b923027728d386e4b3387650c165a45acbd554b6df5e111949",
+  "report/phase1/essentials_en.json": "4d9a22e7d69ae1492cb9e2a5729fa16194b7db0976af2e8cbe3d8cf4cf24e9b3",
   "report/phase1/panchanga_names.json": "5a36628737fb5b89884a2c57db9679a5362cc62ac8004dd2950ac30a6b5e3dd3",
   "report/phase1/panchanga_names.py": "3c73fa4ada52b83642a4327ac7f72399f1e46e863efa982f490fc6d9b6375c91",
   "report/phase1/panchanga_report.py": "88f32b7e73f2b49e05b4db71d186bdcb9f3b00c88d97743b2841b88d62f5fa1f",

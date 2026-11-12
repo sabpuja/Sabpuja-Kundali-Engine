@@ -3,7 +3,9 @@
 Synthetic data only (the 25 cases of test_vara_report). Covers: every Essentials PDF is pinned by SHA-256; the
 10-, 13- and 14-page editions stay byte-identical, also after an Essentials render; the edition is 14 A4 pages in
 English with no document language, names off and customer mode; the development-preview and pending-QA notices
-and the "separate edition" Hindi line are replaced by the four catalog sentences and appear nowhere; the catalog
+and the "separate edition" Hindi line are replaced by catalog sentences and appear nowhere; the sunrise page carries
+the KUN-PAN-VARA-COPY-001 customer wording (no internal convention code, no Swiss call count, no doubled "after",
+no "Outside the supported dates" for a withheld in-range sunrise); the catalog
 and the edition manifest are pinned; Hindi, names, a missing Panchanga or Vara document and a malformed overlay
 are refused; nothing is written and no input is mutated; and, with SABPUJA_TEST_EPHE_PATH set, the in-memory
 form pipeline returns the same bytes and refuses bad requests with fixed messages that never quote the input.
@@ -157,6 +159,11 @@ class Edition(unittest.TestCase):
                 self.assertIn(es.OVERLAY['pm.status_title']['en'].upper(), pmethod)
                 self.assertIn(' '.join(es.OVERLAY['pm.status']['en'].split()), pmethod)
                 self.assertIn(es.OVERLAY['method.exc5']['en'], method)
+                for bad in ('SUN-D-IMD-47', 'Swiss calls', 'after after', 'before before', 'Outside the supported dates'):
+                    self.assertNotIn(bad, sunrise)
+                for key in ('v.m.convention_value', 'v.m.times_value', 'v.m.checks_value'):
+                    self.assertIn(' '.join(es.OVERLAY[key]['en'].split()), sunrise)
+                self.assertIn('Sunrise and sunset are calculated for the birthplace shown on page', sunrise)
                 # The engine's own claim boundary on the last page is kept as it is on the live report.
                 self.assertIn('UNVERIFIED_GOLDEN_CHARTS', method)
 

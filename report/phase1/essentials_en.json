@@ -3,11 +3,20 @@
   "catalog_version": 1,
   "edition": "janam-kundali-essentials-en/1",
   "wording_status": "PROPOSED_PENDING_OWNER_AND_INDEPENDENT_ENGLISH_QA",
-  "note": "KUN-RC-ESS-001 (KUN-RC-COM-001 phase 1). The frozen 14-page English Janam Kundali Essentials edition is the 14-page sunrise and Vara edition with only these sentences replaced. They replace the development-preview and pending-QA notices that are true of the opt-in development edition but not of a released one. English only: the edition has no Hindi text. The replacement must stay truthful: the values are calculated and independently reviewed for engineering, not certified, and the reader is asked to confirm them with a trusted Panchang. Owner and independent English QA approve the wording before any customer release.",
+  "note": "KUN-RC-ESS-001 (KUN-RC-COM-001 phase 1). The frozen 14-page English Janam Kundali Essentials edition is the 14-page sunrise and Vara edition with only these sentences replaced. They replace the development-preview and pending-QA notices that are true of the opt-in development edition but not of a released one. English only: the edition has no Hindi text. The replacement must stay truthful: the values are calculated and independently reviewed for engineering, not certified, and the reader is asked to confirm them with a trusted Panchang. Owner and independent English QA approve the wording before any customer release. KUN-PAN-VARA-COPY-001 adds English-only replacements for nine more sunrise and Vara page strings (scientific review KUN-PAN-VARA-RELEASE-001, R1-R6 and two minor fixes) and rewrites v.status (R2); the development catalogs are unchanged.",
   "strings": {
     "pm.status_title": {"en": "Validation status: reviewed calculation, not certified"},
     "pm.status": {"en": "These Panchanga values are calculated from the recorded birth details using the stated astronomical methods and Swiss Ephemeris. Independent engineering tests checked the calculation rules, event boundaries, and selected published lunar-phase references. These results are not certified for religious observances or muhurta. Please confirm important timings with a trusted local Panchang."},
-    "v.status": {"en": "Sunrise and sunset are calculated with the rule above, not observed, and are not certified. Please confirm them with a trusted local Panchang before relying on them for an observance."},
-    "method.exc5": {"en": "Hindi-language report"}
+    "v.status": {"en": "These times are calculated, not observed or certified. Another Panchang may use a different sunrise rule or reference city, so its times can differ, sometimes by many minutes. For religious observances, follow your trusted local Panchang or family priest."},
+    "method.exc5": {"en": "Hindi-language report"},
+    "v.after": {"en": "{hours} h {minutes} min"},
+    "v.before": {"en": "{hours} h {minutes} min"},
+    "v.intro": {"en": "The Vara is the weekday of the Panchanga. It runs from one local sunrise to the next, so a birth before sunrise keeps the Vara of the previous day. Sunrise and sunset are calculated for the birthplace shown on page {birth}."},
+    "v.m.checks_value": {"en": "The calculation was cross-checked against an independent astronomical model and compared with published sunrise tables. These are calculated times under stated assumptions, not observations; published times may differ by location, method and minute rounding."},
+    "v.m.convention_value": {"en": "The India Meteorological Department (IMD) rule, applied at the birthplace: the Sun's upper edge on the horizon, with 31′ refraction and 16′ semidiameter (its centre 47′ below the horizon); sunset uses the same rule. IMD's national Panchang day starts at a Central Station's sunrise; IMD also prints four-city tables."},
+    "v.m.data_value": {"en": "{schema}; Swiss Ephemeris {library}; ephemeris {manifest}; tzdata {package} (IANA {iana})."},
+    "v.m.times_value": {"en": "Rounded to the nearest minute, shown as \"about\"; actual sunrise can differ with weather and the horizon."},
+    "v.near": {"en": "The birth is within {minutes} minutes of the calculated sunrise (rounded times can show the same minute). A small error in the recorded time, another sunrise convention or the real horizon at the birthplace could put the birth on the other side of sunrise and change the Vara. The {minutes}-minute band is a cautious review prompt, not a measured accuracy."},
+    "v.sub.outside": {"en": "Not calculated; see below"}
   }
 }

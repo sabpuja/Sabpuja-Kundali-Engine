@@ -73,24 +73,24 @@
   },
   "added": {
     "report/phase1/essentials-edition-manifest.json": {
-      "sha256": "9b0576de76111ef1cc1e15801ab11481ec42718de543327fa0812f4710ae8852",
-      "git_blob": "7ce673bf7a19ac5ca89f5d6552580d0586689bd0"
+      "sha256": "2f5218d19454855799b93abf89a49f563a79a5ee388f1849751ce6e696846b14",
+      "git_blob": "a2dac880c426c9740e0941ff3186884eae624953"
     },
     "report/phase1/essentials.py": {
-      "sha256": "fec4f634a3fb56913e45a6742b954bfa6c0af2fa5857208ac1aa69f43aa9f055",
-      "git_blob": "6ae0696911ec52176e24e082b5367d0374c257bf"
+      "sha256": "7634d28f47aa31b923027728d386e4b3387650c165a45acbd554b6df5e111949",
+      "git_blob": "b96d5f63ac039f2c4ef9aecc94cbda1bbc2e172b"
     },
     "report/phase1/essentials_en.json": {
-      "sha256": "52b37d72e3a33af99bca279695a85612237ab3a0a978bde944a1d01c7e0f480a",
-      "git_blob": "2b2d3a5fa051f41a827de71a7c1a7c92b7e5c65f"
+      "sha256": "4d9a22e7d69ae1492cb9e2a5729fa16194b7db0976af2e8cbe3d8cf4cf24e9b3",
+      "git_blob": "a21bbf0aff900c48f75b63f66017dd10ea39621c"
     },
     "report/phase1/tests/fixtures/essentials-en-sha256.json": {
-      "sha256": "a1a70b201d4b654bbd729ce065403285cd8e4c69b8e64493fec3ee8495c37191",
-      "git_blob": "26911fb0250e7c38665f594bcc54b4bebfe300b1"
+      "sha256": "8ca3b6379f701e2a76a2a61f14653124706add924e278498ba65c75c78ba06ad",
+      "git_blob": "fb857430ce27cb1dd8b963bb4355c9e961b6d4e2"
     },
     "report/phase1/tests/test_essentials.py": {
-      "sha256": "6c878ea7386b7fce2ad2cc9c3de3430f7f1a4c346e16579b835d9549ec1b8981",
-      "git_blob": "9196a98424025c14ca4e88ff8881ccba794909f9"
+      "sha256": "b38231ca53cee7cbfeab8b800c09bf9a23d03359eabb53af89bab4d1710fb8d3",
+      "git_blob": "ab1faeaf1a5b44c3294a15d060f20415aa8fcee2"
     },
     "report/phase1/tools/make_essentials_pins.py": {
       "sha256": "b3920d05f586ad92a23dddb56884f15ad7c5ff2f9ee28648ac8007af72fa9def",
