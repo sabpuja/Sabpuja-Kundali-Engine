@@ -1,13 +1,16 @@
 """The frozen 14-page English Janam Kundali Essentials edition (KUN-RC-ESS-001, KUN-RC-COM-001 phase 1).
 
-Essentials is the opt-in 14-page sunrise and Vara edition (KUN-PAN-RPT-002) with three fixed choices and four
-sentences replaced, nothing else:
+Essentials is the opt-in 14-page sunrise and Vara edition (KUN-PAN-RPT-002) with three fixed choices and a few
+English sentences replaced, nothing else:
 
 * English only. Any other locale is refused; the edition has no Hindi text.
 * Traditional Tithi, Karana and Yoga names stay off (names=None). The QA preview and customer names are refused.
 * The owner's report palette ("baseline", OD-10) and customer mode (synthetic=False), as on the preview route.
 * `essentials_en.json` replaces the development-preview and pending-QA notices of pages 12 and 13 and the
   ten-page "Hindi ... separate edition" exclusion, which would be untrue of an English-only paid edition.
+* It also replaces nine sunrise and Vara page strings with customer English (KUN-PAN-VARA-COPY-001, from the
+  scientific review KUN-PAN-VARA-RELEASE-001: method wording R1-R6, the first-supported-date note and the
+  Birth and sunrise card). Text only: no value, rule or layout changes, and the development catalogs are unchanged.
 
 The renderers are called through their existing entry point with a validated overlay; without the overlay they are
 unchanged, so the 10-, 13- and 14-page pins stay byte-identical. `essentials-edition-manifest.json` pins every
@@ -37,10 +40,11 @@ EDITION = 'janam-kundali-essentials-en/1'
 LOCALE = 'en'
 PALETTE = 'baseline'
 CATALOG_PATH = ROOT / 'essentials_en.json'
-CATALOG_SHA256 = '52b37d72e3a33af99bca279695a85612237ab3a0a978bde944a1d01c7e0f480a'
+CATALOG_SHA256 = '4d9a22e7d69ae1492cb9e2a5729fa16194b7db0976af2e8cbe3d8cf4cf24e9b3'
 MANIFEST_PATH = ROOT / 'essentials-edition-manifest.json'
 PAGES = 14
-OVERLAY_KEYS = ('method.exc5', 'pm.status', 'pm.status_title', 'v.status')
+OVERLAY_KEYS = ('method.exc5', 'pm.status', 'pm.status_title', 'v.after', 'v.before', 'v.intro', 'v.m.checks_value',
+                'v.m.convention_value', 'v.m.data_value', 'v.m.times_value', 'v.near', 'v.status', 'v.sub.outside')
 # Released only when the owner approves the wording in chat after independent English QA (KUN-RC-COM-001).
 WORDING_STATUS_RELEASED = 'APPROVED_FOR_CUSTOMER_RELEASE'
 
