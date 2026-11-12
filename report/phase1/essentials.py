@@ -40,12 +40,13 @@ EDITION = 'janam-kundali-essentials-en/1'
 LOCALE = 'en'
 PALETTE = 'baseline'
 CATALOG_PATH = ROOT / 'essentials_en.json'
-CATALOG_SHA256 = '4d9a22e7d69ae1492cb9e2a5729fa16194b7db0976af2e8cbe3d8cf4cf24e9b3'
+CATALOG_SHA256 = '4a2a077bf201777922ad6c205ea54fb89ef721b88698ee972bb4d3744c83fed5'
 MANIFEST_PATH = ROOT / 'essentials-edition-manifest.json'
 PAGES = 14
 OVERLAY_KEYS = ('method.exc5', 'pm.status', 'pm.status_title', 'v.after', 'v.before', 'v.intro', 'v.m.checks_value',
                 'v.m.convention_value', 'v.m.data_value', 'v.m.times_value', 'v.near', 'v.status', 'v.sub.outside')
 # Released only when the owner approves the wording in chat after independent English QA (KUN-RC-COM-001).
+# Approved 2026-11-12 for the copy at 30bdace (KUN-PAN-VARA-G2-001; PR #93 comment 6822876554).
 WORDING_STATUS_RELEASED = 'APPROVED_FOR_CUSTOMER_RELEASE'
 
 # Files the edition is drawn from, pinned by the manifest. Paths are repository-relative.

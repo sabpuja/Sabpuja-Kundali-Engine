@@ -161,8 +161,14 @@ class OverHttp(unittest.TestCase):
 @needs_data
 class ReleaseGate(unittest.TestCase):
     def test_refuses_until_wording_released(self):
+        from unittest import mock
         from report.phase1 import essentials
-        self.assertTrue(essentials.release_problems())          # wording not yet owner-approved
+        # The wording is owner-approved since KUN-PAN-VARA-G2-001; the gate itself must still fail closed
+        # whenever the edition reports a release problem.
+        self.assertEqual(essentials.release_problems(), [])
+        patch = mock.patch.object(essentials, "release_problems", lambda: ["Essentials wording is PROPOSED"])
+        self.addCleanup(patch.stop)
+        patch.start()
         hh = h.Harness(render=renderer.EssentialsRenderer(_places(), h.EPHE))   # production default
         hh.paid()
         cookie = hh.login()

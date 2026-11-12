@@ -1,0 +1,211 @@
+{
+  "manifest_schema": "sabpuja-pan-qa-08-identity/11",
+  "note": "PAN-QA-08 identity manifest v11 (KUN-PAN-VARA-G2-001). Declares the change relative to 30bdace (draft PR #93, the v10 tree) inside the v1 scope: status and provenance metadata of the sun and Vara modules after the owner adopted PAN-D03, PAN-D05, PAN-D11-B and PAN-D17 for the English Essentials edition (PR #93 comment 6822876554), the matching report pins, the 25 Vara fixtures (status, claim boundary and convention decision only) and the owner-approved Essentials wording status. The rest of the Panchanga package at 30bdace is pinned unchanged. v1 to v10 are preserved and bound here by their SHA-256. Generated from git objects only: python -m tests.panchanga.identity_v11 --check.",
+  "task": "KUN-PAN-VARA-G2-001",
+  "v10_manifest": {
+    "path": "tests/panchanga/identity-manifest-v10.json",
+    "sha256": "364813920ac3c99464364d6dfd433f80de2db90abef2ed2748c7fc819d284d9d",
+    "base_commit": "30bdacea14eac444f0dc3353b5922134a255c697",
+    "v9_sha256": "2cc5185269dfcefcd6f52a9c9df583ec7c8bd2fc8fbeec3c68f8d271a7ef9f4f",
+    "v8_sha256": "403a33310684feeb2a1f8251d6b132c812047f84b3171652b35dacce511b9cd3",
+    "v7_sha256": "e4bfc37ae5ec23be843d50418f3586161bc2be527dfec0dfcc1984136e96dd73",
+    "v6_sha256": "964f42f9c14916eebdedc5076c7cce57d5c3b2351bee3ec2aef6c68315039005",
+    "v5_sha256": "258312b69c9bf65ae6baf6cee0ef0b307fff22a1f6cd402a0f3f504a3d900d16",
+    "v4_sha256": "6f39046e8fc57e0129f67f96410fa4c5a3b3fefa4db7d65c8f27a8aa9602686b",
+    "v3_sha256": "9a2051d9fd74ef016b5d48e9cd182714028dbbb017fda2a3df89f494276f0e77",
+    "v2_sha256": "d2dea049b652df4ff3f02ce5064e211d3b7f0c97d222e085ce36826bc2f087da",
+    "v1_sha256": "2e913eda7bb60f6159463ee219b4ad840a7fa971bf66e39ac30b871158cb007e"
+  },
+  "package": {
+    "src/sabpuja_kundali/panchanga/__init__.py": {
+      "sha256": "ba0ed56c56bee95544ca82ed37771e4158a9dd7d6f5b52ba926b360063a6cdf1",
+      "git_blob": "64cac54bd3fb0873b165d5ff9c8435201749ef79"
+    },
+    "src/sabpuja_kundali/panchanga/__main__.py": {
+      "sha256": "a88c87bd9828ed05567f7c8eae44a4c5bb709130f688baf69e9ece84287fa44f",
+      "git_blob": "931acd04a30df8857805cba4e01d99aa351c235f"
+    },
+    "src/sabpuja_kundali/panchanga/astro.py": {
+      "sha256": "8a0e22e76589e747228ccf473377b2a818ee579d8803259b8af25c45bd031845",
+      "git_blob": "c520e1cfc658ec934661bc7ef282e9e20157199b"
+    },
+    "src/sabpuja_kundali/panchanga/contract.py": {
+      "sha256": "13d4a728f1433ad643ab7ad73d3cbbae848b63fb94721915ea2b00b43b2957fd",
+      "git_blob": "c0abfb63e7d1fdf3691a6cd0ecc79c9554cb109f"
+    },
+    "src/sabpuja_kundali/panchanga/rules.py": {
+      "sha256": "0ce2b94be3b9a68beb6467d4c654ad2fafe71f3e15a386120e3feadc340a8923",
+      "git_blob": "ae2bfff9a72d1ad1218f141e47ef46159fb5a933"
+    },
+    "src/sabpuja_kundali/panchanga/search.py": {
+      "sha256": "90bf47ad424004e4e39f67000cec087212ebb5cfe8f17ee72909f8ba735b536c",
+      "git_blob": "a85a36ab7ec58afed481ef4a26f272b38612e37f"
+    }
+  },
+  "modified": {
+    "report/phase1/essentials-edition-manifest.json": {
+      "before_sha256": "2f5218d19454855799b93abf89a49f563a79a5ee388f1849751ce6e696846b14",
+      "v11_sha256": "af7d4fe7185ed6e70ead47dc1b98d5bf2c74d437ee85fa66e883a7c15126e819",
+      "v11_git_blob": "0f0ff870c4b564f536aa0d7652733dcc8d88a797"
+    },
+    "report/phase1/essentials.py": {
+      "before_sha256": "7634d28f47aa31b923027728d386e4b3387650c165a45acbd554b6df5e111949",
+      "v11_sha256": "7167f04e27cc0cfbc231da18265875b15cd2c1de592c59b1eb2779a5dee2fa19",
+      "v11_git_blob": "24f2cdf40307cfe49936c61c299bae351b51a633"
+    },
+    "report/phase1/essentials_en.json": {
+      "before_sha256": "4d9a22e7d69ae1492cb9e2a5729fa16194b7db0976af2e8cbe3d8cf4cf24e9b3",
+      "v11_sha256": "4a2a077bf201777922ad6c205ea54fb89ef721b88698ee972bb4d3744c83fed5",
+      "v11_git_blob": "9d88551468493193ce66991de99004c997cded5c"
+    },
+    "report/phase1/tests/fixtures/vara-cases/v01-typical-afternoon.json": {
+      "before_sha256": "f170d36a5a30abc1efb792ff480f7134184cc227a6a1a07c2476b0c56996ac9e",
+      "v11_sha256": "ea4cd268a285b3fa8bd0ec0bb69e4e63c2779178c8ac4afcd8b89f37ed553dc8",
+      "v11_git_blob": "6a2b2fe710dde873cc997753a26b0133af7c8f82"
+    },
+    "report/phase1/tests/fixtures/vara-cases/v02-pre-sunrise-previous-vara.json": {
+      "before_sha256": "9f807755315981bec6cb02976e1d29891468810f015d38d78e24e624817ebf93",
+      "v11_sha256": "e116e2355834c2dc4f4cb73128af9d7dd6c50da31427b018f5a3656dfac1f70a",
+      "v11_git_blob": "de80acea6c02572f11bce70df78d20845f9785f1"
+    },
+    "report/phase1/tests/fixtures/vara-cases/v03-first-second-after-sunrise.json": {
+      "before_sha256": "92c808a193cfc50fb1c7ba24f242075da415b53d32749daaeebc47d568c401d0",
+      "v11_sha256": "ac92f03272fd2c2c691850c6133fbc6aabde663499d7d1b973a38be0cc69125a",
+      "v11_git_blob": "778352daa46b05c6c20e22a29d6cd63a11e96484"
+    },
+    "report/phase1/tests/fixtures/vara-cases/v04-last-second-before-sunrise.json": {
+      "before_sha256": "5382008fae8d4e20e73c9b7c467b6ced8286d8f36d6603e1f772dfc6e823ebc6",
+      "v11_sha256": "b40d12242d9fd02e907fec8c8c1d5ff2d3796cd09f5f7751a5715252e53a2e2e",
+      "v11_git_blob": "b3363db99c67687dbfd42a5ed5e5b50568174949"
+    },
+    "report/phase1/tests/fixtures/vara-cases/v05-inside-band-after.json": {
+      "before_sha256": "115f66c2543d3cb18d80dbc2d0a5af7085d1413db339cb6285373865da05a0a7",
+      "v11_sha256": "255ff3c7043923cd2faa86534795d8b796c17895337578778396661798181b2e",
+      "v11_git_blob": "d0e7cf465198bbf6bbb4c6e6bc1e5656fa9edbef"
+    },
+    "report/phase1/tests/fixtures/vara-cases/v06-outside-band-after.json": {
+      "before_sha256": "d184cdc9ca41cf4e24d02bb490a505d25bc506ef1775d8a758f45e6e3684d80c",
+      "v11_sha256": "4202b51918fd71e00443810963b1169e8182dfbb728a436ab8c51833084063ba",
+      "v11_git_blob": "844f4e68735ae09781c5b74c3097420356fbc656"
+    },
+    "report/phase1/tests/fixtures/vara-cases/v07-london-clocks-forward.json": {
+      "before_sha256": "3d4e2b33ff3ad45a7cf702ddde638066f5481cce111514cd1f865e9a04043c7c",
+      "v11_sha256": "e17d716fd21eba4b2aa1a4472bad9c2d2a28d808542422ab018e56fd30880325",
+      "v11_git_blob": "2b1bfaacbc7d230dbaf30fd43e17715149d05395"
+    },
+    "report/phase1/tests/fixtures/vara-cases/v08-london-repeated-hour.json": {
+      "before_sha256": "086e6b400053e7ffbf836eb4df9e4fcd0c62f3ed83fc695c001e37a4379a8b3c",
+      "v11_sha256": "c1d0f96e170436a6c0153e42360395711148cb0c64c2bc27e3fefc88417bae8d",
+      "v11_git_blob": "b31aead90481460ccef342170a8e0431ad0758ae"
+    },
+    "report/phase1/tests/fixtures/vara-cases/v09-dateline-kiritimati.json": {
+      "before_sha256": "9d917fe09208d2ab3b38c924ddc32f1404d17f0b6b33cbebafb0470b9ba6b92d",
+      "v11_sha256": "a32a31bda2aa6b36fd174ed682dfd9bed7ae90048f0efcc2269443d7f29606b5",
+      "v11_git_blob": "465e4378e7e305678c5a0c739b24c87ff6829e66"
+    },
+    "report/phase1/tests/fixtures/vara-cases/v10-polar-day-unavailable.json": {
+      "before_sha256": "0032bb54dd68ae86a3febe120ad35be673695f33948a21c9c75a7d50511c8a14",
+      "v11_sha256": "5f6bd5436fbe1bf14f82191f728103bc7791eef172f7ac21e61aa4c2cb8dbdbf",
+      "v11_git_blob": "e1de06cdb3a4d88fba23ba4ae23cc8cbbaf7a618"
+    },
+    "report/phase1/tests/fixtures/vara-cases/v11-vara-day-end-undefined.json": {
+      "before_sha256": "5f1c90f459f5230d07e79e5f672cbdaced4f023c7c19d1e55c06edf29ae91ff3",
+      "v11_sha256": "d3806f500f4c3bc15a0561d0eb2d5475e7a6c0f26410b6bd7d03875bc74f5f07",
+      "v11_git_blob": "793451ad2c99c3a8723b55ad4e81389014e7b14f"
+    },
+    "report/phase1/tests/fixtures/vara-cases/v12-sunset-after-midnight.json": {
+      "before_sha256": "97c1ce39914f62878da1a03a631eeccc8b2f8a0c9b00f55952e45d44fb161f38",
+      "v11_sha256": "d97013cdef07498d9c964eeb5638a656c6e695623972e497a868744d29abc525",
+      "v11_git_blob": "6425af280ac63bf05a5093867251c7e06c8f0907"
+    },
+    "report/phase1/tests/fixtures/vara/s01-first-supported-date.json": {
+      "before_sha256": "dfc34ec143de98cbfb6b91da19fe14186df0d81fd9a67b27bcaa4f7e7c46f800",
+      "v11_sha256": "3fd333f6e01a9325c7ab6a3ec16c115b7d2a745554b0499ae920bf6a937bb4db",
+      "v11_git_blob": "e09da11a9358e1bbca63e08d5cb686c3a4ac85cd"
+    },
+    "report/phase1/tests/fixtures/vara/s02-last-supported-date.json": {
+      "before_sha256": "fb2a1e3ec1286523fbd6a8ff37fd41aab8155e47f8529decf145b34e45decd3c",
+      "v11_sha256": "39486b2199bb0a917f9c04d400757a65048f9b10a43292753bc562de41c50fb0",
+      "v11_git_blob": "c8c3b8f2794609f7a67ed699d643ce1e1d89b38b"
+    },
+    "report/phase1/tests/fixtures/vara/s03-crowded-d1-house.json": {
+      "before_sha256": "f7ab37430ce469e85e280949bcc5f8053d9fcb7f714d0fe4ae73ad8d12d02cc2",
+      "v11_sha256": "6c800b0d3b88a49d9b612050d8a775b18f33c71d9292277acd147db1e688bc32",
+      "v11_git_blob": "a5f5f667aa7cc2cdcfb2ed04d38ba628ed787650"
+    },
+    "report/phase1/tests/fixtures/vara/s04-crowded-d9-house.json": {
+      "before_sha256": "ecb487d6bd452cd3f94b2bbfcae0fcad9531fd74dbda50cda7004f3507a8ffe4",
+      "v11_sha256": "4337c43b8c620ce67dd63d93a36f544a8f381f4069600f603b0cc7e7a85a780d",
+      "v11_git_blob": "20bc1d582a47c1578a8cf1d34479944ee8fc24a0"
+    },
+    "report/phase1/tests/fixtures/vara/s05-graha-near-boundary.json": {
+      "before_sha256": "8df1c3dd51ecf6374967a82d61d45f2be38f6e096893744a9b57ebf348ed46a8",
+      "v11_sha256": "762f170088a05a1f100680d034708e31a91954fb9e47e13a6626772afdb4b63a",
+      "v11_git_blob": "7e65ceb8f7ad715dccd468851007cfd9936cffcd"
+    },
+    "report/phase1/tests/fixtures/vara/s06-lagna-near-boundary.json": {
+      "before_sha256": "9ebd09420fb67cdbf3f6053a7109d0ba4fc908e540fc8b7dc04cee6fab83c558",
+      "v11_sha256": "56743a739c7efe96bfe7f7b3e7f11f761e8e2bda96b48aa2f68f5915dd977643",
+      "v11_git_blob": "43b0651041575879d8420e7577b3f1882d02f349"
+    },
+    "report/phase1/tests/fixtures/vara/s07-noon.json": {
+      "before_sha256": "4389e3ee4c08c11f18cd7bd9778bef7ed8f71a26aadf1fb1f3b675df4abb6dc0",
+      "v11_sha256": "d171f28f6841e6ee4245ee9d35344dbd9e53aabf0ba687c005a0bd4500d6db09",
+      "v11_git_blob": "b66385b62d547d2b28e18f136fbd0a206d9b10b7"
+    },
+    "report/phase1/tests/fixtures/vara/s08-dawn.json": {
+      "before_sha256": "0f3539738e32fa87504b3118fee63448fd6087e3520f2edb4fbae414a013f4a1",
+      "v11_sha256": "42d3dc7bf5d0229d6bc736d8aad14cf2a4b6d5bf34488aad6fecbcef0ef0a685",
+      "v11_git_blob": "3b63a8ad4ce637607b3b901a5bd4e8bf05af5937"
+    },
+    "report/phase1/tests/fixtures/vara/s09-evening.json": {
+      "before_sha256": "67b3a316eaa0e335d0a6411611929b599e519733f5f85e124461814e4dbfc08d",
+      "v11_sha256": "06f23191d7f43245d3b2ea8dfe055c8473b377a06ac53b23d0c04266c39a00d2",
+      "v11_git_blob": "7520c5e663eb38bd7a3b3932770e994a8f079761"
+    },
+    "report/phase1/tests/fixtures/vara/s10-late-night.json": {
+      "before_sha256": "03be13c5b606bec3d44725300fa53b65fc24ae127b3ae7a9983714ed577dea67",
+      "v11_sha256": "6476107f8ce07c3deea1f208da9ebbe5450ed062c1cb78255edaa5ca816715a3",
+      "v11_git_blob": "b4f6670907e70895f7c087c8f99596ee54227444"
+    },
+    "report/phase1/tests/fixtures/vara/s11-afternoon.json": {
+      "before_sha256": "1140f6479c19f09285179d3bc84687d5add4b958f1643af91d0a12e21aff1f49",
+      "v11_sha256": "3b397878004999d027d717bd80570d9199cb24823a4db7c5186d4a52e70a3580",
+      "v11_git_blob": "e70d3188a7ce2ec08d26958e809b8474e6e8976b"
+    },
+    "report/phase1/tests/fixtures/vara/s12-morning.json": {
+      "before_sha256": "41516a14c660ee88187a33e76ec11203dbac5377243567335f820ef85669793e",
+      "v11_sha256": "97f20e2566af77f9db272d5beed73ffb6daace0d0339ecdf546bdf13aec439d1",
+      "v11_git_blob": "d60a60e50f511637c6ec2df7598b9a27d971e933"
+    },
+    "report/phase1/tests/fixtures/vara/s13-remaining-lagna.json": {
+      "before_sha256": "47cb669a7f5d1658786cc57e3151b3bbcd627ddfeba3a596bf76f81418bda965",
+      "v11_sha256": "c3ac0f066a0917a0cb96d4c2c54a9553192992036f6c3e96dc59b595ceedc991",
+      "v11_git_blob": "9b9b0740645db97d9efe155d75894c3a6c3fe4a6"
+    },
+    "report/phase1/tests/test_essentials.py": {
+      "before_sha256": "b38231ca53cee7cbfeab8b800c09bf9a23d03359eabb53af89bab4d1710fb8d3",
+      "v11_sha256": "a95dcbc462d4ed0a66d18955b7183a901ce73aeb686a97416a2bf1cafa5428aa",
+      "v11_git_blob": "616770f6d4870e57b9eae72c757da917ada7b12d"
+    },
+    "report/phase1/vara_report.py": {
+      "before_sha256": "af4bc3e87a930c0e54bf27a0eb2b7c531530429ad1fba3e4a3b499c24a773abe",
+      "v11_sha256": "316312d8e4794ac81317decaf4c6b837381a1e4483dd18c3ada58be25dc04bbd",
+      "v11_git_blob": "b5c15f27cd0d6a01b4b81fdde9976476ab1aea33"
+    },
+    "src/sabpuja_kundali/panchanga/sun.py": {
+      "before_sha256": "901e31d58cd87d860f155880b6a8c8ab306dc3ed992273ac9039d8c9463c6f53",
+      "v11_sha256": "34a29d8c868e5e27331105c8cc72b9c56a4aa2832fa4cda815157ec11f569b1b",
+      "v11_git_blob": "6e3ebe9338fd81f8c6debaa52e16ce4dba394c43"
+    },
+    "src/sabpuja_kundali/panchanga/vara.py": {
+      "before_sha256": "709d6f8676c921561e60a058a32d82eeca5e0613477ddb3e7d832ba2584e5ac6",
+      "v11_sha256": "de550b4b54b5490b4cd9f403962db75961a25907a48ba08c7e1c58de6097a7ca",
+      "v11_git_blob": "ebf69ea50b0520a71f2b6a8f3c38915f9c54317e"
+    }
+  },
+  "counts": {
+    "modified": 32,
+    "package": 6
+  }
+}

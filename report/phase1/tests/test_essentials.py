@@ -16,6 +16,7 @@ import json
 import os
 import sys
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import fitz
@@ -35,9 +36,11 @@ PINS_PATH = HERE / 'fixtures/essentials-en-sha256.json'
 PINS_14 = json.loads(vt.PINS_14_PATH.read_text())['sha256']
 PRIMARY = vt.PRIMARY
 NAME = 'Asha Verma'   # synthetic
-FORBIDDEN = ('Development preview', 'not for customers', 'ENGINEERING_UNVERIFIED', 'PENDING_INDEPENDENT_QA',
+FORBIDDEN = ('Development preview', 'not for customers', 'NOT_FOR_CUSTOMERS', 'OWNER_ADOPTED', 'PR #93', 'ENGINEERING_UNVERIFIED', 'PENDING_INDEPENDENT_QA',
              'not yet been independently verified', 'separate edition', 'await independent QA', 'human review')
 _CACHE = {}
+# SHA-256 of the canonical JSON of the 13 approved overlay strings at 30bdace (sorted keys, UTF-8).
+APPROVED_STRINGS_SHA256 = '70f0972351baa619b3f1f176994c78b647a8cd0c8ece117ddd9e057e0fbd1b12'
 
 
 def matrix():
@@ -91,9 +94,19 @@ class Pinned(unittest.TestCase):
                   'prototype/kundali_prototype/server.py'):
             self.assertIn(p, files)
 
-    def test_wording_not_released_until_owner_approval(self):
-        self.assertNotEqual(es.release_problems(), [])
-        self.assertEqual(es.CATALOG['wording_status'], 'PROPOSED_PENDING_OWNER_AND_INDEPENDENT_ENGLISH_QA')
+    def test_wording_released_only_by_the_owner_approval(self):
+        # KUN-PAN-VARA-G2-001: the owner approved the exact copy of PR #93 at 30bdace (comment 6822876554).
+        self.assertEqual(es.CATALOG['wording_status'], 'APPROVED_FOR_CUSTOMER_RELEASE')
+        self.assertEqual(es.release_problems(), [])
+        # The gate itself still fails closed for any other status.
+        for status in ('PROPOSED_PENDING_OWNER_AND_INDEPENDENT_ENGLISH_QA', 'APPROVED', '', None):
+            with self.subTest(status=status), mock.patch.dict(es.CATALOG, {'wording_status': status}):
+                self.assertEqual(es.release_problems(), [f'Essentials wording is {status}'])
+
+    def test_approved_strings_are_the_reviewed_copy(self):
+        # Every overlay string is byte-identical to PR #93 at 30bdace; only the status and note changed.
+        self.assertEqual(hashlib.sha256(json.dumps(es.CATALOG['strings'], ensure_ascii=False, sort_keys=True)
+                                        .encode('utf-8')).hexdigest(), APPROVED_STRINGS_SHA256)
 
 
 class OtherEditionsUnchanged(unittest.TestCase):
