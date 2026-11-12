@@ -38,7 +38,7 @@ from . import identity_v9 as v9m
 from .identity_v2 import IdentityError, HEX40, HEX64, REPO, blob_id, sha256
 
 V10_PATH = "tests/panchanga/identity-manifest-v10.json"
-V10_SHA256 = "ae62936a4393746a5af86bc80b4e518ca1357e89f2b2c48928b0b1b7899adb32"
+V10_SHA256 = "364813920ac3c99464364d6dfd433f80de2db90abef2ed2748c7fc819d284d9d"
 SCHEMA = "sabpuja-pan-qa-08-identity/10"
 TASK = "KUN-RC-ESS-001"
 BASE_COMMIT = "7d9d10aeca82380946fe5435ee6d0b0c5fe79273"   # draft PR #84 head after independent QA: the v9 tree
